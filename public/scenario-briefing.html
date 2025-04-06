@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="NLI BRAIN RGB small.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Scenario Briefing - NLI Skills Practice</title>
+  
+  <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 300;
+      background-color: #f9f9f9;
+      color: #4D4D4D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+    
+    header {
+      background: linear-gradient(to right, #005575, #0095C8);
+      padding: 1.5rem 0;
+      border-bottom: 4px solid #F9F9F9;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 1rem;
+      position: relative;
+    }
+    
+    .header-title {
+      color: white;
+      font-weight: 700;
+      margin-right: auto; /* Pushes the title to the left */
+      padding-left: 0.5rem;
+    }
+    
+    .header-logo {
+      height: 45px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      padding-right: 0.5rem;
+    }
+    
+    .back-button {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+      margin-right: 1rem;
+    }
+    
+    .back-button:hover {
+      opacity: 0.8;
+    }
+
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem 9rem 1rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      min-height: calc(100vh - 140px);
+    }
+    
+    .page-title {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: #005575;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .scenario-name {
+      font-size: 1.5rem;
+      color: #0095C8;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .briefing-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      width: 100%;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    
+    .section-title {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #005575;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+    
+    .briefing-card p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .briefing-card ul {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+    
+    .briefing-card li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .scenario-image {
+      width: 120px;
+      height: 120px;
+      border-radius: 60px;
+      overflow: hidden;
+      margin: 0 auto 1.5rem auto;
+      border: 3px solid #E9E9E9;
+      padding: 3px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .scenario-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+    
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .cta-button {
+      background: #F37322;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .cta-button:hover {
+      background: #e86615;
+    }
+    
+    .secondary-button {
+      background: transparent;
+      color: #0095C8;
+      border: 2px solid #0095C8;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .secondary-button:hover {
+      background: #0095C8;
+      color: white;
+    }
+    
+    footer {
+      background: #4D4D4D;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+      color: white;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 400;
+      transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+      color: #0095C8;
+      text-decoration: underline;
+    }
+    
+    .logo {
+      height: 30px;
+      width: auto;
+      margin-top: 0.625rem;
+    }
+    
+    /* Loading state */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 3rem 0;
+    }
+    
+    .loading-spinner {
+      border: 4px solid rgba(0, 149, 200, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid #0095C8;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Error state */
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="left-header" style="display: flex; align-items: center;">
+      <a href="skills-practice.html" class="back-button">← Back</a>
+      <h1 class="header-title" style="margin-left:.5rem;">Scenario Briefing</h1>
+    </div>
+    <img src="NLI.png" alt="NLI Logo" class="header-logo">
+  </div>
+</header>
+
+<div id="main-content">
+  <div id="loading" class="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading scenario briefing...</p>
+  </div>
+  
+  <div id="briefing-content" style="display: none; width: 100%;">
+    <h2 class="page-title">Your Scenario Briefing</h2>
+    <h3 class="scenario-name" id="scenario-name"></h3>
+    
+    <div class="scenario-image">
+      <img id="scenario-image" src="" alt="Scenario Partner">
+    </div>
+    
+    <div class="briefing-card">
+      <div id="briefing-text"></div>
+    </div>
+    
+    <div class="actions">
+      <a href="skills-practice.html" class="secondary-button">Choose Another Scenario</a>
+      <button class="cta-button" id="start-session-button">Start Practice Session</button>
+    </div>
+  </div>
+  
+  <div id="error-message" class="error-message" style="display: none;">
+    Could not load the scenario briefing. Please try again or select a different scenario.
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://neuroleadership.com" target="_blank">About NLI</a>
+    <a href="https://neuroleadership.com/podcast/" target="_blank">Resources</a>
+    <a href="mailto:niles@neuroleadership.com">Support</a>
+  </div>
+  <img src="NLI.png" alt="NLI Logo" class="logo">
+  <p style="margin-top: 1rem; font-weight: 300; font-size: 0.875rem;">© 2025 NLI. All rights reserved.</p>
+</footer>
+
+<script>
+// Get scenario information from localStorage
+function getScenarioInfo() {
+  try {
+    const selectedScenario = localStorage.getItem('selectedScenario');
+    const selectedAgentId = localStorage.getItem('selectedAgentId');
+    
+    if (!selectedScenario || !selectedAgentId) {
+      throw new Error('No scenario selected');
+    }
+    
+    return { 
+      name: selectedScenario,
+      agentId: selectedAgentId
+    };
+  } catch (error) {
+    console.error('Error getting scenario information:', error);
+    return null;
+  }
+}
+
+// Load briefing data based on scenario name
+function getBriefingData(scenarioName) {
+  // Map of scenario briefings
+  const briefings = {
+    'Rhonda': {
+      title: "Approaching a Difficult Conversation with Rhonda",
+      sections: [
+        {
+          title: "Scenario Background",
+          content: "You'll be speaking with Rhonda, a colleague who is upset about documentation you've repeatedly delayed that's critical for a customer-facing project."
+        },
+        {
+          title: "Your Approach",
+          content: "This conversation will require careful handling. Rhonda is frustrated, and simply providing excuses or jumping to solutions won't be effective."
+        },
+        {
+          title: "Things to Consider",
+          items: [
+            "Rhonda is visibly upset but trying to maintain professionalism",
+            "The timing (bonus calculation season) makes this particularly sensitive",
+            "Your repeated delays have created a problematic situation"
+          ]
+        },
+        {
+          title: "Suggested Strategy",
+          content: "Consider how your approach addresses fundamental workplace relationship dynamics. Think about how your words and actions might make Rhonda feel valued or dismissed, certain or uncertain about next steps, included or excluded from the solution, connected or disconnected from you as a colleague, and whether the situation feels fair from her perspective.\n\nRemember that apologizing alone isn't enough - your colleague needs to see that you understand the impact of your actions."
+        },
+        {
+          title: "Your Goal",
+          content: "Navigate this conversation effectively by acknowledging the issue, taking appropriate responsibility, and working toward a resolution that repairs both the work situation and your professional relationship.\n\nGood luck! This exercise is designed to be challenging, so don't be discouraged if Rhonda remains frustrated initially."
+        }
+      ]
+    },
+    'Marcus': {
+      title: "Providing Constructive Feedback",
+      sections: [
+        {
+          title: "Scenario Context",
+          content: "You need to provide feedback to a team member who is underperforming but is completely unaware of their performance issues. Your challenge is to deliver this feedback effectively so it encourages improvement rather than causing defensiveness or demotivation."
+        },
+        {
+          title: "Your Objective",
+          content: "Successfully communicate the performance concerns while maintaining a productive working relationship with your team member."
+        },
+        {
+          title: "Approach Considerations",
+          content: "This conversation requires balancing honesty with sensitivity. Research suggests that workplace conversations are most productive when they address basic social needs."
+        },
+        {
+          title: "Consider how your communication approach might",
+          items: [
+            "Affect how valued vs. criticized the person feels",
+            "Provide clarity vs. create confusion about expectations",
+            "Give them a voice vs. dictate terms",
+            "Build connection vs. create distance",
+            "Feel balanced vs. one-sided"
+          ]
+        },
+        {
+          title: "Things to Watch For",
+          items: [
+            "Initial surprise or confusion (they aren't expecting negative feedback)",
+            "Defensive responses if they feel attacked",
+            "Disengagement if they feel overwhelmed",
+            "Signs they're processing the information and becoming receptive"
+          ]
+        },
+        {
+          title: "Success Indicators",
+          items: [
+            "The team member understands the specific performance concerns",
+            "They contribute to developing an improvement plan",
+            "The conversation ends with mutual respect and clarity about next steps",
+            "They seem motivated rather than defeated"
+          ]
+        },
+        {
+          title: "Remember",
+          content: "This is an opportunity to develop your feedback skills as a new manager. Finding the right balance between honesty and support is challenging but critical for your team's success."
+        }
+      ]
+    },
+    'Morgan': {
+      title: "Strategic Partnership Negotiation",
+      sections: [
+        {
+          title: "Scenario Context",
+          content: "You are meeting with Morgan Hayes, Chief Strategy Officer at Vertex Global, a company your organization hopes to form a strategic alliance with. This partnership could significantly expand your market reach and technological capabilities, but Vertex has multiple potential partners courting them. Your challenge is to position your company as the ideal strategic partner while negotiating terms favorable to both organizations."
+        },
+        {
+          title: "Your Objective",
+          content: "Successfully navigate this high-stakes negotiation to secure a commitment to move forward with partnership discussions, laying groundwork for a mutually beneficial alliance."
+        },
+        {
+          title: "Approach Considerations",
+          content: "Research on executive interactions suggests that relationship dynamics significantly impact strategic negotiations. Before focusing on deal terms, consider how your communication approach addresses fundamental executive concerns:"
+        },
+        {
+          title: "Questions to Consider",
+          items: [
+            "How does your approach acknowledge both parties' strategic importance?",
+            "How clearly are you communicating value propositions and expectations?",
+            "Are you balancing structured proposals with room for collaborative shaping?",
+            "Are you building a personal connection beyond transaction details?",
+            "Does your proposal distribute value, risk, and reward equitably?"
+          ]
+        },
+        {
+          title: "Success Indicators",
+          items: [
+            "CSO Hayes moves from cautious inquiry to active engagement",
+            "Concrete next steps are established with mutual commitments",
+            "The conversation maintains professional respect throughout",
+            "Both organizations' strategic interests are meaningfully addressed"
+          ]
+        },
+        {
+          title: "Key Point",
+          content: "Remember, at the executive level, how you conduct the negotiation often matters as much as the specific terms proposed."
+        }
+      ]
+    },
+    'Alex': {
+      title: "Conversation with Alex",
+      sections: [
+        {
+          title: "Situation Overview",
+          content: "You're a senior executive who has been informed about a serious incident where Alex, a well-regarded employee, was berated by her manager in a team meeting. A whistleblower on the team reported the manager's behavior as completely inappropriate and unprovoked. Alex is known to be conflict-averse and unlikely to volunteer information about the incident."
+        },
+        {
+          title: "Your Objective",
+          content: "Extract an accurate account of what happened while creating enough psychological safety for Alex to speak openly. You need to understand the full situation to take appropriate action, but Alex is understandably hesitant to discuss it due to fear of retaliation."
+        },
+        {
+          title: "Alex's Current State",
+          items: [
+            "Likely experiencing anxiety about meeting with senior leadership",
+            "Concerned about potential consequences of speaking up",
+            "May downplay the incident to avoid causing trouble",
+            "Probably experiencing lingering emotional impact from the public humiliation"
+          ]
+        },
+        {
+          title: "Approach Considerations",
+          items: [
+            "How you begin the conversation will significantly impact Alex's willingness to open up",
+            "Signs of defensiveness or corporate detachment will likely cause Alex to withdraw",
+            "Rushing or pressuring for details may result in minimal, sanitized information",
+            "The power dynamics between you as a senior executive and Alex are significant"
+          ]
+        },
+        {
+          title: "Indicators of Success",
+          items: [
+            "Alex gradually becomes more forthcoming with specific details",
+            "Emotional responses become more visible as psychological safety increases",
+            "Alex expresses relief at being heard",
+            "You gain a clear understanding of the manager's behavior pattern",
+            "Alex leaves the conversation feeling supported rather than more anxious"
+          ]
+        }
+      ]
+    },
+    'Taylor': {
+      title: "Conversation with Taylor",
+      sections: [
+        {
+          title: "Situation Overview",
+          content: "You're a senior executive leading a new project initiative. Taylor's immediate manager has strongly recommended him as someone with exceptional creativity and technical brilliance who could provide valuable innovative input. However, you've been informed that Taylor is extremely introverted and unlikely to volunteer his ideas without significant encouragement."
+        },
+        {
+          title: "Your Objective",
+          content: "Create psychological safety that allows Taylor to share his innovative thinking about the new project. His technical creativity could be invaluable, but standard brainstorming approaches and direct questioning may cause him to withdraw rather than contribute."
+        },
+        {
+          title: "Taylor's Current State",
+          items: [
+            "Highly uncomfortable with attention, especially from senior leadership",
+            "May interpret direct questions as put-on-the-spot challenges",
+            "Likely to offer minimum-risk, conventional ideas initially",
+            "May need processing time before sharing more innovative thoughts"
+          ]
+        },
+        {
+          title: "Approach Considerations",
+          items: [
+            "Traditional executive communication styles may inadvertently silence Taylor",
+            "How you respond to his initial, likely cautious contributions will set the tone",
+            "Technical details matter to Taylor and are a pathway to his bigger ideas",
+            "Your body language and patience signals will significantly impact his comfort level"
+          ]
+        },
+        {
+          title: "Indicators of Success",
+          items: [
+            "Taylor gradually becomes more animated when discussing technical concepts",
+            "Conversation evolves from one-word answers to more elaborated thinking",
+            "Taylor begins asking questions about the project parameters",
+            "You see glimpses of the innovative thinking his manager referenced",
+            "Taylor expresses interest in continued involvement with the project"
+          ]
+        }
+      ]
+    },
+    'Priya': {
+      title: "Conversation with Priya",
+      sections: [
+        {
+          title: "Situation Overview",
+          content: "You're a senior executive who has been contacted by HR regarding a complaint filed by Priya, a team member who reported experiencing discriminatory behavior during team meetings, including mockery of her Indian accent and derogatory comments about her food. Particularly concerning is that her direct manager not only failed to address these behaviors but occasionally participated in them."
+        },
+        {
+          title: "Your Objective",
+          content: "Create a psychologically safe environment for Priya to share her experiences while gathering the information needed to address both the specific incidents and the broader cultural issues they represent."
+        },
+        {
+          title: "Priya's Current State",
+          items: [
+            "Likely questioning whether reporting was the right decision",
+            "Concerned about being labeled as \"too sensitive\" or facing retaliation",
+            "Emotionally impacted by both the incidents and the process of reporting them",
+            "Uncertain about whether leadership truly cares about addressing the issue"
+          ]
+        },
+        {
+          title: "Approach Considerations",
+          items: [
+            "Your initial response to her concerns will signal your authentic commitment to inclusion",
+            "How you frame the purpose of the conversation will impact her openness",
+            "Any signs of minimizing or dismissing her experiences will shut down communication",
+            "Your focus on next steps and solutions must balance with validating her experiences"
+          ]
+        },
+        {
+          title: "Indicators of Success",
+          items: [
+            "Priya provides specific examples of incidents without excessive prompting",
+            "She expresses how these experiences affected her sense of belonging",
+            "You gain clarity on both the pattern of behavior and the manager's role",
+            "Priya shows willingness to remain engaged in the resolution process",
+            "The conversation ends with Priya feeling her concerns are being taken seriously"
+          ]
+        }
+      ]
+    }
+  };
+  
+  return briefings[scenarioName] || null;
+}
+
+// Convert the briefing data to HTML
+function renderBriefing(briefingData) {
+  let html = '';
+  
+  // Render each section
+  briefingData.sections.forEach(section => {
+    // Add section title
+    html += `<h3 class="section-title">${section.title}</h3>`;
+    
+    // Add content if it exists
+    if (section.content) {
+      // Split paragraphs and wrap each in <p> tags
+      const paragraphs = section.content.split('\n\n');
+      paragraphs.forEach(paragraph => {
+        html += `<p>${paragraph}</p>`;
+      });
+    }
+    
+    // Add list items if they exist
+    if (section.items && section.items.length > 0) {
+      html += '<ul>';
+      section.items.forEach(item => {
+        html += `<li>${item}</li>`;
+      });
+      html += '</ul>';
+    }
+  });
+  
+  return html;
+}
+
+// Initialize the page
+function initBriefingPage() {
+  const scenarioInfo = getScenarioInfo();
+  
+  if (!scenarioInfo) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-message').style.display = 'block';
+    return;
+  }
+  
+  // Update the scenario name
+  document.getElementById('scenario-name').textContent = scenarioInfo.name;
+  
+  // Update the scenario image
+  document.getElementById('scenario-image').src = `${scenarioInfo.name.toLowerCase()}.png`;
+  document.getElementById('scenario-image').alt = scenarioInfo.name;
+  
+  // Get the briefing data
+  const briefingData = getBriefingData(scenarioInfo.name);
+  
+  if (!briefingData) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-message').style.display = 'block';
+    return;
+  }
+  
+  // Render the briefing
+  const briefingHtml = renderBriefing(briefingData);
+  
+  // Update the briefing text
+  document.getElementById('briefing-text').innerHTML = briefingHtml;
+  
+  // Show the briefing content
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('briefing-content').style.display = 'block';
+  
+  // Set up the start session button
+  document.getElementById('start-session-button').addEventListener('click', () => {
+    window.location.href = 'coaching-session.html';
+  });
+}
+
+// Check for username on page load
+window.addEventListener('load', function() {
+  try {
+    // Check if user has a name set, if not redirect to home
+    const username = localStorage.getItem('username');
+    if (!username) {
+      window.location.href = 'index.html';
+      return;
+    }
+    
+    // Initialize the page
+    initBriefingPage();
+  } catch (error) {
+    console.error('Error checking username:', error);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-message').style.display = 'block';
+  }
+});
+</script>
+
+</body>
+</html>

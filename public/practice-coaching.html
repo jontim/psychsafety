@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Practice Coaching - NLI Coaching Practice</title>
+    
+    <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+    <!-- ElevenLabs widget script will be loaded dynamically to prevent duplicate loading --> 
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'museo-sans', sans-serif;
+        font-weight: 300;
+        background-color: #f9f9f9;
+        color: #4D4D4D;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        line-height: 1.6;
+      }
+      
+      header {
+        background: linear-gradient(to right, #005575, #0095C8);
+        padding: 2rem 0;
+        border-bottom: 4px solid #F9F9F9;
+      }
+  
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0 1rem;
+        position: relative;
+      }
+      
+      .header-title {
+        color: white;
+        font-weight: 700;
+        margin-right: auto; /* Pushes the title to the left */
+        padding-left: 0.5rem;
+      }
+      
+      .header-logo {
+        height: 45px;
+        width: auto;
+        filter: brightness(0) invert(1);
+        padding-right: 0.5rem;
+      }
+      
+      header h1 {
+        font-family: 'museo-sans', sans-serif;
+        font-weight: 700;
+        font-size: 2rem;
+        color: white;
+        margin-bottom: 0;
+      }
+      
+      .back-button {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: opacity 0.2s ease;
+        margin-right: 1rem;
+      }
+      
+      .back-button:hover {
+        opacity: 0.8;
+      }
+      
+      #main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 3rem 1rem 9rem 1rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        min-height: calc(100vh - 140px);
+      }
+      
+      .page-title {
+        font-family: 'museo-sans', sans-serif;
+        font-weight: 700;
+        font-size: 2rem;
+        color: #005575;
+        text-align: center;
+        margin: 0 0 2rem 0;
+      }
+      
+      .practice-container {
+        width: 100%;
+        max-width: 900px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .setup-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        width: 100%;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      }
+      
+      .setup-title {
+        font-family: 'museo-sans', sans-serif;
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #005575;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+      
+      .setup-description {
+        text-align: center;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+      }
+      
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+      
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #005575;
+      }
+      
+      .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #E9E9E9;
+        border-radius: 6px;
+        font-family: 'museo-sans', sans-serif;
+        font-size: 1rem;
+        color: #4D4D4D;
+        transition: border-color 0.2s ease;
+        background: white;
+      }
+      
+      .form-group select:focus {
+        outline: none;
+        border-color: #0095C8;
+      }
+      
+      .start-button {
+        background: #F37322;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-top: 1.5rem;
+        width: 100%;
+        max-width: 200px;
+      }
+      
+      .start-button:hover {
+        background: #e86615;
+      }
+  
+      .status-message {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1rem 2rem;
+        border-radius: 6px;
+        font-weight: 500;
+        z-index: 1001;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .status-message.success {
+        background: #005575;
+        color: white;
+      }
+      
+      .status-message.error {
+        background: #F37322;
+        color: white;
+      }
+      
+      .status-message.info {
+        background: #0095C8;
+        color: white;
+      }
+      
+      .status-message.show {
+        opacity: 1;
+      }
+      
+      .coach-section {
+        display: none;
+        width: 100%;
+      }
+      
+      .coach-profile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      }
+      
+      .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1.25rem;
+      }
+      
+      .coach-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 60px;
+        overflow: hidden;
+        border: 3px solid #0095C8;
+      }
+      
+      .coach-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .coach-intro {
+        flex: 1;
+      }
+      
+      .coach-name {
+        font-family: 'museo-sans', sans-serif;
+        font-weight: 700;
+        font-size: 1.8rem;
+        color: #005575;
+        margin-bottom: 0.625rem;
+      }
+      
+      .coach-bio {
+        line-height: 1.5;
+        margin-bottom: 0.9375rem;
+        text-align: left;
+        padding-left: 0;
+        text-indent: 0;
+      }
+      
+      .coach-scenario {
+        background: #f5f5f5;
+        padding: 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 1.5625rem;
+        width: 100%;
+        text-align: left;
+        padding-left: 0;
+        text-indent: 0;
+      }
+      
+      .scenario-title {
+        font-weight: 700;
+        color: #005575;
+        margin-bottom: 0.625rem;
+      }
+      
+      .widget-container {
+        width: 100%;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      elevenlabs-convai {
+        position: relative !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 300px !important;
+        height: 380px !important;
+        z-index: 5 !important;
+      }
+      
+      /* Make sure widget container has proper formatting */
+      .widget-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: visible;
+        margin-top: 15px;
+        z-index: 5;
+        box-shadow: none !important;
+      }
+      
+      /* Remove any stray widgets */
+      elevenlabs-convai:not(#practice-widget) {
+        display: none !important;
+      }
+      
+      footer {
+        background: #4D4D4D;
+        padding: 2rem;
+        text-align: center;
+        margin-top: auto;
+        color: white;
+      }
+      
+      .logo {
+        height: 30px;
+        width: auto;
+        margin-top: 0.625rem;
+      }
+  
+      .selection-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.9375rem;
+      }
+  
+      .selection-tag {
+        background: #f5f5f5;
+        color: #005575;
+        border: 1px solid #0095C8;
+        border-radius: 1.25rem;
+        padding: 0.3125rem 0.75rem;
+        font-size: 0.85rem;
+      }
+      
+      .assessment-button {
+        background: #0095C8;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-top: 1.25rem;
+        width: 100%;
+        max-width: 300px;
+      }
+      
+      .assessment-button:hover {
+        background: #0078a3;
+      }
+      
+      /* Hide ElevenLabs branding */
+      .el-brand, .el-logo, .el-branding, .el-powered-by, 
+      [class*="el-brand"], [class*="el-logo"], [class*="eleven"], [class*="labs"],
+      div[class*="elevenlabs"], div[class*="convai"],
+      elevenlabs-convai > div > div > div:nth-child(2),
+      .elevenlabs-branding, .elevenlabs-logo, .elevenlabs-powered-by {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+      }
+      
+      elevenlabs-convai::part(footer),
+      elevenlabs-convai::part(branding),
+      elevenlabs-convai::part(logo) {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+      }
+      
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      
+      .modal {
+        background-color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 700px;
+        max-height: 80vh;
+        overflow-y: auto;
+        border: 2px solid #0095C8;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      }
+      
+      .modal-title {
+        font-family: 'museo-sans', sans-serif;
+        font-weight: 700;
+        color: #005575;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.625rem;
+        border-bottom: 1px solid #E9E9E9;
+      }
+      
+      .modal-content {
+        line-height: 1.6;
+      }
+      
+      .modal-close {
+        background-color: #F37322;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        margin-top: 1.25rem;
+        cursor: pointer;
+        font-weight: 500;
+      }
+      
+      .modal-close:hover {
+        background-color: #e86615;
+      }
+      
+      .coaching-stats {
+        margin: 1.25rem 0;
+        padding: 0.9375rem;
+        background: #f5f5f5;
+        border-radius: 8px;
+      }
+      
+      .message {
+        padding: 0.625rem;
+        margin: 0.625rem 0;
+        border-radius: 8px;
+      }
+      
+      .message.user {
+        background: #f5f5f5;
+      }
+      
+      .message.coach {
+        background: white;
+        border: 1px solid #E9E9E9;
+      }
+      
+      /* Styling for the analysis results */
+      .analysis-results {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        background: white;
+        color: #4D4D4D;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+      }
+      
+      .analysis-results.hidden {
+        display: none;
+      }
+      
+      .analysis-header h3 {
+        margin-bottom: 8px;
+        color: #005575;
+        font-weight: 700;
+      }
+      
+      .analysis-note {
+        font-style: italic;
+        font-size: 0.9em;
+        color: #666;
+      }
+      
+      .criteria-item {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+        background: #f5f5f5;
+        border: 1px solid #E9E9E9;
+      }
+      
+      .success {
+        color: #2E7D32;
+      }
+      
+      .failure {
+        color: #C62828;
+      }
+      
+      .unknown {
+        color: #F37322;
+      }
+      
+      .call-status {
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+      }
+      
+      .transcript-summary {
+        margin: 15px 0;
+      }
+      
+      .evaluation-criteria h4 {
+        color: #005575;
+        margin: 15px 0 10px 0;
+      }
+      
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .profile-header {
+          flex-direction: column;
+          text-align: center;
+        }
+        
+        .coach-intro {
+          text-align: center;
+        }
+        
+        .modal {
+          width: 95%;
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+  
+  <header>
+    <div class="header-content">
+      <div class="left-header" style="display: flex; align-items: center;">
+        <a href="index-preview.html" class="back-button">← Back</a>
+        <h1 class="header-title" style="margin-left: 0.5rem;">NLI Coaching</h1>
+      </div>
+      <img src="NLI.png" alt="NLI Logo" class="header-logo">
+    </div>
+  </header>
+  
+  <div id="main-content">
+    <h2 class="page-title">Practice Your Coaching Skills</h2>
+    
+    <div class="practice-container">
+      <div class="setup-section" id="setup-section">
+        <h3 class="setup-title">Configure Your Practice Session</h3>
+        <p class="setup-description">Customize your coaching practice scenario by selecting the industry, management level, and coaching topic below. This will help create a realistic coaching scenario tailored to your learning needs.</p>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="industry">Industry</label>
+            <select id="industry">
+              <option value="">Select an industry</option>
+              <option value="technology">Technology</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="finance">Finance</option>
+              <option value="education">Education</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="retail">Retail</option>
+              <option value="consulting">Consulting</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="level">Management Level</label>
+            <select id="level">
+              <option value="">Select a level</option>
+              <option value="individual">Individual Contributor</option>
+              <option value="firsttime">First-time Manager</option>
+              <option value="middle">Middle Manager</option>
+              <option value="senior">Senior Leader</option>
+              <option value="executive">Executive</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="topic">Coaching Topic</label>
+            <select id="topic">
+              <option value="">Select a topic</option>
+              <option value="leadership">Leadership Effectiveness</option>
+              <option value="personal">Personal Effectiveness</option>
+              <option value="worklife">Work-Life Balance</option>
+              <option value="interpersonal">Interpersonal Effectiveness</option>
+              <option value="change">Change Management</option>
+              <option value="conflict">Conflict Resolution</option>
+              <option value="career">Career Development</option>
+              <option value="communication">Communication Skills</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="challenge">Specific Challenge</label>
+            <select id="challenge">
+              <option value="">Select a topic first</option>
+            </select>
+          </div>
+        </div>
+        
+        <div style="display: flex; justify-content: center;">
+          <button id="start-practice" class="start-button">Start Practice</button>
+        </div>
+      </div>
+      
+      <div class="coach-section" id="coach-section">
+        <div class="coach-profile">
+          <div class="profile-header">
+            <div class="coach-image">
+              <img src="Daryl.png" alt="Daryl">
+            </div>
+            <div class="coach-intro">
+              <h3 class="coach-name">Daryl</h3>
+              <p class="coach-bio">Daryl is an experienced professional seeking coaching support to overcome challenges and develop his skills. As you practice coaching him, he'll respond naturally to your questions and guidance.</p>
+            </div>
+          </div>
+          
+          <div class="coach-scenario" id="scenario-details">
+            <h4 class="scenario-title">Scenario:</h4>
+            <p id="scenario-description">Daryl is a middle manager in the technology sector facing challenges with team motivation. He's looking for guidance on how to better engage his team members and create a more positive work environment.</p>
+            <div class="selection-tags" id="selection-tags">
+              <!-- Tags will be added dynamically -->
+            </div>
+          </div>
+          
+          <div class="widget-container">
+            <!-- Widget will be created dynamically by JavaScript -->
+            <div id="practice-widget-container" class="widget-container">
+              <!-- Widget will be created dynamically with script -->
+            </div>
+            
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+              <button id="view-assessment" class="assessment-button">View Practice Assessment</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Assessment Modal -->
+  <div id="assessment-modal" class="modal-overlay">
+    <div class="modal">
+      <h2 class="modal-title">Practice Assessment</h2>
+      <div id="assessment-content" class="modal-content">
+        <p>Loading assessment data...</p>
+      </div>
+      <button id="close-modal" class="modal-close">Close</button>
+    </div>
+  </div>
+  
+  <footer>
+    <img src="NLI.png" alt="NLI Logo" class="logo">
+    <p style="margin-top: 1rem; font-weight: 300; font-size: 0.875rem;"> 2025 The NeuroLeadership Institute. All Rights Reserved.</p>
+  </footer>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Debug localStorage content
+      console.log("Checking localStorage for username:");
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        console.log(`${key}: ${localStorage.getItem(key)}`);
+      }
+
+      // Check if username exists
+      const username = localStorage.getItem('username') || 
+                      localStorage.getItem('userName') || 
+                      localStorage.getItem('user_name');
+      
+      console.log("Using username:", username);
+                      
+      if (!username) {
+        // Redirect to the main page to get username first
+        console.log("No username found, redirecting to index page");
+        window.location.href = 'index-preview.html';
+        return;
+      }
+      
+      // Start practice button event listener
+      document.getElementById('start-practice').addEventListener('click', function() {
+        const industry = document.getElementById('industry').value;
+        const level = document.getElementById('level').value;
+        const topic = document.getElementById('topic').value;
+        const challenge = document.getElementById('challenge').value;
+        
+        // Validate selections
+        if (!industry || !level || !topic || !challenge) {
+          alert('Please complete all selections before starting');
+          return;
+        }
+        
+        // Hide setup section and show coach section
+        document.getElementById('setup-section').style.display = 'none';
+        document.getElementById('coach-section').style.display = 'block';
+        
+        // Update scenario description and tags
+        updateScenarioDetails(industry, level, topic, challenge);
+        
+        // Generate a session ID for this practice session
+        const sessionId = Date.now() + '-' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('practiceConversationId', sessionId);
+        
+        // Set up the practice widget with all context
+        setupPracticeWidget(industry, level, topic, challenge, username, sessionId);
+      });
+    });
+    
+    function getReadableValue(id, value) {
+      const select = document.getElementById(id);
+      const option = select.querySelector(`option[value="${value}"]`);
+      return option ? option.textContent : value;
+    }
+    
+    function updateScenarioDetails(industry, level, topic, challenge) {
+      const readableIndustry = getReadableValue('industry', industry);
+      const readableLevel = getReadableValue('level', level);
+      const readableTopic = getReadableValue('topic', topic);
+      const readableChallenge = getReadableValue('challenge', challenge);
+      
+      // Update description
+      const description = `Daryl is a ${readableLevel} in the ${readableIndustry} sector seeking coaching on ${readableTopic}. He's specifically struggling with ${readableChallenge}.`;
+      document.getElementById('scenario-description').textContent = description;
+      
+      // Add selection tags
+      const tagsContainer = document.getElementById('selection-tags');
+      tagsContainer.innerHTML = '';
+      
+      const tags = [
+        { label: 'Industry', value: readableIndustry },
+        { label: 'Level', value: readableLevel },
+        { label: 'Topic', value: readableTopic },
+        { label: 'Challenge', value: readableChallenge }
+      ];
+      
+      tags.forEach(tag => {
+        const tagElement = document.createElement('span');
+        tagElement.className = 'selection-tag';
+        tagElement.textContent = `${tag.label}: ${tag.value}`;
+        tagsContainer.appendChild(tagElement);
+      });
+    }
+    
+    // Utility function to show status messages
+    function showStatus(message, type = 'info') {
+      const existingStatus = document.querySelector('.status-message');
+      if (existingStatus) {
+        existingStatus.remove();
+      }
+  
+      const statusDiv = document.createElement('div');
+      statusDiv.className = `status-message ${type}`;
+      statusDiv.textContent = message;
+      document.body.appendChild(statusDiv);
+  
+      // Show the status message
+      setTimeout(() => {
+        statusDiv.classList.add('show');
+      }, 10);
+  
+      // Auto-remove after 3 seconds
+      setTimeout(() => {
+        statusDiv.classList.remove('show');
+        // Remove from DOM after fade out
+        setTimeout(() => statusDiv.remove(), 300);
+      }, 3000);
+    }
+  
+    // Define topic-specific challenges data structure
+    const topicChallenges = {
+      leadership: [
+        { value: 'feedback', text: 'Giving Effective Feedback' },
+        { value: 'delegation', text: 'Strategic Delegation' },
+        { value: 'motivation', text: 'Team Motivation' },
+        { value: 'decision', text: 'Decision Making' },
+        { value: 'influence', text: 'Leading Without Authority' },
+        { value: 'meetings', text: 'Running Effective Meetings' }
+      ],
+      personal: [
+        { value: 'time', text: 'Time Management' },
+        { value: 'priorities', text: 'Setting Priorities' },
+        { value: 'stress', text: 'Stress Management' },
+        { value: 'confidence', text: 'Building Confidence' },
+        { value: 'focus', text: 'Maintaining Focus' }
+      ],
+      worklife: [
+        { value: 'burnout', text: 'Preventing Burnout' },
+        { value: 'boundaries', text: 'Setting Boundaries' },
+        { value: 'flexibility', text: 'Flexible Working' },
+        { value: 'overwhelm', text: 'Managing Overwhelm' },
+        { value: 'family', text: 'Balancing Family Responsibilities' }
+      ],
+      interpersonal: [
+        { value: 'difficult', text: 'Difficult Conversations' },
+        { value: 'networking', text: 'Building Networks' },
+        { value: 'influence', text: 'Influencing Others' },
+        { value: 'collaboration', text: 'Cross-team Collaboration' }
+      ],
+      change: [
+        { value: 'resistance', text: 'Overcoming Resistance' },
+        { value: 'uncertainty', text: 'Managing Uncertainty' },
+        { value: 'transition', text: 'Leading Through Transition' },
+        { value: 'adoption', text: 'Driving Technology Adoption' }
+      ],
+      conflict: [
+        { value: 'mediation', text: 'Mediating Team Disputes' },
+        { value: 'feedback', text: 'Giving Constructive Feedback' },
+        { value: 'diffusion', text: 'Diffusing Tense Situations' },
+        { value: 'negotiation', text: 'Negotiation Skills' }
+      ],
+      career: [
+        { value: 'promotion', text: 'Preparing for Promotion' },
+        { value: 'transition', text: 'Career Transition' },
+        { value: 'skills', text: 'New Skills Development' },
+        { value: 'visibility', text: 'Increasing Visibility' }
+      ],
+      communication: [
+        { value: 'presentations', text: 'Presentation Skills' },
+        { value: 'clarity', text: 'Communicating with Clarity' },
+        { value: 'listening', text: 'Active Listening' },
+        { value: 'writing', text: 'Business Writing' },
+        { value: 'stakeholders', text: 'Stakeholder Communication' }
+      ]
+    };
+    
+    // Set up assessment button click handler after DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set up topic change handler to update challenges
+      const topicSelect = document.getElementById('topic');
+      const challengeSelect = document.getElementById('challenge');
+      
+      topicSelect.addEventListener('change', function() {
+        // Clear current options except the first one
+        challengeSelect.innerHTML = '<option value="">Select a challenge</option>';
+        
+        const selectedTopic = topicSelect.value;
+        
+        if (selectedTopic && topicChallenges[selectedTopic]) {
+          // Add new options based on selected topic
+          topicChallenges[selectedTopic].forEach(challenge => {
+            const option = document.createElement('option');
+            option.value = challenge.value;
+            option.textContent = challenge.text;
+            challengeSelect.appendChild(option);
+          });
+        } else {
+          // If no topic selected, show default message
+          challengeSelect.innerHTML = '<option value="">Select a topic first</option>';
+        }
+      });
+      
+      // Force hide ElevenLabs branding with CSS override
+      const brandingStyleFix = document.createElement('style');
+      brandingStyleFix.textContent = `
+        .el-brand, .el-logo, .el-branding, .el-powered-by, 
+        [class*="el-brand"], [class*="el-logo"], [class*="eleven"], [class*="labs"],
+        div[class*="elevenlabs"], div[class*="convai"],
+        elevenlabs-convai > div > div > div:nth-child(2),
+        .elevenlabs-branding, .elevenlabs-logo, .elevenlabs-powered-by {
+          display: none !important;
+          opacity: 0 !important;
+          visibility: hidden !important;
+          height: 0 !important;
+          overflow: hidden !important;
+        }
+      `;
+      document.head.appendChild(brandingStyleFix);
+      // Close modal event listener
+      document.getElementById('close-modal').addEventListener('click', function() {
+        document.getElementById('assessment-modal').style.display = 'none';
+      });
+      
+      // View assessment button event listener
+      document.getElementById('view-assessment').addEventListener('click', function() {
+        showAssessmentModal();
+      });
+    });
+    
+    // Function to show the assessment modal
+    async function showAssessmentModal() {
+      const modal = document.getElementById('assessment-modal');
+      const contentArea = document.getElementById('assessment-content');
+      
+      // Show the modal with loading message
+      contentArea.innerHTML = '<p>Loading assessment data...</p>';
+      modal.style.display = 'flex';
+      
+      try {
+        // Get Daryl's agent ID
+        const agentId = 'oVcGcThIZW9jx8I7nMBL'; // Daryl's agent ID
+        
+        // Get the user ID from various sources
+        const userId = localStorage.getItem('practice_user_id') || 
+                      localStorage.getItem('userId') || 
+                      sessionStorage.getItem('practice_user_id') || 
+                      localStorage.getItem('user_unique_id');
+        
+        console.log('Retrieving assessment with: ', { agentId, userId });
+        
+        // Explicitly use null for conversationId to let the API find the most recent one
+        const conversationId = localStorage.getItem('practiceConversationId') || null;
+        
+        console.log('Session ID being used:', conversationId);
+        
+        // Get the assessment data
+        const data = await fetchAssessmentData(agentId, conversationId, userId);
+        
+        if (!data || !data.messages || data.messages.length === 0) {
+          contentArea.innerHTML = '<p>No practice data available yet. Please complete a practice coaching session first.</p>';
+          return;
+        }
+        
+        // Format the assessment data
+        const formattedContent = formatAssessmentData(data);
+        contentArea.innerHTML = formattedContent;
+        
+        // Store the conversation ID for future reference
+        if (data.conversation_id) {
+          localStorage.setItem('practiceConversationId', data.conversation_id);
+        }
+      } catch (error) {
+        console.error('Error fetching assessment data:', error);
+        contentArea.innerHTML = `<p>Error retrieving assessment: ${error.message}</p><p>Please try again later.</p>`;
+      }
+    }
+    
+    // Function to fetch assessment data from the cloud function
+    async function fetchAssessmentData(agentId, conversationId, userId) {
+      const maxRetries = 3;
+      let retryCount = 0;
+      
+      while (retryCount <= maxRetries) {
+        try {
+          console.log(`Fetching assessment data (attempt ${retryCount + 1}/${maxRetries + 1}):`);
+          
+          // Use our Firebase Function for getting conversation details
+          const apiUrl = 'https://us-central1-psychsafety.cloudfunctions.net/getConversationDetails';
+          
+          // Implement timeout to prevent hanging requests
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+          
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              data: {
+                agentId: agentId,
+                conversationId: conversationId,
+                userId: userId // Include user ID for privacy
+              }
+            }),
+            signal: controller.signal,
+            cache: 'no-store' // Prevent browser caching
+          });
+          
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            console.error('Error response:', {
+              status: response.status,
+              statusText: response.statusText
+            });
+            
+            // Determine if we should retry based on status code
+            const isRetryableStatus = [
+              408, // Request Timeout
+              429, // Too Many Requests
+              500, // Internal Server Error
+              502, // Bad Gateway
+              503, // Service Unavailable
+              504  // Gateway Timeout
+            ].includes(response.status);
+            
+            if (isRetryableStatus && retryCount < maxRetries) {
+              retryCount++;
+              
+              // Calculate delay with exponential backoff
+              const delay = Math.pow(2, retryCount) * 1000; // 2^retry * 1000ms
+              
+              console.warn(`Retryable status code ${response.status}, retrying in ${delay/1000} seconds...`);
+              
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue; // Try again
+            }
+            
+            throw new Error(`API error: ${response.status} - ${response.statusText}`);
+          }
+          
+          // Successfully got a response, try to parse it
+          const result = await response.json();
+          console.log('Assessment data received:', result);
+          
+          if (!result.data) {
+            console.error('Missing data property in response:', result);
+            throw new Error('Invalid response format: missing data property');
+          }
+          
+          return result.data;
+          
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            console.warn(`Request timed out after 45 seconds (attempt ${retryCount + 1}/${maxRetries + 1})`);
+          } else {
+            console.error(`Error in fetch attempt ${retryCount + 1}:`, error);
+          }
+          
+          if (retryCount < maxRetries) {
+            retryCount++;
+            
+            // Calculate delay with exponential backoff
+            const delay = Math.pow(2, retryCount) * 1000; // 2^retry * 1000ms
+            
+            console.warn(`Retrying in ${delay/1000} seconds...`);
+            
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue; // Try again
+          }
+          
+          throw error; // Rethrow if all retries failed
+        }
+      }
+    }
+    
+    // Function to format the assessment data into HTML
+    function formatAssessmentData(data) {
+      if (!data || !data.messages || data.messages.length === 0) {
+        return '<p>No coaching conversation data available yet.</p>';
+      }
+      
+      // Format conversation for assessment view
+      let html = '<div class="assessment-summary">';
+      
+      // Add conversation metadata
+      const conversationId = data.conversation_id || "Unknown";
+      const createdDate = data.created_at ? new Date(data.created_at).toLocaleString() : "Unknown";
+      
+      html += `<h3>Assessment Details</h3>`;
+      html += `<p><strong>Conversation ID:</strong> ${conversationId}</p>`;
+      html += `<p><strong>Created:</strong> ${createdDate}</p>`;
+      
+      // Add basic message metadata if available
+      if (data.messages && data.messages.length > 0) {
+        html += `<p><strong>Messages analyzed:</strong> ${data.messages.length}</p>`;
+      }
+      
+      // Extract ElevenLabs Analysis data
+      if (data.analysis) {
+        html += '<h3>ElevenLabs Analysis</h3>';
+        
+        // Call Status (success/failure/unknown)
+        const callStatus = data.analysis.call_successful ? 'success' : 'failure';
+        html += `<p><strong>Call Status:</strong> <span class="status-${callStatus}">${callStatus}</span></p>`;
+        
+        // Evaluation Criteria Results
+        if (data.analysis.evaluation_criteria_results && Object.keys(data.analysis.evaluation_criteria_results).length > 0) {
+          html += `<h4>Evaluation Criteria</h4>`;
+          html += `<div class="criteria-results">`;
+          
+          for (const [criteriaId, criteriaData] of Object.entries(data.analysis.evaluation_criteria_results)) {
+            // Get criteria name in a more readable format
+            const criteriaName = criteriaId.replace(/_/g, ' ');
+            const displayName = criteriaName.charAt(0).toUpperCase() + criteriaName.slice(1);
+            
+            let result, rationale;
+            
+            // Handle different formats of criteria data
+            if (typeof criteriaData === 'object') {
+              result = criteriaData.result || 'unknown';
+              rationale = criteriaData.rationale || 'No rationale provided';
+            } else {
+              result = String(criteriaData);
+              rationale = 'No detailed rationale provided';
+            }
+            
+            html += `<div class="criteria-item">`;
+            html += `<p><strong>${displayName}:</strong></p>`;
+            html += `<p><strong>Result:</strong> <span class="status-${result === 'true' || result === true ? 'success' : 'failure'}">${result}</span></p>`;
+            html += `<p class="rationale"><strong>Rationale:</strong> ${rationale}</p>`;
+            html += `</div>`;
+          }
+          
+          html += `</div>`; // Close criteria-results
+        }
+        
+        // Add conversation summary if available
+        if (data.analysis.conversation_summary) {
+          html += '<h3>Conversation Summary</h3>';
+          html += `<p>${data.analysis.conversation_summary}</p>`;
+        }
+        
+        // Add coaching effectiveness if available
+        if (data.analysis.coaching_effectiveness) {
+          html += '<h3>Coaching Effectiveness</h3>';
+          html += `<p>${data.analysis.coaching_effectiveness}</p>`;
+        }
+      } else {
+        html += '<p>No analysis data available for this conversation.</p>';
+      }
+      
+      html += '</div>'; // Close assessment-summary
+      
+      return html;
+    }
+
+    // Function to load widget script with retry capability
+    let widgetScriptLoaded = false;
+
+    function loadWidgetScript(retryCount = 0, maxRetries = 3) {
+      return new Promise((resolve, reject) => {
+        // If the script is already loaded or the custom element is defined, resolve immediately
+        if (widgetScriptLoaded || customElements.get('elevenlabs-convai')) {
+          console.log('ElevenLabs widget already loaded, skipping script load');
+          widgetScriptLoaded = true;
+          resolve();
+          return;
+        }
+
+        if (retryCount >= maxRetries) {
+          reject(new Error('Failed to load widget script after maximum retries'));
+          return;
+        }
+
+        // Calculate delay with exponential backoff and jitter
+        const baseDelay = Math.pow(2, retryCount) * 1000;
+        const jitter = baseDelay * (0.5 + Math.random() * 0.5);
+
+        // Use a cache-busting query parameter to avoid caching issues
+        const timestamp = new Date().getTime();
+        const script = document.createElement('script');
+        script.src = `https://elevenlabs.io/convai-widget/index.js?v=${timestamp}`;
+        script.async = true;
+
+        script.onload = () => {
+          console.log('Widget script loaded successfully');
+          widgetScriptLoaded = true;
+          resolve();
+        };
+
+        script.onerror = () => {
+          console.error(`Widget script load failed, attempt ${retryCount + 1}/${maxRetries}`);
+          setTimeout(() => {
+            loadWidgetScript(retryCount + 1, maxRetries).then(resolve).catch(reject);
+          }, jitter);
+        };
+
+        // Remove any existing widget scripts that aren't loaded yet
+        const existingScripts = document.querySelectorAll('script[src*="convai-widget"]');
+        existingScripts.forEach(script => script.remove());
+
+        document.head.appendChild(script);
+      });
+    }
+    
+    // Enhanced widget setup function with error handling and retries
+    async function setupPracticeWidget(industry, level, topic, challenge, username, sessionId) {
+      // Show loading status
+      showStatus('Setting up practice session...', 'info');
+
+      try {
+        // Ensure widget script is loaded
+        await loadWidgetScript();
+        
+        // Get the widget container
+        const widgetContainer = document.getElementById('practice-widget-container');
+        if (!widgetContainer) {
+          throw new Error('Widget container element not found');
+        }
+        
+        // Clean up widget container
+        widgetContainer.innerHTML = '';
+        
+        // Define Daryl's agent ID
+        const darylAgentId = 'oVcGcThIZW9jx8I7nMBL'; // Daryl's correct agent ID
+        
+        // Create or get persistent user ID
+        let persistentUserId = localStorage.getItem('userId') || 
+                              localStorage.getItem('user_unique_id') || 
+                              sessionStorage.getItem('practice_user_id');
+                              
+        if (!persistentUserId) {
+          persistentUserId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+          localStorage.setItem('userId', persistentUserId);
+          localStorage.setItem('practice_user_id', persistentUserId);
+          sessionStorage.setItem('practice_user_id', persistentUserId);
+        }
+        
+        console.log(`Setting up practice widget with user ID: ${persistentUserId}`);
+        
+        // Get readable values for context
+        const readableIndustry = getReadableValue('industry', industry);
+        const readableLevel = getReadableValue('level', level);
+        const readableTopic = getReadableValue('topic', topic);
+        const readableChallenge = getReadableValue('challenge', challenge);
+        
+        // Create scenario context
+        const scenarioContext = `You are Daryl, a practice coaching guide. Your coachee is ${username}, a ${readableLevel} in the ${readableIndustry} industry seeking coaching on ${readableTopic}, specifically dealing with ${readableChallenge}.`;
+        
+        // Create the widget using direct HTML injection - simplified to match working version
+        const dynamicVarsObj = {
+          user_name: username,
+          user_id: persistentUserId,
+          session_id: sessionId,
+          industry: readableIndustry,
+          level: readableLevel,
+          topic: readableTopic,
+          challenge: readableChallenge,
+          scenario_context: scenarioContext
+        };
+        
+        // Convert to JSON string for widget attribute
+        const dynamicVarsJson = JSON.stringify(dynamicVarsObj);
+        
+        // Create the widget HTML with dynamic variables included
+        const widgetHtml = `<elevenlabs-convai id="practice-widget" agent-id="${darylAgentId}" dynamic-variables='${dynamicVarsJson}' style="width: 100%; height: 100%;"></elevenlabs-convai>`;
+        widgetContainer.innerHTML = widgetHtml;
+        
+        console.log('Practice widget created with HTML:', widgetHtml.substring(0, 100) + '...');
+        
+        // Store the conversation ID for later assessment
+        localStorage.setItem('practiceConversationId', sessionId);
+        
+        // Success message
+        showStatus('Practice session ready!', 'success');
+      } catch (error) {
+        console.error('Error setting up practice widget:', error);
+        showStatus('Failed to set up practice session. Please try again.', 'error');
+      }
+    }
+  </script>
+
+</body>
+</html>

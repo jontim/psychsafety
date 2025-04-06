@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="NLI BRAIN RGB small.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate Website Color Scheme</title>
+    <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+    <style>
+        body {
+            font-family: 'museo-sans', sans-serif;
+            font-weight: 300;
+            margin: 0;
+            padding: 0;
+            color: #4D4D4D;
+            background-color: #f9f9f9;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'museo-sans', sans-serif;
+            font-weight: 700;
+            color: #005575;
+            letter-spacing: -0.02em;
+        }
+        
+        h1 {
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            border-bottom: 2px solid #F37322;
+            padding-bottom: 0.75rem;
+            margin-top: 3rem;
+            font-size: 2rem;
+        }
+        
+        .color-section {
+            margin-bottom: 60px;
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .color-item {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .color-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        
+        .color-sample {
+            height: 120px;
+        }
+        
+        .color-details {
+            padding: 15px;
+            background-color: white;
+        }
+        
+        .color-name {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .color-hex {
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .color-rgb {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .example-section {
+            margin-top: 60px;
+        }
+        
+        .website-example {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        
+        .example-header {
+            background-color: #005575;
+            color: white;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .example-header img {
+            height: 40px;
+            width: auto;
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 24px;
+        }
+        
+        .example-nav {
+            display: flex;
+            gap: 2rem;
+            font-weight: 500;
+        }
+        
+        .example-nav-item {
+            cursor: pointer;
+        }
+        
+        .example-hero {
+            background-color: #0095C8;
+            color: white;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            max-width: 600px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            margin-bottom: 1.25rem;
+            color: white;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .hero-text {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+        
+        .cta-button {
+            background-color: #F37322;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-block;
+            transition: background-color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            background-color: #e86615;
+        }
+        
+        .example-features {
+            display: flex;
+            padding: 40px 20px;
+            background-color: white;
+            gap: 20px;
+        }
+        
+        .feature {
+            flex: 1;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .feature-title {
+            margin-bottom: 10px;
+            color: #005575;
+        }
+        
+        .feature-text {
+            color: #666;
+            line-height: 1.5;
+            font-weight: 300;
+            font-size: 0.9375rem;
+        }
+        
+        .example-footer {
+            background-color: #4D4D4D;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: auto;
+        }
+
+        .footer-logo {
+            height: 30px;
+            width: auto;
+        }
+
+        .footer-text {
+            margin: 0;
+            font-weight: 300;
+            font-size: 0.875rem;
+        }
+        
+        .usage-example {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transition: box-shadow 0.2s ease;
+        }
+        
+        .usage-title {
+            color: #005575;
+            margin-top: 0;
+            border-bottom: 2px solid #F37322;
+            padding-bottom: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .usage-description {
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Professional Corporate Color Scheme</h1>
+        
+        <div class="color-section">
+            <h2>Primary Colors</h2>
+            <p>These core colors establish your brand's identity and will be used prominently throughout the website.</p>
+            
+            <div class="color-palette">
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #005575;"></div>
+                    <div class="color-details">
+                        <div class="color-name">Deep Blue</div>
+                        <div class="color-hex">#005575</div>
+                        <div class="color-rgb">RGB: 0, 85, 117</div>
+                    </div>
+                </div>
+                
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #0095C8;"></div>
+                    <div class="color-details">
+                        <div class="color-name">Bondi Blue</div>
+                        <div class="color-hex">#0095C8</div>
+                        <div class="color-rgb">RGB: 0, 149, 200</div>
+                    </div>
+                </div>
+                
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #F37322;"></div>
+                    <div class="color-details">
+                        <div class="color-name">Pop Orange</div>
+                        <div class="color-hex">#F37322</div>
+                        <div class="color-rgb">RGB: 243, 115, 34</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="color-section">
+            <h2>Secondary Colors</h2>
+            <p>These colors complement the primary palette and help create visual hierarchy and contrast.</p>
+            
+            <div class="color-palette">
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #4D4D4D;"></div>
+                    <div class="color-details">
+                        <div class="color-name">Dark Gray</div>
+                        <div class="color-hex">#4D4D4D</div>
+                        <div class="color-rgb">RGB: 77, 77, 77</div>
+                    </div>
+                </div>
+                
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #A0A0A4;"></div>
+                    <div class="color-details">
+                        <div class="color-name">Cool Gray 4</div>
+                        <div class="color-hex">#A0A0A4</div>
+                        <div class="color-rgb">RGB: 160, 160, 164</div>
+                    </div>
+                </div>
+                
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #FDBB13;"></div>
+                    <div class="color-details">
+                        <div class="color-name">Connect Yellow</div>
+                        <div class="color-hex">#FDBB13</div>
+                        <div class="color-rgb">RGB: 253, 187, 19</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="color-section">
+            <h2>Background & Text Colors</h2>
+            <p>These neutral colors serve as the foundation for content readability and visual comfort.</p>
+            
+            <div class="color-palette">
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #FFFFFF;"></div>
+                    <div class="color-details">
+                        <div class="color-name">White</div>
+                        <div class="color-hex">#FFFFFF</div>
+                        <div class="color-rgb">RGB: 255, 255, 255</div>
+                    </div>
+                </div>
+                
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #F9F9F9;"></div>
+                    <div class="color-details">
+                        <div class="color-name">Off-White</div>
+                        <div class="color-hex">#F9F9F9</div>
+                        <div class="color-rgb">RGB: 249, 249, 249</div>
+                    </div>
+                </div>
+                
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #E9E9E9;"></div>
+                    <div class="color-details">
+                        <div class="color-name">Light Gray</div>
+                        <div class="color-hex">#E9E9E9</div>
+                        <div class="color-rgb">RGB: 233, 233, 233</div>
+                    </div>
+                </div>
+                
+                <div class="color-item">
+                    <div class="color-sample" style="background-color: #333333;"></div>
+                    <div class="color-details">
+                        <div class="color-name">Near Black</div>
+                        <div class="color-hex">#333333</div>
+                        <div class="color-rgb">RGB: 51, 51, 51</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="example-section">
+            <h2>Website Application Example</h2>
+            <p>Here's how the color scheme would look when applied to a corporate website:</p>
+            
+            <div class="website-example">
+                <div class="example-header">
+                    <img src="NLI LOGO inline RGB (1).png" alt="NLI Logo" class="logo">
+                    <nav class="example-nav">
+                        <div class="example-nav-item">Home</div>
+                        <div class="example-nav-item">About</div>
+                        <div class="example-nav-item">Services</div>
+                        <div class="example-nav-item">Contact</div>
+                    </nav>
+                </div>
+                
+                <div class="example-hero">
+                    <div class="hero-content">
+                        <h2 class="hero-title">Building Confidence Through Innovation</h2>
+                        <p class="hero-text">We combine industry expertise with cutting-edge technology to deliver solutions that drive results for our clients worldwide.</p>
+                        <div class="cta-button">Get Started</div>
+                    </div>
+                </div>
+                
+                <div class="example-features">
+                    <div class="feature">
+                        <div class="feature-icon" style="background-color: #005575;">✦</div>
+                        <h3 class="feature-title">Expert Solutions</h3>
+                        <p class="feature-text">Tailored approaches backed by years of industry experience and professional excellence.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon" style="background-color: #0095C8;">✦</div>
+                        <h3 class="feature-title">Innovation Focus</h3>
+                        <p class="feature-text">Cutting-edge technologies and methodologies to keep you ahead of the competition.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon" style="background-color: #F37322;">✦</div>
+                        <h3 class="feature-title">Client Success</h3>
+                        <p class="feature-text">Proven track record of delivering measurable results for businesses worldwide.</p>
+                    </div>
+                </div>
+                
+                <div class="example-footer">
+                    <img src="NLI.png" alt="NLI Logo" class="footer-logo">
+                    <p class="footer-text"> 2025 NLI. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="color-section">
+            <h2>Color Usage Guidelines</h2>
+            
+            <div class="usage-example">
+                <h3 class="usage-title">Primary Blue (#005575)</h3>
+                <p class="usage-description">This deep blue conveys stability, trustworthiness, and professionalism. Use it for:</p>
+                <ul>
+                    <li>Header backgrounds</li>
+                    <li>Primary navigation</li>
+                    <li>Section headings</li>
+                    <li>Footer backgrounds</li>
+                </ul>
+            </div>
+            
+            <div class="usage-example">
+                <h3 class="usage-title">Bondi Blue (#0095C8)</h3>
+                <p class="usage-description">This vibrant blue adds energy while maintaining professionalism. Use it for:</p>
+                <ul>
+                    <li>Hero section backgrounds</li>
+                    <li>Secondary buttons</li>
+                    <li>Icons and graphic elements</li>
+                    <li>Highlighted information</li>
+                </ul>
+            </div>
+            
+            <div class="usage-example">
+                <h3 class="usage-title">Pop Orange (#F37322)</h3>
+                <p class="usage-description">This warm orange creates energy and encourages action. Use it sparingly for:</p>
+                <ul>
+                    <li>Call-to-action buttons</li>
+                    <li>Accent elements</li>
+                    <li>Highlighting important information</li>
+                    <li>Small decorative elements</li>
+                </ul>
+            </div>
+            
+            <div class="usage-example">
+                <h3 class="usage-title">Connect Yellow (#FDBB13)</h3>
+                <p class="usage-description">This bright yellow conveys optimism and clarity. Use it selectively for:</p>
+                <ul>
+                    <li>Secondary accents</li>
+                    <li>Highlights in infographics</li>
+                    <li>Background for notifications</li>
+                    <li>Icons that need to stand out</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

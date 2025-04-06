@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="NLI BRAIN RGB small.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found</title>
+  <script>
+    // Firebase SPA redirect script for 404 pages
+    // This helps with deep linking in the SPA
+
+    // Get the current URL
+    const loc = window.location;
+    const path = loc.pathname;
+
+    // Determine the destination
+    let destination = '/';
+
+    // Check if path matches a known pattern
+    if (path.includes('coach-selection-new')) {
+      destination = '/coach-selection.html';
+    } else if (path.includes('coach-profile-fixed')) {
+      destination = '/coach-profile-fixed.html';
+    } else if (path.includes('practice-coaching')) {
+      destination = '/practice-coaching.html';
+    }
+
+    // Redirect to the appropriate page
+    window.location.href = `${loc.protocol}//${loc.host}${destination}${loc.search}${loc.hash}`;
+  </script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #141414;
+      color: #f0f0f0;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #68e800;
+    }
+    p {
+      font-size: 1.2rem;
+      margin: 20px 0;
+    }
+    .redirect-message {
+      background: #1e1e1e;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #343434;
+    }
+  </style>
+</head>
+<body>
+  <h1>Page Not Found</h1>
+  <div class="redirect-message">
+    <p>Redirecting you to the home page...</p>
+    <p>If you are not redirected automatically, <a href="/" style="color: #68e800;">click here</a>.</p>
+  </div>
+</body>
+</html>

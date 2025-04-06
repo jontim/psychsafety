@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Mentor Session - NLI Coaching Practice</title>
+  <!-- Add favicon -->
+  <link rel="icon" type="image/x-icon" href="NLI BRAIN RGB small.ico">
+  
+  <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <style>
+    @import url('https://use.typekit.net/zse2qvc.css');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css');
+    
+    /* Base resets */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    /* Pulse animation for microphone button */
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .pulse {
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+    body {
+      font-family: 'museo-sans', sans-serif;
+      background-color: #f9f9f9;
+      color: #4D4D4D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(to right, #005575, #0095C8);
+      padding: 1rem 0;
+      border-bottom: 4px solid #F9F9F9;
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+    }
+    .back-button {
+      color: white;
+      text-decoration: none;
+      margin-right: 1rem;
+      font-weight: 500;
+    }
+    .header-title {
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+    }
+    .header-title h1 {
+      font-size: 2rem;
+    }
+
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 6rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .session-title {
+      font-weight: 700;
+      font-size: 2rem;
+      color: #005575;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    /* Container for the video call interface */
+    .session-container {
+      width: 100%;
+      max-width: 820px;
+      display: flex;
+      flex-direction: column;
+      margin: 0 auto;
+      border: none;
+      background-color: transparent;
+    }
+
+    /* The video call interface - full screen with Cade */
+    .video-call-interface {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: 0 auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      overflow: hidden;
+      position: relative;
+      background-image: url('CadeCall.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: #000;
+    }
+
+    /* Overlay that darkens the screen when call is not active */
+    .screen-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 18px;
+      transition: all 0.4s ease;
+      backdrop-filter: blur(3px);
+      text-align: center;
+      font-weight: 300;
+    }
+    
+    .screen-overlay div {
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 15px 25px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-width: 80%;
+    }
+    
+    /* Controls bar - positioned at the bottom of the screen */
+    .video-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px 0;
+      gap: 24px;
+      z-index: 20;
+    }
+
+    /* Control buttons */
+    .video-control-button {
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+      color: white;
+      background-color: rgba(51, 51, 51, 0.8);
+      font-size: 1.2rem;
+    }
+    
+    .video-control-button:hover {
+      transform: scale(1.05);
+    }
+    
+    .video-control-button.call { background-color: rgba(76, 175, 80, 0.9); }
+    .video-control-button.end { background-color: rgba(244, 67, 54, 0.9); }
+    .video-control-button.transcript { background-color: rgba(255, 152, 0, 0.9); }
+
+    /* Top bar with status indicators */
+    .video-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background-color: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 10;
+      color: white;
+    }
+    
+    .meeting-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #4caf50;
+    }
+    
+    /* Input area for messages */
+    .message-input-area {
+      display: flex;
+      width: 100%;
+      margin: 20px auto 0;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: white;
+      border: 1px solid #ddd;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    
+    #message-input {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px 15px;
+      outline: none;
+      font-size: 14px;
+    }
+    
+    #message-input:focus {
+      border-color: #0095C8;
+    }
+    
+    #send-button {
+      background-color: #0095C8;
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-left: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    #send-button:hover {
+      background-color: #007ba3;
+      transform: scale(1.05);
+    }
+    
+    /* Analysis view styles for transcript */
+    .analysis-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      z-index: 20;
+      display: none;
+      flex-direction: column;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .analysis-view.active {
+      display: flex;
+    }
+    
+    .analysis-header {
+      background: linear-gradient(to right, #005575, #0095C8);
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .analysis-header h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+    
+    .close-analysis-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .analysis-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+    
+    /* Message display styles */
+    .message-display {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-height: 150px;
+      background-color: rgba(0,0,0,0.7);
+      color: white;
+      z-index: 15;
+      display: none;
+      flex-direction: column;
+      padding: 12px;
+      overflow-y: auto;
+      gap: 8px;
+      border-radius: 8px;
+    }
+    
+    .message-display.active {
+      display: flex;
+    }
+    
+    .message-bubble {
+      padding: 8px 12px;
+      border-radius: 15px;
+      max-width: 80%;
+      word-wrap: break-word;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    .message-agent {
+      align-self: flex-start;
+      background-color: #555;
+      border-bottom-left-radius: 5px;
+    }
+    
+    .message-user {
+      align-self: flex-end;
+      background-color: #0095C8;
+      border-bottom-right-radius: 5px;
+    }
+    
+    .message-system {
+      align-self: center;
+      background-color: rgba(0,0,0,0.5);
+      border-radius: 8px;
+      font-style: italic;
+      text-align: center;
+    }
+    
+    /* Conversation log styles in analysis view */
+    .conversation-log {
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+    }
+    
+    .log-message {
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    
+    .log-message.user-message {
+      background-color: #e6f7ff;
+      border-left: 3px solid #1890ff;
+      margin-left: 20px;
+    }
+    
+    .log-message.agent-message {
+      background-color: #f6ffed;
+      border-left: 3px solid #52c41a;
+      margin-right: 20px;
+    }
+    
+    .message-role {
+      font-weight: bold;
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+    }
+    
+    .message-content {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+
+    /* "New" badge for the mentor option */
+    .new-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #F37322;
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      transform: rotate(15deg);
+      font-weight: 700;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Profile badge for the mentor */
+    .mentor-profile {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 11;
+      display: flex;
+      align-items: center;
+      background-color: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      border-radius: 20px;
+      color: white;
+      font-size: 14px;
+    }
+    
+    .mentor-profile img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 8px;
+      border: 1px solid white;
+    }
+  
+    /* Terms and conditions modal */
+    .terms-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .terms-modal {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .terms-modal h2 {
+      color: #005575;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    
+    .terms-modal p {
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    
+    .terms-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .terms-reject {
+      background-color: #f2f2f2;
+      color: #333;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    .terms-accept {
+      background-color: #0095C8;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Status toast message */
+    .status-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      border-radius: 6px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .status-toast.show {
+      opacity: 1;
+    }
+    
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .modal h2 {
+      color: #005575;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    
+    .modal h3 {
+      color: #007ba3;
+      margin: 1.5rem 0 0.5rem;
+      font-weight: 600;
+    }
+    
+    .modal p {
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    
+    .evaluation-block {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-left: 4px solid #0095C8;
+    }
+    
+    .message-block {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    
+    .message-user {
+      background-color: #e6f7ff;
+      border-left: 3px solid #1890ff;
+      margin-left: 20px;
+    }
+    
+    .message-agent {
+      background-color: #f6ffed;
+      border-left: 3px solid #52c41a;
+      margin-right: 20px;
+    }
+
+    /* Hide ElevenLabs branding elements */
+    elevenlabs-convai::part(footer),
+    elevenlabs-convai::part(branding),
+    .el-brand, .el-logo, .el-branding, .el-powered-by {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      overflow: hidden !important;
+    }
+
+    /* Widget container styles */
+    #mentor-widget {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0; /* Hide the actual widget */
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <a href="index.html" class="back-button"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="header-title">
+      <h1>Mentor Session</h1>
+    </div>
+  </div>
+</header>
+
+<div id="main-content">
+  <h2 class="session-title">Talking with Your Mentor, Cade</h2>
+
+  <div class="session-container">
+    <!-- Video call interface -->
+    <div class="video-call-interface">
+      <!-- Top bar with status -->
+      <div class="video-top-bar">
+        <div class="meeting-info">
+          <span class="status-indicator">
+            <span class="status-dot"></span>
+            <span id="status-text">Ready to connect</span>
+          </span>
+        </div>
+        <div class="call-duration" id="call-timer">00:00</div>
+      </div>
+      
+      <!-- Screen overlay when call is not active -->
+      <div class="screen-overlay" id="screen-overlay">
+        <div>Click the green call button to connect with Cade</div>
+      </div>
+      
+      <!-- Hidden container for the ElevenLabs widget -->
+      <div id="mentor-widget"></div>
+      
+      <!-- Message display area for chat bubbles -->
+      <div class="message-display" id="message-display"></div>
+      
+      <!-- Video call controls -->
+      <div class="video-controls">
+        <div class="video-control-button call" id="start-call-btn">
+          <i class="fas fa-phone"></i>
+        </div>
+        <div class="video-control-button end" id="end-call-btn">
+          <i class="fas fa-phone-slash"></i>
+        </div>
+        <div class="video-control-button transcript" id="transcript-btn">
+          <i class="fas fa-file-alt"></i>
+        </div>
+      </div>
+      
+      <!-- Analysis/transcript view that appears over everything -->
+      <div class="analysis-view" id="analysis-view">
+        <div class="analysis-header">
+          <h3>Notes & Conversation Transcript</h3>
+          <button class="close-analysis-btn" id="close-analysis-btn">
+            <i class="fas fa-times"></i> Close
+          </button>
+        </div>
+        <div class="analysis-content">
+          <div class="conversation-log" id="conversation-log">
+            <!-- Transcript content will be populated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Notes input area -->
+    <div class="message-input-area">
+      <input type="text" id="message-input" placeholder="Take notes here...">
+      <button id="send-button"><i class="fas fa-save"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="terms-modal-overlay" id="terms-modal">
+  <div class="terms-modal">
+    <h2>Terms and Conditions</h2>
+    <p>By using the ElevenLabs conversational AI mentor, you agree to the following:</p>
+    <ol>
+      <li>Your voice data may be collected and processed to provide the service.</li>
+      <li>The conversation may be stored for service improvement and quality assurance.</li>
+      <li>The AI mentor is for educational purposes only and does not replace professional advice.</li>
+      <li>Your personal information will be processed in accordance with our privacy policy.</li>
+    </ol>
+    <p>For more information, please review our <a href="https://elevenlabs.io/terms" target="_blank">full terms of service</a>.</p>
+    <div class="terms-buttons">
+      <button class="terms-reject" id="terms-reject">Decline</button>
+      <button class="terms-accept" id="terms-accept">Accept & Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Status toast -->
+<div class="status-toast" id="status-toast"></div>
+
+<!-- Assessment Modal -->
+<div class="modal-overlay" id="assessment-modal" style="display: none;">
+  <div class="modal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h2 style="margin: 0;">Conversation Analysis</h2>
+      <button id="close-modal" style="background: none; border: none; font-size: 20px; cursor: pointer;">×</button>
+    </div>
+    <div id="assessment-content">
+      <p>Loading session data...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // DOM elements
+  const startCallBtn = document.getElementById('start-call-btn');
+  const endCallBtn = document.getElementById('end-call-btn');
+  const transcriptBtn = document.getElementById('transcript-btn');
+  const screenOverlay = document.getElementById('screen-overlay');
+  const messageInput = document.getElementById('message-input');
+  const sendButton = document.getElementById('send-button');
+  const statusText = document.getElementById('status-text');
+  const callTimer = document.getElementById('call-timer');
+  const messageDisplay = document.getElementById('message-display');
+  const analysisView = document.getElementById('analysis-view');
+  const closeAnalysisBtn = document.getElementById('close-analysis-btn');
+  const conversationLog = document.getElementById('conversation-log');
+  const termsModal = document.getElementById('terms-modal');
+  const termsAcceptBtn = document.getElementById('terms-accept');
+  const termsRejectBtn = document.getElementById('terms-reject');
+  const statusToast = document.getElementById('status-toast');
+  const mentorWidget = document.getElementById('mentor-widget');
+  
+  // Constants
+  const MENTOR_ID = 'ePOXax8a1p2LuHHm4Uv3';
+  const MAX_RETRIES = 3;
+  
+  // Variables
+  let callActive = false;
+  let callInterval;
+  let callStartTime;
+  let conversation = [];
+  let termsAccepted = false;
+  let widgetScriptLoaded = false;
+  let sessionActive = false;
+  
+  // Show status toast
+  function showToast(message, duration = 3000) {
+    statusToast.textContent = message;
+    statusToast.classList.add('show');
+    
+    setTimeout(() => {
+      statusToast.classList.remove('show');
+    }, duration);
+  }
+
+  // Enhanced function to load the ElevenLabs widget script with retry capability
+  function loadWidgetScript() {
+    return new Promise((resolve, reject) => {
+      // Check if already loaded
+      if (widgetScriptLoaded || customElements.get('elevenlabs-convai')) {
+        console.log('ElevenLabs widget already loaded');
+        widgetScriptLoaded = true;
+        resolve();
+        return;
+      }
+      
+      // Script loading with retry mechanism
+      let retryCount = 0;
+      
+      function attemptScriptLoad() {
+        console.log(`Loading ElevenLabs widget script (attempt ${retryCount + 1}/${MAX_RETRIES + 1})...`);
+        
+        // Create a new script element
+        const script = document.createElement('script');
+        script.src = 'https://elevenlabs.io/convai-widget/index.js';
+        script.async = true;
+        
+        // Set a timeout to detect slow loading
+        const timeoutId = setTimeout(() => {
+          console.warn(`Script load timed out after 10 seconds (attempt ${retryCount + 1})`);
+          retryOrFail(new Error('Script load timeout'));
+        }, 10000);
+        
+        script.onload = () => {
+          clearTimeout(timeoutId);
+          console.log('Widget script loaded successfully');
+          widgetScriptLoaded = true;
+          resolve();
+        };
+        
+        script.onerror = (error) => {
+          clearTimeout(timeoutId);
+          console.error(`Failed to load widget script (attempt ${retryCount + 1}):`, error);
+          retryOrFail(new Error('Failed to load widget script'));
+        };
+        
+        document.head.appendChild(script);
+      }
+      
+      function retryOrFail(error) {
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          
+          // Calculate retry delay with exponential backoff and jitter
+          const baseDelay = Math.pow(2, retryCount) * 1000; // 2^retryCount * 1000ms
+          const jitter = baseDelay * (0.5 + Math.random() * 0.5); // Add 50-100% jitter
+          
+          console.log(`Retrying widget script load in ${Math.round(jitter/1000)} seconds...`);
+          
+          setTimeout(attemptScriptLoad, jitter);
+        } else {
+          console.error(`Failed to load widget script after ${MAX_RETRIES + 1} attempts`);
+          reject(error);
+        }
+      }
+      
+      // Start the first attempt
+      attemptScriptLoad();
+    });
+  }
+
+  // Initialize ElevenLabs widget
+  async function initializeWidget() {
+    console.log('Initializing ElevenLabs widget...');
+    
+    try {
+      // First ensure the script is loaded
+      await loadWidgetScript();
+      
+      // Get session ID or create a new one for continuity
+      const sessionId = localStorage.getItem('mentor_session_id') || Date.now().toString();
+      localStorage.setItem('mentor_session_id', sessionId);
+      
+      // Get username from localStorage
+      const username = localStorage.getItem('username') || 'User';
+      
+      // Create dynamic variables for the widget
+      const dynamicVarsObj = {
+        name: username,
+        user_name: username, // Add user_name which is required by the agent
+        session_id: sessionId
+      };
+      
+      const dynamicVarsJson = JSON.stringify(dynamicVarsObj);
+      
+      // Create the widget HTML
+      console.log('Using agent ID:', MENTOR_ID);
+      const widgetHtml = `<elevenlabs-convai 
+        agent-id="${MENTOR_ID}" 
+        dynamic-variables='${dynamicVarsJson}' 
+        enable-history="true"
+        hide-branding="true"
+        debug="true"
+        style="width: 100%; height: 100%;"
+      ></elevenlabs-convai>`;
+      
+      // Inject widget HTML
+      mentorWidget.innerHTML = widgetHtml;
+      console.log('Widget HTML injected');
+      
+      // Create a style to hide branding elements
+      const styleNode = document.createElement('style');
+      styleNode.textContent = `
+        elevenlabs-convai {
+          width: 100% !important;
+          height: 100% !important;
+          min-height: 400px !important;
+          z-index: 10 !important;
+          position: relative !important;
+        }
+        
+        /* Hide ElevenLabs UI elements */
+        .el-brand, .el-logo, .el-branding, .el-powered-by,
+        [class*="el-brand"], [class*="el-logo"], [class*="eleven"], [class*="labs"],
+        div[class*="elevenlabs"], div[class*="convai"],
+        elevenlabs-convai > div > div > div:nth-child(2) {
+          display: none !important;
+        }
+      `;
+      document.head.appendChild(styleNode);
+      
+      // Get the widget element
+      const widgetElement = mentorWidget.querySelector('elevenlabs-convai');
+      
+      if (widgetElement) {
+        console.log('Widget element found, adding event listeners');
+        
+        // Add event listeners to track widget state
+        widgetElement.addEventListener('ready', function() {
+          console.log('Widget is ready');
+          showToast('Connected to mentor!');
+          
+          // Ensure widget has focus and audio permissions
+          try {
+            // Try to focus the widget to ensure it has audio permissions
+            const widgetInput = widgetElement.shadowRoot?.querySelector('input') || 
+                               widgetElement.shadowRoot?.querySelector('textarea');
+            if (widgetInput) {
+              widgetInput.focus();
+              console.log('Focused widget input element to ensure audio permissions');
+            }
+          } catch (error) {
+            console.error('Error focusing widget:', error);
+          }
+        });
+        
+        // Add message received handler
+        widgetElement.addEventListener('message', function(event) {
+          const message = event.detail;
+          console.log('Message received:', message);
+          
+          if (message.role === 'assistant') {
+            addMessage(message.content, 'agent');
+            addToConversation(message.content, 'Cade');
+          }
+        });
+        
+        // Add error handler
+        widgetElement.addEventListener('error', function(event) {
+          console.error('Widget error:', event.detail);
+          showToast('Connection error: ' + (event.detail.message || 'Unknown error'), 5000);
+        });
+        
+        // Log all events from the widget for debugging
+        const events = ['ready', 'message', 'statechange', 'error', 'disconnect', 'reconnect'];
+        events.forEach(eventName => {
+          widgetElement.addEventListener(eventName, function(event) {
+            console.log(`Widget event '${eventName}':`, event.detail || event);
+          });
+        });
+        
+        // Add call state change handler
+        widgetElement.addEventListener('statechange', function(event) {
+          const state = event.detail;
+          console.log('Widget state changed:', state);
+          
+          if (state.includes('call_started') || state.includes('connected')) {
+            console.log('Call connected!');
+            updateStatusIndicator('connected');
+            
+            // Remove the "Connecting to Cade..." message
+            const systemMessages = Array.from(messageDisplay.querySelectorAll('.message-system'));
+            const connectingMessage = systemMessages.find(msg => 
+              msg.textContent.includes('Connecting to Cade')
+            );
+            if (connectingMessage) {
+              connectingMessage.remove();
+            }
+          } else if (state.includes('disconnected') || state.includes('call_ended')) {
+            console.log('Call ended!');
+            updateStatusIndicator('disconnected');
+            
+            // If call was actively ended, this would be handled by endCall function
+            // This handles the case when the call is disconnected unexpectedly
+            if (callActive) {
+              endCall();
+            }
+          }
+        });
+        
+        console.log('ElevenLabs widget initialized successfully');
+      } else {
+        console.error('Widget element not found after injection');
+        showToast('Error: Unable to initialize mentor connection', 5000);
+      }
+    } catch (error) {
+      console.error('Error initializing widget:', error);
+      showToast('Failed to load mentor connection. Please try again later.', 5000);
+    }
+  }
+
+  // Add message to conversation display
+  function addMessage(text, role) {
+    if (!callActive) return;
+    
+    const bubble = document.createElement('div');
+    bubble.className = `message-bubble message-${role}`;
+    bubble.textContent = text;
+    
+    messageDisplay.appendChild(bubble);
+    messageDisplay.scrollTop = messageDisplay.scrollHeight;
+  }
+
+  // Add message to conversation history
+  function addToConversation(text, sender) {
+    conversation.push({ sender, text, timestamp: new Date().toISOString() });
+    updateTranscript();
+  }
+
+  // Update transcript in analysis view
+  function updateTranscript() {
+    conversationLog.innerHTML = '';
+    
+    // Add notes section first
+    const notesContent = messageInput.value.trim();
+    if (notesContent) {
+      const notesSection = document.createElement('div');
+      notesSection.className = 'notes-section';
+      notesSection.innerHTML = `
+        <h4>Your Notes</h4>
+        <div class="notes-content">${notesContent}</div>
+      `;
+      notesSection.style.marginBottom = '20px';
+      notesSection.style.padding = '15px';
+      notesSection.style.backgroundColor = '#f5f7fa';
+      notesSection.style.borderRadius = '8px';
+      notesSection.style.borderLeft = '3px solid #0095C8';
+      
+      conversationLog.appendChild(notesSection);
+      
+      // Add a divider
+      const divider = document.createElement('hr');
+      divider.style.margin = '20px 0';
+      divider.style.borderTop = '1px solid #eee';
+      conversationLog.appendChild(divider);
+    }
+    
+    // Add a heading for the conversation
+    const conversationHeading = document.createElement('h4');
+    conversationHeading.textContent = 'Conversation History';
+    conversationHeading.style.marginBottom = '15px';
+    conversationLog.appendChild(conversationHeading);
+    
+    // Add conversation messages
+    conversation.forEach(msg => {
+      const logMessage = document.createElement('div');
+      logMessage.className = `log-message ${msg.sender === 'You' ? 'user-message' : 'agent-message'}`;
+      
+      const role = document.createElement('div');
+      role.className = 'message-role';
+      role.textContent = msg.sender;
+      
+      const content = document.createElement('div');
+      content.className = 'message-content';
+      content.textContent = msg.text;
+      
+      logMessage.appendChild(role);
+      logMessage.appendChild(content);
+      conversationLog.appendChild(logMessage);
+    });
+    
+    // Add download button at the bottom
+    const downloadSection = document.createElement('div');
+    downloadSection.style.marginTop = '20px';
+    downloadSection.style.textAlign = 'center';
+    
+    const downloadButton = document.createElement('button');
+    downloadButton.textContent = 'Save Transcript';
+    downloadButton.style.padding = '10px 15px';
+    downloadButton.style.backgroundColor = '#0095C8';
+    downloadButton.style.color = 'white';
+    downloadButton.style.border = 'none';
+    downloadButton.style.borderRadius = '5px';
+    downloadButton.style.cursor = 'pointer';
+    downloadButton.onclick = downloadTranscript;
+    
+    downloadSection.appendChild(downloadButton);
+    conversationLog.appendChild(downloadSection);
+    
+    conversationLog.scrollTop = conversationLog.scrollHeight;
+  }
+  
+  // Download transcript function
+  function downloadTranscript() {
+    const username = localStorage.getItem('username') || 'User';
+    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const filename = `Mentor_Session_${username}_${date}.txt`;
+    
+    // Prepare content
+    let content = `Mentor Session with Cade\n`;
+    content += `Date: ${new Date().toLocaleString()}\n`;
+    content += `User: ${username}\n\n`;
+    
+    // Add notes if any
+    const notesContent = messageInput.value.trim();
+    if (notesContent) {
+      content += `NOTES:\n${notesContent}\n\n`;
+    }
+    
+    content += `CONVERSATION:\n\n`;
+    
+    // Add conversation
+    conversation.forEach(msg => {
+      content += `${msg.sender}: ${msg.text}\n`;
+    });
+    
+    // Create and trigger download
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('Transcript saved to downloads', 3000);
+  }
+
+  // Show terms and conditions modal
+  function showTermsModal() {
+    termsModal.style.display = 'flex';
+  }
+  
+  // Hide terms and conditions modal
+  function hideTermsModal() {
+    termsModal.style.display = 'none';
+  }
+  
+  // Accept terms and start call
+  function acceptTerms() {
+    termsAccepted = true;
+    hideTermsModal();
+    initiateCall();
+  }
+  
+  // Reject terms
+  function rejectTerms() {
+    hideTermsModal();
+    statusText.textContent = 'Terms declined. Call not started.';
+    showToast('Terms declined. Call not started.', 3000);
+  }
+
+  // Start call function - shows terms modal first
+  function startCall() {
+    if (termsAccepted) {
+      initiateCall();
+    } else {
+      showTermsModal();
+    }
+  }
+  
+  // Update status indicator
+  function updateStatusIndicator(status) {
+    const statusDot = document.querySelector('.status-dot');
+    
+    if (!statusDot) return;
+    
+    switch(status) {
+      case 'connecting':
+        statusDot.style.backgroundColor = '#ff9800'; // Orange for connecting
+        statusText.textContent = 'Connecting...';
+        break;
+      case 'connected':
+        statusDot.style.backgroundColor = '#4caf50'; // Green for connected
+        statusText.textContent = 'Connected';
+        break;
+      case 'disconnected':
+        statusDot.style.backgroundColor = '#f44336'; // Red for disconnected
+        statusText.textContent = 'Disconnected';
+        break;
+      default:
+        statusDot.style.backgroundColor = '#888'; // Gray for unknown
+        statusText.textContent = status || 'Ready to connect';
+    }
+  }
+
+  // Actually initiate the call after terms are accepted
+  async function initiateCall() {
+    callActive = true;
+    
+    // Hide the screen overlay to show Cade
+    screenOverlay.style.opacity = '0';
+    screenOverlay.style.pointerEvents = 'none';
+    
+    // Show the message display
+    messageDisplay.classList.add('active');
+    
+    // Update UI
+    startCallBtn.style.display = 'none';
+    endCallBtn.style.display = 'flex';
+    updateStatusIndicator('connecting');
+    
+    // Start timer
+    callStartTime = Date.now();
+    callInterval = setInterval(updateCallTimer, 1000);
+    
+    // Add system message
+    addMessage('Connecting to Cade...', 'system');
+    
+    try {
+      // Initialize the widget if not already initialized
+      if (!widgetScriptLoaded) {
+        await initializeWidget();
+      }
+      
+      // Find and click the call button in the widget
+      setTimeout(() => {
+        const widgetElement = mentorWidget.querySelector('elevenlabs-convai');
+        if (widgetElement && widgetElement.shadowRoot) {
+          // Find and click the call button
+          const buttons = Array.from(widgetElement.shadowRoot.querySelectorAll('button'));
+          
+          console.log('Found widget buttons:', buttons.map(btn => ({
+            text: btn.textContent || btn.innerText || '',
+            classes: Array.from(btn.classList).join(', ')
+          })));
+          
+          const callButton = buttons.find(btn => {
+            const text = btn.textContent || btn.innerText || '';
+            return text.toLowerCase().includes('call');
+          });
+          
+          if (callButton) {
+            console.log('Found call button in widget, clicking it');
+            callButton.click();
+            
+            // After clicking call button, check for and handle privacy notice
+            setTimeout(() => {
+              try {
+                console.log('Checking for privacy notice dialog...');
+                
+                if (widgetElement && widgetElement.shadowRoot) {
+                  const currentButtons = Array.from(widgetElement.shadowRoot.querySelectorAll('button'));
+                  console.log(`Found ${currentButtons.length} buttons after call started`);
+                  
+                  // Log all buttons for debugging
+                  currentButtons.forEach((btn, idx) => {
+                    const text = btn.textContent || btn.innerText || '';
+                    const classes = Array.from(btn.classList).join(', ');
+                    console.log(`Post-call Button ${idx}: text="${text}", classes="${classes}"`);
+                  });
+                  
+                  // Look for the "Agree" button specifically
+                  const agreeButton = currentButtons.find(btn => {
+                    const text = (btn.textContent || '').toLowerCase();
+                    return text.includes('agree') || text.includes('accept') || text.includes('ok');
+                  });
+                  
+                  if (agreeButton) {
+                    console.log('Found privacy notice with Agree button, clicking it automatically');
+                    agreeButton.click();
+                    addMessage('Call connected. Start talking with Cade.', 'system');
+                    
+                    // Send an initial message with dynamic variables after a short delay
+                    setTimeout(() => {
+                      try {
+                        const username = localStorage.getItem('username') || 'User';
+                        // This message includes the required dynamic variable
+                        const initialMessage = `Hello, my name is ${username}.`;
+                        console.log('Sending initial message with dynamic variables:', initialMessage);
+                        
+                        if (window.elevenLabsWidget && typeof window.elevenLabsWidget.sendTextMessage === 'function') {
+                          window.elevenLabsWidget.sendTextMessage(initialMessage);
+                          console.log('Initial message sent via widget API');
+                        } else if (widgetElement) {
+                          // Find input field and send button as fallback
+                          const widgetInput = widgetElement.shadowRoot?.querySelector('input') || 
+                                           widgetElement.shadowRoot?.querySelector('textarea');
+                          
+                          if (widgetInput) {
+                            // Set value and dispatch events
+                            widgetInput.value = initialMessage;
+                            widgetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                            
+                            // Find send button
+                            const sendButton = widgetElement.shadowRoot?.querySelector('button[type="submit"]') ||
+                                            widgetElement.shadowRoot?.querySelector('[aria-label="Send"]');
+                            
+                            if (sendButton) {
+                              sendButton.click();
+                              console.log('Initial message sent via widget UI');
+                              
+                              // Add message to our UI
+                              addMessage(initialMessage, 'user');
+                              addToConversation(initialMessage, 'You');
+                            }
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Error sending initial message:', error);
+                      }
+                    }, 2000);
+                  } else {
+                    console.log('No privacy notice found or automatically accepted');
+                    addMessage('Ready to chat with Cade. Type a message to begin.', 'system');
+                    
+                    // Still try to send initial message even if privacy notice wasn't found
+                    setTimeout(() => {
+                      try {
+                        const username = localStorage.getItem('username') || 'User';
+                        const initialMessage = `Hello, my name is ${username}.`;
+                        console.log('Sending initial message with dynamic variables:', initialMessage);
+                        
+                        if (window.elevenLabsWidget && typeof window.elevenLabsWidget.sendTextMessage === 'function') {
+                          window.elevenLabsWidget.sendTextMessage(initialMessage);
+                          console.log('Initial message sent via widget API');
+                        } else if (widgetElement) {
+                          // Same fallback implementation as above
+                          const widgetInput = widgetElement.shadowRoot?.querySelector('input') || 
+                                           widgetElement.shadowRoot?.querySelector('textarea');
+                          
+                          if (widgetInput) {
+                            widgetInput.value = initialMessage;
+                            widgetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                            
+                            const sendButton = widgetElement.shadowRoot?.querySelector('button[type="submit"]') ||
+                                            widgetElement.shadowRoot?.querySelector('[aria-label="Send"]');
+                            
+                            if (sendButton) {
+                              sendButton.click();
+                              console.log('Initial message sent via widget UI');
+                              
+                              // Add message to our UI
+                              addMessage(initialMessage, 'user');
+                              addToConversation(initialMessage, 'You');
+                            }
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Error sending initial message:', error);
+                      }
+                    }, 2000);
+                  }
+                }
+              } catch(e) {
+                console.error('Error checking for privacy notice:', e);
+              }
+            }, 3000); // Wait 3 seconds for privacy notice to appear
+            
+          } else {
+            console.warn('Could not find call button in widget');
+            addMessage('Ready to chat with Cade. Type a message to begin.', 'system');
+          }
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('Error during call initiation:', error);
+      addMessage('Error connecting to Cade. Please try again.', 'system');
+    }
+  }
+
+  // End call function
+  function endCall() {
+    if (!callActive) return; // Prevent double execution
+    
+    callActive = false;
+    
+    // Show the screen overlay to completely hide Cade
+    screenOverlay.style.opacity = '1';
+    screenOverlay.style.pointerEvents = 'auto';
+    
+    // Hide the message display
+    messageDisplay.classList.remove('active');
+    messageDisplay.innerHTML = ''; // Clear any messages
+    
+    // Reset the status
+    updateStatusIndicator('disconnected');
+    
+    // Update UI
+    startCallBtn.style.display = 'flex';
+    endCallBtn.style.display = 'none';
+    
+    // Stop timer
+    clearInterval(callInterval);
+    callTimer.textContent = '00:00';
+    
+    // Add final message to transcript
+    addToConversation('Call ended', 'System');
+    
+    // Try multiple ways to terminate the call on the widget
+    const widgetElement = mentorWidget.querySelector('elevenlabs-convai');
+    if (widgetElement) {
+      try {
+        console.log('Attempting to end call through widget...');
+        
+        // Method 1: Try API method if available
+        if (typeof widgetElement.endCall === 'function') {
+          widgetElement.endCall();
+          console.log('Call ended via endCall API');
+        }
+        // Method 2: Find and click hangup button
+        else if (widgetElement.shadowRoot) {
+          // Look for any button that might be a hangup button
+          const buttons = Array.from(widgetElement.shadowRoot.querySelectorAll('button'));
+          console.log(`Found ${buttons.length} buttons in widget to search for hangup`);
+          
+          const hangupButton = buttons.find(btn => {
+            const text = (btn.textContent || btn.innerText || '').toLowerCase();
+            const ariaLabel = (btn.getAttribute('aria-label') || '').toLowerCase();
+            const classes = Array.from(btn.classList).join(' ').toLowerCase();
+            
+            return text.includes('hang up') || 
+                  text.includes('end call') || 
+                  text.includes('disconnect') ||
+                  ariaLabel.includes('end call') || 
+                  ariaLabel.includes('hang up') ||
+                  classes.includes('end') ||
+                  classes.includes('hangup');
+          });
+          
+          if (hangupButton) {
+            console.log('Found hangup button, clicking it...');
+            hangupButton.click();
+            console.log('Successfully clicked widget hangup button');
+          } else {
+            console.warn('Could not find hangup button in widget');
+            
+            // Method 3: As a fallback, try to reload the widget entirely
+            mentorWidget.innerHTML = '';
+            showToast('Call ended', 2000);
+          }
+        }
+      } catch (e) {
+        console.error('Error ending call through widget:', e);
+        
+        // Fallback: Clear the widget container
+        mentorWidget.innerHTML = '';
+      }
+    }
+    
+    // Forcefully hide any UI components that might be leftover
+    const widgetComponents = document.querySelectorAll('elevenlabs-convai');
+    widgetComponents.forEach(component => {
+      component.style.display = 'none';
+    });
+    
+    showToast('Call ended', 2000);
+  }
+
+  // Update call timer
+  function updateCallTimer() {
+    const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const seconds = (elapsed % 60).toString().padStart(2, '0');
+    callTimer.textContent = `${minutes}:${seconds}`;
+  }
+
+  // Save notes
+  function saveNotes() {
+    const notes = messageInput.value.trim();
+    
+    if (!notes) {
+      showToast('Please enter notes before saving', 2000);
+      return;
+    }
+    
+    // Update the transcript view to include the notes
+    updateTranscript();
+    
+    showToast('Notes saved', 2000);
+  }
+
+  // The sendMessage function has been repurposed for saving notes
+  function sendMessage() {
+    // This now just saves notes instead of sending messages
+    saveNotes();
+  }
+  
+  // Show assessment modal with data from Firebase
+  async function showAssessmentModal() {
+    const modal = document.getElementById('assessment-modal');
+    const contentArea = document.getElementById('assessment-content');
+    
+    // Show the modal with loading message
+    contentArea.innerHTML = '<p>Loading conversation analysis...</p>';
+    modal.style.display = 'flex';
+    
+    // Get the agent ID
+    const agentId = MENTOR_ID;
+    
+    // Get user ID for privacy protection
+    const userId = localStorage.getItem('userId') || localStorage.getItem('username');
+    
+    // We'll either get the conversation ID from the widget or let the cloud function find it
+    let conversationId = null;
+    
+    try {
+      // Try to find a conversation ID from ElevenLabs widget if available
+      const widgetElement = mentorWidget.querySelector('elevenlabs-convai');
+      
+      if (widgetElement) {
+        console.log('Found widget element for assessment');
+        
+        // Try different ways to get the conversation ID
+        try {
+          if (widgetElement.conversationId) {
+            conversationId = widgetElement.conversationId;
+            console.log(`Found conversationId property: ${conversationId}`);
+          } else if (widgetElement.getAttribute && widgetElement.getAttribute('conversation-id')) {
+            conversationId = widgetElement.getAttribute('conversation-id');
+            console.log(`Found conversation-id attribute: ${conversationId}`);
+          } else if (typeof widgetElement.getConversationId === 'function') {
+            conversationId = widgetElement.getConversationId();
+            console.log(`Retrieved ID via getConversationId(): ${conversationId}`);
+          } else if (widgetElement.conversation && widgetElement.conversation.id) {
+            // Try the newer API structure
+            conversationId = widgetElement.conversation.id;
+            console.log(`Found conversation.id property: ${conversationId}`);
+          }
+        } catch (e) {
+          console.error('Error getting conversation ID:', e);
+        }
+      }
+      
+      console.log(`Fetching assessment data for agent ID: ${agentId}, conversation ID: ${conversationId || 'auto-detect'}`);
+      
+      // Get the conversation data from the cloud function
+      const data = await fetchAssessmentData(agentId, conversationId, userId);
+      
+      if (!data) {
+        contentArea.innerHTML = '<p>No conversation data available yet. Please continue your session with Cade.</p>';
+        return;
+      }
+      
+      // Format the assessment data
+      const formattedContent = formatAssessmentData(data);
+      contentArea.innerHTML = formattedContent;
+      
+      // Add the conversation ID that was actually used to the display
+      if (data.conversation_id) {
+        contentArea.innerHTML += `
+        <details>
+          <summary>Conversation Details</summary>
+          <p>Conversation ID: ${data.conversation_id}</p>
+          <p>Created: ${new Date(data.created_at).toLocaleString()}</p>
+          <p>Messages analyzed: ${data.messages?.length || 0}</p>
+        </details>`;
+      }
+    } catch (error) {
+      console.error('Error fetching assessment data:', error);
+      contentArea.innerHTML = `<div class="error-container">
+        <h3>Error retrieving conversation analysis</h3>
+        <p>${error.message}</p>
+        <p>Please try again later or continue your conversation with Cade.</p>
+      </div>`;
+    }
+  }
+  
+  // Fetch assessment data from Firebase function
+  async function fetchAssessmentData(agentId, conversationId, userId) {
+    // Maximum retries for network errors
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
+    
+    while (retryCount <= MAX_RETRIES) {
+      try {
+        console.log(`Fetching assessment data (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, { 
+          agentId, 
+          conversationId, 
+          userId
+        });
+        
+        // Use the Firebase Function URL for getting conversation details
+        const apiUrl = 'https://us-central1-psychsafety.cloudfunctions.net/getConversationDetails';
+        
+        // Implement timeout to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+        
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              data: {
+                agentId: agentId,
+                conversationId: conversationId,
+                userId: userId // Include user ID for privacy protection
+              }
+            }),
+            signal: controller.signal,
+            cache: 'no-store' // Prevent browser caching
+          });
+          
+          clearTimeout(timeoutId); // Clear the timeout if request completes
+          
+          if (!response.ok) {
+            let errorText;
+            try {
+              // Try to parse as JSON first
+              const errorJson = await response.json();
+              errorText = JSON.stringify(errorJson);
+            } catch (e) {
+              // If not JSON, just get as text
+              errorText = await response.text();
+            }
+            
+            console.error('Error response:', {
+              status: response.status,
+              statusText: response.statusText,
+              body: errorText
+            });
+            
+            // Check if this is a retryable error
+            const isRetryableStatus = [408, 429, 500, 502, 503, 504].includes(response.status);
+            if (isRetryableStatus && retryCount < MAX_RETRIES) {
+              retryCount++;
+              await new Promise(r => setTimeout(r, 2000 * retryCount)); // Exponential backoff
+              continue;
+            }
+            
+            throw new Error(`API Error (${response.status}): ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          console.log('Assessment data received:', data);
+          
+          if (data.error) {
+            throw new Error(data.error.message || 'Unknown API error');
+          }
+          
+          return data.data;
+        } catch (fetchError) {
+          // Clear timeout
+          clearTimeout(timeoutId);
+          
+          // If this is a timeout or network error and we have retries left, retry
+          if ((fetchError.name === 'AbortError' || fetchError.message.includes('network')) && 
+              retryCount < MAX_RETRIES) {
+            retryCount++;
+            const delay = 2000 * retryCount;
+            console.log(`Network error, retrying in ${delay}ms...`);
+            await new Promise(r => setTimeout(r, delay));
+            continue;
+          }
+          
+          throw fetchError;
+        }
+      } catch (error) {
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          await new Promise(r => setTimeout(r, 2000 * retryCount));
+          continue;
+        }
+        throw error;
+      }
+    }
+    
+    throw new Error(`Failed to fetch data after ${MAX_RETRIES + 1} attempts`);
+  }
+  
+  // Format assessment data for display
+  function formatAssessmentData(data) {
+    let html = '';
+    
+    // Check if we have any data
+    if (!data || !data.messages || data.messages.length === 0) {
+      return '<p>No conversation data found. Please continue your session with Cade.</p>';
+    }
+    
+    // Add summary if available
+    if (data.analysis && data.analysis.summary) {
+      html += `<div class="evaluation-block">
+        <h3>Conversation Summary</h3>
+        <p>${data.analysis.summary}</p>
+      </div>`;
+    }
+    
+    // Add conversation messages
+    html += `<h3>Conversation History</h3>`;
+    
+    // Display messages
+    data.messages.forEach(message => {
+      const role = message.role === 'user' ? 'You' : 'Cade';
+      const cssClass = message.role === 'user' ? 'message-user' : 'message-agent';
+      
+      html += `<div class="message-block ${cssClass}">
+        <strong>${role}:</strong> ${message.content}
+      </div>`;
+    });
+    
+    return html;
+  }
+
+  // Event listeners
+  startCallBtn.addEventListener('click', startCall);
+  endCallBtn.addEventListener('click', endCall);
+  
+  sendButton.addEventListener('click', sendMessage);
+  messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+  
+  transcriptBtn.addEventListener('click', () => {
+    if (callActive) {
+      // If currently in a call with ElevenLabs widget, use the Firebase function to get the API data
+      showAssessmentModal();
+    } else {
+      // If not in an active call, show the local transcript
+      analysisView.classList.add('active');
+    }
+  });
+  
+  closeAnalysisBtn.addEventListener('click', () => {
+    analysisView.classList.remove('active');
+  });
+  
+  // Set up modal close button
+  const closeModalButton = document.getElementById('close-modal');
+  if (closeModalButton) {
+    closeModalButton.addEventListener('click', function() {
+      const modal = document.getElementById('assessment-modal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    });
+  }
+  
+  // Terms and conditions buttons
+  termsAcceptBtn.addEventListener('click', acceptTerms);
+  termsRejectBtn.addEventListener('click', rejectTerms);
+  
+  // Initial UI setup
+  endCallBtn.style.display = 'none';
+  
+  // Check if username exists in localStorage
+  window.addEventListener('load', function() {
+    try {
+      const username = localStorage.getItem('username');
+      if (!username) {
+        // Redirect to index page to get username
+        window.location.href = 'index.html';
+      } else {
+        // Initialize widget to have it ready
+        initializeWidget();
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+    }
+  });
+</script>
+
+</body>
+</html>

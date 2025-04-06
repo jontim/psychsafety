@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Coach Profile - NLI Coaching Practice</title>
+  
+  <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 300;
+      background-color: #f9f9f9;
+      color: #4D4D4D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+    
+    header {
+      background: linear-gradient(to right, #005575, #0095C8);
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .logo-strip {
+      background: #F9F9F9;
+      padding: 0.75rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 1px solid #E9E9E9;
+    }
+
+    .header-title {
+      padding: 1rem;
+      color: white;
+    }
+    
+    header h1 {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .back-button {
+      position: absolute;
+      top: 50%;
+      left: 2rem;
+      transform: translateY(-50%);
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+    }
+    
+    .back-button:hover {
+      opacity: 0.8;
+    }
+    
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem 9rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .coach-profile {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 3rem;
+      width: 100%;
+      max-width: 1000px;
+      margin-bottom: 3rem;
+    }
+    
+    .profile-sidebar {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      height: fit-content;
+      align-self: flex-start;
+    }
+    
+    .profile-image {
+      width: 100%;
+      height: 250px;
+      position: relative;
+      background: #0095C8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .profile-image img {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid white;
+      padding: 3px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .profile-info {
+      padding: 1.5rem;
+    }
+    
+    .coach-name {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.75rem;
+      color: #005575;
+      margin-bottom: 0.5rem;
+    }
+    
+    .coach-title {
+      color: #0095C8;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+    
+    .expertise-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+    
+    .expertise-list li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    
+    .expertise-list li:before {
+      content: "•";
+      color: #0095C8;
+      position: absolute;
+      left: 0.5rem;
+    }
+    
+    .profile-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    
+    .content-section {
+      margin-bottom: 2rem;
+    }
+    
+    .content-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #005575;
+      margin-bottom: 1rem;
+    }
+    
+    .section-content {
+      margin-bottom: 1.5rem;
+    }
+    
+    .section-content:last-child {
+      margin-bottom: 0;
+    }
+    
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .testimonial {
+      background: #f9f9f9;
+      padding: 1.5rem;
+      border-radius: 8px;
+      font-style: italic;
+    }
+    
+    .testimonial-author {
+      margin-top: 1rem;
+      font-style: normal;
+      font-weight: 500;
+      color: #005575;
+    }
+    
+    .cta-button {
+      background: #F37322;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    
+    .cta-button:hover {
+      background: #e86615;
+    }
+    
+    footer {
+      background: #4D4D4D;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+      color: white;
+    }
+    
+    .logo {
+      height: 30px;
+      width: auto;
+      margin-top: 0.625rem;
+    }
+    
+    @media (max-width: 900px) {
+      .coach-profile {
+        grid-template-columns: 1fr;
+      }
+      
+      .profile-sidebar {
+        max-width: 350px;
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-strip">
+    <img src="NLI LOGO inline RGB (1).png" alt="NLI Logo" style="height: 40px; width: auto;">
+  </div>
+  <div class="header-title">
+    <a href="coach-selection.html" class="back-button">← Back</a>
+    <h1>NLI Coaching Practice</h1>
+  </div>
+</header>
+
+<div id="main-content">
+  <div class="coach-profile">
+    <div class="profile-sidebar">
+      <div class="profile-image">
+        <img src="NILES.png" alt="NILES">
+      </div>
+      <div class="profile-info">
+        <h2 class="coach-name">NILES</h2>
+        <div class="coach-title">AI Executive Coach</div>
+        <ul class="expertise-list">
+          <li>Evidence-based Coaching</li>
+          <li>Leadership Development</li>
+          <li>Performance Enhancement</li>
+          <li>Communication Skills</li>
+          <li>Behavioral Science</li>
+        </ul>
+        <a href="coaching-session.html" id="start-coaching-button" class="cta-button">Start Coaching Session</a>
+      </div>
+    </div>
+    
+    <div class="profile-content">
+      <div class="content-section">
+        <h3 class="section-title">About <span class="coach-name">Coach</span></h3>
+        <div class="section-content">
+          <p>NILES is an advanced AI coach specializing in evidence-based coaching approaches. Drawing from extensive research in behavioral science and leadership development, NILES provides personalized coaching experiences that adapt to your unique needs and goals.</p>
+          <p>With a focus on practical application and measurable outcomes, NILES helps leaders develop their skills through structured conversations and targeted feedback.</p>
+        </div>
+      </div>
+      
+      <div class="content-section">
+        <h3 class="section-title">Coaching Approach</h3>
+        <div class="section-content">
+          <p id="coaching-approach-text">Coaching approach text will be dynamically updated based on selected style.</p>
+          <ul style="margin-left: 1.5rem; margin-top: 0.5rem;" id="coaching-benefits">
+            <li>Identify specific areas for growth and development</li>
+            <li>Create actionable plans based on your goals</li>
+            <li>Reflect on your own performance and insights</li>
+            <li>Track progress and celebrate achievements</li>
+            <li>Build sustainable leadership habits</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="content-section">
+        <h3 class="section-title">Testimonials</h3>
+        <div class="testimonials" id="coach-testimonials">
+          <!-- Testimonials will be dynamically populated based on the selected coach -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <img src="NLI.png" alt="NLI Logo" class="logo">
+  <p style="margin-top: 1rem; font-weight: 300; font-size: 0.875rem;">© 2025 NLI. All rights reserved.</p>
+</footer>
+
+<script>
+  // Function to load the selected coach's profile
+  document.addEventListener('DOMContentLoaded', function() {
+    // Retrieve coach details from localStorage
+    const coachDetails = JSON.parse(localStorage.getItem('coachDetails') || '{}');
+    const coachId = coachDetails.id || 'niles'; // Default to niles if no coach selected
+    
+    console.log('Loading coach profile for:', coachId, coachDetails);
+    
+    // Update the coach profile elements
+    if (coachDetails && Object.keys(coachDetails).length > 0) {
+      // Update coach image
+      const profileImage = document.querySelector('.profile-image img');
+      if (profileImage) {
+        profileImage.src = `${coachId}.png`;
+        profileImage.alt = coachDetails.name;
+        
+        // Special handling for Caroline's image position
+        if (coachId === 'caroline') {
+          profileImage.style.objectPosition = 'center 20%';
+          profileImage.style.transform = 'translateY(10px)';
+        }
+      }
+      
+      // Update coach name
+      const coachNameElements = document.querySelectorAll('.coach-name');
+      coachNameElements.forEach(element => {
+        element.textContent = coachDetails.name;
+      });
+      
+      // Update coach title
+      const coachTitleElement = document.querySelector('.coach-title');
+      if (coachTitleElement) {
+        coachTitleElement.textContent = coachDetails.title;
+      }
+      
+      // Update expertise list based on user selections
+      const expertiseList = document.querySelector('.expertise-list');
+      if (expertiseList) {
+        // Clear existing list items
+        expertiseList.innerHTML = '';
+        
+        // Create comprehensive expertise map
+        const expertiseMap = {
+          // Industry expertise
+          'technology': [
+            'Technology Transformation',
+            'Digital Leadership',
+            'Innovation Management'
+          ],
+          'healthcare': [
+            'Healthcare Leadership',
+            'Medical Team Dynamics',
+            'Patient-Centered Management'
+          ],
+          'finance': [
+            'Financial Leadership',
+            'Risk Management',
+            'Regulatory Navigation'
+          ],
+          'education': [
+            'Educational Leadership',
+            'Learning & Development',
+            'Academic Excellence'
+          ],
+          'manufacturing': [
+            'Operational Excellence',
+            'Supply Chain Optimization',
+            'Production Leadership'
+          ],
+          'retail': [
+            'Customer Experience',
+            'Retail Operations',
+            'Brand Leadership'
+          ],
+          'consulting': [
+            'Client Advisory',
+            'Professional Services',
+            'Consulting Excellence'
+          ],
+          'nonprofit': [
+            'Mission-Driven Leadership',
+            'Social Impact',
+            'Stakeholder Management'
+          ],
+          // Focus areas
+          'executive': [
+            'C-Suite Effectiveness',
+            'Strategic Decision Making',
+            'Executive Presence'
+          ],
+          'leadership': [
+            'Leadership Development',
+            'Team Empowerment',
+            'Vision Setting'
+          ],
+          'career': [
+            'Career Advancement',
+            'Professional Development',
+            'Skills Enhancement'
+          ],
+          'personal-brand': [
+            'Professional Reputation',
+            'Authentic Presence',
+            'Leadership Narrative'
+          ],
+          'communication': [
+            'Communication Skills',
+            'Public Speaking',
+            'Interpersonal Dynamics'
+          ],
+          'strategic-thinking': [
+            'Strategic Planning',
+            'Systems Thinking',
+            'Decision Frameworks'
+          ],
+          'resilience': [
+            'Stress Management',
+            'Adaptive Mindset',
+            'Emotional Intelligence'
+          ],
+          'team-building': [
+            'Psychological Safety',
+            'Team Cohesion',
+            'Collaborative Leadership'
+          ],
+          'sales': [
+            'Sales Leadership',
+            'Client Relationships',
+            'Revenue Growth'
+          ]
+        };
+        
+        // Function to get expertise based on user selections
+        const gatherExpertiseItems = () => {
+          let expertiseItems = [];
+          
+          // Add Evidence-based Coaching as first item always
+          expertiseItems.push('Evidence-based Coaching');
+          
+          // Add industry expertise if available
+          if (coachDetails.industries && coachDetails.industries !== '' && coachDetails.industries !== 'default') {
+            console.log('Selected industry:', coachDetails.industries);
+            
+            // Map common industry names to their keys in our expertise map
+            const industryMapping = {
+              'Finance': 'finance',
+              'Financial Services': 'finance',
+              'Professional Services': 'consulting',
+              'Consulting': 'consulting',
+              'Technology': 'technology',
+              'Tech': 'technology',
+              'Healthcare': 'healthcare',
+              'Health': 'healthcare',
+              'Education': 'education',
+              'Manufacturing': 'manufacturing',
+              'Retail': 'retail',
+              'Non-profit': 'nonprofit',
+              'Nonprofit': 'nonprofit'
+            };
+            
+            // Add the industry name as expertise
+            expertiseItems.push(`${coachDetails.industries} Industry Expertise`);
+            
+            // Get the normalized industry key
+            let industryKey = industryMapping[coachDetails.industries];
+            if (!industryKey) {
+              // Try to match by converting to lowercase and checking for partial matches
+              const lowerIndustry = coachDetails.industries.toLowerCase();
+              if (lowerIndustry.includes('financ')) industryKey = 'finance';
+              else if (lowerIndustry.includes('consult') || lowerIndustry.includes('professional')) industryKey = 'consulting';
+              else if (lowerIndustry.includes('tech')) industryKey = 'technology';
+              else if (lowerIndustry.includes('health')) industryKey = 'healthcare';
+              else if (lowerIndustry.includes('edu')) industryKey = 'education';
+              else if (lowerIndustry.includes('manufact')) industryKey = 'manufacturing';
+              else if (lowerIndustry.includes('retail')) industryKey = 'retail';
+              else if (lowerIndustry.includes('nonprofit') || lowerIndustry.includes('non-profit')) industryKey = 'nonprofit';
+            }
+            
+            console.log('Mapped industry key:', industryKey);
+            
+            // Add specific industry expertise
+            if (expertiseMap[industryKey]) {
+              // Add the first item from industry expertise
+              expertiseItems.push(expertiseMap[industryKey][0]);
+            }
+          }
+          
+          // Add focus area expertise if available
+          if (coachDetails.focusArea && coachDetails.focusArea !== '' && coachDetails.focusArea !== 'default') {
+            // Add specific focus area expertise
+            if (expertiseMap[coachDetails.focusArea]) {
+              expertiseItems = expertiseItems.concat(expertiseMap[coachDetails.focusArea]);
+            }
+          }
+          
+          // Add coaching style as expertise if available
+          if (coachDetails.style && coachDetails.style !== '' && coachDetails.style !== 'default') {
+            expertiseItems.push(`${coachDetails.style} Coaching Approach`);
+          }
+          
+          // Add behavioral science expertise
+          expertiseItems.push('Behavioral Science');
+          
+          // Limit to 5 expertise areas
+          return expertiseItems.slice(0, 5);
+        };
+        
+        // Get expertise items based on selections
+        const expertiseItems = gatherExpertiseItems();
+        
+        // Create and append list items for each expertise
+        expertiseItems.forEach(expertise => {
+          const li = document.createElement('li');
+          li.textContent = expertise;
+          expertiseList.appendChild(li);
+        });
+      }
+      
+      // Define mapping for focus areas to user-friendly names
+      const focusAreaNames = {
+        'executive': 'Executive Leadership',
+        'leadership': 'Leadership Development',
+        'career': 'Career Advancement',
+        'personal-brand': 'Personal Branding',
+        'communication': 'Communication Skills',
+        'strategic-thinking': 'Strategic Thinking',
+        'resilience': 'Resilience & Wellbeing',
+        'team-building': 'Team Building',
+        'sales': 'Sales Excellence'
+      };
+      
+      // Update coach bio with dynamic content based on coach ID and selected parameters
+      const aboutSection = document.querySelector('.content-section:first-child .section-content');
+      if (aboutSection) {
+        let bioParagraphs = '';
+        const hasIndustry = coachDetails.industries && coachDetails.industries !== '' && coachDetails.industries !== 'default';
+        const hasFocusArea = coachDetails.focusArea && coachDetails.focusArea !== '' && coachDetails.focusArea !== 'default';
+        
+        // Only use industry-specific content if industry was selected, otherwise use generic content
+        const industryText = hasIndustry ? coachDetails.industries : 'various industries';
+        const focusAreaText = hasFocusArea ? focusAreaNames[coachDetails.focusArea] : 'leadership development';
+        
+        // Customize bio based on coach ID and selected industry/focus area
+        if (coachId === 'niles') {
+          bioParagraphs = `
+            <p>${coachDetails.name} is an executive coach specializing in evidence-based leadership development. With expertise in ${industryText}, ${coachDetails.name} combines cutting-edge behavioral science research with practical applications to deliver transformative coaching experiences.</p>
+            <p>Known for a data-driven approach to coaching, ${coachDetails.name} helps leaders navigate complex challenges while building skills that lead to measurable performance improvements in ${focusAreaText}.</p>
+          `;
+        } else if (coachId === 'caroline') {
+          bioParagraphs = `
+            <p>${coachDetails.name} brings extensive ${industryText} experience to her coaching practice. She integrates decades of leadership expertise with a deep understanding of organizational dynamics to provide insightful and impactful coaching.</p>
+            <p>With particular strength in ${focusAreaText}, ${coachDetails.name} creates supportive yet challenging conversations that drive meaningful growth for leaders in complex environments.</p>
+          `;
+        } else if (coachId === 'malik') {
+          bioParagraphs = `
+            <p>As a coach with a global perspective, ${coachDetails.name} brings a unique blend of ${industryText} insights to his coaching practice. His approach is grounded in both rigorous research and practical experience leading teams across cultural boundaries.</p>
+            <p>${coachDetails.name} excels in helping clients develop ${focusAreaText} skills that translate to real-world success in today's complex business environment.</p>
+          `;
+        } else if (coachId === 'sofia') {
+          bioParagraphs = `
+            <p>${coachDetails.name} combines her expertise in ${industryText} with a passion for developing authentic leaders. Her methodical, research-based approach creates space for both reflection and action.</p>
+            <p>Specializing in ${focusAreaText}, ${coachDetails.name} helps clients build sustainable practices that foster long-term growth and resilience.</p>
+          `;
+        } else {
+          bioParagraphs = `
+            <p>${coachDetails.name} is an advanced coach specializing in evidence-based approaches. Drawing from extensive research in behavioral science and leadership development for ${industryText}, ${coachDetails.name} provides personalized coaching experiences that adapt to your unique needs and goals.</p>
+            <p>With a focus on practical application and measurable outcomes, ${coachDetails.name} helps leaders develop their skills through structured conversations and targeted feedback.</p>
+          `;
+        }
+        
+        aboutSection.innerHTML = bioParagraphs;
+      }
+      
+      // Update coaching approach based on selected style
+      const approachTextElement = document.getElementById('coaching-approach-text');
+      if (approachTextElement) {
+        let approachText = '';
+        
+        // Only use the adaptable style text if no style was explicitly selected
+        if (!coachDetails.style || coachDetails.style === 'default' || coachDetails.style === '') {
+          approachText = `${coachDetails.name} adapts their coaching style to meet the needs of the coachee in the moment. This specialized adaptability is a hallmark of expert coaches, allowing for a truly personalized experience backed by the latest behavioral science research.`;
+        } else {
+          // Customize approach based on coaching style
+          switch(coachDetails.style.toLowerCase()) {
+            case 'directive':
+              approachText = `${coachDetails.name} employs a directive coaching approach, providing clear guidance and structured frameworks to help clients achieve their goals. This evidence-based style is particularly effective for individuals seeking concrete strategies and actionable next steps.`;
+              break;
+            case 'non-directive':
+              approachText = `${coachDetails.name} employs a non-directive coaching approach, creating space for self-discovery and drawing out insights through powerful questioning techniques. This scientifically-supported method is ideal for deep reflection and developing personalized solutions.`;
+              break;
+            case 'balanced':
+              approachText = `${coachDetails.name} employs a balanced coaching approach, flexibly shifting between directive guidance and non-directive exploration based on client needs. Research indicates this adaptive style maximizes both immediate progress and long-term growth.`;
+              break;
+            case 'strategic':
+              approachText = `${coachDetails.name} employs a strategic coaching approach, focusing on big-picture thinking and future-oriented planning. This research-backed methodology helps clients develop systemic vision and make decisions aligned with long-term objectives.`;
+              break;
+            case 'challenging':
+              approachText = `${coachDetails.name} employs a challenging coaching approach, pushing boundaries to accelerate personal growth through evidence-based techniques. Studies show this method can create breakthrough moments for clients ready to transform their capabilities.`;
+              break;
+            default:
+              approachText = `${coachDetails.name} employs a ${coachDetails.style} coaching approach, leveraging evidence-based techniques tailored to this methodology. This research-backed approach is designed to create meaningful and lasting change.`;
+          }
+        }
+        
+        approachTextElement.textContent = approachText;
+      }
+      
+      // Update coaching benefits based on focus area
+      const benefitsList = document.getElementById('coaching-benefits');
+      if (benefitsList) {
+        // Define benefit items based on focus area without coach name
+        const focusAreaBenefits = {
+          'executive': [
+            "Navigate complex leadership challenges at the highest levels",
+            "Refine your strategic decision-making capabilities",
+            "Build influential executive presence",
+            "Lead organizational transformation effectively",
+            "Develop sustainable C-suite leadership practices"
+          ],
+          'leadership': [
+            "Develop your authentic leadership voice",
+            "Build and inspire high-performing teams",
+            "Navigate leadership transitions with confidence",
+            "Create a culture of innovation and excellence",
+            "Balance strategic vision with operational excellence"
+          ],
+          'career': [
+            "Clarify your career goals and trajectory",
+            "Leverage your unique strengths and talents",
+            "Navigate professional transitions successfully",
+            "Develop a compelling professional identity",
+            "Increase your visibility and organizational impact"
+          ],
+          'personal-brand': [
+            "Articulate your unique value proposition",
+            "Craft a compelling professional narrative",
+            "Build authentic presence in all interactions",
+            "Develop strategic visibility in your organization",
+            "Align your personal brand with your career aspirations"
+          ],
+          'communication': [
+            "Develop advanced communication strategies",
+            "Improve your presentation and public speaking skills",
+            "Craft persuasive messaging for different audiences",
+            "Master difficult conversations with stakeholders",
+            "Enhance your executive presence through effective communication"
+          ],
+          'strategic-thinking': [
+            "Develop big-picture analytical skills",
+            "Improve your decision-making processes",
+            "Identify emerging opportunities ahead of competitors",
+            "Navigate complexity and ambiguity with confidence",
+            "Align tactical actions with strategic vision"
+          ],
+          'resilience': [
+            "Build sustainable wellbeing practices",
+            "Navigate high-pressure situations with composure",
+            "Develop adaptive thinking patterns",
+            "Bounce back from setbacks stronger than before",
+            "Maintain peak performance during challenging times"
+          ],
+          'team-building': [
+            "Foster psychological safety in your team",
+            "Develop high-performing team dynamics",
+            "Navigate team conflicts constructively",
+            "Build inclusive team cultures that value diversity",
+            "Leverage diverse perspectives for innovation"
+          ],
+          'sales': [
+            "Develop consultative selling approaches",
+            "Build lasting client relationships based on trust",
+            "Craft compelling value propositions",
+            "Navigate complex sales processes efficiently",
+            "Consistently exceed performance targets"
+          ]
+        };
+        
+        // Default benefits if focus area not found
+        const defaultBenefits = [
+          "Identify specific areas for growth and development",
+          "Create actionable plans based on your goals",
+          "Reflect on your own performance and insights",
+          "Track progress and celebrate achievements",
+          "Build sustainable leadership habits"
+        ];
+        
+        // Get the appropriate benefits list
+        const benefits = coachDetails.focusArea && focusAreaBenefits[coachDetails.focusArea] ? 
+                        focusAreaBenefits[coachDetails.focusArea] : defaultBenefits;
+        
+        // Add coach name heading at the top
+        const benefitsHeading = document.querySelector('.coaching-benefits-heading');
+        if (benefitsHeading) {
+          benefitsHeading.textContent = `${coachDetails.name} will help you:`;
+        } else {
+          // Create heading if it doesn't exist
+          const p = document.createElement('p');
+          p.className = 'coaching-benefits-heading';
+          p.textContent = `${coachDetails.name} will help you:`;
+          benefitsList.parentNode.insertBefore(p, benefitsList);
+        }
+        
+        // Update the benefits list
+        benefitsList.innerHTML = '';
+        benefits.forEach(benefit => {
+          const li = document.createElement('li');
+          li.textContent = benefit;
+          benefitsList.appendChild(li);
+        });
+      }
+      
+      // Populate testimonials based on selected coach
+      const testimonialContainer = document.getElementById('coach-testimonials');
+      if (testimonialContainer) {
+        // Create testimonial data for each coach with style-specific testimonials
+        const coachTestimonials = {
+          // NILES - Data-driven, evidence-based coach
+          'niles': [
+            {
+              text: "Working with Niles transformed my approach to leadership through his analytical, data-driven feedback. The metrics we tracked showed measurable improvements in my team's engagement and performance within just two months.",
+              author: "- David Chen, CTO at FinTech Solutions"
+            },
+            {
+              text: "What sets Niles apart is his evidence-based methodology. He provided clear frameworks and specific action steps that helped me navigate a complex reorganization with confidence and precision.",
+              author: "- Alexis Rodriguez, VP of Operations at MediTech"
+            },
+            {
+              text: "Niles brings an exceptional quantitative approach to coaching. His ability to measure behavioral changes helped me track my progress and adjust my leadership strategies in real-time, leading to measurable improvements in my team's engagement.",
+              author: "- Priya Sharma, Research Director at BioInnovate"
+            },
+            {
+              text: "My sessions with Niles yielded tangible results I could immediately implement. His scientific approach to coaching helped me optimize my presentation style, resulting in a 65% increase in stakeholder buy-in for our latest initiative.",
+              author: "- Derek Wilson, Investment Banking Lead"
+            }
+          ],
+          // CAROLINE - Supportive, relationship-focused coach
+          'caroline': [
+            {
+              text: "Caroline's supportive coaching style created a safe space for me to explore my leadership challenges. Her warm approach combined with strategic insights helped me find my authentic voice as a leader.",
+              author: "- Jennifer Walsh, Marketing Director at RetailCo"
+            },
+            {
+              text: "What I appreciate most about Caroline is how she balances emotional intelligence with practical guidance. Her nurturing approach helped me develop confidence in high-stakes situations while staying true to my values.",
+              author: "- William Parker, Hospital Administrator"
+            },
+            {
+              text: "Caroline has an extraordinary ability to listen beyond words. Her empathetic coaching helped me navigate a challenging career transition while maintaining my wellbeing and sense of purpose throughout the process.",
+              author: "- Olivia Martinez, Chief People Officer at EdTech Solutions"
+            },
+            {
+              text: "The emotional intelligence Caroline brought to our sessions transformed how I lead my team. Her supportive yet insightful questions helped me build deeper connections with my colleagues and create a more inclusive environment.",
+              author: "- Marcus Johnson, Diversity & Inclusion Lead"
+            }
+          ],
+          // MATHEW - Strategic, structured, British coach with finance background
+          'mathew': [
+            {
+              text: "Mathew's methodical coaching approach helped me structure my thinking around our complex financial challenges. His strategic frameworks gave me the clarity I needed to lead my team through our merger with remarkable results.",
+              author: "- James Harrison, CFO at InvestGroup"
+            },
+            {
+              text: "Working with Mathew has been transformative for my leadership style. His structured approach combined with his insightful questions helped me navigate the complexity of operating across both manufacturing and financial divisions.",
+              author: "- Victoria Bennett, Operations Director at ManufactTech"
+            },
+            {
+              text: "What sets Mathew apart is his ability to distill complex business challenges into actionable plans. His financial acumen combined with his coaching expertise provided exactly the guidance I needed to restructure our European division.",
+              author: "- Omar Al-Farsi, Head of Strategy at Global Holdings"
+            },
+            {
+              text: "Mathew's coaching helped me find my voice in a male-dominated industry. His thoughtful yet pragmatic approach gave me the confidence to lead our manufacturing team through significant technology transformations while staying true to my values.",
+              author: "- Serena Wong, Plant Director at PowerManufacturing"
+            }
+          ],
+          // LORRAINE - Empathetic, innovative British coach with tech background
+          'lorraine': [
+            {
+              text: "Lorraine's innovative coaching approach opened my eyes to possibilities I hadn't considered. Her technical background paired with her emotional intelligence helped me navigate a challenging digital transformation while keeping my team engaged and motivated.",
+              author: "- Daniel Foster, CTO at CloudSystems"
+            },
+            {
+              text: "What impressed me most about Lorraine was how she balanced empathy with strategic direction. Her healthcare expertise was evident in how she helped me develop a more holistic leadership approach during our hospital's technology integration.",
+              author: "- Dr. Sarah Williams, Medical Director at CentralHealth"
+            },
+            {
+              text: "Lorraine's coaching transformed how I approach innovation in our business. Her unique blend of technical knowledge and people skills helped me build bridges between our R&D teams and healthcare partners, resulting in breakthrough collaborations.",
+              author: "- Robert Chen, Innovation Lead at MedTech Innovations"
+            },
+            {
+              text: "As a woman in tech leadership, I found Lorraine's perspective incredibly valuable. Her coaching helped me navigate complex stakeholder dynamics while implementing our new patient care system, balancing technical excellence with compassionate leadership.",
+              author: "- Zainab Ahmed, IT Director at National Healthcare Trust"
+            }
+          ]
+        };
+        
+        // Default testimonials if coach not found
+        const defaultTestimonials = [
+          {
+            text: "The coaching experience has been transformative for my leadership approach. The insights and feedback were incredibly valuable and directly applicable.",
+            author: "- Sarah M., Senior Director"
+          },
+          {
+            text: "These coaching sessions helped me see challenges from new perspectives. I've implemented several strategies that have already improved my team's performance.",
+            author: "- Michael R., Team Lead"
+          }
+        ];
+        
+        // Get testimonials for the current coach
+        const testimonials = coachTestimonials[coachId] || defaultTestimonials;
+        
+        // Clear existing testimonials
+        testimonialContainer.innerHTML = '';
+        
+        // Add new testimonials
+        testimonials.forEach(testimonial => {
+          const testimonialDiv = document.createElement('div');
+          testimonialDiv.className = 'testimonial';
+          testimonialDiv.innerHTML = `
+            "${testimonial.text}"
+            <div class="testimonial-author">${testimonial.author}</div>
+          `;
+          testimonialContainer.appendChild(testimonialDiv);
+        });
+      }
+      
+      // Update page title
+      document.title = `${coachDetails.name} - Coach Profile - NLI Coaching Practice`;
+      
+      // Update the Start Coaching Session button to point to coaching-session.html
+      const startCoachingButton = document.getElementById('start-coaching-button');
+      if (startCoachingButton) {
+        // Set the URL to the coaching session page
+        startCoachingButton.href = 'coaching-session.html';
+        
+        // Ensure the coach details remain in localStorage when navigating to session page
+        startCoachingButton.addEventListener('click', function(e) {
+          // Store coach details for the session page
+          localStorage.setItem('coachDetails', JSON.stringify(coachDetails));
+          console.log('Navigating to coaching session with coach:', coachId);
+        });
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

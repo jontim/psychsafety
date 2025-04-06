@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="NLI BRAIN RGB small.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Skills Practice - NLI Coaching Practice</title>
+  
+  <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 300;
+      background-color: #f9f9f9;
+      color: #4D4D4D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+    
+    header {
+      background: linear-gradient(to right, #005575, #0095C8);
+      padding: 1.5rem 0;
+      border-bottom: 4px solid #F9F9F9;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 1rem;
+      position: relative;
+    }
+    
+    .header-title {
+      color: white;
+      font-weight: 700;
+      margin-right: auto; /* Pushes the title to the left */
+      padding-left: 0.5rem;
+    }
+    
+    .header-logo {
+      height: 45px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      padding-right: 0.5rem;
+    }
+    
+    .back-button {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+      margin-right: 1rem;
+    }
+    
+    .back-button:hover {
+      opacity: 0.8;
+    }
+
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem 9rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: calc(100vh - 140px);
+    }
+    
+    .page-title {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: #005575;
+      text-align: center;
+      margin: 0 0 1rem 0;
+    }
+    
+    .page-description {
+      text-align: center;
+      margin-bottom: 3rem;
+      max-width: 800px;
+      color: #555;
+    }
+    
+    .scenarios-container {
+      display: flex;
+      gap: 2rem;
+      width: 100%;
+      max-width: 1200px;
+    }
+    
+    .scenario-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    
+    .scenario-header {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #005575;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    
+    .scenario-description {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #555;
+    }
+    
+    .scenario-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem;
+      height: 100%;
+    }
+    
+    .scenario-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    .scenario-image {
+      width: 120px;
+      height: 120px;
+      border-radius: 60px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      border: 3px solid #E9E9E9;
+      padding: 3px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .scenario-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+    
+    .scenario-name {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #005575;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    
+    .scenario-type {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #0095C8;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .scenario-blurb {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+      font-size: 0.95rem;
+    }
+    
+    .scenario-tag {
+      display: inline-block;
+      background-color: #F37322;
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+    }
+    
+    .start-button {
+      background: #F37322;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .start-button:hover {
+      background: #e86615;
+    }
+    
+    footer {
+      background: #4D4D4D;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+      color: white;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 400;
+      transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+      color: #0095C8;
+      text-decoration: underline;
+    }
+    
+    .logo {
+      height: 30px;
+      width: auto;
+      margin-top: 0.625rem;
+    }
+    
+    .status-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 1rem 2rem;
+      border-radius: 6px;
+      font-weight: 500;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .status-message.success {
+      background: #005575;
+      color: white;
+    }
+    
+    .status-message.error {
+      background: #F37322;
+      color: white;
+    }
+    
+    .status-message.show {
+      opacity: 1;
+    }
+    
+    @media (max-width: 768px) {
+      .scenarios-container {
+        flex-direction: column;
+      }
+      
+      .scenario-card {
+        margin-bottom: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="left-header" style="display: flex; align-items: center;">
+      <a href="index.html" class="back-button">← Back</a>
+      <h1 class="header-title" style="margin-left: 0.5rem;">Skills Practice</h1>
+    </div>
+    <img src="NLI.png" alt="NLI Logo" class="header-logo">
+  </div>
+</header>
+
+<div id="main-content">
+  <h2 class="page-title">Roleplay Scenarios</h2>
+  <p class="page-description">Practice real-world conversations with our AI roleplay partners. Choose a scenario below to develop and strengthen your skills in critical workplace situations.</p>
+  
+  <div class="scenarios-container">
+    <!-- Left Column: SCARF-related scenarios -->
+    <div class="scenario-column">
+      <h3 class="scenario-header">SCARF® Practice Scenarios</h3>
+      <p class="scenario-description">These scenarios focus on applying SCARF® principles in different leadership contexts.</p>
+      
+      <!-- Rhonda Scenario -->
+      <div class="scenario-card" onclick="selectScenario('5KhMBqPuDtdpl5UjE5YZ', 'Rhonda')">
+        <div class="scenario-image">
+          <img src="rhonda.png" alt="Rhonda">
+        </div>
+        <h4 class="scenario-name">Rhonda</h4>
+        <div class="scenario-type">For Individual Contributors</div>
+        <div class="scenario-tag">SCARF®</div>
+        <p class="scenario-blurb">Practice navigating a difficult conversation with a frustrated colleague about delayed documentation for a critical customer-facing project.</p>
+        <button class="start-button">Begin Practice</button>
+      </div>
+      
+      <!-- Marcus Scenario -->
+      <div class="scenario-card" onclick="selectScenario('6UArwv3ZhT5dvqSXYWoZ', 'Marcus')">
+        <div class="scenario-image">
+          <img src="marcus.png" alt="Marcus">
+        </div>
+        <h4 class="scenario-name">Marcus</h4>
+        <div class="scenario-type">For Line Managers</div>
+        <div class="scenario-tag">SCARF®</div>
+        <p class="scenario-blurb">Practice providing constructive feedback to a team member who is unaware of their performance issues while maintaining a productive relationship.</p>
+        <button class="start-button">Begin Practice</button>
+      </div>
+      
+      <!-- Morgan Scenario -->
+      <div class="scenario-card" onclick="selectScenario('WOdyOl4zyac6BaOS7MRU', 'Morgan')">
+        <div class="scenario-image">
+          <img src="morgan.png" alt="Morgan">
+        </div>
+        <h4 class="scenario-name">Morgan</h4>
+        <div class="scenario-type">For Executives/Senior Leaders</div>
+        <div class="scenario-tag">SCARF®</div>
+        <p class="scenario-blurb">Practice a high-stakes strategic partnership negotiation with a Chief Strategy Officer to secure a commitment for a mutually beneficial alliance.</p>
+        <button class="start-button">Begin Practice</button>
+      </div>
+    </div>
+    
+    <!-- Right Column: Psychological Safety scenarios -->
+    <div class="scenario-column">
+      <h3 class="scenario-header">Psychological Safety Scenarios</h3>
+      <p class="scenario-description">These scenarios help build skills for creating and maintaining psychological safety.</p>
+      
+      <!-- Alex Scenario -->
+      <div class="scenario-card" onclick="selectScenario('b1vTl6LcehDMXznyYE8O', 'Alex')">
+        <div class="scenario-image">
+          <img src="alex.png" alt="Alex">
+        </div>
+        <h4 class="scenario-name">Alex</h4>
+        <div class="scenario-type">Introductory Level</div>
+        <div class="scenario-tag">Psychological Safety</div>
+        <p class="scenario-blurb">Practice creating psychological safety with a hesitant employee to extract information about a serious incident involving inappropriate managerial behavior.</p>
+        <button class="start-button">Begin Practice</button>
+      </div>
+      
+      <!-- Taylor Scenario -->
+      <div class="scenario-card" onclick="selectScenario('WJfunz6JM86uFsBfPA02', 'Taylor')">
+        <div class="scenario-image">
+          <img src="taylor.png" alt="Taylor">
+        </div>
+        <h4 class="scenario-name">Taylor</h4>
+        <div class="scenario-type">Intermediate Level</div>
+        <div class="scenario-tag">Psychological Safety</div>
+        <p class="scenario-blurb">Practice creating a supportive environment for an introverted but highly creative team member to share innovative ideas for a new project.</p>
+        <button class="start-button">Begin Practice</button>
+      </div>
+      
+      <!-- Priya Scenario -->
+      <div class="scenario-card" onclick="selectScenario('e493epFPcZY1a2IohzYR', 'Priya')">
+        <div class="scenario-image">
+          <img src="priya.png" alt="Priya">
+        </div>
+        <h4 class="scenario-name">Priya</h4>
+        <div class="scenario-type">Advanced Level</div>
+        <div class="scenario-tag">Psychological Safety</div>
+        <p class="scenario-blurb">Practice handling a sensitive conversation with an employee who reported experiencing discriminatory behavior during team meetings.</p>
+        <button class="start-button">Begin Practice</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://neuroleadership.com" target="_blank">About NLI</a>
+    <a href="https://neuroleadership.com/podcast/" target="_blank">Resources</a>
+    <a href="mailto:niles@neuroleadership.com">Support</a>
+  </div>
+  <img src="NLI.png" alt="NLI Logo" class="logo">
+  <p style="margin-top: 1rem; font-weight: 300; font-size: 0.875rem;">© 2025 NLI. All rights reserved.</p>
+</footer>
+
+<div id="status-message" class="status-message"></div>
+
+<script>
+function showStatus(message, type = 'success') {
+  const statusElement = document.getElementById('status-message');
+  statusElement.textContent = message;
+  statusElement.className = `status-message ${type}`;
+  statusElement.classList.add('show');
+  
+  setTimeout(() => {
+    statusElement.classList.remove('show');
+  }, 3000);
+}
+
+function selectScenario(agentId, scenarioName) {
+  try {
+    // Store agent ID and scenario name
+    localStorage.setItem('selectedAgentId', agentId);
+    localStorage.setItem('selectedScenario', scenarioName);
+    
+    // Store the scenario type as roleplay
+    localStorage.setItem('sessionType', 'roleplay');
+    
+    // Redirect directly to the roleplay session page
+    window.location.href = 'roleplay-session.html';
+  } catch (error) {
+    showStatus('Error selecting scenario. Please try again.', 'error');
+    console.error('Error selecting scenario:', error);
+  }
+}
+
+// Check for username on page load
+window.addEventListener('load', function() {
+  try {
+    // Check if user has a name set, if not redirect to home
+    const username = localStorage.getItem('username');
+    if (!username) {
+      window.location.href = 'index.html';
+    }
+  } catch (error) {
+    console.error('Error checking username:', error);
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Coach Profile - NLI Coaching Practice</title>
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet" />
+  <!-- Fixed script loading approach for Firebase deployment -->
+  <!-- ElevenLabs widget script will be loaded dynamically to prevent duplicate loading -->
+  <script>
+    // Global variable to track widget script loading
+    window.elevenLabsWidgetLoaded = false;
+    window.elevenLabsWidgetAttempts = 0;
+    
+    // We'll handle script loading in our main function instead of at page load
+  </script> 
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    /* Widget container styles */
+    .widget-container {
+      width: 100%;
+      height: 400px;
+      margin: 20px 0;
+      border: 2px solid #68e800;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #1e1e1e;
+    }
+    
+    /* Top widget specific styles */
+    #widget-top {
+      height: 300px;
+      margin-top: 30px;
+    }
+    
+    /* Bottom widget specific styles */
+    #widget-bottom {
+      height: 400px;
+      margin: 30px 0;
+    }
+    
+    :root {
+      --brand-green: #68e800;
+      --dark-bg: #141414;
+      --card-bg: #1e1e1e;
+      --header-bg: #181818;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #141414;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    header {
+      background: #181818;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      position: relative;
+    }
+    
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: #68e800;
+      margin-bottom: 5px;
+    }
+    
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: #68e800;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+    }
+    
+    .back-button:hover {
+      text-decoration: underline;
+    }
+    
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 10px 150px 10px;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: calc(100vh - 140px);
+    }
+    
+    .profile-container {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+    
+    .profile-sidebar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .profile-image {
+      width: 250px;
+      height: 350px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #68e800;
+      margin-bottom: 25px;
+    }
+    
+    .profile-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 5%;
+    }
+    
+    .profile-stats {
+      background: #1e1e1e;
+      border-radius: 8px;
+      padding: 20px;
+      width: 100%;
+    }
+    
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #333;
+    }
+    
+    .stat-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    
+    .stat-label {
+      color: #999;
+    }
+    
+    .stat-value {
+      color: #68e800;
+      font-weight: bold;
+    }
+    
+    .profile-content {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .widget-container {
+      width: 100%;
+      height: 400px;
+      margin: 20px 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .small-widget-container {
+      width: 100%;
+      height: 300px;
+      margin-top: 20px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .duplicate-widget-container {
+      width: 100%;
+      height: 400px;
+      margin: 0 auto;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .connect-header {
+      font-family: 'Orbitron', sans-serif;
+      color: #68e800;
+      text-align: center;
+      margin: 40px 0 20px;
+      font-size: 1.8rem;
+    }
+    
+    .profile-header {
+      margin-bottom: 20px;
+      position: relative;
+      padding-right: 90px;
+    }
+    
+    .profile-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: #68e800;
+      margin-bottom: 10px;
+    }
+    
+    .profile-title {
+      font-size: 1.2rem;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+    
+    .profile-bio {
+      background: #1e1e1e;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+      line-height: 1.6;
+      text-align: left;
+    }
+    
+    .profile-bio p {
+      padding: 0 !important;
+      text-indent: 0 !important;
+      margin: 0 !important;
+      text-align: left !important;
+    }
+    
+    .profile-bio div {
+      margin-bottom: 15px;
+      display: block;
+      overflow: visible;
+      clear: both;
+      padding: 0 !important;
+      text-indent: 0 !important;
+      text-align: left !important;
+    }
+    
+    .profile-bio div:last-child {
+      margin-bottom: 0;
+    }
+    
+    .profile-section {
+      margin-bottom: 25px;
+    }
+    
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      color: #68e800;
+      margin-bottom: 15px;
+    }
+    
+    .connect-section {
+      text-align: center;
+      margin: 40px auto 20px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    
+    .connect-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #68e800;
+      margin-bottom: 20px;
+    }
+    
+    .expertise-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .expertise-item {
+      background: #1e1e1e;
+      color: #f0f0f0;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .selection-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .selection-tag {
+      background: #1e1e1e;
+      color: #68e800;
+      border: 1px solid #68e800;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.85rem;
+    }
+    
+    .assessment-button {
+      display: inline-block;
+      background: #68e800;
+      color: #1e1e1e;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .assessment-button:hover {
+      background: #4fb900;
+    }
+    
+    .assessment-section {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    /* Hide ElevenLabs branding */
+    .el-brand, .el-logo, .el-branding, .el-powered-by, 
+    [class*="el-brand"], [class*="el-logo"], [class*="eleven"], [class*="labs"],
+    div[class*="elevenlabs"], div[class*="convai"],
+    elevenlabs-convai > div > div > div:nth-child(2),
+    .elevenlabs-branding, .elevenlabs-logo, .elevenlabs-powered-by {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      overflow: hidden !important;
+    }
+    
+    elevenlabs-convai::part(footer),
+    elevenlabs-convai::part(branding),
+    elevenlabs-convai::part(logo) {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal {
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      padding: 30px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 2px solid #68e800;
+    }
+    
+    .modal-title {
+      font-family: 'Orbitron', sans-serif;
+      color: #68e800;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #333;
+    }
+    
+    .modal-content {
+      line-height: 1.6;
+    }
+    
+    .modal-close {
+      background-color: #68e800;
+      color: #1e1e1e;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 16px;
+      margin-top: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .modal-close:hover {
+      background-color: #4fb900;
+    }
+    
+    /* Styles for assessment section */
+    .assessment-modal .modal-content {
+      max-width: 700px;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .assessment-summary {
+      margin: 0 auto;
+      color: #f0f0f0;
+    }
+    
+    /* Styles for ElevenLabs analysis data */
+    .elevenlabs-analysis {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #2a2a2a;
+      border-radius: 8px;
+      border-left: 4px solid #68e800;
+    }
+    
+    .analysis-section {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #444;
+    }
+    
+    .analysis-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .criteria-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    
+    .criteria-table th,
+    .criteria-table td {
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #444;
+    }
+    
+    .criteria-table th {
+      background-color: #333;
+      font-weight: 600;
+    }
+    
+    .success {
+      color: #68e800;
+      font-weight: 500;
+    }
+    
+    .failure {
+      color: #ff6b6b;
+      font-weight: 500;
+    }
+    
+    .status-done {
+      color: #68e800;
+      font-weight: bold;
+    }
+    
+    .status-processing {
+      color: #ffc107;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="coach-selection.html?reset=true" class="back-button">← Back</a>
+  <h1>NLI Coaching Practice</h1>
+</header>
+
+<div id="main-content">
+  <div class="profile-container">
+    <div class="profile-sidebar">
+      <div class="profile-image">
+        <img id="coach-image" src="Caroline.png" alt="Coach">
+      </div>
+      
+      <div class="profile-stats">
+        <div class="stat-item">
+          <span class="stat-label">Age</span>
+          <span class="stat-value" id="coach-age">48</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Experience</span>
+          <span class="stat-value" id="coach-experience">20 years</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Accent</span>
+          <span class="stat-value" id="coach-accent">American</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Style</span>
+          <span class="stat-value" id="coach-style">Supportive</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="profile-content">
+      <div class="profile-header">
+        <h2 class="profile-name" id="coach-name">Caroline</h2>
+        <h3 class="profile-title" id="coach-title">Executive Leadership Coach</h3>
+        <!-- Top widget positioned with absolute positioning -->
+        <div style="position: absolute; right: 0; top: 0; width: 80px; height: 80px;" id="small-widget-container">
+          <!-- Widget will be created dynamically with the correct agent ID -->
+        </div>
+      </div>
+      
+      <div class="profile-bio" id="coach-bio">
+        <div>Caroline is a 48-year-old coach with 20 years of experience in healthcare and education sectors.</div>
+        
+        <div>With a background in corporate leadership, she brings a supportive and analytical approach to help clients overcome challenges and achieve their goals.</div>
+      </div>
+      
+      <div class="profile-section">
+        <h3 class="section-title">Areas of Expertise</h3>
+        <div class="expertise-list" id="expertise-list">
+          <span class="expertise-item">Leadership Development</span>
+          <span class="expertise-item">Team Dynamics</span>
+          <span class="expertise-item">Career Transitions</span>
+          <span class="expertise-item">Work-Life Balance</span>
+          <span class="expertise-item">Performance Improvement</span>
+        </div>
+      </div>
+      
+      <div class="profile-section">
+        <h3 class="section-title">Selected Based On Your Preferences</h3>
+        <div class="selection-tags" id="selection-tags">
+          <!-- Tags will be added dynamically -->
+        </div>
+      </div>
+      
+      <div class="profile-section connect-section">
+        <h3 class="connect-title">Connect with <span id="connect-coach-name">Caroline</span></h3>
+        <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+          <!-- Main widget centered under the heading -->
+          <div id="widget-container" style="width: 100%; max-width: 350px; height: 500px;">
+            <!-- Empty container that will be filled by the createWidgets function -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Second widget centered below -->
+      <div class="profile-section connect-section" style="margin-top: 15px;">
+        <div style="width: 100%; max-width: 350px; height: 80px; margin: 0 auto;">
+          <div id="duplicate-widget-container" style="width: 100%; height: 100%;">
+            <!-- Second widget for coach -->
+          </div>
+        </div>
+      </div>
+      <!-- Assessment button and modal -->      
+      <div class="profile-section assessment-section">
+        <button id="view-assessment" class="assessment-button">View Coaching Assessment</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Assessment Modal -->
+<div id="assessment-modal" class="modal-overlay">
+  <div class="modal">
+    <h2 class="modal-title">Coaching Assessment</h2>
+    <div id="assessment-content" class="modal-content">
+      <p>Loading assessment data...</p>
+    </div>
+    <button id="close-modal" class="modal-close">Close</button>
+  </div>
+</div>
+
+<footer style="background: #181818; padding: 20px; text-align: center; margin-top: auto;">
+  <p>© 2025 The NeuroLeadership Institute. All Rights Reserved.</p>
+  <img src="NLI.png" alt="NeuroLeadership Logo" class="logo" style="width: 300px; height: auto; margin-top: 10px; filter: grayscale(100%);"/>
+</footer>
+
+<script>
+  // Initialize variables and functions
+  const coachProfiles = {
+    caroline: {
+      id: "caroline",
+      convai_id: "bzb6ybXctNSysRqknLVD",
+      name: "Caroline",
+      title: "Executive Leadership Coach",
+      image: "Caroline.png",
+      expertise: ["Leadership Development", "Team Dynamics", "Career Transitions", "Work-Life Balance", "Performance Improvement"]
+    },
+    niles: {
+      id: "niles",
+      convai_id: "rI4k2913KxCBlbFr2Imx",
+      name: "NILES",
+      title: "Analytical Strategy Coach",
+      image: "NILES.png",
+      expertise: ["Strategic Planning", "Problem Solving", "Decision Making", "Conflict Resolution", "Change Management"]
+    },
+    mathew: {
+      id: "mathew",
+      convai_id: "tf6c7I8annF0etPiL4vG",
+      name: "Mathew",
+      title: "Strategic Business Coach",
+      image: "Mathew.png",
+      expertise: ["Financial Strategy", "Executive Leadership", "Business Transformation", "Decision Making", "Strategic Planning"]
+    },
+    lorraine: {
+      id: "lorraine",
+      convai_id: "xklKUaa1IPvcOBJAsfli",
+      name: "Lorraine",
+      title: "Entrepreneurial Growth Coach",
+      image: "Lorraine.png",
+      expertise: ["Business Development", "Innovation", "Personal Branding", "Startup Growth", "Creative Leadership"]
+    },
+    daryl: {
+      id: "daryl",
+      convai_id: "oVcGcThIZW9jx8I7nMBL",
+      name: "Daryl",
+      title: "Practice Coaching Guide",
+      image: "Daryl.png",
+      expertise: ["Practice Coaching", "Skill Development", "Feedback & Growth", "Scenario-Based Learning", "Coaching Techniques"]
+    }
+  };
+
+  // Global variables for DOM elements
+  let expertiseListElement = null;
+  let selectionTagsElement = null;
+
+  // Function to create widgets with enhanced resilience
+  function createWidgets(coach) {
+    console.log(`Creating widgets for coach: ${coach.name} with ID: ${coach.convai_id}`);
+    
+    // Get container elements
+    const smallContainer = document.getElementById('small-widget-container');
+    const mainContainer = document.getElementById('widget-container');
+    const duplicateContainer = document.getElementById('duplicate-widget-container');
+    
+    try {
+      // Remove any existing widget scripts
+      const existingScripts = document.querySelectorAll('script[src*="convai-widget"]');
+      existingScripts.forEach(script => script.remove());
+      
+      // Clear existing widgets
+      if (smallContainer) smallContainer.innerHTML = '';
+      if (mainContainer) mainContainer.innerHTML = '';
+      if (duplicateContainer) duplicateContainer.innerHTML = '';
+      
+      // Get dynamic variables with error handling
+      let dynamicVars = {};
+      try {
+        dynamicVars = JSON.parse(localStorage.getItem('coachDynamicVars') || '{}');
+        console.log('Dynamic variables:', dynamicVars);
+      } catch (error) {
+        console.error('Error parsing dynamic variables:', error);
+      }
+      
+      // Create widgets using direct embed code with unique IDs and dynamic variables
+      // Get dynamic variables with proper user info and personalization choices
+      const dynamicVarsObj = {
+        user_name: localStorage.getItem('username') || 'User',
+        session_id: Date.now() + '-' + Math.random().toString(36).substring(2, 10),
+        coach_name: coach.name,
+        coach_style: document.getElementById('coach-style').textContent,
+        coach_accent: document.getElementById('coach-accent').textContent,
+        coach_background: document.getElementById('coach-bio').textContent.trim(),
+        industry: dynamicVars.industry || '',
+        style: dynamicVars.style || '',
+        background: dynamicVars.background || ''
+      };
+      
+      // Convert to JSON string for widget attribute
+      const dynamicVarsJson = JSON.stringify(dynamicVarsObj);
+      
+      // Create the widget HTML with dynamic variables included
+      const widgetHtml = `<elevenlabs-convai agent-id="${coach.convai_id}" dynamic-variables='${dynamicVarsJson}' style="width: 100%; height: 100%;"></elevenlabs-convai>`;
+      
+      if (smallContainer) {
+        smallContainer.innerHTML = widgetHtml;
+        console.log('Small widget created with ID:', coach.convai_id);
+      }
+      
+      if (mainContainer) {
+        mainContainer.innerHTML = widgetHtml;
+        console.log('Main widget created with ID:', coach.convai_id);
+      }
+      
+      if (duplicateContainer) {
+        duplicateContainer.innerHTML = widgetHtml;
+        console.log('Duplicate widget created with ID:', coach.convai_id);
+      }
+      
+      // Only load the widget script once, and track its loading state
+      window.elevenLabsWidgetLoaded = window.elevenLabsWidgetLoaded || false;
+      window.elevenLabsWidgetAttempts = window.elevenLabsWidgetAttempts || 0;
+      
+      // Function to safely load the widget script exactly once
+      const loadWidgetScript = () => {
+        // Check if widget script is already present
+        if (document.querySelector('script[src="https://elevenlabs.io/convai-widget/index.js"]')) {
+          console.log('Widget script is already in the document, not loading again');
+          return false;
+        }
+        
+        // Check if we've already loaded the script in this page load
+        if (window.elevenLabsWidgetLoaded) {
+          console.log('Widget script already loaded, not loading again');
+          return false;
+        }
+        
+        try {
+          console.log('Loading ElevenLabs widget script...');
+          const script = document.createElement('script');
+          script.src = 'https://elevenlabs.io/convai-widget/index.js';
+          script.async = true;
+          script.type = 'text/javascript';
+          script.id = 'elevenlabs-widget-script';
+          script.onerror = () => {
+            console.error('Widget script failed to load');
+            window.elevenLabsWidgetLoaded = false;
+          };
+          script.onload = () => {
+            console.log('Widget script loaded successfully');
+            window.elevenLabsWidgetLoaded = true;
+          };
+          document.head.appendChild(script);
+          return true;
+        } catch (error) {
+          console.error('Error loading widget script:', error);
+          return false;
+        }
+      };
+      
+      // Load the script once at initialization
+      loadWidgetScript();
+      
+      // Add error handling and retry logic with exponential backoff
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      const checkWidgets = (retryCount) => {
+        window.elevenLabsWidgetAttempts++;
+        const smallFrame = document.querySelector('#small-widget-container iframe');
+        const mainFrame = document.querySelector('#widget-container iframe');
+        const duplicateFrame = document.querySelector('#duplicate-widget-container iframe');
+        
+        if (!smallFrame || !mainFrame || !duplicateFrame) {
+          if (retryCount < maxRetries) {
+            console.log(`Widgets not found, retry ${retryCount + 1}/${maxRetries}...`);
+            
+            // Calculate delay with exponential backoff and jitter
+            const baseDelay = Math.pow(2, retryCount) * 1000;
+            const jitter = baseDelay * (0.5 + Math.random() * 0.5);
+            
+            // Only attempt to reload the script if it failed to load previously
+            if (!window.elevenLabsWidgetLoaded && window.elevenLabsWidgetAttempts < 3) {
+              loadWidgetScript();
+            } else {
+              // If script is loaded but widgets aren't appearing, try refreshing the containers
+              console.log('Script loaded but widgets not appearing, refreshing containers...');
+              
+              // This might help trigger widget initialization
+              if (mainContainer) mainContainer.style.display = 'none';
+              if (duplicateContainer) duplicateContainer.style.display = 'none';
+              setTimeout(() => {
+                if (mainContainer) mainContainer.style.display = 'block';
+                if (duplicateContainer) duplicateContainer.style.display = 'block';
+              }, 50);
+            };
+            
+            // Schedule next check
+            setTimeout(() => checkWidgets(retryCount + 1), jitter);
+          } else {
+            console.error('Failed to load widgets after maximum retries');
+          }
+        } else {
+          console.log('Both widgets loaded successfully');
+        }
+      };
+      
+      // Initial check after a short delay
+      setTimeout(() => checkWidgets(0), 1000);
+      
+      console.log('Widget creation initiated for ' + coach.name);
+      
+      return true; // Indicate successful widget creation
+    } catch (error) {
+      console.error('Error in widget creation:', error);
+      return false; // Indicate failed widget creation
+    }
+  }
+    
+    // Add a fallback for all coaches after a short delay
+    setTimeout(() => {
+      const smallWidgetFrame = document.querySelector('#small-widget-container iframe');
+      const mainWidgetFrame = document.querySelector('#widget-container iframe');
+      const duplicateWidgetFrame = document.querySelector('#duplicate-widget-container iframe');
+      
+      if (!smallWidgetFrame || !mainWidgetFrame || !duplicateWidgetFrame) {
+        console.log('Widget iframes not created, adding fallback static elements...');
+        
+        const smallContainer = document.getElementById('small-widget-container');
+        const mainContainer = document.getElementById('widget-container');
+        const duplicateContainer = document.getElementById('duplicate-widget-container');
+        
+        try {
+          if (!smallWidgetFrame && smallContainer && smallContainer.innerHTML === '') {
+            const fallbackSmall = document.createElement('div');
+            fallbackSmall.style.cssText = 'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1e1e1e; border: 2px solid #68e800; border-radius: 8px;';
+            fallbackSmall.innerHTML = `<span style="color: #68e800;">Loading...</span>`;
+            smallContainer.appendChild(fallbackSmall);
+            console.log('Added fallback for small widget');
+          }
+          
+          if (!mainWidgetFrame && mainContainer && mainContainer.innerHTML === '') {
+            const fallbackMain = document.createElement('div');
+            fallbackMain.style.cssText = 'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; background: #1e1e1e; border: 2px solid #68e800; border-radius: 8px;';
+            fallbackMain.innerHTML = `<div>
+              <h3 style="color: #68e800; margin-bottom: 15px;">Connect with ${coach.name}</h3>
+              <p style="color: #f0f0f0;">Chat with ${coach.name} to discuss leadership challenges and receive personalized guidance.</p>
+            </div>`;
+            mainContainer.appendChild(fallbackMain);
+            console.log('Added fallback for main widget');
+          }
+          
+          if (!duplicateWidgetFrame && duplicateContainer && duplicateContainer.innerHTML === '') {
+            const fallbackDuplicate = document.createElement('div');
+            fallbackDuplicate.style.cssText = 'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1e1e1e; border: 2px solid #68e800; border-radius: 8px;';
+            fallbackDuplicate.innerHTML = `<span style="color: #68e800;">Chat with ${coach.name}</span>`;
+            duplicateContainer.appendChild(fallbackDuplicate);
+            console.log('Added fallback for duplicate widget');
+          }
+        } catch (error) {
+          console.error('Error creating fallback elements:', error);
+        }
+      } else {
+        console.log('All widgets are present, no fallback needed');
+      }
+    }, 2000); // Check after 2 seconds
+  
+  // Function to populate coach profile with enhanced error handling
+  function populateCoachProfile(coachId) {
+    console.log("Populating coach profile for: " + coachId);
+    
+    // Get coach profile
+    const coach = coachProfiles[coachId];
+    if (!coach) {
+      console.error(`Coach with ID ${coachId} not found`);
+      return;
+    }
+    
+    // Get user preferences from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const userPreferences = {
+      gender: urlParams.get('gender'),
+      accent: urlParams.get('accent'),
+      age: urlParams.get('age'),
+      industry: urlParams.get('industry'),
+      background: urlParams.get('background'),
+      style: urlParams.get('style'),
+      experience: urlParams.get('experience')
+    };
+
+    // Cache DOM elements
+    expertiseListElement = document.getElementById('expertise-list');
+    selectionTagsElement = document.getElementById('selection-tags');
+
+    // Update profile stats with all preferences
+    const statsToDisplay = [
+      { label: 'Age', value: parseInt(userPreferences.age) + 5 },
+      { label: 'Experience', value: userPreferences.experience + ' years' },
+      { label: 'Gender', value: userPreferences.gender.charAt(0).toUpperCase() + userPreferences.gender.slice(1) },
+      { label: 'Accent', value: userPreferences.accent.charAt(0).toUpperCase() + userPreferences.accent.slice(1) },
+      { label: 'Industry', value: userPreferences.industry },
+      { label: 'Background', value: userPreferences.background },
+      { label: 'Style', value: userPreferences.style }
+    ];
+
+    // Generate stats HTML with error handling
+    const statsHtml = statsToDisplay
+      .filter(stat => stat && stat.value)
+      .map(stat => {
+        try {
+          return `<div class="stat-item"><span class="stat-label">${stat.label}</span><span class="stat-value">${stat.value}</span></div>`;
+        } catch (error) {
+          console.error('Error generating stat HTML:', error);
+          return '';
+        }
+      })
+      .filter(html => html !== '')
+      .join('');
+    
+    // Debug log to track coach data
+    console.log(`Loading profile for coach ID: ${coachId}, name: ${coach.name}, convai_id: ${coach.convai_id}`);
+    
+    // Clear only necessary elements to prevent mixing information from different coaches
+    // Do not clear bio until we generate the new bio
+    document.getElementById('expertise-list').innerHTML = '';
+    document.getElementById('selection-tags').innerHTML = '';
+    
+    // Populate basic info
+    document.getElementById('coach-image').src = coach.image;
+    document.getElementById('coach-image').alt = coach.name;
+    document.getElementById('coach-name').textContent = coach.name;
+    document.getElementById('coach-title').textContent = coach.title;
+    document.getElementById('connect-coach-name').textContent = coach.name;
+
+    // Generate personalized bio based on preferences
+    const bioElement = document.getElementById('coach-bio');
+    let personalizedBio = `As your dedicated ${coach.title}, I specialize in `;
+    
+    // Add core expertise first
+    personalizedBio += `${coach.expertise.slice(0, 2).join(' and ')}.`;
+
+    // Add focus area if specified
+    if (userPreferences.focusArea) {
+      personalizedBio += ` With particular emphasis on ${userPreferences.focusArea.toLowerCase()}, `;
+    }
+    
+    // Update profile stats with error handling
+    try {
+      if (expertiseListElement) {
+        expertiseListElement.innerHTML = statsHtml;
+        console.log('Updated expertise list with stats');
+      } else {
+        console.warn('Expertise list element not found');
+      }
+
+      // Update expertise and preferences
+      if (selectionTagsElement) {
+        const combinedInfo = [
+          ...(Array.isArray(coach.expertise) ? coach.expertise : []),
+          { label: 'Industry', value: userPreferences.industry },
+          { label: 'Background', value: userPreferences.background },
+          { label: 'Style', value: userPreferences.style }
+        ].filter(item => item && (typeof item === 'string' || item.value));
+        
+        selectionTagsElement.innerHTML = combinedInfo
+          .map(info => {
+            try {
+              if (typeof info === 'string') {
+                return `<div class="stat-item"><span class="stat-value">${info}</span></div>`;
+              }
+              return `<div class="stat-item"><span class="stat-label">${info.label}</span><span class="stat-value">${info.value}</span></div>`;
+            } catch (error) {
+              console.error('Error generating info HTML:', error);
+              return '';
+            }
+          })
+          .filter(html => html !== '')
+          .join('');
+        
+        console.log('Updated selection tags with combined info');
+      } else {
+        console.warn('Selection tags element not found');
+      }
+    } catch (error) {
+      console.error('Error updating profile information:', error);
+    }
+    
+    // Add communication style based on preferences with scientific backing
+    if (userPreferences.communicationStyle) {
+      const styleEffectiveness = {
+        'Direct': 'which research in organizational psychology has shown to enhance clarity and goal achievement by up to 45% in leadership development contexts',
+        'Supportive': 'which studies in psychological safety have linked to a 32% increase in team performance and sustained behavior change',
+        'Collaborative': 'which meta-analyses show can improve problem-solving effectiveness by 28% and enhance team innovation',
+        'Analytical': 'which research indicates can improve decision-making accuracy by 37% and strengthen strategic thinking'
+      };
+      
+      personalizedBio += ` I employ a ${userPreferences.communicationStyle.toLowerCase()} communication style, ${styleEffectiveness[userPreferences.communicationStyle] || 'which research has shown to be particularly effective in professional coaching contexts'}.`;
+    }
+    
+    // Add coaching approach with evidence-based framing
+    if (userPreferences.coachingApproach) {
+      const approachEvidence = {
+        'Directive': 'utilizing structured frameworks and validated assessment tools to provide clear guidance and measurable outcomes',
+        'Facilitative': 'leveraging inquiry-based techniques and neuroscience-backed questioning methods to facilitate your own insight and discovery process'
+      };
+      
+      personalizedBio += ` My approach is ${userPreferences.coachingApproach.toLowerCase()}, ${approachEvidence[userPreferences.coachingApproach]}.`;
+    }
+    
+    bioElement.innerHTML = `<p>${personalizedBio}</p>`;
+    
+    // Create widgets for this coach - must be done before populating content
+    // to ensure widget containers are properly shown/hidden
+    const widgetsCreated = createWidgets(coach);
+    
+    // Ensure widgets are properly initialized
+    console.log(`Widget creation result: ${widgetsCreated}`);
+    
+    // Enhanced widget visibility function with Firebase deployment compatibility
+    function updateWidgetVisibility() {
+      try {
+        // Show widgets for all coaches including Caroline
+        const smallContainer = document.getElementById('small-widget-container');
+        const mainContainer = document.getElementById('widget-container');
+        const duplicateContainer = document.getElementById('duplicate-widget-container');
+        
+        if (smallContainer) {
+          smallContainer.style.display = 'block';
+          smallContainer.removeAttribute('data-disabled');
+        }
+        
+        if (mainContainer) {
+          mainContainer.style.display = 'block';
+          if (mainContainer.parentElement) {
+            mainContainer.parentElement.style.display = 'flex';
+          }
+          mainContainer.removeAttribute('data-disabled');
+        }
+        
+        if (duplicateContainer) {
+          duplicateContainer.style.display = 'block';
+          if (duplicateContainer.parentElement) {
+            duplicateContainer.parentElement.style.display = 'flex';
+          }
+          duplicateContainer.removeAttribute('data-disabled');
+        }
+        
+        // For Firebase deployment: ensure widgets are visible by adding !important
+        const styleOverride = document.createElement('style');
+        styleOverride.textContent = `
+          #small-widget-container, #widget-container, #duplicate-widget-container {
+            display: block !important;
+          }
+          #widget-container-parent, .widget-container-parent {
+            display: flex !important;
+          }
+        `;
+        document.head.appendChild(styleOverride);
+        
+        console.log('All widgets are now visible with Firebase deployment compatibility');
+      } catch (error) {
+        console.error('Error updating widget visibility:', error);
+      }
+    }
+    
+    // Initial update
+    updateWidgetVisibility();
+    
+    // Get dynamic variables and stored coach details
+    const dynamicVars = JSON.parse(localStorage.getItem('coachDynamicVars') || '{}');
+    const storedDetails = JSON.parse(localStorage.getItem('coachDetails') || '{}');
+    
+    // Populate dynamic stats - use stored details if available
+    document.getElementById('coach-age').textContent = storedDetails.age || dynamicVars.age || '45';
+    document.getElementById('coach-experience').textContent = storedDetails.experience || `${dynamicVars.experience || '20'} years`;
+    document.getElementById('coach-accent').textContent = storedDetails.accent || (dynamicVars.accent === 'british' ? 'British' : 'American');
+    
+    // Ensure the coach title and style are correctly displayed
+    if (coachId === 'niles') {
+      // For NILES, get style directly from preferences or stored details
+      const coachStyle = storedDetails.style || (dynamicVars.style ? dynamicVars.style : 'Supportive & Analytical');
+      document.getElementById('coach-style').textContent = coachStyle;
+      
+      // Update title based on style preference
+      if (coachStyle.toLowerCase().includes('creative')) {
+        document.getElementById('coach-title').textContent = 'Creative Strategy Coach';
+      } else if (coachStyle.toLowerCase().includes('directive')) {
+        document.getElementById('coach-title').textContent = 'Directive Strategy Coach';
+      } else if (coachStyle.toLowerCase().includes('supportive')) {
+        document.getElementById('coach-title').textContent = 'Supportive Strategy Coach';
+      } else {
+        document.getElementById('coach-title').textContent = coach.title; // fallback to default
+      }
+    } else {
+      // For other coaches, use normal logic
+      document.getElementById('coach-style').textContent = storedDetails.style || (dynamicVars.style ? dynamicVars.style.split('&')[0].trim() : 'Supportive');
+    }
+    
+    // Generate a coach-specific bio based on the coach ID and actual preferences
+    const coachName = coach.name;
+    const coachAge = storedDetails.age || dynamicVars.age || '45';
+    const coachExperience = storedDetails.experience || dynamicVars.experience || '20';
+    const coachIndustry = storedDetails.industry || dynamicVars.industry || 'technology';
+    const coachBackground = storedDetails.background || dynamicVars.background || 'corporate';
+    const coachStyleText = storedDetails.style || dynamicVars.style || 'analytical';
+    const coachGender = (coachId === 'niles' || coachId === 'mathew') ? 'he' : 'she';
+    
+    // Build bio with actual values - ensure consistent formatting for all coaches
+    let bioParagraph = '';
+    console.log(`Generating bio for ${coachId}`);
+    
+    if (coachId === 'niles') {
+      // Use proper sentence structure and line breaks for bio paragraphs
+      bioParagraph = `NILES is a ${coachAge}-year-old coach with ${coachExperience} years of experience in ${coachIndustry} sectors.
+
+With a background in ${coachBackground} leadership, he brings a ${coachStyleText} approach to help clients overcome challenges and achieve their goals.`;
+    } else if (coachId === 'caroline') {
+      bioParagraph = `Caroline is a ${coachAge}-year-old coach with ${coachExperience} years of experience in ${coachIndustry} sectors.
+
+With a background in ${coachBackground} leadership, she brings a ${coachStyleText} approach to help clients overcome challenges and achieve their goals.`;
+    } else if (coachId === 'mathew') {
+      bioParagraph = `Mathew is a ${coachAge}-year-old former senior executive with ${coachExperience} years of experience in ${coachIndustry} sectors.
+
+With a background in ${coachBackground} leadership, he brings a ${coachStyleText} coaching style that focuses on practical solutions and tangible results.`;
+    } else if (coachId === 'lorraine') {
+      bioParagraph = `Lorraine is a ${coachAge}-year-old entrepreneur with ${coachExperience} years of experience in ${coachIndustry} sectors.
+
+With a background in ${coachBackground} ventures, she brings a ${coachStyleText} coaching style that's both energetic and results-oriented.`;
+    }
+    
+    console.log(`Bio generated for ${coachId}: ${bioParagraph.substring(0, 30)}...`);
+    
+    // Now that we have generated the bio, clear any existing bio content
+    document.getElementById('coach-bio').innerHTML = '';
+    
+    // Use the coach-specific bio instead of the generic stored bio
+    if (bioParagraph) {
+      console.log(`Setting bio for ${coachId}: ${bioParagraph.substring(0, 30)}...`);
+      // Format the bio text to match the screenshot - two separate paragraphs with spacing
+      const paragraphs = bioParagraph.split('\n\n');
+      let formattedBio = '';
+      
+      // Remove any existing blank lines or extra spacing
+      if (paragraphs.length > 1) {
+        // First sentence as a standalone paragraph
+        formattedBio = `<div>${paragraphs[0]}</div>`;
+        
+        // Second paragraph with proper spacing
+        formattedBio += `<div>${paragraphs[1]}</div>`;
+      } else {
+        formattedBio = `<div>${bioParagraph}</div>`;
+      }
+      
+      // Set innerHTML to properly render the HTML tags
+      document.getElementById('coach-bio').innerHTML = formattedBio;
+      console.log(`Bio set successfully for ${coachId}`);
+    } else {
+      console.warn(`No bio paragraph generated for ${coachId}, falling back to stored bio`);
+      // Fallback to stored bio only if coach-specific bio generation fails
+      const storedBio = localStorage.getItem('coachBioText');
+      if (storedBio) {
+        // Format the stored bio as well
+        const sentences = storedBio.split('. ');
+        let formattedStoredBio = '';
+        
+        if (sentences.length > 1) {
+          formattedStoredBio = `<div>${sentences[0]}.</div>`;
+          formattedStoredBio += `<div>${sentences.slice(1).join('. ')}</div>`;
+        } else {
+          formattedStoredBio = `<div>${storedBio}</div>`;
+        }
+        
+        document.getElementById('coach-bio').innerHTML = formattedStoredBio;
+      }
+    }
+    
+    // Populate expertise - clear first to prevent duplicates
+    const expertiseList = document.getElementById('expertise-list');
+    expertiseList.innerHTML = '';
+    if (coach.expertise && Array.isArray(coach.expertise)) {
+      coach.expertise.forEach(item => {
+        const expertiseItem = document.createElement('span');
+        expertiseItem.className = 'expertise-item';
+        expertiseItem.textContent = item;
+        expertiseList.appendChild(expertiseItem);
+      });
+    }
+    
+    // Populate selection tags - clear first to prevent duplicates
+    const tagsContainer = document.getElementById('selection-tags');
+    tagsContainer.innerHTML = '';
+    
+    // Add tags for each selected preference
+    const tagMappings = {
+      gender: 'Gender',
+      age: 'Age Range',
+      industry: 'Industry',
+      style: 'Coaching Style',
+      background: 'Background',
+      accent: 'Accent'
+    };
+    
+    // Get preferences from localStorage
+    const preferences = JSON.parse(localStorage.getItem('coachPreferences') || '{}');
+    
+    // Display all the dynamic information transferred from selection page
+    Object.entries(preferences).forEach(([key, value]) => {
+      if (value && tagMappings[key]) {
+        const tagElement = document.createElement('span');
+        tagElement.className = 'selection-tag';
+        
+        // Get readable values
+        let displayValue = value;
+        if (key === 'gender') {
+          displayValue = value === 'male' ? 'Male' : 'Female';
+        } else if (key === 'accent') {
+          displayValue = value === 'british' ? 'British' : 'American';
+        } else if (key === 'age') {
+          displayValue = value; // Age range like "30-40 years"
+        } else if (storedDetails[key]) {
+          // Use stored details from selection page first
+          displayValue = storedDetails[key];
+        } else {
+          // Fall back to dynamic vars
+          displayValue = dynamicVars[key] || value;
+        }
+        
+        tagElement.textContent = `${tagMappings[key]}: ${displayValue}`;
+        tagsContainer.appendChild(tagElement);
+      }
+    });
+    
+    // Get and store the current agent ID
+    const currentAgentId = coach.convai_id;
+    localStorage.setItem('currentAgentId', currentAgentId);
+    
+    // Set up the assessment button click handler
+    document.getElementById('view-assessment').addEventListener('click', function() {
+      showAssessmentModal(currentAgentId);
+    });
+    
+    console.log(`Coach profile for ${coachId} initialized successfully!`);
+  }
+  
+  // Function to handle widget script loading with retry capability
+  function loadWidgetScriptWithRetry(retryCount = 0, maxRetries = 3) {
+    // Create a clean script element with cache busting
+    const timestamp = new Date().getTime();
+    const newScript = document.createElement('script');
+    newScript.src = `https://elevenlabs.io/convai-widget/index.js?v=${timestamp}`;
+    newScript.async = true;
+    newScript.type = 'text/javascript';
+    
+    // Add event listeners for load and error states
+    newScript.addEventListener('load', () => {
+      console.log('Convai Widget script loaded successfully');
+      // After script loads, initialize widgets after a short delay
+      setTimeout(() => {
+        // Get selected coach and reinitialize
+        const urlParams = new URLSearchParams(window.location.search);
+        const coachParam = urlParams.get('coach');
+        const coachId = coachParam || localStorage.getItem('selectedCoach') || 'caroline';
+        console.log('Reinitializing widgets for coach:', coachId);
+        populateCoachProfile(coachId);
+      }, 500);
+    });
+    
+    newScript.addEventListener('error', () => {
+      console.error(`Failed to load widget script (attempt ${retryCount + 1})`);
+      if (retryCount < maxRetries) {
+        // Implement exponential backoff with jitter for retries
+        const baseDelay = Math.pow(2, retryCount + 1) * 1000;
+        const jitter = baseDelay * (0.5 + Math.random() * 0.5);
+        console.log(`Retrying script load in ${jitter}ms...`);
+        setTimeout(() => loadWidgetScriptWithRetry(retryCount + 1, maxRetries), jitter);
+      } else {
+        console.error('Maximum script load retries reached');
+      }
+    });
+    
+    // Append the script to document
+    document.head.appendChild(newScript);
+    console.log(`Loading Convai Widget script (attempt ${retryCount + 1})`);
+  }
+  
+  // Initialize the page with enhanced resilience
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log("Coach Profile Page - DOM Content Loaded");
+    
+    // Force CSS display of all widget containers with !important at the document level
+    // This is critical for Firebase deployment
+    const globalStyleFix = document.createElement('style');
+    globalStyleFix.textContent = `
+      #small-widget-container, .small-widget-container, 
+      #widget-container, .widget-container {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+      
+      #widget-container-parent, .widget-container-parent {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+      
+      /* Force Caroline's widget to be visible, overriding any hidden styles */
+      [id*="caroline"] iframe,
+      [id*="bzb6ybXctNSysRqknLVD"] iframe,
+      elevenlabs-convai[agent-id="bzb6ybXctNSysRqknLVD"],
+      elevenlabs-convai#coach-widget,
+      elevenlabs-convai#coach-widget-small {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+      
+      /* Hide ElevenLabs branding */
+      .el-brand, .el-logo, .el-branding, .el-powered-by, 
+      [class*="el-brand"], [class*="eleven"], [class*="labs"] {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+      }
+      
+      elevenlabs-convai::part(footer) {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(globalStyleFix);
+    
+    // Check if username exists
+    const username = localStorage.getItem('username');
+    if (!username) {
+      // Redirect to the main page to get username first
+      window.location.href = 'coach-selection.html';
+      return;
+    }
+    
+    // Get selected coach from URL or localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    let coachParam = urlParams.get('coach');
+    
+    // Force use of the URL parameter if present, regardless of localStorage
+    // This ensures direct linking to specific coaches works correctly
+    const coachId = coachParam || 'caroline';
+    
+    console.log('Coach ID from URL:', coachParam);
+    console.log('Final coach ID being used:', coachId);
+    
+    // Store the selected coach
+    localStorage.setItem('selectedCoach', coachId);
+    
+    // Create widgets for all coaches with correct agent IDs
+    setTimeout(() => {
+      console.log('Creating direct widget embeds for ' + coachId);
+      
+      // Get coach profile
+      const coach = coachProfiles[coachId];
+      if (!coach) {
+        console.error(`Coach with ID ${coachId} not found`);
+        return;
+      }
+      
+      // Get the correct agent ID for the current coach
+      const agentId = coach.convai_id;
+      
+      // Get or create persistent user ID for privacy protection
+      const getUserId = () => {
+        let userId = localStorage.getItem('user_unique_id');
+        if (!userId) {
+          // Create a unique user ID with timestamp and random string
+          userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 12);
+          localStorage.setItem('user_unique_id', userId);
+          console.log('Generated new user ID:', userId);
+        }
+        return userId;
+      };
+      
+      // Get user info and personalization details
+      const username = localStorage.getItem('username') || 'User';
+      const preferences = JSON.parse(localStorage.getItem('coachPreferences') || '{}');
+      const storedDetails = JSON.parse(localStorage.getItem('coachDetails') || '{}');
+      const userId = getUserId(); // Get or create persistent user ID
+      
+      // Create comprehensive dynamic variables
+      const dynamicVarsObj = {
+        user_name: username,
+        user_id: userId, // Add persistent user ID for privacy protection
+        session_id: Date.now() + '-' + Math.random().toString(36).substring(2, 10),
+        coach_name: coach.name,
+        coach_id: coachId,
+        coach_style: document.getElementById('coach-style').textContent,
+        coach_accent: document.getElementById('coach-accent').textContent,
+        coach_age: document.getElementById('coach-age').textContent,
+        coach_experience: document.getElementById('coach-experience').textContent,
+        coach_bio: document.getElementById('coach-bio').textContent.trim(),
+        industry: preferences.industry || '',
+        style: preferences.style || '',
+        background: preferences.background || '',
+        accent: preferences.accent || '',
+        gender: preferences.gender || ''
+      };
+      
+      // Convert to JSON string for widget attribute
+      const dynamicVarsJson = JSON.stringify(dynamicVarsObj);
+      
+      // Check if widgets exist first
+      const smallWidgetElement = document.querySelector('#small-widget-container elevenlabs-convai');
+      const mainWidgetElement = document.querySelector('#widget-container elevenlabs-convai');
+      const duplicateWidgetElement = document.querySelector('#duplicate-widget-container elevenlabs-convai');
+      
+      if (!smallWidgetElement) {
+        // Force direct embed for small widget
+        const smallContainer = document.getElementById('small-widget-container');
+        smallContainer.innerHTML = `<elevenlabs-convai agent-id="${agentId}" dynamic-variables='${dynamicVarsJson}' style="width: 100%; height: 100%;"></elevenlabs-convai>`;
+      } else {
+        // Update existing widget's dynamic variables
+        smallWidgetElement.setAttribute('dynamic-variables', dynamicVarsJson);
+      }
+      
+      if (!mainWidgetElement) {
+        // Force direct embed for main widget
+        const mainContainer = document.getElementById('widget-container');
+        mainContainer.innerHTML = `<elevenlabs-convai agent-id="${agentId}" dynamic-variables='${dynamicVarsJson}' style="width: 100%; height: 100%;"></elevenlabs-convai>`;
+      } else {
+        // Update existing widget's dynamic variables
+        mainWidgetElement.setAttribute('dynamic-variables', dynamicVarsJson);
+      }
+      
+      if (!duplicateWidgetElement) {
+        // Force direct embed for duplicate widget
+        const duplicateContainer = document.getElementById('duplicate-widget-container');
+        if (duplicateContainer) {
+          duplicateContainer.innerHTML = `<elevenlabs-convai agent-id="${agentId}" dynamic-variables='${dynamicVarsJson}' style="width: 100%; height: 100%;"></elevenlabs-convai>`;
+        }
+      } else if (duplicateWidgetElement) {
+        // Update existing widget's dynamic variables
+        duplicateWidgetElement.setAttribute('dynamic-variables', dynamicVarsJson);
+      }
+      
+      // Force all widget containers to be visible
+      document.querySelectorAll('#small-widget-container, #widget-container, #duplicate-widget-container').forEach(container => {
+        container.style.cssText += 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+      });
+    }, 1000);
+    
+    // Populate coach profile
+    populateCoachProfile(coachId);
+    
+    console.log(`Coach profile loaded: ${coachId}`);
+  });
+  
+  // Modal handling and assessment functions
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('close-modal').addEventListener('click', function() {
+      document.getElementById('assessment-modal').style.display = 'none';
+    });
+  });
+  
+  async function showAssessmentModal(agentId) {
+    const modal = document.getElementById('assessment-modal');
+    const contentArea = document.getElementById('assessment-content');
+    
+    // Show the modal with loading message
+    contentArea.innerHTML = '<p>Loading assessment data...</p>';
+    modal.style.display = 'flex';
+    
+    // Define debugInfo outside the try block so it's accessible in the catch block
+    let debugInfo = [];
+    // We'll either get the conversation ID from the widget or let the cloud function find it
+    let conversationId = null;
+    
+    try {
+      
+      // Add timestamp for debugging
+      debugInfo.push(`Assessment requested at: ${new Date().toISOString()}`);
+      debugInfo.push(`Agent ID: ${agentId}`);
+      
+      // We'll prioritize getting the conversation ID directly from the widget
+      // and only fall back to localStorage as a last resort
+      
+      // Try to find a conversation ID from ElevenLabs widget if available
+      try {
+        // Approach 1: Use the global window.ElevenLabs API if available
+        if (window.ElevenLabs && window.ElevenLabs.Convai) {
+          try {
+            const convoId = window.ElevenLabs.Convai.getCurrentConversationId();
+            if (convoId) {
+              conversationId = convoId;
+              debugInfo.push(`Retrieved ID from window.ElevenLabs.Convai API: ${conversationId}`);
+            }
+          } catch (globalApiError) {
+            debugInfo.push(`Error accessing global API: ${globalApiError.message}`);
+          }
+        }
+        
+        // Approach 2: Try multiple selectors to find the widget
+        if (!conversationId) {
+          const selectors = [
+            '#widget-container elevenlabs-convai',
+            '#duplicate-widget-container elevenlabs-convai',
+            'elevenlabs-convai'
+          ];
+          
+          for (const selector of selectors) {
+            const widgetElement = document.querySelector(selector);
+            if (widgetElement) {
+              debugInfo.push(`Found widget with selector: ${selector}`);
+              
+              // Try different ways to get the conversation ID
+              try {
+                if (widgetElement.conversationId) {
+                  conversationId = widgetElement.conversationId;
+                  debugInfo.push(`Found conversationId property: ${conversationId}`);
+                  break;
+                } else if (widgetElement.getAttribute && widgetElement.getAttribute('conversation-id')) {
+                  conversationId = widgetElement.getAttribute('conversation-id');
+                  debugInfo.push(`Found conversation-id attribute: ${conversationId}`);
+                  break;
+                } else if (typeof widgetElement.getConversationId === 'function') {
+                  conversationId = widgetElement.getConversationId();
+                  debugInfo.push(`Retrieved ID via getConversationId(): ${conversationId}`);
+                  break;
+                } else if (widgetElement.conversation && widgetElement.conversation.id) {
+                  // Try the newer API structure
+                  conversationId = widgetElement.conversation.id;
+                  debugInfo.push(`Found conversation.id property: ${conversationId}`);
+                  break;
+                }
+                
+                // Last resort - check for any property that might contain the ID
+                for (const prop in widgetElement) {
+                  if (prop.toLowerCase().includes('conversation') && widgetElement[prop]) {
+                    debugInfo.push(`Found potential conversation property: ${prop}`);
+                    // If it's a string and looks like an ID format, use it
+                    if (typeof widgetElement[prop] === 'string' && widgetElement[prop].length > 10) {
+                      conversationId = widgetElement[prop];
+                      debugInfo.push(`Using conversation ID from ${prop}: ${conversationId}`);
+                      break;
+                    } else if (typeof widgetElement[prop] === 'object' && widgetElement[prop].id) {
+                      conversationId = widgetElement[prop].id;
+                      debugInfo.push(`Using conversation ID from ${prop}.id: ${conversationId}`);
+                      break;
+                    }
+                  }
+                }
+              } catch (widgetApiError) {
+                debugInfo.push(`Error accessing widget properties: ${widgetApiError.message}`);
+              }
+            }
+          }
+        }
+        
+        // Approach 3: Try to access shadow DOM if available
+        if (!conversationId) {
+          const widget = document.querySelector('elevenlabs-convai');
+          if (widget && widget.shadowRoot) {
+            debugInfo.push('Attempting to access shadow DOM');
+            
+            try {
+              // Look for any element with data-conversation-id
+              const shadowElement = widget.shadowRoot.querySelector('[data-conversation-id]');
+              if (shadowElement) {
+                conversationId = shadowElement.getAttribute('data-conversation-id');
+                debugInfo.push(`Found data-conversation-id in shadow DOM: ${conversationId}`);
+              }
+              
+              // Or look for any element that might have the conversation ID in a data attribute
+              if (!conversationId) {
+                const allElements = widget.shadowRoot.querySelectorAll('*[data-*]');
+                for (const el of allElements) {
+                  for (const attr of el.attributes) {
+                    if (attr.name.includes('conversation') || attr.name.includes('convo')) {
+                      conversationId = attr.value;
+                      debugInfo.push(`Found conversation ID in shadow DOM attr ${attr.name}: ${conversationId}`);
+                      break;
+                    }
+                  }
+                  if (conversationId) break;
+                }
+              }
+            } catch (shadowDomError) {
+              debugInfo.push(`Error accessing shadow DOM: ${shadowDomError.message}`);
+            }
+          }
+        }
+      } catch(e) {
+        console.error('Error getting conversation ID from widget:', e);
+        debugInfo.push(`Error getting conversation ID: ${e.message}`);
+      }
+      
+      // If no conversation ID found from widget, we'll explicitly set it to null
+      // This tells the cloud function to list conversations by user ID and get the most recent one
+      if (!conversationId) {
+        debugInfo.push('No conversation ID found from widget, will query latest conversations by user ID');
+        conversationId = null; // Explicitly set to null to trigger user-filtered conversation listing
+      }
+      
+      console.log('Using conversation ID:', conversationId);
+      console.log('Debug info:', debugInfo);
+      
+      // Display debug information before API call
+      contentArea.innerHTML += `
+      <details${debugInfo.length > 5 ? '' : ' open'}>
+        <summary>Debug Information</summary>
+        <pre>${debugInfo.join('\n')}</pre>
+      </details>`;
+      
+      // If we don't have a conversation ID, inform the user we'll use the most recent one
+      if (!conversationId) {
+        debugInfo.push('No conversation ID found, will rely on cloud function to find most recent conversation');
+        contentArea.innerHTML += '<p>No conversation ID found. Attempting to fetch the most recent conversation...</p>';
+      }
+      
+      // Get user ID for privacy protection
+      const userId = localStorage.getItem('user_unique_id');
+      if (userId) {
+        debugInfo.push(`User ID for privacy filtering: ${userId}`);
+      } else {
+        debugInfo.push('No user ID found - privacy filtering will not be applied');
+      }
+      
+      // Get the conversation data from the cloud function
+      // passing null conversationId will trigger listing conversations by user ID
+      debugInfo.push(`Attempting to fetch assessment data with conversationId: ${conversationId || 'null (will get latest by user ID)'}`);
+      const data = await fetchAssessmentData(agentId, conversationId);
+      
+      if (!data) {
+        contentArea.innerHTML = '<p>No assessment data available yet. Please continue your coaching conversation.</p>';
+        return;
+      }
+      
+      // Format the assessment data
+      const formattedContent = formatAssessmentData(data);
+      contentArea.innerHTML = formattedContent;
+      
+      // Add the conversation ID that was actually used to the display
+      if (data.conversation_id) {
+        contentArea.innerHTML += `
+        <details>
+          <summary>Assessment Details</summary>
+          <p>Conversation ID: ${data.conversation_id}</p>
+          <p>Created: ${new Date(data.created_at).toLocaleString()}</p>
+          <p>Messages analyzed: ${data.messages?.length || 0}</p>
+        </details>`;
+        
+        // Store successfully used conversation ID for future reference
+        try {
+          localStorage.setItem('lastSuccessfulConversationId', data.conversation_id);
+          localStorage.setItem('currentConversationId', data.conversation_id);
+          localStorage.removeItem('assessmentFallbackMode');
+        } catch (e) {} // Silently handle localStorage errors
+      }
+    } catch (error) {
+      console.error('Error fetching assessment data:', error);
+      // Extract the most useful error message
+      let errorMessage = error.message;
+      
+      // If the message includes JSON or an API response, try to extract a human-readable message
+      if (errorMessage.includes('{') && errorMessage.includes('}')) {
+        try {
+          // Try to extract a JSON object from the error message
+          const jsonStr = errorMessage.substring(
+            errorMessage.indexOf('{'),
+            errorMessage.lastIndexOf('}') + 1
+          );
+          const errorObj = JSON.parse(jsonStr);
+          
+          // Use a more specific message if available
+          if (errorObj.message) {
+            errorMessage = errorObj.message;
+          } else if (errorObj.error) {
+            errorMessage = errorObj.error;
+          }
+        } catch (e) {
+          // If JSON parsing fails, keep the original message
+          console.log('Could not parse error JSON', e);
+        }
+      }
+      
+      // Add the error to our debug info for reporting
+      debugInfo.push(`Error: ${error.message}`);
+      if (error.stack) {
+        debugInfo.push(`Stack: ${error.stack.split('\n')[0]}`);
+      }
+      
+      contentArea.innerHTML = `<div class="error-container">
+        <h3>Error retrieving assessment</h3>
+        <p>${errorMessage}</p>
+        <p>Please try again later or refresh the page.</p>
+        <details>
+          <summary>Technical Details</summary>
+          <p>Error type: ${error.name}</p>
+          <p>Time: ${new Date().toLocaleTimeString()}</p>
+          <p>Coach ID: ${agentId}</p>
+          <p>Conversation ID: ${conversationId || 'Not provided'}</p>
+        </details>
+      </div>`;
+      
+      // Always show debug information when there's an error
+      contentArea.innerHTML += `
+      <details open>
+        <summary>Debug Information</summary>
+        <pre>${debugInfo.join('\n')}</pre>
+      </details>`;
+    }
+  }
+  
+  async function fetchAssessmentData(agentId, conversationId) {
+    // Maximum retries for network errors
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
+    
+    // Get the user's unique ID for privacy protection
+    const getUserId = () => {
+      let userId = localStorage.getItem('user_unique_id');
+      if (!userId) {
+        // Create a unique user ID with timestamp and random string
+        userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 12);
+        localStorage.setItem('user_unique_id', userId);
+        console.log('Generated new user ID in fetchAssessmentData:', userId);
+      }
+      return userId;
+    };
+    
+    const userId = getUserId();
+
+    while (retryCount <= MAX_RETRIES) {
+      try {
+        // Show detailed debugging in console
+        console.log(`Fetching assessment data (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, { agentId, conversationId, userId });
+        
+        // Use the appropriate Firebase Function URL 
+        const apiUrl = 'https://us-central1-psychsafety.cloudfunctions.net/getConversationDetails';
+        
+        // Implement timeout to prevent hanging requests - increased to 45 seconds
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+        
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              data: {
+                agentId: agentId,
+                conversationId: conversationId, // Using conversationId consistently
+                userId: userId // Include user ID for privacy protection
+              }
+            }),
+            signal: controller.signal,
+            // Prevent browser caching
+            cache: 'no-store'
+          });
+          
+          clearTimeout(timeoutId); // Clear the timeout if request completes
+          
+          if (!response.ok) {
+            let errorText;
+            try {
+              // Try to parse as JSON first
+              const errorJson = await response.json();
+              errorText = JSON.stringify(errorJson);
+            } catch (e) {
+              // If not JSON, just get as text
+              errorText = await response.text();
+            }
+            
+            console.error('Error response:', {
+              status: response.status,
+              statusText: response.statusText,
+              body: errorText,
+              attempt: retryCount + 1
+            });
+            
+            // Determine if we should retry based on status code
+            const isRetryableStatus = [
+              408, // Request Timeout
+              429, // Too Many Requests
+              500, // Internal Server Error
+              502, // Bad Gateway
+              503, // Service Unavailable
+              504  // Gateway Timeout
+            ].includes(response.status);
+            
+            if (isRetryableStatus && retryCount < MAX_RETRIES) {
+              retryCount++;
+              
+              // Calculate delay with exponential backoff and jitter
+              const baseDelay = Math.pow(2, retryCount) * 1000; // 2^retry * 1000ms
+              const jitter = baseDelay * (0.5 + Math.random() * 0.5); // 50-100% of base delay
+              
+              console.warn(`Retryable status code ${response.status}, retrying in ${Math.round(jitter / 1000)} seconds... (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`);
+              
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, jitter));
+              continue; // Try again
+            }
+            
+            // Provide specific error messages based on status code
+            if (response.status === 404) {
+              throw new Error(`API endpoint not found (404). The function may not be deployed or the URL is incorrect.`);
+            } else if (response.status === 403) {
+              throw new Error(`Access forbidden (403). This may be a CORS issue or authentication problem.`);
+            } else if (response.status === 502 || response.status === 503) {
+              throw new Error(`ElevenLabs API service unavailable (${response.status}). The service may be down or experiencing issues.`);
+            } else if (response.status === 500) {
+              throw new Error(`Server error (500). The Cloud Function encountered an error, possibly related to API configuration.`);
+            } else {
+              // Extract more readable error if possible
+              let readableError = errorText;
+              try {
+                const errorObj = JSON.parse(errorText);
+                readableError = errorObj.message || errorObj.error || errorText;
+              } catch (e) {}
+              
+              throw new Error(`API error: ${response.status} - ${readableError || response.statusText}`);
+            }
+          }
+          
+          // Successfully got a response, try to parse it
+          const contentType = response.headers.get('content-type');
+          let result;
+          
+          if (contentType && contentType.includes('application/json')) {
+            try {
+              result = await response.json();
+            } catch (e) {
+              console.error('Error parsing JSON response:', e);
+              throw new Error('Invalid JSON response from server');
+            }
+          } else {
+            const textResult = await response.text();
+            console.error('Unexpected content type:', contentType);
+            console.log('Response text:', textResult);
+            throw new Error(`Unexpected content type: ${contentType}`);
+          }
+          
+          if (!result.data) {
+            console.error('Missing data property in response:', result);
+            throw new Error('Invalid response format: missing data property');
+          }
+          
+          console.log('Successfully received assessment data');
+          return result.data;
+          
+        } catch (fetchError) {
+          // Clear timeout if there was an error
+          clearTimeout(timeoutId);
+          
+          // Handle specific fetch errors
+          if (fetchError.name === 'AbortError') {
+            console.warn(`Request timed out after 45 seconds (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`);
+            throw new Error('Request timed out after 45 seconds. The service may be overloaded.');
+          }
+          
+          // Check for network errors that should be retried
+          const isNetworkError = (
+            fetchError.name === 'TypeError' || // Network error
+            fetchError.message.includes('network') || // Network error
+            fetchError.message.includes('failed to fetch') || // General fetch failure
+            fetchError.message.includes('NetworkError') || // Network error
+            fetchError.message.includes('ChunkedEncodingError') || // Stream error
+            fetchError.message.includes('ProtocolError') || // HTTP protocol error
+            fetchError.message.includes('prematurely closed') // Premature connection closure
+          );
+          
+          if (isNetworkError && retryCount < MAX_RETRIES) {
+            retryCount++;
+            
+            // Calculate delay with exponential backoff and jitter
+            const baseDelay = Math.pow(2, retryCount) * 1000; // 2^retry * 1000ms
+            const jitter = baseDelay * (0.5 + Math.random() * 0.5); // 50-100% of base delay
+            
+            console.warn(`Network error encountered, retrying in ${Math.round(jitter / 1000)} seconds...`, {
+              errorType: fetchError.name,
+              errorMessage: fetchError.message,
+              retryCount,
+              maxRetries: MAX_RETRIES
+            });
+            
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, jitter));
+            continue; // Try again
+          }
+          
+          throw fetchError;
+        }
+      } catch (error) {
+        // If this is the last retry or not a retryable error, rethrow
+        if (retryCount >= MAX_RETRIES) {
+          console.error(`Failed after ${MAX_RETRIES + 1} attempts:`, error);
+          throw error;
+        }
+        
+        // This should only happen for retryable errors that have already been handled
+        // If we get here, it means we've already incremented retryCount and are continuing
+      }
+    }
+  }
+  
+  function formatAssessmentData(data) {
+    if (!data || !data.messages || data.messages.length === 0) {
+      return '<p>No coaching conversation data available yet.</p>';
+    }
+    
+    console.log('Formatting assessment data:', {
+      conversation_id: data.conversation_id,
+      message_count: data.messages?.length || 0,
+      has_analysis: !!data.analysis,
+      has_evaluation: !!data.evaluation_results
+    });
+    
+    // Format conversation for assessment view
+    let html = '<div class="assessment-summary">';
+    
+    // Add assessment details (basic metadata)
+    html += '<h3>Assessment Details</h3>';
+    
+    // Add conversation ID info
+    const conversationId = data.conversation_id || "Unknown";
+    html += `<p><strong>Conversation ID:</strong> ${conversationId}</p>`;
+    
+    // Add creation date
+    html += `<p><strong>Created:</strong> ${new Date(data.created_at).toLocaleString()}</p>`;
+    
+    // Add message count
+    html += `<p><strong>Messages analyzed:</strong> ${data.messages.length}</p>`;
+    
+    // If ElevenLabs provided analysis data, use it
+    if (data.analysis) {
+      html += '<h3>ElevenLabs Analysis</h3>';
+      
+      // Call Status (success/failure/unknown)
+      const callStatus = data.analysis.call_successful || 'unknown';
+      html += `<p><strong>Call Status:</strong> <span class="status-${callStatus}">${callStatus}</span></p>`;
+      
+      // Evaluation Criteria Results
+      if (data.analysis.evaluation_criteria_results && Object.keys(data.analysis.evaluation_criteria_results).length > 0) {
+        html += `<h4>Evaluation Criteria</h4>`;
+        html += `<div class="criteria-results">`;
+        
+        for (const [criteriaId, criteriaData] of Object.entries(data.analysis.evaluation_criteria_results)) {
+          const criteriaId_value = criteriaId; // Use the exact criteria_id from the API
+          const result = criteriaData.result || 'unknown';
+          const rationale = criteriaData.rationale || 'No rationale provided';
+          
+          html += `<div class="criteria-item">`;
+          html += `<p><strong>criteria_id:</strong> ${criteriaId_value}</p>`;
+          html += `<p><strong>result:</strong> <span class="status-${result}">${result}</span></p>`;
+          html += `<p class="rationale"><strong>rationale:</strong> ${rationale}</p>`;
+          html += `</div>`;
+        }
+        
+        html += `</div>`; // Close criteria-results
+      }
+    } else {
+      html += '<p>No analysis data available for this conversation.</p>';
+    }
+    
+    html += '</div>'; // Close assessment-summary
+    
+    return html;
+  }
+</script>
+
+</body>
+</html>

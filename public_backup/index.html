@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NLI Coaching Practice</title>
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet" />
+  <!-- ElevenLabs widget script will be loaded dynamically to prevent duplicate loading --> 
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #141414;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    header {
+      background: #181818;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 2px solid #333;
+    }
+    
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: #68e800;
+      margin-bottom: 5px;
+    }
+    
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 10px 150px 10px;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: calc(100vh - 140px);
+    }
+    
+    .hero-section {
+      text-align: center;
+      margin-bottom: 40px;
+      max-width: 800px;
+    }
+    
+    .hero-section h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      color: #68e800;
+      margin-bottom: 20px;
+    }
+    
+    .hero-section p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    
+    .options-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .option-card {
+      background: #1e1e1e;
+      border: 2px solid #68e800;
+      border-radius: 12px;
+      padding: 30px;
+      width: 350px;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .option-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(104, 232, 0, 0.2);
+    }
+    
+    .option-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      color: #68e800;
+      margin-bottom: 15px;
+      white-space: nowrap; /* Prevent text from wrapping */
+    }
+    
+    .option-card p {
+      text-align: center;
+      margin-bottom: 25px;
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+    
+    .option-card img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      object-position: top;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+    
+    .cta-button {
+      background: #68e800;
+      color: #1e1e1e;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .cta-button:hover {
+      background: #4fb900;
+    }
+    
+    .secondary-button {
+      background: transparent;
+      color: #68e800;
+      border: 2px solid #68e800;
+      border-radius: 8px;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .secondary-button:hover {
+      background: #68e800;
+      color: #1e1e1e;
+    }
+    
+    .links-section {
+      display: flex;
+      justify-content: center;
+      margin-top: 40px;
+      gap: 20px;
+    }
+    
+    .link-item {
+      padding: 10px;
+      color: #68e800;
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    
+    .link-item:hover {
+      border-color: #68e800;
+    }
+    
+    footer {
+      background: #181818;
+      padding: 20px;
+      text-align: center;
+      margin-top: auto;
+    }
+    
+    .logo {
+      width: 300px;
+      height: auto;
+      margin-top: 10px;
+      filter: grayscale(100%);
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 12px;
+      border: 2px solid #68e800;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      margin: 15px 0;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: white;
+      font-size: 16px;
+    }
+    
+    .modal button {
+      background: #68e800;
+      color: black;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    .modal h2 {
+      color: #68e800;
+      margin-bottom: 15px;
+    }
+    
+    .modal p {
+      margin-bottom: 20px;
+      color: #ccc;
+    }
+
+    .status-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 1000;
+      font-weight: bold;
+      animation: fadeInOut 3s ease-in-out;
+    }
+
+    .status-success {
+      background-color: #68e800;
+      color: #1e1e1e;
+    }
+
+    .status-error {
+      background-color: #ff4444;
+      color: #1e1e1e;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    }
+    
+    @media (max-width: 768px) {
+      .options-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .option-card {
+        width: 90%;
+        max-width: 350px;
+      }
+      
+      .option-card h3 {
+        /* Added to ensure no wrapping on mobile screens too */
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>NLI Coaching Practice</h1>
+</header>
+
+<div id="main-content">
+  <div class="hero-section">
+    <h2>Welcome to NLI Coaching Practice</h2>
+    <p>Develop your coaching skills and experience the power of effective coaching in a safe, practice-oriented environment. Whether you're looking to receive personalized coaching or want to practice your own coaching skills, we've got you covered.</p>
+  </div>
+  
+  <div class="options-container">
+    <div class="option-card">
+      <img src="Caroline.png" alt="Get Coached">
+      <h3>Get Coached</h3>
+      <p>Connect with our experienced AI coaches who can help you navigate challenges, develop new skills, and achieve your professional goals.</p>
+      <a href="coach-selection-new.html" class="cta-button">Get Coached</a>
+    </div>
+    
+    <div class="option-card">
+      <img src="Daryl.png" alt="Practice Coaching">
+      <h3>Practice Coaching</h3>
+      <p>Enhance your coaching abilities by practicing with our AI coachees across various industries, management levels, and topic areas.</p>
+      <a href="practice-coaching.html" class="cta-button">Practice Coaching</a>
+    </div>
+  </div>
+  
+  <div class="links-section">
+    <a href="practice-coaching.html" class="link-item">Psychological Safety Scenarios</a>
+    <a href="https://neuroleadership.com" target="_blank" class="link-item">About NLI</a>
+  </div>
+</div>
+
+<div class="modal-overlay" id="username-modal">
+  <div class="modal">
+    <h2>Welcome!</h2>
+    <p>Please enter your name to begin the practice session:</p>
+    <input type="text" id="username-input" placeholder="Your name">
+    <button onclick="setUsername()">Start Practice</button>
+  </div>
+</div>
+
+<footer>
+  <p>© 2025 The NeuroLeadership Institute. All Rights Reserved.</p>
+  <img src="NLI.png" alt="NeuroLeadership Logo" class="logo" />
+</footer>
+
+<script>
+  // Error handling utilities following established resilience patterns
+  function showStatus(message, type = 'success') {
+    const existingStatus = document.querySelector('.status-message');
+    if (existingStatus) {
+      existingStatus.remove();
+    }
+
+    const statusDiv = document.createElement('div');
+    statusDiv.textContent = message;
+    statusDiv.className = `status-message status-${type}`;
+    document.body.appendChild(statusDiv);
+    setTimeout(() => statusDiv.remove(), 3000);
+  }
+
+  function handleStorageError(error, operation) {
+    console.error(`LocalStorage ${operation} error:`, error);
+    showStatus(`Error ${operation} data. Please try again.`, 'error');
+    
+    // Implement exponential backoff with jitter for retries
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    function retry() {
+      if (retryCount >= maxRetries) {
+        showStatus('Unable to access local storage. Please refresh the page.', 'error');
+        return;
+      }
+      
+      const baseDelay = Math.pow(2, retryCount) * 1000;
+      const jitter = baseDelay * (0.5 + Math.random() * 0.5);
+      
+      setTimeout(() => {
+        try {
+          // Retry the operation
+          if (operation === 'read') {
+            localStorage.getItem('username');
+          } else {
+            localStorage.setItem('username', document.getElementById('username-input').value.trim());
+          }
+          showStatus('Successfully recovered', 'success');
+        } catch (retryError) {
+          retryCount++;
+          retry();
+        }
+      }, jitter);
+    }
+    
+    retry();
+  }
+
+  function setUsername() {
+    const usernameInput = document.getElementById('username-input');
+    const username = usernameInput.value.trim();
+    
+    if (username.length < 2) {
+      showStatus('Please enter a valid name (at least 2 characters)', 'error');
+      return;
+    }
+    
+    try {
+      localStorage.setItem('username', username);
+      document.getElementById('username-modal').style.display = 'none';
+      showStatus('Welcome, ' + username + '!');
+    } catch (error) {
+      handleStorageError(error, 'write');
+    }
+  }
+
+  // Add event listener for Enter key in username input
+  document.getElementById('username-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      setUsername();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      // Check if username exists with error handling
+      const username = localStorage.getItem('username');
+      if (!username) {
+        // Show username modal
+        document.getElementById('username-modal').style.display = 'flex';
+      }
+    } catch (error) {
+      handleStorageError(error, 'read');
+      // Show modal as fallback
+      document.getElementById('username-modal').style.display = 'flex';
+    }
+  });
+  
+  function setUsername() {
+    const username = document.getElementById('username-input').value.trim();
+    if (username) {
+      localStorage.setItem('username', username);
+      document.getElementById('username-modal').style.display = 'none';
+      
+      // Generate a session ID for this user session
+      const sessionId = Date.now() + '-' + Math.random().toString(36).substring(2, 10);
+      localStorage.setItem('conversationSessionId', sessionId);
+      console.log('Generated new session ID:', sessionId);
+    }
+  }
+</script>
+
+</body>
+</html>

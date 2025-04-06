@@ -1,0 +1,13 @@
+# Netlify-style redirects for Firebase Hosting
+/coaching-landing    /coaching-landing.html    200
+/coach-selection     /coach-selection-new.html     200
+/coach-profile       /coach-profile-fixed.html       200
+/coach-profile/*     /coach-profile-fixed.html       200
+/practice-coaching   /practice-coaching.html   200
+/scenarios           /scenarios.html           200
+
+# Ensure query parameters are preserved across redirects
+/coach-profile-fixed  /coach-profile-fixed.html  200
+
+# Fallback for all other routes to allow client-side routing
+/*    /index.html    200

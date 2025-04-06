@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skills Practice Session - NLI</title>
+  <!-- Add favicon to prevent 404 errors -->
+  <link rel="icon" type="image/x-icon" href="./NLI BRAIN RGB small.ico">
+  
+  <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <style>
+    @import url('https://use.typekit.net/zse2qvc.css');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css');
+    
+    /* Base resets */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    /* Pulse animation for microphone button */
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .pulse {
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+    body {
+      font-family: 'museo-sans', sans-serif;
+      background-color: #f9f9f9;
+      color: #4D4D4D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(to right, #005575, #0095C8);
+      padding: 1rem 0;
+      border-bottom: 4px solid #F9F9F9;
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1rem;
+    }
+    .back-button {
+      color: white;
+      text-decoration: none;
+      margin-right: 1rem;
+      font-weight: 500;
+    }
+    .header-title {
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+    }
+    .header-title h1 {
+      font-size: 2rem;
+    }
+
+    .main-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      max-width: 1600px;
+      margin: 2rem auto;
+      padding: 0 0.5rem;
+    }
+
+    .briefing-container {
+      flex: 2;
+      min-width: 1000px;
+      max-width: 1200px;
+      margin-right: 2rem;
+    }
+
+    .phone-container {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .briefing-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      max-height: 850px;
+      overflow-y: auto; /* Changed to auto to allow scrolling */
+      width: 100%;
+    }
+    
+    .scenario-name {
+      font-size: 1.5rem;
+      color: #0095C8;
+      margin-bottom: 1rem;
+    }
+    
+    .section-title {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #005575;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+    
+    .briefing-card p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .briefing-card ul {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+    
+    .briefing-card li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Container for the phone interface */
+    .session-container {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      margin: 0 auto;
+      border: none;
+      background-color: transparent;
+    }
+
+    /* The "phone" itself */
+    .phone-interface {
+      width: 340px;
+      max-width: 100%;
+      height: 850px; /* increased phone height further */
+      display: flex;
+      flex-direction: column;
+      margin: 0 auto;
+      background-color: #f0f0f0;
+      border-radius: 40px;
+      border: 3px solid rgba(220,220,220,1);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 10px 30px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.3);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Top portion (Coach video) => 65% of phone */
+    .coach-video-container {
+      height: 50%; /* Keeping at 50% to preserve keypad */
+      background-color: #000;
+      position: relative;
+      border-radius: 37px 37px 0 0;
+      overflow: hidden;
+    }
+    /* Notch at the top (re-added) */
+    .coach-video-container .phone-notch {
+      height: 25px;
+      width: 160px;
+      background-color: #000;
+      border-radius: 0 0 20px 20px;
+      margin: 0 auto;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+    }
+
+    .coach-video {
+      display: none; /* default hidden, toggled with .active */
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      /* Make the coach image fill the container nicely */
+      background-size: contain; /* Changed to contain to show full image */
+      background-position: center center; 
+      background-repeat: no-repeat;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 0;
+      position: relative;
+    }
+    .coach-video.active {
+      display: flex !important;
+      border: 2px solid #0095C8;
+    }
+
+    /* Bottom portion (Dial pad) => 35% of phone */
+    .dial-pad {
+      height: 50%; /* Increased to 50% to match coaching */
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(to bottom, #f0f0f0, #e5e5e5);
+      border-top: 1px solid rgba(0,0,0,0.1);
+      border-radius: 0 0 37px 37px;
+      padding-bottom: 15px;
+    }
+
+    /* Action row (call, video, analysis, end) */
+    .phone-action-row {
+      display: flex;
+      justify-content: space-evenly;
+      padding: 6px 0;
+    }
+    .phone-action-button {
+      border-radius: 50%;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 15px;
+      width: 62px;
+      height: 62px;
+      margin: 0 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
+      color: white;
+    }
+    .phone-action-button.video { background-color: #2196f3; }
+    .phone-action-button.call { background-color: #4caf50; }
+    .phone-action-button.analysis { background-color: #ff9800; }
+    .phone-action-button.end { background-color: #f44336; }
+
+    /* Input area for messages */
+    .message-input-area {
+      display: flex;
+      width: 95%;
+      margin: 0 auto;
+      margin-top: -20px; /* Adjusted to prevent overlap with action buttons */
+      margin-bottom: 10px; /* Add bottom margin for spacing */
+      padding: 5px 8px; /* Reduced padding to make it shorter */
+      border-radius: 30px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      position: relative;
+      max-height: 32px; /* Restrict height */
+      align-items: center; /* Center items vertically */
+    }
+
+    .message-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 14px; /* Smaller font */
+      padding: 0 8px;
+      max-height: 24px; /* Shorter height */
+      overflow-y: auto;
+      background: transparent;
+      line-height: 24px; /* Control the line height */
+    }
+
+    .emoji-button {
+      color: #999;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      padding: 0 12px;
+      font-size: 20px;
+    }
+
+    .emoji-button:hover {
+      color: #555;
+    }
+
+    .send-button {
+      color: #fff;
+      background-color: #0095C8;
+      border-radius: 50%;
+      width: 24px; /* Even smaller size */
+      height: 24px; /* Even smaller size */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      flex-shrink: 0;
+      font-size: 10px; /* Smaller icon */
+      margin: 0 2px; /* Add some margin */
+    }
+
+    .send-button:hover {
+      background-color: #007ea8;
+    }
+
+    /* Phone status bar */
+    .phone-status-bar {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 20px;
+      background-color: rgba(0,0,0,0.8);
+      color: white;
+      font-size: 12px;
+      position: absolute;
+      top: 0;
+      width: 100%;
+      z-index: 10;
+    }
+
+    /* Message display area */
+    .message-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-bubble {
+      max-width: 75%;
+      padding: 10px 15px;
+      border-radius: 18px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      position: relative;
+      word-wrap: break-word;
+    }
+
+    .message-bubble.agent {
+      background-color: #e1f5fe;
+      border-top-left-radius: 5px;
+      align-self: flex-start;
+    }
+
+    .message-bubble.user {
+      background-color: #dcf8c6;
+      border-top-right-radius: 5px;
+      align-self: flex-end;
+    }
+
+    .message-time {
+      font-size: 10px;
+      color: #999;
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    /* Keypad grid */
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 12px;
+      padding: 0 20px 35px 20px;
+      margin-top: 5px; /* Add some space at the top instead of negative margin */
+      justify-items: center;
+    }
+
+    .phone-button {
+      height: 58px;
+      width: 58px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #333;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .phone-button:hover {
+      background-color: rgba(255, 255, 255, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .letter-label {
+      font-size: 8px;
+      margin-top: 3px;
+      color: #777;
+      font-weight: normal;
+    }
+
+    /* Widget container */
+    .widget-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Status message for connection */
+    .status-indicator {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      background-color: rgba(0,0,0,0.7);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      z-index: 100;
+      font-size: 14px;
+      transition: opacity 0.3s ease;
+    }
+
+    .status-indicator.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .status-dot.connecting {
+      background-color: #FFA500; /* Orange for connecting */
+    }
+
+    .status-dot.active {
+      background-color: #4CAF50; /* Green for active */
+    }
+
+    .status-dot.error {
+      background-color: #F44336; /* Red for error */
+    }
+
+    /* Microphone button */
+    .microphone-button {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #0095C8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      color: white;
+      font-size: 24px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      z-index: 100;
+    }
+    
+    .microphone-button:hover {
+      background-color: #007ea8;
+    }
+    
+    #microphone-button.listening {
+      background-color: #F37322 !important;
+      box-shadow: 0 0 0 5px rgba(243, 115, 34, 0.3);
+      transform: scale(1.05);
+    }
+
+    .microphone-button.disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    footer {
+      background: #4D4D4D;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+      color: white;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 400;
+      transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+      color: #0095C8;
+      text-decoration: underline;
+    }
+    
+    .logo {
+      height: 30px;
+      width: auto;
+      margin-top: 0.625rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1440px) {
+      .main-container {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .briefing-container, 
+      .phone-container {
+        max-width: 1000px;
+        min-width: auto;
+        width: 100%;
+        margin-right: 0;
+      }
+
+      .briefing-card {
+        margin-bottom: 1rem;
+        max-height: none;
+      }
+      
+      .phone-interface {
+        height: 600px;
+      }
+    }
+
+    /* Custom styles for ElevenLabs widget */
+    elevenlabs-convai {
+      visibility: hidden !important;
+      height: 0 !important;
+      overflow: hidden !important;
+      position: absolute !important;
+      z-index: -10 !important;
+    }
+    
+    /* Add styles to hide phone UI and show raw widget */
+    .phone-container {
+      display: none; /* Hide the custom phone overlay */
+    }
+    #elevenlabs-widget-container {
+        position: static; /* Reset positioning */
+        display: block; /* Ensure it's visible */
+        margin: 20px; /* Add some spacing */
+        border: 1px dashed grey; /* Add border for visibility */
+        padding: 10px;
+        min-height: 300px; /* Give it some space */
+    }
+    elevenlabs-convai {
+        display: block; /* Ensure widget itself is displayed */
+    }
+    /* End added styles */
+
+    .back-button {
+      position: absolute;
+      color: white;
+      text-decoration: none;
+      margin-right: 1rem;
+      font-weight: 500;
+    }
+    .header-title {
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+    }
+    .header-title h1 {
+      font-size: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div style="display: flex; align-items: center;">
+      <a href="skills-practice.html" class="back-button">← Back</a>
+      <div class="header-title">
+        <h1 id="scenario-name-header">Skills Practice</h1>
+      </div>
+    </div>
+    <img src="NLI.png" alt="NLI Logo" style="height: 45px; width: auto; filter: brightness(0) invert(1);">
+  </div>
+</header>
+
+<div class="main-container">
+  <!-- Briefing Container -->
+  <div class="briefing-container">
+    <div class="briefing-card">
+      <h2 class="scenario-name" id="scenario-name"></h2>
+      <div id="briefing-text"></div>
+    </div>
+  </div>
+
+  <!-- Phone Container -->
+  <div class="phone-container">
+    <div class="session-container">
+      <div class="phone-interface">
+        <!-- Top portion: Video -->
+        <div class="coach-video-container">
+          <div class="phone-notch"></div>
+          <div class="phone-status-bar">
+            <span>4:20 PM</span>
+            <span><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></span>
+          </div>
+          
+          <!-- Status indicator -->
+          <div class="status-indicator hidden">
+            <div class="status-dot connecting"></div>
+            <div class="status-text">Connecting...</div>
+          </div>
+          
+          <!-- Agent videos (one per agent, only one active at a time) -->
+          <div class="coach-video" id="rhonda-video" style="background-image: url('rhonda.png');"></div>
+          <div class="coach-video" id="marcus-video" style="background-image: url('marcus.png');"></div>
+          <div class="coach-video" id="morgan-video" style="background-image: url('morgan.png');"></div>
+          <div class="coach-video" id="alex-video" style="background-image: url('alex.png');"></div>
+          <div class="coach-video" id="taylor-video" style="background-image: url('taylor.png');"></div>
+          <div class="coach-video" id="priya-video" style="background-image: url('priya.png');"></div>
+        </div>
+        
+        <!-- Bottom portion: Dial pad -->
+        <div class="dial-pad">
+          <!-- Action buttons (call, end, etc) -->
+          <div class="phone-action-row">
+            <div class="phone-action-button video" id="toggle-video-btn" title="Toggle Video">
+              <i class="fas fa-video"></i>
+            </div>
+            <div class="phone-action-button analysis" id="get-analysis-phone-btn" title="Get Analysis">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="phone-action-button end" id="end-call-btn" title="End Call" style="display: none;">
+              <i class="fas fa-phone-slash"></i>
+            </div>
+          </div>
+          
+          <!-- Message area -->
+          <div class="message-area" id="message-area">
+            <!-- Messages will be added here dynamically -->
+          </div>
+          
+          <!-- Input area -->
+          <div class="message-input-area">
+            <div class="emoji-button">
+              <i class="far fa-smile"></i>
+            </div>
+            <input type="text" class="message-input" id="phone-message-input" placeholder="Type a message...">
+            <div class="send-button" id="phone-send-button">
+              <i class="fas fa-paper-plane"></i>
+            </div>
+          </div>
+          
+          <!-- Keypad -->
+          <div class="keypad-grid">
+            <div class="phone-button">1<div class="letter-label"></div></div>
+            <div class="phone-button">2<div class="letter-label">ABC</div></div>
+            <div class="phone-button">3<div class="letter-label">DEF</div></div>
+            <div class="phone-button">4<div class="letter-label">GHI</div></div>
+            <div class="phone-button">5<div class="letter-label">JKL</div></div>
+            <div class="phone-button">6<div class="letter-label">MNO</div></div>
+            <div class="phone-button">7<div class="letter-label">PQRS</div></div>
+            <div class="phone-button">8<div class="letter-label">TUV</div></div>
+            <div class="phone-button">9<div class="letter-label">WXYZ</div></div>
+            <div class="phone-button">*</div>
+            <div class="phone-button">0<div class="letter-label">+</div></div>
+            <div class="phone-button">#</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ElevenLabs widget will be injected here but hidden -->
+<div id="elevenlabs-widget-container" style="position: absolute; width: 1px; height: 1px; overflow: visible; pointer-events: auto; z-index: -1; opacity: 0.01;"></div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://neuroleadership.com" target="_blank">About NLI</a>
+    <a href="https://neuroleadership.com/podcast/" target="_blank">Resources</a>
+    <a href="mailto:niles@neuroleadership.com">Support</a>
+  </div>
+  <img src="NLI.png" alt="NLI Logo" class="logo">
+  <p style="margin-top: 1rem; font-weight: 300; font-size: 0.875rem;"> 2025 NLI. All rights reserved.</p>
+</footer>
+
+<!-- Assessment Modal -->
+<div class="modal-overlay" id="assessment-modal" style="display: none;">
+  <div class="modal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h2 style="margin: 0;">Conversation Analysis</h2>
+      <button id="close-modal" style="background: none; border: none; font-size: 20px; cursor: pointer;">×</button>
+    </div>
+    <div id="assessment-content">
+      <p>Loading session data...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Add additional styling for transcript functionality -->
+<style>
+  /* Modal styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  
+  .modal h2 {
+    color: #005575;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  
+  .modal h3 {
+    color: #007ba3;
+    margin: 1.5rem 0 0.5rem;
+    font-weight: 600;
+  }
+  
+  .modal p {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  
+  /* Analysis view styles */
+  .analysis-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    z-index: 20;
+    display: none;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .analysis-view.active {
+    display: flex;
+  }
+  
+  .analysis-header {
+    background: linear-gradient(to right, #005575, #0095C8);
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .analysis-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  
+  .close-analysis-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .analysis-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+  }
+  
+  /* Conversation log styles */
+  .conversation-log {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+  }
+  
+  .log-message {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+  
+  .log-message.user-message {
+    background-color: #e6f7ff;
+    border-left: 3px solid #1890ff;
+    margin-left: 20px;
+  }
+  
+  .log-message.agent-message {
+    background-color: #f6ffed;
+    border-left: 3px solid #52c41a;
+    margin-right: 20px;
+  }
+  
+  .message-role {
+    font-weight: bold;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+  }
+  
+  /* Enhanced transcript view styling */
+  .transcript-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #fcfcfc;
+    margin-top: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .analysis-section {
+    margin-bottom: 15px;
+  }
+  
+  .analysis-section h4 {
+    margin-bottom: 8px;
+    color: #0095C8;
+  }
+  
+  .evaluation-list {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .evaluation-list li {
+    padding: 5px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .session-info {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+  }
+  
+  .message-header {
+    margin-bottom: 5px;
+  }
+  
+  .timestamp {
+    color: #888;
+    font-size: 0.8rem;
+    font-weight: normal;
+  }
+  
+  .error-container {
+    background-color: #fff8f8;
+    border-left: 4px solid #f44336;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  
+  .error-container h3 {
+    color: #d32f2f;
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+  .technical-details {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 15px;
+    font-family: monospace;
+  }
+  
+  .retry-button {
+    margin-top: 15px;
+    background-color: #0095C8;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .retry-button:hover {
+    background-color: #007ba3;
+  }
+</style>
+
+<script>
+// Global variables
+let sessionActive = false;
+let scenarioInfo = null;
+let callState = 'idle'; // idle, connecting, active, ended
+let coachVideoVisible = false;
+let widgetFullyInitialized = false;
+let userMessage = '';
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 3;
+let widgetScriptLoaded = false;
+let conversation = []; // Store conversation history
+
+// Helper function to format current time
+function getCurrentTime() {
+  const now = new Date();
+  return now.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
+}
+
+// Function to show status messages
+function showStatus(message, type = 'connecting') {
+  const statusIndicator = document.querySelector('.status-indicator');
+  const statusDot = document.querySelector('.status-dot');
+  const statusText = document.querySelector('.status-text');
+  
+  // Check if elements exist before using them
+  if (!statusIndicator || !statusDot || !statusText) {
+    console.warn('Status elements not found');
+    return;
+  }
+  
+  // Show the status indicator
+  statusIndicator.classList.remove('hidden');
+  
+  // Update the status dot with the appropriate color
+  statusDot.className = 'status-dot ' + type;
+  
+  // Set explicit color based on status type
+  if (type === 'active') {
+    statusDot.style.backgroundColor = '#4CAF50'; // Green for active
+  } else if (type === 'connecting') {
+    statusDot.style.backgroundColor = '#FFA500'; // Orange for connecting
+  } else if (type === 'error') {
+    statusDot.style.backgroundColor = '#F44336'; // Red for error
+  }
+  
+  // Update the status text
+  statusText.textContent = message;
+  
+  // Hide the status after a delay for active/error states
+  if (type === 'active' || type === 'error') {
+    setTimeout(() => {
+      statusIndicator.classList.add('hidden');
+    }, 3000);
+  }
+}
+
+// Function to add messages to the phone UI
+function addMessageToPhoneUI(text, sender) {
+  const messageArea = document.getElementById('message-area');
+  const messageBubble = document.createElement('div');
+  messageBubble.className = `message-bubble ${sender}`;
+  messageBubble.textContent = text;
+  
+  const messageTime = document.createElement('div');
+  messageTime.className = 'message-time';
+  messageTime.textContent = getCurrentTime();
+  
+  messageBubble.appendChild(messageTime);
+  messageArea.appendChild(messageBubble);
+  
+  // Scroll to bottom
+  messageArea.scrollTop = messageArea.scrollHeight;
+  
+  // Store message in conversation history
+  const senderName = sender === 'user' ? 'You' : scenarioInfo ? scenarioInfo.name : 'Agent';
+  conversation.push({
+    sender: senderName,
+    text: text,
+    timestamp: new Date().toISOString()
+  });
+}
+
+// Load briefing data based on scenario name
+function getBriefingData(scenarioName) {
+  // Map of scenario briefings
+  const briefings = {
+    'Rhonda': {
+      title: "Approaching a Difficult Conversation with Rhonda",
+      sections: [
+        {
+          title: "Scenario Background",
+          content: "You'll be speaking with Rhonda, a colleague who is upset about documentation you've repeatedly delayed that's critical for a customer-facing project."
+        },
+        {
+          title: "Your Approach",
+          content: "This conversation will require careful handling. Rhonda is frustrated, and simply providing excuses or jumping to solutions won't be effective."
+        },
+        {
+          title: "Things to Consider",
+          items: [
+            "Rhonda is visibly upset but trying to maintain professionalism",
+            "The timing (bonus calculation season) makes this particularly sensitive",
+            "Your repeated delays have created a problematic situation"
+          ]
+        },
+        {
+          title: "Suggested Strategy",
+          content: "Consider how your approach addresses fundamental workplace relationship dynamics. Think about how your words and actions might make Rhonda feel valued or dismissed, certain or uncertain about next steps, included or excluded from the solution, connected or disconnected from you as a colleague, and whether the situation feels fair from her perspective.\n\nRemember that apologizing alone isn't enough - your colleague needs to see that you understand the impact of your actions."
+        },
+        {
+          title: "Your Goal",
+          content: "Navigate this conversation effectively by acknowledging the issue, taking appropriate responsibility, and working toward a resolution that repairs both the work situation and your professional relationship.\n\nGood luck! This exercise is designed to be challenging, so don't be discouraged if Rhonda remains frustrated initially."
+        }
+      ]
+    },
+    'Marcus': {
+      title: "Providing Constructive Feedback",
+      sections: [
+        {
+          title: "Scenario Context",
+          content: "You need to provide feedback to a team member who is underperforming but is completely unaware of their performance issues. Your challenge is to deliver this feedback effectively so it encourages improvement rather than causing defensiveness or demotivation."
+        },
+        {
+          title: "Your Objective",
+          content: "Successfully communicate the performance concerns while maintaining a productive working relationship with your team member."
+        },
+        {
+          title: "Approach Considerations",
+          content: "This conversation requires balancing honesty with sensitivity. Research suggests that workplace conversations are most productive when they address basic social needs."
+        },
+        {
+          title: "Consider how your communication approach might",
+          items: [
+            "Affect how valued vs. criticized the person feels",
+            "Provide clarity vs. create confusion about expectations",
+            "Give them a voice vs. dictate terms",
+            "Build connection vs. create distance",
+            "Feel balanced vs. one-sided"
+          ]
+        },
+        {
+          title: "Things to Watch For",
+          items: [
+            "Initial surprise or confusion (they aren't expecting negative feedback)",
+            "Defensive responses if they feel attacked",
+            "Disengagement if they feel overwhelmed",
+            "Signs they're processing the information and becoming receptive"
+          ]
+        },
+        {
+          title: "Success Indicators",
+          items: [
+            "The team member understands the specific performance concerns",
+            "They contribute to developing an improvement plan",
+            "The conversation ends with mutual respect and clarity about next steps",
+            "They seem motivated rather than defeated"
+          ]
+        },
+        {
+          title: "Remember",
+          content: "This is an opportunity to develop your feedback skills as a new manager. Finding the right balance between honesty and support is challenging but critical for your team's success."
+        }
+      ]
+    },
+    'Morgan': {
+      title: "Strategic Partnership Negotiation",
+      sections: [
+        {
+          title: "Scenario Context",
+          content: "You are meeting with Morgan Hayes, Chief Strategy Officer at Vertex Global, a company your organization hopes to form a strategic alliance with. This partnership could significantly expand your market reach and technological capabilities, but Vertex has multiple potential partners courting them. Your challenge is to position your company as the ideal strategic partner while negotiating terms favorable to both organizations."
+        },
+        {
+          title: "Your Objective",
+          content: "Successfully navigate this high-stakes negotiation to secure a commitment to move forward with partnership discussions, laying groundwork for a mutually beneficial alliance."
+        },
+        {
+          title: "Approach Considerations",
+          content: "Research on executive interactions suggests that relationship dynamics significantly impact strategic negotiations. Before focusing on deal terms, consider how your communication approach addresses fundamental executive concerns:"
+        },
+        {
+          title: "Questions to Consider",
+          items: [
+            "How does your approach acknowledge both parties' strategic importance?",
+            "How clearly are you communicating value propositions and expectations?",
+            "Are you balancing structured proposals with room for collaborative shaping?",
+            "Are you building a personal connection beyond transaction details?",
+            "Does your proposal distribute value, risk, and reward equitably?"
+          ]
+        },
+        {
+          title: "Success Indicators",
+          items: [
+            "CSO Hayes moves from cautious inquiry to active engagement",
+            "Concrete next steps are established with mutual commitments",
+            "The conversation maintains professional respect throughout",
+            "Both organizations' strategic interests are meaningfully addressed"
+          ]
+        },
+        {
+          title: "Key Point",
+          content: "Remember, at the executive level, how you conduct the negotiation often matters as much as the specific terms proposed."
+        }
+      ]
+    },
+    'Alex': {
+      title: "Conversation with Alex",
+      sections: [
+        {
+          title: "Situation Overview",
+          content: "You're a senior executive who has been informed about a serious incident where Alex, a well-regarded employee, was berated by her manager in a team meeting. A whistleblower on the team reported the manager's behavior as completely inappropriate and unprovoked. Alex is known to be conflict-averse and unlikely to volunteer information about the incident."
+        },
+        {
+          title: "Your Objective",
+          content: "Extract an accurate account of what happened while creating enough psychological safety for Alex to speak openly. You need to understand the full situation to take appropriate action, but Alex is understandably hesitant to discuss it due to fear of retaliation."
+        },
+        {
+          title: "Alex's Current State",
+          items: [
+            "Likely experiencing anxiety about meeting with senior leadership",
+            "Concerned about being labeled as \"too sensitive\" or facing retaliation",
+            "Emotionally impacted by both the incidents and the process of reporting them",
+            "Uncertain about whether leadership truly cares about addressing the issue"
+          ]
+        },
+        {
+          title: "Approach Considerations",
+          items: [
+            "How you begin the conversation will significantly impact Alex's willingness to open up",
+            "Signs of defensiveness or corporate detachment will likely cause Alex to withdraw",
+            "Rushing or pressuring for details may result in minimal, sanitized information",
+            "The power dynamics between you as a senior executive and Alex are significant"
+          ]
+        },
+        {
+          title: "Indicators of Success",
+          items: [
+            "Alex gradually becomes more forthcoming with specific details",
+            "Emotional responses become more visible as psychological safety increases",
+            "Alex expresses relief at being heard",
+            "You gain a clear understanding of the manager's behavior pattern",
+            "Alex leaves the conversation feeling supported rather than more anxious"
+          ]
+        }
+      ]
+    },
+    'Taylor': {
+      title: "Conversation with Taylor",
+      sections: [
+        {
+          title: "Situation Overview",
+          content: "You're a senior executive leading a new project initiative. Taylor's immediate manager has strongly recommended him as someone with exceptional creativity and technical brilliance who could provide valuable innovative input. However, you've been informed that Taylor is extremely introverted and unlikely to volunteer his ideas without significant encouragement."
+        },
+        {
+          title: "Your Objective",
+          content: "Create psychological safety that allows Taylor to share his innovative thinking about the new project. His technical creativity could be invaluable, but standard brainstorming approaches and direct questioning may cause him to withdraw rather than contribute."
+        },
+        {
+          title: "Taylor's Current State",
+          items: [
+            "Highly uncomfortable with attention, especially from senior leadership",
+            "May interpret direct questions as put-on-the-spot challenges",
+            "Likely to offer minimum-risk, conventional ideas initially",
+            "May need processing time before sharing more innovative thoughts"
+          ]
+        },
+        {
+          title: "Approach Considerations",
+          items: [
+            "Traditional executive communication styles may inadvertently silence Taylor",
+            "How you respond to his initial, likely cautious contributions will set the tone",
+            "Technical details matter to Taylor and are a pathway to his bigger ideas",
+            "Your body language and patience signals will significantly impact his comfort level"
+          ]
+        },
+        {
+          title: "Indicators of Success",
+          items: [
+            "Taylor gradually becomes more animated when discussing technical concepts",
+            "Conversation evolves from one-word answers to more elaborated thinking",
+            "Taylor begins asking questions about the project parameters",
+            "You see glimpses of the innovative thinking his manager referenced",
+            "Taylor expresses interest in continued involvement with the project"
+          ]
+        }
+      ]
+    },
+    'Priya': {
+      title: "Conversation with Priya",
+      sections: [
+        {
+          title: "Situation Overview",
+          content: "You're a senior executive who has been contacted by HR regarding a complaint filed by Priya, a team member who reported experiencing discriminatory behavior during team meetings, including mockery of her Indian accent and derogatory comments about her food. Particularly concerning is that her direct manager not only failed to address these behaviors but occasionally participated in them."
+        },
+        {
+          title: "Your Objective",
+          content: "Create a psychologically safe environment for Priya to share her experiences while gathering the information needed to address both the specific incidents and the broader cultural issues they represent."
+        },
+        {
+          title: "Priya's Current State",
+          items: [
+            "Likely questioning whether reporting was the right decision",
+            "Concerned about being labeled as \"too sensitive\" or facing retaliation",
+            "Emotionally impacted by both the incidents and the process of reporting them",
+            "Uncertain about whether leadership truly cares about addressing the issue"
+          ]
+        },
+        {
+          title: "Approach Considerations",
+          items: [
+            "Your initial response to her concerns will signal your authentic commitment to inclusion",
+            "How you frame the purpose of the conversation will impact her openness",
+            "Any signs of minimizing or dismissing her experiences will shut down communication",
+            "Your focus on next steps and solutions must balance with validating her experiences"
+          ]
+        },
+        {
+          title: "Indicators of Success",
+          items: [
+            "Priya provides specific examples of incidents without excessive prompting",
+            "She expresses how these experiences affected her sense of belonging",
+            "You gain clarity on both the pattern of behavior and the manager's role",
+            "Priya shows willingness to remain engaged in the resolution process",
+            "The conversation ends with Priya feeling her concerns are being taken seriously"
+          ]
+        }
+      ]
+    }
+  };
+  
+  return briefings[scenarioName] || null;
+}
+
+// Function to show the scenario partner's video
+function showScenarioPartnerVideo() {
+  if (!scenarioInfo) return;
+  
+  // Hide all videos first
+  document.querySelectorAll('.coach-video').forEach(video => {
+    video.classList.remove('active');
+  });
+  
+  // Show the right one
+  const videoId = `${scenarioInfo.name.toLowerCase()}-video`;
+  const videoElement = document.getElementById(videoId);
+  
+  if (videoElement) {
+    videoElement.classList.add('active');
+    coachVideoVisible = true;
+  }
+}
+
+// Show the briefing
+function renderBriefing(briefingData) {
+  let html = '';
+  
+  // Render each section
+  briefingData.sections.forEach(section => {
+    // Add section title
+    html += `<h3 class="section-title">${section.title}</h3>`;
+    
+    // Add content if it exists
+    if (section.content) {
+      // Split paragraphs and wrap each in <p> tags
+      const paragraphs = section.content.split('\n\n');
+      paragraphs.forEach(paragraph => {
+        html += `<p>${paragraph}</p>`;
+      });
+    }
+    
+    // Add list items if they exist
+    if (section.items && section.items.length > 0) {
+      html += '<ul>';
+      section.items.forEach(item => {
+        html += `<li>${item}</li>`;
+      });
+      html += '</ul>';
+    }
+  });
+  
+  return html;
+}
+
+// Initialize the ElevenLabs widget
+function initializeWidget(agentId) {
+  console.log(`[Debug] Entered initializeWidget for agentId: ${agentId}`);
+  return new Promise((resolve, reject) => {
+    console.log(`[Debug] Creating promise for widget initialization.`);
+    let sessionActive = false; // Flag to track if connection succeeded before timeout
+    let initializationTimer; // To clear the timeout if needed
+
+    // Helper function to attach listeners and set timeout
+    function addEventListenersToWidget(widgetElement, resolve, reject) {
+        console.log('Attaching event listeners to widget element');
+        
+        // Ready event
+        widgetElement.addEventListener('ready', function() {
+            console.log('Widget is ready');
+        });
+        
+        // Connected event
+        widgetElement.addEventListener('connected', () => {
+            console.log('Widget connected successfully!');
+            showStatus('Connected!', 'active');
+            callState = 'active';
+            sessionActive = true;
+            clearTimeout(initializationTimer); // Clear the timeout
+            reconnectAttempts = 0; // Reset reconnect counter
+            
+            // Update UI
+            document.getElementById('end-call-btn').style.display = 'flex';
+            document.getElementById('microphone-button').style.display = 'flex'; // Show mic button
+            
+            resolve(true); // Resolve the main promise
+        });
+        
+        // Message event
+        widgetElement.addEventListener('message', (event) => {
+            // ... (keep existing message handling logic) ...
+        });
+        
+        // Disconnected event
+        widgetElement.addEventListener('disconnected', (event) => {
+           // ... (keep existing disconnected handling logic) ...
+        });
+        
+        // Error event
+        widgetElement.addEventListener('error', (event) => {
+            // ... (keep existing error handling logic) ...
+            clearTimeout(initializationTimer); // Clear timeout on error too
+            reject(`Widget error: ${event.detail?.message || 'Unknown error'}`); // Reject promise on error
+        });
+
+        // Set the timeout *after* listeners are attached
+        console.log('Setting initialization timeout (45s)');
+        initializationTimer = setTimeout(() => {
+            if (!sessionActive) { // Check flag before rejecting
+                console.error('Widget initialization timeout reached');
+                showStatus('Connection timeout. Please try again.', 'error');
+                reject('Widget initialization timeout');
+            }
+        }, 45000);
+    }
+
+    // --- Main Logic --- 
+    const widgetContainer = document.getElementById('elevenlabs-widget-container');
+    if (!widgetContainer) {
+        console.error('Widget container not found!');
+        showStatus('Internal error: UI element missing.', 'error');
+        return reject('Widget container not found');
+    }
+    widgetContainer.innerHTML = ''; // Clear previous widget if any
+
+    // Load the script first, then insert element inside onload
+    if (!widgetScriptLoaded) {
+        console.log('Loading ElevenLabs script via proxy...'); 
+        const script = document.createElement('script');
+        script.src = '/getWidgetScript'; 
+        script.defer = true;    
+        script.type = 'text/javascript';
+
+        script.onload = () => {
+            widgetScriptLoaded = true;
+            console.log('ElevenLabs script loaded. Now inserting element.');
+
+            // **RE-ADD DYNAMIC VARIABLES AND AUTHORIZATION**
+            const username = localStorage.getItem('username') || 'User';
+            const dynamicVars = { user_name: username, user_id: username, name: username };
+            const dynamicVarsString = JSON.stringify(dynamicVars); // Keep as raw JSON string
+
+            const widgetHtml = `
+              <elevenlabs-convai
+                agent-id="${agentId}"
+                dynamic-variables='${dynamicVarsString}'
+                authorization="true"
+                debug="true"
+              ></elevenlabs-convai>`;
+            widgetContainer.innerHTML = widgetHtml;
+            console.log(`[Debug] Widget element (with vars/auth/debug) inserted into container.`);
+
+            // Find element and add listeners
+            const widgetElement = widgetContainer.querySelector('elevenlabs-convai');
+            if (widgetElement) {
+                addEventListenersToWidget(widgetElement, resolve, reject);
+            } else {
+                console.error('Widget element NOT found after insertion!');
+                showStatus('Internal error: Failed to create session element.', 'error');
+                reject('Failed to find widget element after insertion');
+            }
+        };
+
+        script.onerror = (error) => {
+            console.error('Failed to load ElevenLabs widget script:', error);
+            showStatus('Failed to load session resources. Check connection?', 'error');
+            reject('Failed to load widget script');
+        };
+        document.head.appendChild(script);
+
+    } else {
+        // Script already loaded, insert element directly
+        console.log('Script already loaded, inserting element directly.');
+        
+        // **RE-ADD DYNAMIC VARIABLES AND AUTHORIZATION**
+        const username = localStorage.getItem('username') || 'User';
+        const dynamicVars = { user_name: username, user_id: username, name: username };
+        const dynamicVarsString = JSON.stringify(dynamicVars); // Keep as raw JSON string
+        
+        const widgetHtml = `
+          <elevenlabs-convai
+            agent-id="${agentId}"
+            dynamic-variables='${dynamicVarsString}'
+            authorization="true"
+            debug="true"
+          ></elevenlabs-convai>`;
+        widgetContainer.innerHTML = widgetHtml;
+        console.log(`[Debug] Widget element (with vars/auth/debug) inserted into container (script pre-loaded).`);
+        
+        const widgetElement = widgetContainer.querySelector('elevenlabs-convai');
+        if (widgetElement) {
+            addEventListenersToWidget(widgetElement, resolve, reject);
+        } else {
+            console.error('Widget element NOT found after insertion (script pre-loaded)!');
+            showStatus('Internal error: Failed to create session element (retry).', 'error');
+            reject('Failed to find widget element after insertion');
+        }
+    }
+    
+    // Remove old logic that was moved into addEventListenersToWidget or the onload handler
+
+  }); // End of Promise
+}
+
+// Function to send a text message
+function sendMessage() {
+  const inputElement = document.getElementById('phone-message-input');
+  const message = inputElement.value.trim();
+  
+  if (!message || !sessionActive) return;
+  
+  // Clear the input
+  inputElement.value = '';
+  
+  // Add message to UI
+  addMessageToPhoneUI(message, 'user');
+  
+  // Send message to widget
+  const widgetElement = document.querySelector('elevenlabs-convai');
+  if (widgetElement && typeof widgetElement.sendTextMessage === 'function') {
+    widgetElement.sendTextMessage(message);
+  } else {
+    console.error('Cannot send message: widget not found or sendTextMessage not available');
+  }
+}
+
+// Function to end the call
+function endCall() {
+  if (callState !== 'active') return;
+  
+  callState = 'idle';
+  sessionActive = false;
+  
+  // Reset UI
+  document.getElementById('end-call-btn').style.display = 'none';
+  
+  // Hide the videos
+  document.querySelectorAll('.coach-video').forEach(video => {
+    video.classList.remove('active');
+  });
+  coachVideoVisible = false;
+  
+  // Don't clear the message area to keep the transcript for analysis
+  // document.getElementById('message-area').innerHTML = '';
+  
+  // Add final message to transcript
+  if (conversation.length > 0) {
+    conversation.push({
+      sender: 'System',
+      text: 'Call ended',
+      timestamp: new Date().toISOString()
+    });
+  }
+  
+  // Clean up the widget
+  const widgetContainer = document.getElementById('elevenlabs-widget-container');
+  widgetContainer.innerHTML = '';
+  
+  showStatus('Call ended', 'active');
+}
+
+// Function to toggle microphone for speech recognition
+function toggleMicrophone() {
+  if (!sessionActive) {
+    showStatus('Please start the call first', 'error');
+    return;
+  }
+  
+  const micButton = document.getElementById('microphone-button');
+  const widgetElement = document.querySelector('elevenlabs-convai');
+  
+  if (!widgetElement) {
+    showStatus('Speech recognition not available', 'error');
+    return;
+  }
+  
+  if (micButton.classList.contains('listening')) {
+    // Stop recording
+    micButton.classList.remove('listening');
+    micButton.classList.remove('pulse');
+    
+    if (typeof widgetElement.stopRecording === 'function') {
+      widgetElement.stopRecording();
+    }
+  } else {
+    // Start recording
+    micButton.classList.add('listening');
+    micButton.classList.add('pulse');
+    showStatus('Listening...', 'active');
+    
+    if (typeof widgetElement.startRecording === 'function') {
+      widgetElement.startRecording();
+      
+      // Auto-stop after 30 seconds
+      setTimeout(() => {
+        if (micButton.classList.contains('listening')) {
+          micButton.classList.remove('listening');
+          micButton.classList.remove('pulse');
+          showStatus('Stopped recording', 'active');
+          if (typeof widgetElement.stopRecording === 'function') {
+            widgetElement.stopRecording();
+          }
+        }
+      }, 30000);
+    } else {
+      showStatus('Speech recognition not available', 'error');
+      micButton.classList.remove('listening');
+      micButton.classList.remove('pulse');
+    }
+  }
+}
+
+// Map of scenario names to agent IDs
+const SCENARIO_AGENT_IDS = {
+  'Morgan': 'WOdyOl4zyac6BaOS7MRU',
+  'Rhonda': '5KhMBqPuDtdpl5UjE5YZ',
+  'Marcus': '6UArwv3ZhT5dvqSXYWoZ',
+  'Alex': 'b1vTl6LcehDMXznyYE8O',
+  'Taylor': 'WJfunz6JM86uFsBfPA02',
+  'Priya': 'e493epFPcZY1a2IohzYR'
+};
+
+// Get scenario information from localStorage
+function getScenarioInfo() {
+  try {
+    const selectedScenario = localStorage.getItem('selectedScenario');
+    let selectedAgentId = localStorage.getItem('selectedAgentId');
+    
+    if (!selectedScenario) {
+      throw new Error('No scenario selected');
+    }
+    
+    // If agent ID is not in localStorage, use our mapping
+    if (!selectedAgentId && SCENARIO_AGENT_IDS[selectedScenario]) {
+      console.log(`Using built-in agent ID for ${selectedScenario}: ${SCENARIO_AGENT_IDS[selectedScenario]}`);
+      selectedAgentId = SCENARIO_AGENT_IDS[selectedScenario];
+      // Save it to localStorage for future use
+      localStorage.setItem('selectedAgentId', selectedAgentId);
+    }
+    
+    if (!selectedAgentId) {
+      throw new Error('Could not determine agent ID for scenario');
+    }
+    
+    return { 
+      name: selectedScenario,
+      agentId: selectedAgentId
+    };
+  } catch (error) {
+    console.error('Error getting scenario information:', error);
+    return null;
+  }
+}
+
+// Initialize the page
+function initPage() {
+  // Get scenario info from localStorage
+  scenarioInfo = getScenarioInfo();
+  
+  if (!scenarioInfo) {
+    showStatus('No scenario selected. Please choose a scenario first.', 'error');
+    setTimeout(() => {
+      window.location.href = 'skills-practice.html';
+    }, 2000);
+    return;
+  }
+  
+  // Display scenario name in header
+  document.getElementById('scenario-name-header').textContent = `Skills Practice: ${scenarioInfo.name}`;
+  
+  // Display scenario name in briefing
+  document.getElementById('scenario-name').textContent = scenarioInfo.name;
+  
+  // Load and display briefing
+  const briefingData = getBriefingData(scenarioInfo.name);
+  if (briefingData) {
+    const briefingHtml = renderBriefing(briefingData);
+    document.getElementById('briefing-text').innerHTML = briefingHtml;
+  } else {
+    document.getElementById('briefing-text').innerHTML = '<p>Briefing not available for this scenario.</p>';
+  }
+  
+  // Setup event listeners
+  document.getElementById('end-call-btn').addEventListener('click', endCall);
+  document.getElementById('phone-send-button').addEventListener('click', sendMessage);
+  
+  // Add event listener for get analysis button
+  document.getElementById('get-analysis-phone-btn').addEventListener('click', showAssessmentModal);
+  
+  // Set up modal close button
+  const closeModalButton = document.getElementById('close-modal');
+  if (closeModalButton) {
+    closeModalButton.addEventListener('click', function() {
+      const modal = document.getElementById('assessment-modal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    });
+  }
+  
+  // Hide end call button initially
+  document.getElementById('end-call-btn').style.display = 'none';
+
+  // Initialize the widget automatically on page load
+  if (scenarioInfo && scenarioInfo.agentId) {
+    console.log(`[Debug] Scenario info found, attempting to initialize widget for agent: ${scenarioInfo.agentId}`);
+    initializeWidget(scenarioInfo.agentId)
+      .then(() => {
+        callState = 'active'; // Set state once connected
+        // UI updates (like showing end call button) are handled in the 'connected' event listener inside initializeWidget
+        console.log('Widget initialized successfully after page load.');
+      })
+      .catch(error => {
+        console.error('Automatic widget initialization failed:', error);
+        callState = 'idle';
+        // Show appropriate status, maybe guide user to refresh?
+        showStatus('Connection failed. Please reload the page and try again.', 'error');
+        // Ensure end call button remains hidden
+        document.getElementById('end-call-btn').style.display = 'none';
+      });
+  } else {
+      // Handle case where scenarioInfo is not available (should have been caught earlier, but good practice)
+      console.error('Cannot initialize widget: Scenario info not available.');
+      showStatus('Error: Scenario data missing. Please go back and select a scenario.', 'error');
+  }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    // Ensure we have a username
+    const username = localStorage.getItem('username');
+    if (!username) {
+      window.location.href = 'index.html';
+      return;
+    }
+    
+    // Initialize the page
+    initPage();
+  } catch (error) {
+    console.error('Error initializing page:', error);
+    showStatus('An error occurred. Please try refreshing the page.', 'error');
+  }
+});
+
+// Function to display assessment modal with conversation transcript
+async function showAssessmentModal() {
+  const modal = document.getElementById('assessment-modal');
+  const contentArea = document.getElementById('assessment-content');
+  
+  // Show the modal with loading message
+  contentArea.innerHTML = '<p>Loading conversation analysis...</p>';
+  modal.style.display = 'flex';
+  
+  try {
+    // Check if we have any conversation data
+    if (!conversation || conversation.length === 0) {
+      contentArea.innerHTML = `
+        <div class="error-container">
+          <h3>No conversation data available</h3>
+          <p>You haven't had any conversation yet with ${scenarioInfo ? scenarioInfo.name : 'the scenario partner'}.</p>
+          <p>Please start a conversation first by clicking the green call button.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Format the conversation transcript
+    const formattedContent = formatTranscriptData();
+    contentArea.innerHTML = formattedContent;
+    
+    // Add a download button
+    const downloadSection = document.createElement('div');
+    downloadSection.style.marginTop = '20px';
+    downloadSection.style.textAlign = 'center';
+    
+    const downloadButton = document.createElement('button');
+    downloadButton.textContent = 'Save Transcript';
+    downloadButton.className = 'download-button';
+    downloadButton.style.padding = '10px 15px';
+    downloadButton.style.backgroundColor = '#0095C8';
+    downloadButton.style.color = 'white';
+    downloadButton.style.border = 'none';
+    downloadButton.style.borderRadius = '5px';
+    downloadButton.style.cursor = 'pointer';
+    downloadButton.onclick = () => downloadTranscript();
+    
+    downloadSection.appendChild(downloadButton);
+    contentArea.appendChild(downloadSection);
+    
+  } catch (error) {
+    console.error('Error showing assessment modal:', error);
+    contentArea.innerHTML = `
+      <div class="error-container">
+        <h3>Error displaying conversation transcript</h3>
+        <p>${error.message}</p>
+        <p>Please try again after refreshing the page.</p>
+      </div>
+    `;
+  }
+}
+
+// Format conversation transcript data for display
+function formatTranscriptData() {
+  let html = '';
+  
+  // Add session title and date
+  const partnerName = scenarioInfo ? scenarioInfo.name : 'Scenario Partner';
+  const currentDate = new Date().toLocaleString();
+  
+  html += `
+    <div class="session-info">
+      <p><strong>Practice Session with:</strong> ${partnerName}</p>
+      <p><strong>Date:</strong> ${currentDate}</p>
+    </div>
+  `;
+  
+  // Add conversation transcript
+  html += `
+    <h3>Full Conversation Transcript</h3>
+    <div class="transcript-container">
+  `;
+  
+  // Add conversation messages
+  conversation.forEach(msg => {
+    const cssClass = msg.sender === 'You' ? 'user-message' : 'agent-message';
+    const formattedTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    html += `
+      <div class="log-message ${cssClass}">
+        <div class="message-header">
+          <strong>${msg.sender}</strong> <span class="timestamp">(${formattedTime})</span>
+        </div>
+        <div class="message-content">${msg.text}</div>
+      </div>
+    `;
+  });
+  
+  html += `</div>`;
+  
+  return html;
+}
+
+// Function to download transcript
+function downloadTranscript() {
+  if (!conversation || conversation.length === 0) {
+    alert('No conversation data to download.');
+    return;
+  }
+  
+  const username = localStorage.getItem('username') || 'User';
+  const partnerName = scenarioInfo ? scenarioInfo.name : 'ScenarioPartner';
+  const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const filename = `Practice_Session_with_${partnerName}_${date}.txt`;
+  
+  // Prepare content
+  let content = `Practice Session with ${partnerName}\n`;
+  content += `Date: ${new Date().toLocaleString()}\n`;
+  content += `User: ${username}\n\n`;
+  
+  content += `CONVERSATION:\n\n`;
+  
+  // Add conversation from local data
+  conversation.forEach(msg => {
+    content += `${msg.sender}: ${msg.text}\n`;
+  });
+  
+  // Create and trigger download
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  showStatus('Transcript saved to downloads', 3000);
+}
+</script>
+
+</body>
+</html>

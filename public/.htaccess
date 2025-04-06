@@ -1,0 +1,15 @@
+RewriteEngine On
+RewriteBase /
+
+# Handle URLs without file extensions
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Main routes
+RewriteRule ^$ index.html [L]
+RewriteRule ^coach-selection-new$ coach-selection-new.html [L]
+RewriteRule ^coach-profile-fixed$ coach-profile-fixed.html [L]
+RewriteRule ^practice-coaching$ practice-coaching.html [L]
+
+# Fallback to index.html for all other routes
+RewriteRule ^(.*)$ index.html [L]

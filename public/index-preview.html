@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="NLI BRAIN RGB small.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>NLI Coaching Practice</title>
+  
+  <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+  <!-- ElevenLabs widget script will be loaded dynamically to prevent duplicate loading --> 
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 300;
+      background-color: #f9f9f9;
+      color: #4D4D4D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+    
+    header {
+      background: linear-gradient(to right, #005575, #0095C8);
+      padding: 1.5rem 0;
+      border-bottom: 4px solid #F9F9F9;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 1rem;
+    }
+    
+    .header-title {
+      color: white;
+      font-weight: 700;
+      margin-right: auto; /* Pushes the title to the left */
+      padding-left: 0.5rem;
+    }
+
+    /* Header title styling moved above */
+
+    .header-logo {
+      height: 45px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      padding-right: 0.5rem;
+    }
+    
+    header h1 {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: white;
+      margin-bottom: 0;
+    }
+    
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0 0 9rem 0;
+      margin: 0;
+      min-height: calc(100vh - 140px);
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+    }
+    
+    .hero-section {
+      text-align: center;
+      margin: 0;
+      width: 100vw;
+      background-color: #0095C8;
+      padding: 2.5rem 0;
+      color: white;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .hero-section h2 {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 2.5rem;
+      color: white;
+      margin: 0;
+      line-height: 1.2;
+    }
+    
+    .hero-section p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin: 0.75rem 0;
+      font-weight: 300;
+    }
+    
+    .options-container {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      background: #f9f9f9;
+    }
+    
+    .option-card {
+      background: white;
+      border: none;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 350px;
+      height: 450px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    
+    .option-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(0,85,117,0.15);
+    }
+    
+    .option-card h3 {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #005575;
+      margin: 0.5rem 0;
+      white-space: normal;
+      text-align: center;
+    }
+    
+    .option-card p {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+      flex-grow: 1;
+      color: #4D4D4D;
+    }
+    
+    .option-card img {
+      width: 120px;
+      height: 140px;
+      object-fit: cover;
+      object-position: top center;
+      border-radius: 60px;
+      margin-bottom: 1.25rem;
+      border: 3px solid #E9E9E9;
+      padding: 4px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .cta-button {
+      background: #F37322;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .cta-button:hover {
+      background: #e86615;
+    }
+    
+    .secondary-button {
+      background: transparent;
+      color: #0095C8;
+      border: 2px solid #0095C8;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .secondary-button:hover {
+      background: #0095C8;
+      color: white;
+    }
+    
+    .links-section {
+      display: flex;
+      justify-content: center;
+      margin-top: 2.5rem;
+      gap: 1.25rem;
+    }
+    
+    .link-item {
+      padding: 0.625rem;
+      color: #0095C8;
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s ease;
+      font-weight: 500;
+    }
+    
+    .link-item:hover {
+      border-color: #0095C8;
+    }
+    
+    footer {
+      background: #4D4D4D;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+      color: white;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 400;
+      transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+      color: #0095C8;
+      text-decoration: underline;
+    }
+    
+    .logo {
+      width: 300px;
+      height: auto;
+      margin-top: 0.625rem;
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+    }
+    
+    .modal h2 {
+      color: #005575;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    
+    .modal input {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 1rem 0;
+      border: 2px solid #E9E9E9;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    
+    .modal input:focus {
+      outline: none;
+      border-color: #0095C8;
+    }
+    
+    .status-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 1rem 2rem;
+      border-radius: 6px;
+      font-weight: 500;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .status-message.success {
+      background: #005575;
+      color: white;
+    }
+    
+    .status-message.error {
+      background: #F37322;
+      color: white;
+    }
+    
+    .status-message.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <h1 class="header-title">NLI Coaching Practice</h1>
+    <img src="NLI.png" alt="NLI Logo" class="header-logo">
+  </div>
+</header>
+
+<div id="main-content">
+  <section class="hero-section">
+    <div class="hero-content">
+      <h2>Welcome to NLI's Coaching Platform</h2>
+      <p>Experience personalized coaching sessions designed to enhance your skills.</p>
+    </div>
+  </section>
+
+  <div class="options-container">
+    <div class="option-card">
+      <img src="Caroline.png" alt="Caroline - AI Coach">
+      <h3>Get Coached</h3>
+      <p>Experience personalized AI coaching sessions designed to enhance your leadership skills. Available 24/7 for your development.</p>
+      <a href="coach-selection.html" class="cta-button">Start Session</a>
+    </div>
+
+    <div class="option-card">
+      <img src="Daryl.png" alt="Daryl - AI Coachee">
+      <h3>Practice Coaching</h3>
+      <p>Practice and refine your coaching skills with our AI coachee. Get immediate feedback and improve your technique.</p>
+      <a href="practice-coaching.html" class="secondary-button">Start Practice</a>
+    </div>
+    
+    <div class="option-card" style="position: relative;">
+      <div style="position: absolute; top: -8px; right: -8px; background-color: #F37322; color: white; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 4px; transform: rotate(15deg); font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">NEW</div>
+      <img src="cade.png" alt="Cade - Your Mentor">
+      <h3>Talk to Your Mentor</h3>
+      <p>Connect with your personal mentor through virtual conversations that provide guidance and support for your career development.</p>
+      <a href="mentor-session.html" class="cta-button">Connect Now</a>
+    </div>
+  </div>
+
+  <div class="links-section">
+    <a href="https://neuroleadership.com" target="_blank" class="link-item">About NLI</a>
+    <a href="https://neuroleadership.com/podcast/" target="_blank" class="link-item">Resources</a>
+    <a href="mailto:niles@neuroleadership.com" class="link-item">Support</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://neuroleadership.com" target="_blank">About NLI</a>
+    <a href="https://neuroleadership.com/podcast/" target="_blank">Resources</a>
+    <a href="mailto:niles@neuroleadership.com">Support</a>
+  </div>
+  <img src="NLI.png" alt="NLI Logo" style="height: 30px; width: auto;">
+  <p style="margin-top: 1rem; font-weight: 300; font-size: 0.875rem;">© 2025 NLI. All rights reserved.</p>
+</footer>
+
+<div class="modal-overlay" id="username-modal">
+  <div class="modal">
+    <h2>Welcome!</h2>
+    <p>Please enter your name to begin:</p>
+    <input type="text" id="username-input" placeholder="Your name">
+    <button class="cta-button" onclick="setUsername()">Continue</button>
+  </div>
+</div>
+
+<div id="status-message" class="status-message"></div>
+
+<script>
+function showStatus(message, type = 'success') {
+  const statusElement = document.getElementById('status-message');
+  statusElement.textContent = message;
+  statusElement.className = `status-message ${type}`;
+  statusElement.classList.add('show');
+  
+  setTimeout(() => {
+    statusElement.classList.remove('show');
+  }, 3000);
+}
+
+function handleStorageError(error, operation) {
+  console.error(`Storage error during ${operation}:`, error);
+  showStatus('There was an error saving your data. Please try again.', 'error');
+}
+
+function setUsername() {
+  const usernameInput = document.getElementById('username-input');
+  const username = usernameInput.value.trim();
+  
+  if (username) {
+    try {
+      localStorage.setItem('username', username);
+      document.getElementById('username-modal').style.display = 'none';
+      showStatus('Welcome, ' + username + '!');
+    } catch (error) {
+      handleStorageError(error, 'setting username');
+    }
+  } else {
+    showStatus('Please enter your name', 'error');
+  }
+}
+
+// Check if username exists
+window.addEventListener('load', function() {
+  try {
+    const username = localStorage.getItem('username');
+    if (!username) {
+      document.getElementById('username-modal').style.display = 'flex';
+    }
+  } catch (error) {
+    handleStorageError(error, 'checking username');
+  }
+});
+
+// Add event listener for Enter key in username input
+document.getElementById('username-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    setUsername();
+  }
+});
+</script>
+
+</body>
+</html>

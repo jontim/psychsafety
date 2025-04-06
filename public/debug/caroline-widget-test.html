@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="../NLI BRAIN RGB small.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Caroline Widget Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #141414;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    h1 {
+      color: #68e800;
+      margin-bottom: 30px;
+    }
+    
+    .widget-container {
+      width: 100%;
+      max-width: 400px;
+      height: 600px;
+      margin: 20px auto;
+      border: 2px solid #68e800;
+      padding: 10px;
+    }
+    
+    .controls {
+      margin: 20px 0;
+      padding: 10px;
+      background: #222;
+      border-radius: 10px;
+    }
+    
+    button {
+      background: #68e800;
+      color: #000;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    pre {
+      background: #222;
+      padding: 10px;
+      border-radius: 5px;
+      max-width: 800px;
+      overflow: auto;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Caroline Widget Test Page</h1>
+  
+  <div class="controls">
+    <button id="load-widget">Load Caroline Widget</button>
+    <button id="check-script">Check Convai Script</button>
+    <button id="clear-logs">Clear Logs</button>
+    <button id="direct-embed">Try Direct Embed Code</button>
+  </div>
+  
+  <div class="widget-container" id="caroline-widget-container">
+    <!-- Widget will be loaded here -->
+  </div>
+  
+  <pre id="logs">Logs will appear here...</pre>
+  
+  <script>
+    // Utility to log information
+    function log(message) {
+      const logsElement = document.getElementById('logs');
+      const timestamp = new Date().toLocaleTimeString();
+      logsElement.textContent = `[${timestamp}] ${message}\n${logsElement.textContent}`;
+    }
+    
+    // Clear logs
+    document.getElementById('clear-logs').addEventListener('click', function() {
+      document.getElementById('logs').textContent = 'Logs cleared...';
+    });
+    
+    // Check if Convai script is loaded
+    document.getElementById('check-script').addEventListener('click', function() {
+      const scriptElements = document.querySelectorAll('script[src*="elevenlabs.io/convai-widget"]');
+      log(`Found ${scriptElements.length} Convai script tags`);
+      
+      scriptElements.forEach((script, index) => {
+        log(`Script ${index + 1} src: ${script.src}`);
+      });
+      
+      if (window.customElements && window.customElements.get('elevenlabs-convai')) {
+        log('Convai custom element is defined');
+      } else {
+        log('WARNING: Convai custom element is NOT defined');
+        loadConvaiScript();
+      }
+    });
+    
+    // Function to load the Convai script
+    function loadConvaiScript() {
+      log('Loading Convai script...');
+      
+      // Remove any existing scripts to prevent conflicts
+      const oldScripts = document.querySelectorAll('script[src*="elevenlabs.io/convai-widget"]');
+      oldScripts.forEach(script => script.remove());
+      
+      // Create a fresh script with cache-busting
+      const timestamp = new Date().getTime();
+      const newScript = document.createElement('script');
+      newScript.src = `https://elevenlabs.io/convai-widget/index.js?v=${timestamp}`;
+      newScript.async = true;
+      newScript.type = 'text/javascript';
+      
+      newScript.onload = function() {
+        log('Convai script loaded successfully');
+      };
+      
+      newScript.onerror = function() {
+        log('ERROR: Failed to load Convai script');
+      };
+      
+      document.head.appendChild(newScript);
+    }
+    
+    // Function to load Caroline's widget
+    document.getElementById('load-widget').addEventListener('click', function() {
+      const container = document.getElementById('caroline-widget-container');
+      
+      // Clear container
+      container.innerHTML = '';
+      log('Cleared widget container');
+      
+      // Make sure the script is loaded first
+      if (!window.customElements || !window.customElements.get('elevenlabs-convai')) {
+        log('Loading Convai script before creating widget...');
+        loadConvaiScript();
+        
+        // Wait for script to load
+        setTimeout(createWidget, 1500);
+      } else {
+        createWidget();
+      }
+      
+      function createWidget() {
+        try {
+          log('Creating Caroline widget...');
+          
+          // Use the direct embed code method
+          const widgetHtml = `<elevenlabs-convai agent-id="bzb6ybXctNSysRqknLVD" style="width: 100%; height: 100%;"></elevenlabs-convai>`;
+          container.innerHTML = widgetHtml;
+          
+          // Make sure the script is loaded
+          if (!document.querySelector('script[src*="elevenlabs.io/convai-widget"]')) {
+            const scriptEl = document.createElement('script');
+            scriptEl.src = 'https://elevenlabs.io/convai-widget/index.js';
+            scriptEl.async = true;
+            scriptEl.type = 'text/javascript';
+            document.head.appendChild(scriptEl);
+          }
+          
+          // Add error handler
+          widget.addEventListener('error', (err) => {
+            log(`Widget error: ${err.message || 'Unknown error'}`);
+          });
+          
+          // Add to container
+          container.appendChild(widget);
+          log('Widget element created and added to container');
+          
+          // Optional: Add a fallback using a different ID if this one doesn't work
+          setTimeout(() => {
+            if (!document.querySelector('#caroline-test-widget iframe')) {
+              log('Widget iframe not created after 3 seconds. Trying alternate ID...');
+              const widget2 = document.createElement('elevenlabs-convai');
+              widget2.id = 'caroline-test-widget-2';
+              widget2.setAttribute('agent-id', 'UycgGAYpg0M38NFnkcoD'); // Original ID
+              widget2.setAttribute('style', 'width: 100%; height: 100%;');
+              
+              const container2 = document.createElement('div');
+              container2.style.cssText = 'width: 100%; height: 100%; border: 2px dashed yellow;';
+              container2.appendChild(widget2);
+              
+              document.body.appendChild(container2);
+              log('Created alternate widget with ID: UycgGAYpg0M38NFnkcoD');
+            }
+          }, 3000);
+        } catch (error) {
+          log(`Error creating widget: ${error.message}`);
+        }
+      }
+    });
+    
+    // Automatically load the script
+    window.addEventListener('DOMContentLoaded', function() {
+      log('Page loaded. Click "Load Caroline Widget" to test');
+      loadConvaiScript();
+    });
+  </script>
+</body>
+</html>

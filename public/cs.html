@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="NLI BRAIN RGB small.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Coaching Session - NLI Coaching Practice</title>
+  
+  <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+  <!-- ElevenLabs widget script will be loaded dynamically to prevent duplicate loading --> 
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 300;
+      background-color: #f9f9f9;
+      color: #4D4D4D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+    
+    header {
+      background: linear-gradient(to right, #005575, #0095C8);
+      padding: 1rem 0;
+      border-bottom: 4px solid #F9F9F9;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 1rem;
+      position: relative;
+    }
+    
+    .header-title {
+      color: white;
+      font-weight: 700;
+      margin-right: auto;
+      padding-left: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .header-logo {
+      height: 45px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      padding-right: 0.5rem;
+    }
+    
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1200px;
+    }
+    
+    .coaching-container {
+      flex: 1;
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .coaching-container {
+        flex-direction: column;
+      }
+    }
+    
+    .video-container {
+      flex: 0 0 55%;
+      background-color: #E0E0E0;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    #coach-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    #coaching-widget {
+      flex: 1;
+      min-height: 400px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      background-color: white;
+      position: relative;
+    }
+    
+    .status-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 0.5rem;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-dot.connecting {
+      background-color: #ffc107;
+    }
+    
+    .status-dot.active {
+      background-color: #4CAF50;
+    }
+    
+    .status-dot.error {
+      background-color: #f44336;
+    }
+    
+    .status-text {
+      font-size: 0.875rem;
+      color: #333;
+    }
+    
+    .buttons-container {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .action-button {
+      padding: 0.5rem 1rem;
+      background-color: #005575;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 400;
+      transition: background-color 0.2s;
+    }
+    
+    .action-button:hover {
+      background-color: #0095C8;
+    }
+    
+    .action-button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #777;
+    }
+    
+    .modal-close:hover {
+      color: #333;
+    }
+    
+    /* Assessment styles */
+    .assessment-section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .assessment-section h3 {
+      color: #005575;
+      margin-bottom: 0.5rem;
+    }
+    
+    .assessment-patterns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .pattern-tag {
+      background-color: #e1f5fe;
+      color: #0277bd;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+    
+    .error-container {
+      padding: 1rem;
+      background-color: #ffebee;
+      border-left: 4px solid #f44336;
+      margin-bottom: 1rem;
+    }
+    
+    details {
+      margin-top: 1rem;
+      border: 1px solid #eee;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+    
+    details summary {
+      cursor: pointer;
+      color: #0095C8;
+    }
+    
+    details pre {
+      margin-top: 0.5rem;
+      background-color: #f5f5f5;
+      padding: 0.5rem;
+      overflow-x: auto;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="header-title">
+      <img src="https://firebasestorage.googleapis.com/v0/b/psychsafety.appspot.com/o/brandingImages%2Fnli-icon.png?alt=media&token=37e64e4f-b535-4a40-8e36-135f18e0cb17" alt="NLI Logo" class="header-logo">
+      <h1>Coaching Session</h1>
+    </div>
+  </div>
+</header>
+
+<div class="main-container">
+  <div class="coaching-container">
+    <div class="video-container">
+      <div class="status-container">
+        <div class="status-dot connecting"></div>
+        <div class="status-text">Connecting to coach...</div>
+      </div>
+      <video id="coach-video" style="display: none;">
+        <source src="https://firebasestorage.googleapis.com/v0/b/psychsafety.appspot.com/o/coachVideos%2Fcoaching_idle_compressed.mp4?alt=media&token=f1553b6d-5f1b-4271-86c2-fb8ce9930db9" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    
+    <div id="coaching-widget">
+      <!-- Widget will be loaded here -->
+    </div>
+  </div>
+  
+  <div class="buttons-container">
+    <button id="toggle-video-btn" class="action-button">Show/Hide Coach</button>
+    <button id="assessment-btn" class="action-button">Show Assessment</button>
+  </div>
+</div>
+
+<!-- Assessment Modal -->
+<div id="assessment-modal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="modal-close" onclick="document.getElementById('assessment-modal').style.display='none'">&times;</button>
+    <h2>Coaching Assessment</h2>
+    <div id="assessment-content">
+      <!-- Assessment content will be loaded here -->
+    </div>
+  </div>
+</div>
+
+<!-- Scripts at the end of the body -->
+<script>
+  // Global variables for session state
+  let sessionActive = false;
+  let coachVideoVisible = false;
+  let widgetLoaded = false;
+  
+  // Function to show status messages
+  function showStatus(message, type = 'connecting') {
+    const statusDot = document.querySelector('.status-dot');
+    const statusText = document.querySelector('.status-text');
+    
+    statusDot.className = 'status-dot ' + type;
+    statusText.textContent = message;
+  }
+
+  // Simplified function to load the ElevenLabs widget script
+  function loadWidgetScript() {
+    return new Promise((resolve, reject) => {
+      // Check if script is already loaded
+      if (document.querySelector('script[src*="elevenlabs-convai"]')) {
+        console.log('Widget script already loaded');
+        resolve(true);
+        return;
+      }
+      
+      console.log('Loading ElevenLabs widget script...');
+      const script = document.createElement('script');
+      script.src = 'https://cdn.elevenlabs.io/elevenlabs-convai/loader.js';
+      script.async = true;
+      
+      script.onload = () => {
+        console.log('Widget script loaded successfully');
+        resolve(true);
+      };
+      
+      script.onerror = (error) => {
+        console.error('Error loading widget script:', error);
+        reject(new Error('Failed to load ElevenLabs widget script'));
+      };
+      
+      document.head.appendChild(script);
+    });
+  }
+  
+  // Function to initialize the coaching widget
+  function initializeCoachingWidget(coachId) {
+    return new Promise((resolve, reject) => {
+      // Debug info on the selected coach
+      console.log(`Coach selected: ${coachId}, trying to load widget...`);
+      
+      // Map coach IDs to their corresponding Convai agent IDs
+      const agentIds = {
+        niles: "rI4k2913KxCBlbFr2Imx",
+        caroline: "bzb6ybXctNSysRqknLVD",
+        lorraine: "xklKUaa1IPvcOBJAsfli",
+        mathew: "tf6c7I8annF0etPiL4vG",
+        taylor: "YQlxYRZlqVjnhpQZzYM2",
+        daryl: "3pR429Vw6aUH1tLHvJXX",
+        priya: "L6nqkfKV2kOIpSoDRQ2e",
+        alex: "cNYjN0sG42sEaYJwQyjQ"
+      };
+      
+      // Normalize coach ID to lowercase for consistency with agent ID keys
+      const normalizedCoachId = coachId.toLowerCase();
+      const agentId = agentIds[normalizedCoachId] || agentIds['niles']; // Fallback to niles
+      
+      // Save the agent ID for later use (for assessment modal)
+      localStorage.setItem('currentAgentId', agentId);
+      localStorage.setItem('selectedCoach', normalizedCoachId);
+      
+      console.log(`Using agent ID: ${agentId} for coach: ${normalizedCoachId}`);
+
+      // Get the widget container
+      const widgetContainer = document.getElementById('coaching-widget');
+      if (!widgetContainer) {
+        reject(new Error('Widget container not found'));
+        return;
+      }
+
+      try {
+        // Clear any existing content
+        widgetContainer.innerHTML = '';
+        
+        // Ensure user ID is in the dynamic variables
+        let userId = localStorage.getItem('userId');
+        if (!userId) {
+          userId = `user_${Math.random().toString(36).substring(2, 15)}`;
+          localStorage.setItem('userId', userId);
+        }
+        
+        // Get coach details
+        const coachDetails = JSON.parse(localStorage.getItem('coachDetails') || '{}');
+        
+        // Try multiple potential username storage locations
+        const username = localStorage.getItem('username') || 
+                        localStorage.getItem('userName') || 
+                        localStorage.getItem('user_name') ||
+                        coachDetails.userName ||
+                        'User';
+        
+        console.log('Username found:', username);
+        
+        // Generate a session ID and save it for later reference
+        const sessionId = `session_${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+        localStorage.setItem('currentSessionId', sessionId);
+        
+        // Create dynamic variables with flat structure
+        const dynamicVarsObj = {
+          user_name: username,
+          user_id: userId,
+          session_id: sessionId,
+          coach_id: normalizedCoachId,
+          coach_name: coachDetails.name || 'Coach',
+          coach_gender: coachDetails.gender || 'neutral',
+          coach_accent: coachDetails.accent || 'american',
+          coach_style: coachDetails.style || 'balanced',
+          coach_role: coachDetails.title || 'Executive Coach',
+          industry: coachDetails.industry || localStorage.getItem('industry') || 'Technology',
+          level: localStorage.getItem('userLevel') || 'Mid-Level Manager',
+          focus_area: coachDetails.focusArea || localStorage.getItem('focusArea') || 'leadership'
+        };
+        
+        // Convert to JSON string for widget attribute
+        const dynamicVarsJson = JSON.stringify(dynamicVarsObj);
+        
+        // Create the widget HTML directly with all necessary attributes
+        const widgetHtml = `<elevenlabs-convai 
+          agent-id="${agentId}" 
+          dynamic-variables='${dynamicVarsJson}' 
+          enable-history="true"
+          hide-branding="true"
+          style="width: 100%; height: 100%;"
+        ></elevenlabs-convai>`;
+        
+        widgetContainer.innerHTML = widgetHtml;
+        
+        console.log('Widget HTML injected with dynamic variables:', dynamicVarsObj);
+        
+        // Create a style to hide branding elements and ensure proper sizing
+        const styleNode = document.createElement('style');
+        styleNode.textContent = `
+          #coaching-widget elevenlabs-convai {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 400px !important;
+            z-index: 10 !important;
+            position: relative !important;
+          }
+          
+          .el-brand, .el-logo, .el-branding, .el-powered-by,
+          [class*="el-brand"], [class*="el-logo"], [class*="eleven"], [class*="labs"],
+          div[class*="elevenlabs"], div[class*="convai"],
+          elevenlabs-convai > div > div > div:nth-child(2) {
+            display: none !important;
+          }
+        `;
+        document.head.appendChild(styleNode);
+        
+        // Get the widget element
+        const widgetElement = widgetContainer.querySelector('elevenlabs-convai');
+        
+        if (widgetElement) {
+          console.log('Widget element found, adding event listeners');
+          
+          // Add event listeners to track widget state
+          widgetElement.addEventListener('ready', function() {
+            console.log('Widget is ready');
+            showStatus('Connected to coach!', 'active');
+            resolve(true);
+          });
+          
+          widgetElement.addEventListener('error', function(event) {
+            const errorDetail = event.detail || 'Unknown error';
+            console.error('Widget error:', errorDetail);
+            showStatus('Error connecting to coach', 'error');
+            
+            // If the error is about dynamic variables, provide more detailed logging
+            if (errorDetail.includes('dynamic') || errorDetail.includes('variables') || errorDetail.includes('parse')) {
+              console.warn('Dynamic variables may be incorrectly formatted:', dynamicVarsObj);
+            }
+          });
+          
+          widgetElement.addEventListener('connected', () => {
+            console.log('Widget successfully connected to ElevenLabs');
+            showStatus('Coaching session connected!', 'active');
+            sessionActive = true;
+            
+            // Save conversation ID if available for later assessment
+            try {
+              if (widgetElement.conversationId) {
+                localStorage.setItem('currentConversationId', widgetElement.conversationId);
+                console.log('Saved conversation ID:', widgetElement.conversationId);
+              } else if (widgetElement.getAttribute('conversation-id')) {
+                localStorage.setItem('currentConversationId', widgetElement.getAttribute('conversation-id'));
+                console.log('Saved conversation ID from attribute:', widgetElement.getAttribute('conversation-id'));
+              }
+            } catch (e) {
+              console.warn('Could not save conversation ID:', e);
+            }
+            
+            // Show coach video when connected
+            showCoachVideo();
+          });
+          
+          // Listen for agent speaking events to show coach image
+          // Using all known event names to maximize compatibility
+          ['agentSpeaking', 'agent-speaking', 'data-agent-speaking', 'speaking'].forEach(eventName => {
+            widgetElement.addEventListener(eventName, (event) => {
+              console.log(`${eventName} event detected`);
+              if (!coachVideoVisible) {
+                showCoachVideo();
+              }
+            });
+          });
+          
+          // Also try to detect attribute changes for speaking status
+          const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+              if (mutation.type === 'attributes') {
+                const isSpeaking = widgetElement.getAttribute(mutation.attributeName) === 'true';
+                console.log(`Speaking attribute changed: ${mutation.attributeName} = ${isSpeaking}`);
+                if (isSpeaking && !coachVideoVisible) {
+                  showCoachVideo();
+                }
+              }
+            }
+          });
+          
+          // Observe common speaking status attributes
+          observer.observe(widgetElement, {
+            attributes: true,
+            attributeFilter: ['data-agent-speaking', 'data-agent-talking', 'speaking', 'data-speaking']
+          });
+          
+          widgetElement.addEventListener('disconnected', (event) => {
+            console.log('Widget disconnected:', event.detail || 'No details available');
+            if (sessionActive) {
+              showStatus('Connection lost. Please refresh.', 'connecting');
+              sessionActive = false;
+            }
+          });
+        } else {
+          console.error('Widget element not found after injection');
+          showStatus('Error: Widget not found', 'error');
+        }
+        
+        // Success callback
+        resolve(true);
+        
+      } catch (error) {
+        // Log any errors during initialization
+        console.error('Error initializing widget:', error);
+        showStatus('Error initializing coach', 'error');
+        reject(error);
+      }
+    });
+  }
+  // Function to show coach video
+  function showCoachVideo() {
+    const video = document.getElementById('coach-video');
+    if (video) {
+      video.style.display = 'block';
+      
+      // If the video is already playing, don't play it again
+      if (video.paused) {
+        try {
+          const playPromise = video.play();
+          
+          // Handle the play promise to avoid uncaught promise errors
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              console.log('Coach video playing');
+              coachVideoVisible = true;
+            }).catch(error => {
+              console.error('Error playing coach video:', error);
+              // Try again with user interaction (click) if autoplay fails
+              video.addEventListener('click', () => {
+                video.play().catch(e => console.warn('Still cannot play video:', e));
+              });
+            });
+          }
+        } catch (e) {
+          console.warn('Error trying to play coach video:', e);
+        }
+      } else {
+        coachVideoVisible = true;
+      }
+    }
+  }
+  
+  // Function to hide coach video
+  function hideCoachVideo() {
+    const video = document.getElementById('coach-video');
+    if (video) {
+      video.style.display = 'none';
+      video.pause();
+      coachVideoVisible = false;
+    }
+  }
+  
+  // Function to toggle coach video visibility
+  function toggleCoachVideo() {
+    if (coachVideoVisible) {
+      hideCoachVideo();
+    } else {
+      showCoachVideo();
+    }
+  }
+  
+  // Add assessment modal functionality with improved error handling
+  async function showAssessmentModal() {
+    const modal = document.getElementById('assessment-modal');
+    const contentArea = document.getElementById('assessment-content');
+    
+    // Show the modal with loading message
+    contentArea.innerHTML = '<p>Loading assessment data...</p>';
+    modal.style.display = 'flex';
+    
+    // Define debugInfo array for logging
+    let debugInfo = [];
+    // We'll either get the conversation ID from the widget or let the cloud function find it
+    let conversationId = null;
+    
+    try {
+      // Get the agent ID from localStorage or use a default
+      const agentId = localStorage.getItem('currentAgentId') || 
+                     localStorage.getItem('agentId');
+      
+      const coachId = localStorage.getItem('selectedCoach') || 'niles';
+      const coachProfiles = {
+        niles: "rI4k2913KxCBlbFr2Imx",
+        caroline: "bzb6ybXctNSysRqknLVD",
+        lorraine: "xklKUaa1IPvcOBJAsfli",
+        mathew: "tf6c7I8annF0etPiL4vG"
+      };
+      
+      // If we don't have an agent ID stored, try to get it from the coach ID
+      const finalAgentId = agentId || coachProfiles[coachId] || "rI4k2913KxCBlbFr2Imx"; // Default to NILES
+      
+      // Add timestamp and agent ID for debugging
+      debugInfo.push(`Assessment requested at: ${new Date().toISOString()}`);
+      debugInfo.push(`Agent ID: ${finalAgentId}`);
+      
+      // Try to find a conversation ID from ElevenLabs widget if available
+      try {
+        // Get the widget element
+        const widgetElement = document.querySelector('#coaching-widget elevenlabs-convai');
+        
+        if (widgetElement) {
+          debugInfo.push(`Found widget element`);
+          
+          // Try different ways to get the conversation ID
+          try {
+            if (widgetElement.conversationId) {
+              conversationId = widgetElement.conversationId;
+              debugInfo.push(`Found conversationId property: ${conversationId}`);
+            } else if (widgetElement.getAttribute && widgetElement.getAttribute('conversation-id')) {
+              conversationId = widgetElement.getAttribute('conversation-id');
+              debugInfo.push(`Found conversation-id attribute: ${conversationId}`);
+            } else if (typeof widgetElement.getConversationId === 'function') {
+              conversationId = widgetElement.getConversationId();
+              debugInfo.push(`Retrieved ID via getConversationId(): ${conversationId}`);
+            } else if (widgetElement.conversation && widgetElement.conversation.id) {
+              // Try the newer API structure
+              conversationId = widgetElement.conversation.id;
+              debugInfo.push(`Found conversation.id property: ${conversationId}`);
+            }
+            
+            // Last resort - check for any property that might contain the ID
+            if (!conversationId) {
+              for (const prop in widgetElement) {
+                if (prop.toLowerCase().includes('conversation') && widgetElement[prop]) {
+                  debugInfo.push(`Found potential conversation property: ${prop}`);
+                  // If it's a string and looks like an ID format, use it
+                  if (typeof widgetElement[prop] === 'string' && widgetElement[prop].length > 10) {
+                    conversationId = widgetElement[prop];
+                    debugInfo.push(`Using conversation ID from ${prop}: ${conversationId}`);
+                    break;
+                  } else if (typeof widgetElement[prop] === 'object' && widgetElement[prop].id) {
+                    conversationId = widgetElement[prop].id;
+                    debugInfo.push(`Using conversation ID from ${prop}.id: ${conversationId}`);
+                    break;
+                  }
+                }
+              }
+            }
+          } catch (widgetApiError) {
+            debugInfo.push(`Error accessing widget properties: ${widgetApiError.message}`);
+          }
+        }
+      } catch(e) {
+        console.error('Error getting conversation ID from widget:', e);
+        debugInfo.push(`Error getting conversation ID: ${e.message}`);
+      }
+      
+      // If no conversation ID found from widget, it will be null
+      if (!conversationId) {
+        debugInfo.push('No conversation ID found from widget, will query latest conversations by user ID');
+      }
+      
+      console.log('Using conversation ID:', conversationId);
+      console.log('Debug info:', debugInfo);
+      
+      // Display debug information before API call
+      contentArea.innerHTML += `
+      <details>
+        <summary>Debug Information</summary>
+        <pre>${debugInfo.join('\n')}</pre>
+      </details>`;
+      
+      // Get user ID for privacy protection
+      const userId = localStorage.getItem('userId') || localStorage.getItem('user_unique_id');
+      if (userId) {
+        debugInfo.push(`User ID for privacy filtering: ${userId}`);
+      } else {
+        debugInfo.push('No user ID found - privacy filtering will not be applied');
+      }
+      
+      // Get the conversation data from the cloud function
+      debugInfo.push(`Attempting to fetch assessment data with agentId: ${finalAgentId}`);
+      const data = await fetchAssessmentData(finalAgentId, conversationId, userId);
+      
+      if (!data) {
+        contentArea.innerHTML = '<p>No assessment data available yet. Please continue your coaching conversation.</p>';
+        return;
+      }
+      
+      // Format the assessment data
+      const formattedContent = formatAssessmentData(data);
+      contentArea.innerHTML = formattedContent;
+      
+      // Add the conversation ID that was actually used to the display
+      if (data.conversation_id) {
+        contentArea.innerHTML += `
+        <details>
+          <summary>Assessment Details</summary>
+          <p>Conversation ID: ${data.conversation_id}</p>
+          <p>Created: ${new Date(data.created_at).toLocaleString()}</p>
+          <p>Messages analyzed: ${data.messages?.length || 0}</p>
+        </details>`;
+        
+        // Store successfully used conversation ID for future reference
+        try {
+          localStorage.setItem('lastSuccessfulConversationId', data.conversation_id);
+          localStorage.setItem('currentConversationId', data.conversation_id);
+        } catch (e) {} // Silently handle localStorage errors
+      }
+    } catch (error) {
+      console.error('Error fetching assessment data:', error);
+      // Extract the most useful error message
+      let errorMessage = error.message;
+      
+      // Add the error to our debug info for reporting
+      debugInfo.push(`Error: ${error.message}`);
+      if (error.stack) {
+        debugInfo.push(`Stack: ${error.stack.split('\n')[0]}`);
+      }
+      
+      contentArea.innerHTML = `<div class="error-container">
+        <h3>Error retrieving assessment</h3>
+        <p>${errorMessage}</p>
+        <p>Please try again later or refresh the page.</p>
+        <details>
+          <summary>Technical Details</summary>
+          <p>Error type: ${error.name}</p>
+          <p>Time: ${new Date().toLocaleTimeString()}</p>
+          <p>Conversation ID: ${conversationId || 'Not provided'}</p>
+        </details>
+      </div>`;
+      
+      // Always show debug information when there's an error
+      contentArea.innerHTML += `
+      <details open>
+        <summary>Debug Information</summary>
+        <pre>${debugInfo.join('\n')}</pre>
+      </details>`;
+    }
+  }
+  
+  // Function to get assessment data from the server with improved error handling
+  async function fetchAssessmentData(agentId, conversationId, userId) {
+    // Maximum retries for network errors - increased from 2 to 3 for resilience
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
+    
+    while (retryCount <= MAX_RETRIES) {
+      try {
+        console.log(`Fetching assessment data (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, { 
+          agentId, 
+          conversationId, 
+          userId
+        });
+        
+        // Use the Firebase Function URL for getting conversation details
+        const apiUrl = 'https://us-central1-psychsafety.cloudfunctions.net/getConversationDetails';
+        
+        // Implement timeout to prevent hanging requests - increased from 30s to 45s
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+        
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              data: {
+                agentId: agentId,
+                conversationId: conversationId,
+                userId: userId // Include user ID for privacy protection
+              }
+            }),
+            signal: controller.signal // Connect the abort controller
+          });
+          
+          // Clear timeout if successful
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            throw new Error(`API returned status ${response.status}`);
+          }
+          
+          const jsonData = await response.json();
+          return jsonData;
+          
+        } catch (fetchError) {
+          // Clear timeout if there was an error
+          clearTimeout(timeoutId);
+          
+          // Handle specific fetch errors
+          if (fetchError.name === 'AbortError') {
+            console.error('Request timed out after 45 seconds');
+            throw new Error('Request timed out. Please try again later.');
+          }
+          
+          // Check for chunked encoding errors, protocol errors, or prematurely closed connections
+          const errorMsg = fetchError.message.toLowerCase();
+          if (errorMsg.includes('chunkedencodingerror') || 
+              errorMsg.includes('network') || 
+              errorMsg.includes('fetch') ||
+              errorMsg.includes('protocol') ||
+              errorMsg.includes('prematurely')) {
+            
+            console.warn(`Network error (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, fetchError);
+            // If we haven't exhausted retries, perform exponential backoff with jitter
+            if (retryCount < MAX_RETRIES) {
+              const baseDelay = Math.pow(2, retryCount) * 1000; // 2^retryCount * 1000ms
+              const jitter = baseDelay * (0.5 + Math.random() * 0.5); // 50-100% of baseDelay
+              
+              console.log(`Retrying in ${Math.round(jitter)}ms...`);
+              await new Promise(resolve => setTimeout(resolve, jitter));
+              retryCount++;
+              continue; // Skip to next iteration
+            }
+          }
+          
+          // Re-throw any other errors
+          throw fetchError;
+        }
+      } catch (error) {
+        // If this is the last retry, rethrow
+        if (retryCount >= MAX_RETRIES) {
+          console.error(`Failed after ${MAX_RETRIES + 1} attempts:`, error);
+          throw error;
+        }
+        
+        retryCount++;
+      }
+    }
+  }
+  
+  // Function to format assessment data
+  function formatAssessmentData(data) {
+    if (!data || !data.messages || data.messages.length === 0) {
+      return '<p>No conversation data available yet. Please continue your coaching conversation.</p>';
+    }
+    
+    let html = `
+      <div class="assessment-section">
+        <h3>Coaching Session Summary</h3>
+        <p>${data.summary || 'Not available yet'}</p>
+      </div>`;
+    
+    // Show patterns if available
+    if (data.patterns && data.patterns.length > 0) {
+      html += `
+        <div class="assessment-section">
+          <h3>Patterns Identified</h3>
+          <div class="assessment-patterns">`;
+      
+      // Limit to prevent excessively large responses
+      const patternsToShow = data.patterns.slice(0, 10);
+      
+      patternsToShow.forEach(pattern => {
+        html += `<span class="pattern-tag">${pattern}</span>`;
+      });
+      
+      if (data.patterns.length > 10) {
+        html += `<span class="pattern-tag">+${data.patterns.length - 10} more</span>`;
+      }
+      
+      html += `
+          </div>
+        </div>`;
+    }
+    
+    // Show emotions if available
+    if (data.emotions && data.emotions.length > 0) {
+      html += `
+        <div class="assessment-section">
+          <h3>Emotions Detected</h3>
+          <ul>`;
+      
+      // Limit to prevent excessively large responses
+      const emotionsToShow = data.emotions.slice(0, 5);
+      
+      emotionsToShow.forEach(emotion => {
+        html += `<li>${emotion}</li>`;
+      });
+      
+      if (data.emotions.length > 5) {
+        html += `<li>+${data.emotions.length - 5} more emotions detected</li>`;
+      }
+      
+      html += `
+          </ul>
+        </div>`;
+    }
+    
+    return html;
+  }
+  
+  // Initialize the session when the page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Coaching Session Page - DOM Content Loaded');
+    
+    // Get coach details from localStorage
+    const coachDetails = JSON.parse(localStorage.getItem('coachDetails') || '{}');
+    const coachId = coachDetails.id || localStorage.getItem('selectedCoach') || 'niles';
+    
+    // Add event listeners to buttons
+    const toggleVideoBtn = document.getElementById('toggle-video-btn');
+    if (toggleVideoBtn) {
+      toggleVideoBtn.addEventListener('click', toggleCoachVideo);
+    }
+    
+    const assessmentBtn = document.getElementById('assessment-btn');
+    if (assessmentBtn) {
+      assessmentBtn.addEventListener('click', showAssessmentModal);
+    }
+    
+    // Load the conversation widget
+    showStatus('Loading coach...', 'connecting');
+    
+    // Initialize the coaching session
+    loadWidgetScript()
+      .then(() => {
+        return initializeCoachingWidget(coachId);
+      })
+      .catch(error => {
+        console.error('Error setting up coaching session:', error);
+        showStatus('Error loading coach. Please refresh.', 'error');
+      });
+    
+    // Preload the video
+    const coachVideo = document.getElementById('coach-video');
+    if (coachVideo) {
+      // Set to loop
+      coachVideo.loop = true;
+      // Add error handler
+      coachVideo.addEventListener('error', (e) => {
+        console.error('Video error:', e);
+        // If video fails, show a fallback message
+        const videoContainer = document.querySelector('.video-container');
+        if (videoContainer) {
+          videoContainer.innerHTML = `<div style="height: 100%; display: flex; align-items: center; justify-content: center; background: #e0e0e0;"><p>Coach video unavailable</p></div>`;
+        }
+      });
+    }
+    
+    // Add a style fix for ElevenLabs branding
+    const brandingStyleFix = document.createElement('style');
+    document.head.appendChild(brandingStyleFix);
+    brandingStyleFix.textContent = `
+      .el-brand, .el-logo, .el-branding, .el-powered-by, 
+      [class*="el-brand"], [class*="el-logo"], [class*="eleven"], [class*="labs"],
+      div[class*="elevenlabs"], div[class*="convai"],
+      elevenlabs-convai > div > div > div:nth-child(2),
+      .el-convai-branding {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+      }
+    `;
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Coach Profile - NLI Coaching Practice</title>
+  
+  <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 300;
+      background-color: #f9f9f9;
+      color: #4D4D4D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+    
+    header {
+      background: #005575;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .logo-strip {
+      background: #F9F9F9;
+      padding: 0.75rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 1px solid #E9E9E9;
+    }
+
+    .header-title {
+      padding: 1rem;
+      color: white;
+    }
+    
+    header h1 {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .back-button {
+      position: absolute;
+      top: 50%;
+      left: 2rem;
+      transform: translateY(-50%);
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+    }
+    
+    .back-button:hover {
+      opacity: 0.8;
+    }
+    
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem 9rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .coach-profile {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 3rem;
+      width: 100%;
+      max-width: 1000px;
+      margin-bottom: 3rem;
+    }
+    
+    .profile-sidebar {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    
+    .profile-image {
+      width: 100%;
+      height: 250px;
+      position: relative;
+      background: #0095C8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .profile-image img {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid white;
+      padding: 3px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .profile-info {
+      padding: 1.5rem;
+    }
+    
+    .coach-name {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.75rem;
+      color: #005575;
+      margin-bottom: 0.5rem;
+    }
+    
+    .coach-title {
+      color: #0095C8;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+    
+    .expertise-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+    
+    .expertise-list li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    
+    .expertise-list li:before {
+      content: "•";
+      color: #0095C8;
+      position: absolute;
+      left: 0.5rem;
+    }
+    
+    .profile-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    
+    .content-section {
+      margin-bottom: 2rem;
+    }
+    
+    .content-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #005575;
+      margin-bottom: 1rem;
+    }
+    
+    .section-content {
+      margin-bottom: 1.5rem;
+    }
+    
+    .section-content:last-child {
+      margin-bottom: 0;
+    }
+    
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .testimonial {
+      background: #f9f9f9;
+      padding: 1.5rem;
+      border-radius: 8px;
+      font-style: italic;
+    }
+    
+    .testimonial-author {
+      margin-top: 1rem;
+      font-style: normal;
+      font-weight: 500;
+      color: #005575;
+    }
+    
+    .cta-button {
+      background: #F37322;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    
+    .cta-button:hover {
+      background: #e86615;
+    }
+    
+    footer {
+      background: #4D4D4D;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+      color: white;
+    }
+    
+    .logo {
+      height: 30px;
+      width: auto;
+      margin-top: 0.625rem;
+    }
+    
+    @media (max-width: 900px) {
+      .coach-profile {
+        grid-template-columns: 1fr;
+      }
+      
+      .profile-sidebar {
+        max-width: 350px;
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-strip">
+    <img src="NLI LOGO inline RGB (1).png" alt="NLI Logo" style="height: 40px; width: auto;">
+  </div>
+  <div class="header-title">
+    <a href="coach-selection.html" class="back-button">← Back</a>
+    <h1>NLI Coaching Practice</h1>
+  </div>
+</header>
+
+<div id="main-content">
+  <div class="coach-profile">
+    <div class="profile-sidebar">
+      <div class="profile-image">
+        <img src="NILES.png" alt="NILES">
+      </div>
+      <div class="profile-info">
+        <h2 class="coach-name">NILES</h2>
+        <div class="coach-title">AI Executive Coach</div>
+        <ul class="expertise-list">
+          <li>Evidence-based Coaching</li>
+          <li>Leadership Development</li>
+          <li>Performance Enhancement</li>
+          <li>Communication Skills</li>
+          <li>Behavioral Science</li>
+        </ul>
+        <a href="practice-coaching.html" class="cta-button">Start Coaching Session</a>
+      </div>
+    </div>
+    
+    <div class="profile-content">
+      <div class="content-section">
+        <h3 class="section-title">About NILES</h3>
+        <div class="section-content">
+          <p>NILES is an advanced AI coach specializing in evidence-based coaching approaches. Drawing from extensive research in behavioral science and leadership development, NILES provides personalized coaching experiences that adapt to your unique needs and goals.</p>
+          <p>With a focus on practical application and measurable outcomes, NILES helps leaders develop their skills through structured conversations and targeted feedback.</p>
+        </div>
+      </div>
+      
+      <div class="content-section">
+        <h3 class="section-title">Coaching Approach</h3>
+        <div class="section-content">
+          <p>NILES employs a blend of supportive and challenging techniques, always grounded in scientific research and best practices. The coaching process is designed to:</p>
+          <ul style="margin-left: 1.5rem; margin-top: 1rem;">
+            <li>Identify specific areas for growth and development</li>
+            <li>Create actionable plans based on your goals</li>
+            <li>Provide real-time feedback and adjustments</li>
+            <li>Track progress and celebrate achievements</li>
+            <li>Build sustainable leadership habits</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="content-section">
+        <h3 class="section-title">Testimonials</h3>
+        <div class="testimonials">
+          <div class="testimonial">
+            "NILES helped me develop a more strategic approach to leadership. The insights and feedback were incredibly valuable."
+            <div class="testimonial-author">- Sarah M., Senior Director</div>
+          </div>
+          <div class="testimonial">
+            "The coaching sessions with NILES were transformative. I've seen real improvements in my team's performance."
+            <div class="testimonial-author">- Michael R., Team Lead</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <img src="NLI.png" alt="NLI Logo" class="logo">
+  <p style="margin-top: 1rem; font-weight: 300; font-size: 0.875rem;">© 2025 NLI. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

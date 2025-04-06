@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Select Your Coach - NLI Coaching Practice</title>
+  
+  <link rel="stylesheet" href="https://use.typekit.net/zse2qvc.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 300;
+      background-color: #f9f9f9;
+      color: #4D4D4D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+    
+    header {
+      background: linear-gradient(to right, #005575, #0095C8);
+      padding: 2rem 0;
+      border-bottom: 4px solid #F9F9F9;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 1rem;
+      position: relative;
+    }
+    
+    .header-title {
+      color: white;
+      font-weight: 700;
+      margin-right: auto; /* Pushes the title to the left */
+      padding-left: 0.5rem;
+    }
+    
+    .header-logo {
+      height: 45px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      padding-right: 0.5rem;
+    }
+
+    .logo-strip {
+      background: #F9F9F9;
+      padding: 0.75rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 1px solid #E9E9E9;
+    }
+
+    .header-title {
+      padding: 1rem;
+      color: white;
+      text-align: center;
+    }
+    
+    header h1 {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 0;
+    }
+    
+    .back-button {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+      margin-right: 1rem;
+    }
+    
+    .back-button:hover {
+      opacity: 0.8;
+    }
+    
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem 9rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: calc(100vh - 140px);
+    }
+    
+    .page-title {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: #005575;
+      text-align: center;
+      margin: 0 0 2rem 0;
+    }
+    
+    .setup-section {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    
+    .setup-title {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #005575;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .setup-description {
+      text-align: center;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #005575;
+    }
+    
+    .form-group select,
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #E9E9E9;
+      border-radius: 6px;
+      font-family: 'museo-sans', sans-serif;
+      font-size: 1rem;
+      color: #4D4D4D;
+      transition: border-color 0.2s ease;
+    }
+    
+    .form-group select:focus,
+    .form-group input:focus {
+      outline: none;
+      border-color: #0095C8;
+    }
+    
+    .matched-coaches {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      width: 100%;
+      max-width: 900px;
+    }
+    
+    .matched-coach {
+      display: none;
+    }
+    
+    .coach-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    
+    .coach-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    .coach-image {
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      position: relative;
+      background: #0095C8;
+    }
+    
+    .coach-image img {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 3px solid white;
+      padding: 3px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    /* Fix for Caroline's image positioning - move it down to show her entire face */
+    #coach-caroline .coach-image img {
+      object-position: center 20%; /* Shift image up to reveal more of the face */
+      transform: translate(-50%, -30%); /* Move down more from center (additional 20px compared to previous) */
+    }
+    
+    .coach-info {
+      padding: 1.5rem;
+    }
+    
+    .coach-name {
+      font-family: 'museo-sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #005575;
+      margin-bottom: 0.5rem;
+    }
+    
+    .coach-title {
+      color: #0095C8;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    
+    .coach-bio {
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    
+    .coach-match {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #F37322;
+      font-weight: 500;
+    }
+    
+    .match-percentage {
+      font-size: 1.25rem;
+    }
+    
+    .cta-button {
+      background: #F37322;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      margin-top: 1rem;
+    }
+    
+    .cta-button:hover {
+      background: #e86615;
+    }
+    
+    footer {
+      background: #4D4D4D;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+      color: white;
+    }
+    
+    .logo {
+      height: 30px;
+      width: auto;
+      margin-top: 0.625rem;
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+    }
+    
+    .modal h2 {
+      color: #005575;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    
+    .modal input {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 1rem 0;
+      border: 2px solid #E9E9E9;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    
+    .modal input:focus {
+      outline: none;
+      border-color: #0095C8;
+    }
+    
+    .status-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 1rem 2rem;
+      border-radius: 6px;
+      font-weight: 500;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .status-message.success {
+      background: #005575;
+      color: white;
+    }
+    
+    .status-message.error {
+      background: #F37322;
+      color: white;
+    }
+    
+    .status-message.show {
+      opacity: 1;
+    }
+    
+    /* Styles for the preference dropdowns */
+    .help-text {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+    
+    .form-actions {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    
+    /* Match details styles */
+    .match-details {
+      font-size: 0.85rem;
+      color: #444;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    
+    /* Results section styling */
+    .results-title {
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+      color: #222;
+      font-size: 1.5rem;
+    }
+    
+    .results-description {
+      margin-bottom: 1.5rem;
+      color: #444;
+      max-width: 80%;
+    }
+    
+    /* Coach cards tweaks */
+    .matched-coach {
+      margin-bottom: 2rem;
+    }
+    
+    /* Button state styling */
+    .cta-button.disabled,
+    .cta-button[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background-color: #aaa;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .results-description {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="left-header" style="display: flex; align-items: center;">
+      <a href="index-preview.html" class="back-button">← Back</a>
+      <h1 class="header-title" style="margin-left: 0.5rem;">NLI Coaching</h1>
+    </div>
+    <img src="NLI.png" alt="NLI Logo" class="header-logo">
+  </div>
+</header>
+
+<div id="main-content">
+  <h2 class="page-title">Find Your Coach</h2>
+  
+  <div class="setup-section" id="setup-section">
+    <h3 class="setup-title">Build Your Ideal Coach</h3>
+    <p class="setup-description">Our platform uses evidence-based methodologies to match you with the perfect coach. Select your preferences below.</p>
+    
+    <div class="form-grid">
+      <!-- Essential factors that affect actual coach selection -->
+      <div class="form-group">
+        <label for="coach-gender">Coach Gender</label>
+        <select id="coach-gender" class="coach-preference">
+          <option value="">Select gender...</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+        <div class="help-text">Research shows that coach-client gender dynamics can affect coaching outcomes</div>
+      </div>
+      
+      <div class="form-group">
+        <label for="coach-origin">Coach Origin/Accent</label>
+        <select id="coach-origin" class="coach-preference">
+          <option value="">Select origin...</option>
+          <option value="american">American</option>
+          <option value="british">British</option>
+        </select>
+        <div class="help-text">Communication style and cultural background influence coaching rapport</div>
+      </div>
+
+      <div class="form-group">
+        <label for="coach-industry">Industry Expertise</label>
+        <select id="coach-industry" class="coach-preference">
+          <option value="">Select industry expertise...</option>
+          <option value="tech">Technology & Digital Transformation</option>
+          <option value="finance">Finance & Professional Services</option>
+          <option value="healthcare">Healthcare & Life Sciences</option>
+          <option value="manufacturing">Manufacturing & Operations</option>
+          <option value="retail">Retail & Consumer Goods</option>
+        </select>
+        <div class="help-text">Coaches with relevant industry experience provide better context</div>
+      </div>
+
+      <!-- Additional preference factors that don't affect coach selection but enhance personalization -->
+      <div class="form-group">
+        <label for="coaching-style">Preferred Coaching Style</label>
+        <select id="coaching-style" class="coach-preference">
+          <option value="">Select style...</option>
+          <option value="directive">Directive (Clear guidance and structure)</option>
+          <option value="supportive">Supportive (Empathetic and encouraging)</option>
+          <option value="analytical">Analytical (Data-driven and methodical)</option>
+          <option value="strategic">Strategic (Big-picture and future-focused)</option>
+          <option value="challenging">Challenging (Pushes boundaries and growth)</option>
+        </select>
+        <div class="help-text">Complement our brain-based approach with your preferred coaching style</div>
+      </div>
+      
+      <div class="form-group">
+        <label for="focus-area">Primary Focus Area</label>
+        <select id="focus-area" class="coach-preference">
+          <option value="">Select focus area...</option>
+          <option value="executive">Senior Executive & C-Suite Development</option>
+          <option value="leadership">Leadership Development</option>
+          <option value="career">Career Advancement & Transitions</option>
+          <option value="personal-brand">Personal Brand & Presence</option>
+          <option value="communication">Advanced Communication Strategy</option>
+          <option value="strategic-thinking">Strategic Thinking & Decision Making</option>
+          <option value="resilience">Resilience & Stress Management</option>
+          <option value="team-building">Team Building & Management</option>
+          <option value="sales">Sales Performance & Client Relations</option>
+        </select>
+        <div class="help-text">Specialized expertise aligned with your developmental goals</div>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button id="find-coach-button" class="cta-button">Find My Ideal Coach</button>
+    </div>
+  </div>
+
+  <div class="matched-coaches" id="matched-coaches-section" style="display: none;">
+    <h3 class="results-title">Your Ideal Coach Match</h3>
+    <p class="results-description">Based on your preferences and our evidence-based algorithm, we've identified your ideal coach:</p>
+    
+    <!-- NILES: American, younger, male -->
+    <div class="matched-coach" id="coach-niles" style="display: none;">
+      <div class="coach-card">
+        <div class="coach-image">
+          <img src="NILES.png" alt="NILES">
+        </div>
+        <div class="coach-info">
+          <h3 class="coach-name">NILES</h3>
+          <div class="coach-title">Leadership Coaching Specialist</div>
+          <p class="coach-bio" id="niles-bio">NILES is an early-career coaching specialist with an American background. He combines deep expertise in behavioral science with adaptive conversation techniques.</p>
+          <div class="coach-match">
+            <span class="match-percentage" id="niles-match">98%</span>
+            <span>Match</span>
+          </div>
+          <div class="match-details" id="niles-match-details">
+            Based on your preference for a male coach with an American accent and early-career specialist experience.
+          </div>
+          <button class="cta-button" onclick="selectCoach('niles')">Start Coaching Session</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Caroline: American, older, female -->
+    <div class="matched-coach" id="coach-caroline" style="display: none;">
+      <div class="coach-card">
+        <div class="coach-image">
+          <img src="Caroline.png" alt="Caroline">
+        </div>
+        <div class="coach-info">
+          <h3 class="coach-name">Caroline</h3>
+          <div class="coach-title">Senior Executive Coach</div>
+          <p class="coach-bio" id="caroline-bio">Caroline is a senior coaching expert with extensive American industry experience. She integrates decades of leadership psychology with practical executive development techniques.</p>
+          <div class="coach-match">
+            <span class="match-percentage" id="caroline-match">96%</span>
+            <span>Match</span>
+          </div>
+          <div class="match-details" id="caroline-match-details">
+            Based on your preference for a female coach with an American accent and senior expert experience.
+          </div>
+          <button class="cta-button" onclick="selectCoach('caroline')">Start Coaching Session</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mathew: British, older, male -->
+    <div class="matched-coach" id="coach-mathew" style="display: none;">
+      <div class="coach-card">
+        <div class="coach-image">
+          <img src="Mathew.png" alt="Mathew">
+        </div>
+        <div class="coach-info">
+          <h3 class="coach-name">Mathew</h3>
+          <div class="coach-title">Distinguished Executive Coach</div>
+          <p class="coach-bio" id="mathew-bio">Mathew brings a distinguished British coaching perspective with senior-level expertise. He incorporates extensive research in organizational psychology and leadership effectiveness.</p>
+          <div class="coach-match">
+            <span class="match-percentage" id="mathew-match">95%</span>
+            <span>Match</span>
+          </div>
+          <div class="match-details" id="mathew-match-details">
+            Based on your preference for a male coach with a British accent and senior expert experience.
+          </div>
+          <button class="cta-button" onclick="selectCoach('mathew')">Start Coaching Session</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Lorraine: British, younger, female -->
+    <div class="matched-coach" id="coach-lorraine" style="display: none;">
+      <div class="coach-card">
+        <div class="coach-image">
+          <img src="Lorraine.png" alt="Lorraine">
+        </div>
+        <div class="coach-info">
+          <h3 class="coach-name">Lorraine</h3>
+          <div class="coach-title">Innovative Coaching Specialist</div>
+          <p class="coach-bio" id="lorraine-bio">Lorraine is an emerging British coaching talent specializing in innovative psychological approaches. She brings fresh perspectives to executive development with evidence-based methodologies.</p>
+          <div class="coach-match">
+            <span class="match-percentage" id="lorraine-match">97%</span>
+            <span>Match</span>
+          </div>
+          <div class="match-details" id="lorraine-match-details">
+            Based on your preference for a female coach with a British accent and early-career specialist experience.
+          </div>
+          <button class="cta-button" onclick="selectCoach('lorraine')">Start Coaching Session</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <img src="NLI.png" alt="NLI Logo" class="logo">
+  <p style="margin-top: 1rem; font-weight: 300; font-size: 0.875rem;">© 2025 NLI. All rights reserved.</p>
+</footer>
+
+<!-- Username Modal -->
+<div class="modal-overlay" id="username-modal">
+  <div class="modal">
+    <h2>Welcome!</h2>
+    <p>Please enter your name to begin:</p>
+    <input type="text" id="username-input" placeholder="Your name">
+    <button class="cta-button" onclick="setUsername()">Continue</button>
+  </div>
+</div>
+
+<div id="status-message" class="status-message"></div>
+
+<script>
+// Keeping the same JavaScript functionality
+function showStatus(message, type = 'success') {
+  const statusElement = document.getElementById('status-message');
+  statusElement.textContent = message;
+  statusElement.className = `status-message ${type}`;
+  statusElement.classList.add('show');
+  
+  setTimeout(() => {
+    statusElement.classList.remove('show');
+  }, 3000);
+}
+
+function showError(message) {
+  showStatus(message, 'error');
+}
+
+function showUsernameModal() {
+  document.getElementById('username-modal').style.display = 'flex';
+}
+
+function setUsername() {
+  const usernameInput = document.getElementById('username-input');
+  const username = usernameInput.value.trim();
+  
+  if (username) {
+    try {
+      localStorage.setItem('username', username);
+      document.getElementById('username-modal').style.display = 'none';
+      showStatus('Welcome, ' + username + '!');
+    } catch (error) {
+      showError('There was an error saving your data. Please try again.');
+    }
+  } else {
+    showError('Please enter your name');
+  }
+}
+
+function updateUsernameDisplay() {
+  try {
+    const username = localStorage.getItem('username');
+    if (username) {
+      const usernameDisplay = document.getElementById('username-display');
+      if (usernameDisplay) {
+        usernameDisplay.textContent = username;
+      }
+    }
+  } catch (error) {
+    console.error('Error accessing localStorage:', error);
+  }
+}
+
+// Initialize page on load
+window.addEventListener('load', function() {
+  try {
+    const username = localStorage.getItem('username');
+    if (!username) {
+      showUsernameModal();
+    }
+    updateUsernameDisplay();
+    
+    // Hide all coaches initially
+    document.querySelectorAll('.matched-coach').forEach(coach => {
+      coach.style.display = 'none';
+    });
+    
+    // Hide the results section initially
+    document.getElementById('matched-coaches-section').style.display = 'none';
+    
+    // Initialize find button as disabled
+    const findButton = document.getElementById('find-coach-button');
+    findButton.disabled = true;
+    findButton.classList.add('disabled');
+    
+    // Add event listeners for find coach button
+    findButton.addEventListener('click', findIdealCoach);
+    
+    // Add validation to critical dropdowns
+    document.querySelectorAll('.coach-preference').forEach(dropdown => {
+      dropdown.addEventListener('change', function() {
+        validateCriticalSelections();
+      });
+    });
+    
+  } catch (error) {
+    console.error('Error initializing page:', error);
+  }
+});
+
+// Function to validate that at least one critical selection is made
+function validateCriticalSelections() {
+  const gender = document.getElementById('coach-gender').value;
+  const origin = document.getElementById('coach-origin').value;
+  const industry = document.getElementById('coach-industry').value;
+  
+  const findButton = document.getElementById('find-coach-button');
+  
+  // Enable the button if at least one critical preference is selected
+  if (gender || origin || industry) {
+    findButton.disabled = false;
+    findButton.classList.remove('disabled');
+  } else {
+    findButton.disabled = true;
+    findButton.classList.add('disabled');
+  }
+  
+  return (gender || origin || industry);
+}
+
+// Function to find the ideal coach based on preferences
+function findIdealCoach() {
+  // Get the critical coach selection criteria
+  const gender = document.getElementById('coach-gender').value;
+  const origin = document.getElementById('coach-origin').value;
+  const industry = document.getElementById('coach-industry').value;
+  
+  // Get the malleable preferences (don't affect coach selection but enrich the match explanation)
+  const coachingStyle = document.getElementById('coaching-style').value;
+  const focusArea = document.getElementById('focus-area').value;
+  
+  // Check if at least one critical preference is selected
+  if (!gender && !origin && !industry) {
+    showError('Please select at least one coach preference (gender, origin, or industry expertise)');
+    return;
+  }
+  
+  // Find the best coach match based on selected criteria
+  const selectedCoach = determineCoachMatch(gender, origin, industry);
+  if (!selectedCoach) {
+    showError('Unable to find a coach match. Please try different preferences.');
+    return;
+  }
+  
+  // Show the matched coaches section
+  document.getElementById('matched-coaches-section').style.display = 'block';
+  
+  // Hide all coaches
+  document.querySelectorAll('.matched-coach').forEach(coach => {
+    coach.style.display = 'none';
+  });
+  
+  // Show the selected coach
+  document.getElementById(`coach-${selectedCoach}`).style.display = 'block';
+  
+  // Calculate a match percentage (90-99%)
+  const matchValue = Math.floor(Math.random() * 10) + 90;
+  const matchEl = document.getElementById(`${selectedCoach}-match`);
+  matchEl.textContent = `${matchValue}%`;
+  
+  // Create a details explanation string with ALL criteria to make the match seem comprehensive
+  let matchDetailsText = 'Based on your preferences for ';
+  const criticalDetails = [];
+  const nonCriticalDetails = [];
+  
+  // Critical factors that actually determine coach selection
+  if (gender) {
+    criticalDetails.push(`a ${gender} coach`);
+  }
+  
+  if (origin) {
+    const originText = origin === 'american' ? 'an American accent' : 'a British accent';
+    criticalDetails.push(originText);
+  }
+  
+  if (industry) {
+    let industryText = '';
+    switch(industry) {
+      case 'tech': industryText = 'technology sector expertise'; break;
+      case 'finance': industryText = 'financial services background'; break;
+      case 'healthcare': industryText = 'healthcare industry experience'; break;
+      case 'manufacturing': industryText = 'manufacturing sector knowledge'; break;
+      case 'retail': industryText = 'retail and consumer goods expertise'; break;
+    }
+    if (industryText) criticalDetails.push(industryText);
+  }
+  
+  // Non-critical factors that don't affect coach selection but enrich the match explanation
+  if (coachingStyle) {
+    let styleDesc = '';
+    switch(coachingStyle) {
+      case 'directive': styleDesc = 'directive coaching style'; break;
+      case 'supportive': styleDesc = 'supportive coaching style'; break; 
+      case 'analytical': styleDesc = 'analytical coaching style'; break;
+      case 'strategic': styleDesc = 'strategic coaching style'; break;
+      case 'challenging': styleDesc = 'challenging coaching style'; break;
+    }
+    if (styleDesc) nonCriticalDetails.push(styleDesc);
+  }
+  
+  if (focusArea) {
+    let focusDesc = '';
+    switch(focusArea) {
+      case 'executive': focusDesc = 'C-Suite development expertise'; break;
+      case 'leadership': focusDesc = 'leadership development focus'; break;
+      case 'career': focusDesc = 'career advancement specialization'; break;
+      case 'personal-brand': focusDesc = 'personal brand development'; break;
+      case 'communication': focusDesc = 'communication strategy expertise'; break;
+      case 'strategic-thinking': focusDesc = 'strategic thinking focus'; break;
+      case 'resilience': focusDesc = 'resilience building focus'; break;
+      case 'team-building': focusDesc = 'team development expertise'; break;
+      case 'sales': focusDesc = 'sales performance specialization'; break;
+    }
+    if (focusDesc) nonCriticalDetails.push(focusDesc);
+  }
+  
+  // Combine all details
+  const allDetails = [...criticalDetails, ...nonCriticalDetails];
+  
+  if (allDetails.length === 0) {
+    matchDetailsText = 'Based on our evidence-based matching algorithm';
+  } else if (allDetails.length === 1) {
+    matchDetailsText = `Based on your preference for ${allDetails[0]}`;
+  } else {
+    const lastDetail = allDetails.pop();
+    matchDetailsText = `Based on your preferences for ${allDetails.join(', ')} and ${lastDetail}`;
+  }
+  
+  matchDetailsText += '.';
+  
+  // Add a mention of brain-based coaching for all matches
+  matchDetailsText += ' Our brain-based coaching approach ensures optimal development outcomes.';
+  
+  // Update the match details
+  document.getElementById(`${selectedCoach}-match-details`).textContent = matchDetailsText;
+  
+  // Customize the coach's bio based on selected preferences
+  customizeCoachBio(selectedCoach, gender, origin, age, coachingStyle, focusArea);
+  
+  // Scroll to the matched coach section
+  document.getElementById('matched-coaches-section').scrollIntoView({behavior: 'smooth'});
+}
+
+// Add event listener for Enter key in username input
+document.getElementById('username-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    setUsername();
+  }
+});
+
+// Function to determine the best coach match based on selected criteria
+function determineCoachMatch(gender, origin, industry) {
+  // Coach mapping based on characteristics - industry expertise is randomly distributed
+  // but consistently assigned to maintain predictable coach selection
+  const coachMap = {
+    'niles': { 
+      gender: 'male', 
+      origin: 'american',
+      industries: ['tech', 'finance'] // NILES specializes in tech and finance
+    },
+    'caroline': { 
+      gender: 'female', 
+      origin: 'american',
+      industries: ['healthcare', 'retail'] // Caroline specializes in healthcare and retail
+    },
+    'mathew': { 
+      gender: 'male', 
+      origin: 'british',
+      industries: ['finance', 'manufacturing'] // Mathew specializes in finance and manufacturing
+    },
+    'lorraine': { 
+      gender: 'female', 
+      origin: 'british',
+      industries: ['tech', 'healthcare'] // Lorraine specializes in tech and healthcare
+    }
+  };
+  
+  // Calculate score for each coach
+  const scores = {};
+  
+  for (const [coachId, characteristics] of Object.entries(coachMap)) {
+    scores[coachId] = 0;
+    
+    // Add score for matching gender
+    if (gender && characteristics.gender === gender) {
+      scores[coachId] += 3;
+    }
+    
+    // Add score for matching origin/accent
+    if (origin && characteristics.origin === origin) {
+      scores[coachId] += 2;
+    }
+    
+    // Add score for matching industry expertise
+    if (industry && characteristics.industries.includes(industry)) {
+      scores[coachId] += 1;
+    }
+  }
+  
+  // Find coach with highest score
+  let bestCoach = null;
+  let highestScore = -1;
+  
+  for (const [coachId, score] of Object.entries(scores)) {
+    if (score > highestScore) {
+      highestScore = score;
+      bestCoach = coachId;
+    }
+  }
+  
+  // Return null if no coach matches or highest score is 0
+  return highestScore > 0 ? bestCoach : 'niles'; // Default to NILES if no clear match
+}
+
+// This function is no longer needed as it's replaced by findIdealCoach
+function matchCoaches() {
+  // Function kept for compatibility but no longer used
+  validateCriticalSelections();
+}
+
+function customizeCoachBio(coach, gender, origin, industry, coachingStyle, focusArea) {
+  // Get the coach's bio element
+  const bioEl = document.getElementById(`${coach}-bio`);
+  
+  // Default bio texts
+  const bios = {
+    niles: 'NILES combines deep expertise in behavioral science with adaptive conversation techniques using a brain-based coaching approach.',
+    caroline: 'Caroline integrates decades of leadership psychology with practical executive development techniques through brain-based coaching methods.',
+    mathew: 'Mathew incorporates extensive research in organizational psychology and leadership effectiveness within a brain-based coaching framework.',
+    lorraine: 'Lorraine brings fresh perspectives to executive development with evidence-based brain-based coaching methodologies.'
+  };
+  
+  // Start building the customized bio
+  let bioParts = [];
+  
+  // Add base coach description with gender and origin
+  if (coach === 'niles') {
+    bioParts.push('NILES is a specialized AI coach with an American conversation style');
+  } else if (coach === 'caroline') {
+    bioParts.push('Caroline is a senior coaching professional with an American background');
+  } else if (coach === 'mathew') {
+    bioParts.push('Mathew brings a distinguished British coaching perspective');
+  } else if (coach === 'lorraine') {
+    bioParts.push('Lorraine offers a contemporary British coaching approach');
+  }
+  
+  // Add industry expertise if selected
+  if (industry) {
+    let industryExp = '';
+    switch(industry) {
+      case 'tech':
+        industryExp = `with extensive experience in technology leadership and digital transformation`;
+        break;
+      case 'finance':
+        industryExp = `specializing in financial services and professional services leadership`;
+        break;
+      case 'healthcare':
+        industryExp = `with deep expertise in healthcare and life sciences organizations`;
+        break;
+      case 'manufacturing':
+        industryExp = `who has worked extensively with manufacturing and operations executives`;
+        break;
+      case 'retail':
+        industryExp = `with significant background in retail and consumer goods leadership`;
+        break;
+    }
+    if (industryExp) bioParts.push(industryExp);
+  }
+  
+  // Add coaching style if selected
+  if (coachingStyle) {
+    let styleText = '';
+    switch(coachingStyle) {
+      case 'directive':
+        styleText = 'offering clear guidance and structured approaches';
+        break;
+      case 'supportive':
+        styleText = 'providing empathetic and encouraging support';
+        break;
+      case 'analytical':
+        styleText = 'using data-driven and methodical analysis';
+        break;
+      case 'strategic':
+        styleText = 'emphasizing big-picture and future-focused thinking';
+        break;
+      case 'challenging':
+        styleText = 'pushing boundaries to accelerate personal growth';
+        break;
+    }
+    if (styleText) bioParts.push(styleText);
+  }
+  
+  // Add focus area if selected
+  if (focusArea) {
+    let focusText = '';
+    switch(focusArea) {
+      case 'executive':
+        focusText = 'with expertise in Senior Executive & C-Suite development';
+        break;
+      case 'leadership':
+        focusText = 'specializing in leadership development';
+        break;
+      case 'career':
+        focusText = 'focusing on career advancement and transitions';
+        break;
+      case 'personal-brand':
+        focusText = 'with a concentration on personal brand and executive presence';
+        break;
+      case 'communication':
+        focusText = 'emphasizing advanced communication strategies';
+        break;
+      case 'strategic-thinking':
+        focusText = 'focused on strategic thinking and decision-making';
+        break;
+      case 'resilience':
+        focusText = 'helping build resilience and stress management skills';
+        break;
+      case 'team-building':
+        focusText = 'concentrating on team building and management';
+        break;
+      case 'sales':
+        focusText = 'specializing in sales performance and client relations';
+        break;
+    }
+    if (focusText) bioParts.push(focusText);
+  }
+  
+  // Add the default bio ending
+  bioParts.push(bios[coach]);
+  
+  // Combine all parts into a coherent bio
+  bioEl.textContent = bioParts.join(', ').replace(/, ([^,]*)$/, '. $1');
+}
+
+function selectCoach(coachId) {
+  // Store selected coach and preferences
+  try {
+    localStorage.setItem('selectedCoach', coachId);
+    
+    // Coach characteristics mapping
+    const coachData = {
+      'niles': {
+        name: "NILES",
+        gender: "male",
+        accent: "american",
+        industries: ["tech", "finance"],
+        title: "Leadership Coaching Specialist",
+        age: () => Math.floor(Math.random() * 5) + 35, // 35-39 years old
+        yearsExperience: () => Math.floor(Math.random() * 5) + 10 // 10-14 years experience
+      },
+      'caroline': {
+        name: "Caroline",
+        gender: "female",
+        accent: "american",
+        industries: ["healthcare", "retail"],
+        title: "Senior Executive Coach",
+        age: () => Math.floor(Math.random() * 10) + 45, // 45-54 years old
+        yearsExperience: () => Math.floor(Math.random() * 8) + 17 // 17-24 years experience
+      },
+      'mathew': {
+        name: "Mathew",
+        gender: "male",
+        accent: "british",
+        industries: ["finance", "manufacturing"],
+        title: "Distinguished Executive Coach",
+        age: () => Math.floor(Math.random() * 10) + 48, // 48-57 years old
+        yearsExperience: () => Math.floor(Math.random() * 7) + 20 // 20-26 years experience
+      },
+      'lorraine': {
+        name: "Lorraine",
+        gender: "female",
+        accent: "british",
+        industries: ["tech", "healthcare"],
+        title: "Innovative Coaching Specialist",
+        age: () => Math.floor(Math.random() * 8) + 40, // 40-47 years old
+        yearsExperience: () => Math.floor(Math.random() * 6) + 12 // 12-17 years experience
+      }
+    };
+    
+    // Get the selected coach data
+    const selectedCoachData = coachData[coachId];
+    if (!selectedCoachData) {
+      throw new Error(`Coach data not found for ${coachId}`);
+    }
+    
+    // Get current preference selections
+    const preferences = {
+      coachingStyle: document.getElementById('coaching-style').value || 'directive',
+      focusArea: document.getElementById('focus-area').value || 'leadership'
+    };
+    
+    // Get readable preference text (with fallbacks)
+    const getReadableText = (elementId, defaultText) => {
+      const element = document.getElementById(elementId);
+      if (element && element.selectedIndex >= 0) {
+        return element.options[element.selectedIndex].text;
+      }
+      return defaultText;
+    };
+    
+    const readablePreferences = {
+      coachingStyle: getReadableText('coaching-style', 'Directive'),
+      focusArea: getReadableText('focus-area', 'Leadership Development')
+    };
+    
+    // Store preferences with both values and readable text
+    localStorage.setItem('coachPreferences', JSON.stringify({
+      ...preferences,
+      readableStyle: readablePreferences.coachingStyle,
+      readableFocus: readablePreferences.focusArea
+    }));
+    
+    // Get the coach's bio text
+    const bioElement = document.getElementById(`${coachId}-bio`);
+    const bioText = bioElement ? bioElement.textContent : '';
+    
+    // Get the coach's age and experience years from their profile
+    const age = selectedCoachData.age();
+    const experience = selectedCoachData.yearsExperience();
+    
+    // Get the industry expertise (convert array to readable string)
+    const industryExpertise = selectedCoachData.industries.map(industry => {
+      switch(industry) {
+        case 'tech': return 'Technology';
+        case 'finance': return 'Finance';
+        case 'healthcare': return 'Healthcare';
+        case 'manufacturing': return 'Manufacturing';
+        case 'retail': return 'Retail';
+        default: return industry.charAt(0).toUpperCase() + industry.slice(1);
+      }
+    }).join(' & ');
+    
+    // Store comprehensive coach details
+    const coachDetails = {
+      name: selectedCoachData.name,
+      id: coachId, // Explicitly include the coach ID to ensure correct profile is shown
+      bio: bioText,
+      age: age.toString(),
+      experience: experience + " years",
+      style: readablePreferences.coachingStyle,
+      accent: selectedCoachData.accent === 'american' ? "American" : "British",
+      gender: selectedCoachData.gender,
+      focusArea: readablePreferences.focusArea,
+      industries: industryExpertise, // Add industry expertise
+      title: selectedCoachData.title
+    };
+    localStorage.setItem('coachDetails', JSON.stringify(coachDetails));
+    
+    // Store the bio text separately
+    localStorage.setItem('coachBioText', bioText);
+    
+    // Store dynamic variables for the coach bot
+    const dynamicVars = {
+      user_name: localStorage.getItem('username') || 'User',
+      session_id: Date.now() + '-' + Math.random().toString(36).substring(2, 10),
+      gender: selectedCoachData.gender,
+      age: age.toString(),
+      experience: experience.toString(),
+      accent: selectedCoachData.accent,
+      industries: selectedCoachData.industries.join(','), // Include industry expertise
+      industry_expertise: industryExpertise, // Include readable industry expertise
+      coach_id: coachId // Explicitly include the selected coach ID to ensure correct coach is displayed
+    };
+    localStorage.setItem('coachDynamicVars', JSON.stringify(dynamicVars));
+    
+    console.log(`Coach selected: ${coachId} with preferences:`, preferences);
+    
+    // Double-check that we're always using the right coach ID
+    localStorage.setItem('selectedCoach', coachId); // Set it again to be absolutely sure
+    
+    // Navigate to the coach profile page
+    window.location.href = 'coach-profile-fixed-preview.html';
+  } catch (error) {
+    showError('There was an error saving your selection. Please try again.');
+    console.error('Error saving coach selection:', error);
+  }
+}
+</script>
+
+</body>
+</html>

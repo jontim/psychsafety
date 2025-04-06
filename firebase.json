@@ -1,0 +1,47 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/coaching-landing",
+        "destination": "/coaching-landing.html"
+      },
+      {
+        "source": "/coach-selection",
+        "destination": "/coach-selection.html"
+      },
+      {
+        "source": "/coach-profile",
+        "destination": "/coach-profile.html"
+      },
+      {
+        "source": "/practice-coaching",
+        "destination": "/practice-coaching.html"
+      },
+      {
+        "source": "/scenarios",
+        "destination": "/scenarios.html"
+      },
+      {
+        "source": "/getConversationDetails",
+        "function": "getConversationDetails"
+      },
+      {
+        "source": "/getWidgetConfig",
+        "function": "getWidgetConfig"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "functions": {
+    "source": "functions"
+  }
+}

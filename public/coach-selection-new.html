@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Select Your Coach - NLI Coaching Practice</title>
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet" />
+  <!-- ElevenLabs widget script will be loaded dynamically to prevent duplicate loading --> 
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #141414;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    header {
+      background: #181818;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      position: relative;
+    }
+    
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: #68e800;
+      margin-bottom: 5px;
+    }
+    
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: #68e800;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+    }
+    
+    .back-button:hover {
+      text-decoration: underline;
+    }
+    
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 10px 150px 10px;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: calc(100vh - 140px);
+    }
+    
+    .page-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: #68e800;
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .setup-section {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 40px;
+    }
+    
+    .setup-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: #68e800;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    
+    .setup-description {
+      text-align: center;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #f0f0f0;
+      font-size: 1rem;
+      outline: none;
+    }
+    
+    .form-group select:focus {
+      border-color: #68e800;
+    }
+    
+    .start-button {
+      background: #68e800;
+      color: #1e1e1e;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 200px;
+    }
+    
+    .start-button:hover {
+      background: #4fb900;
+    }
+    
+    .coaches-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      width: 100%;
+      max-width: 900px;
+    }
+    
+    .coach-card {
+      background: #1e1e1e;
+      border: 1px solid #343434;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 250px);
+      max-height: 800px;
+    }
+    
+    .coach-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      border-color: #68e800;
+    }
+    
+    .coach-card .coach-image {
+      height: 350px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .coach-card .coach-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      transition: transform 0.3s ease;
+    }
+    
+    .coach-card:hover .coach-image img {
+      transform: scale(1.05);
+    }
+    
+    .coach-card .coach-info {
+      padding: 20px;
+    }
+    
+    .coach-card .coach-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: #68e800;
+      margin-bottom: 10px;
+    }
+    
+    .coach-card .coach-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .coach-card .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .coach-card .stat-label {
+      font-size: 0.9rem;
+      color: #999;
+    }
+    
+    .coach-card .stat-value {
+      font-size: 1rem;
+      font-weight: bold;
+    }
+    
+    .coach-card .coach-description {
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+    
+    .coach-card .select-coach-btn {
+      display: inline-block;
+      background: transparent;
+      color: #68e800;
+      border: 2px solid #68e800;
+      border-radius: 6px;
+      padding: 8px 15px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    
+    .coach-card .select-coach-btn:hover {
+      background: #68e800;
+      color: #1e1e1e;
+    }
+    
+    footer {
+      background: #181818;
+      padding: 20px;
+      text-align: center;
+      margin-top: auto;
+    }
+    
+    .logo {
+      width: 300px;
+      height: auto;
+      margin-top: 10px;
+      filter: grayscale(100%);
+    }
+    
+    .selection-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .selection-tag {
+      background: #1e1e1e;
+      color: #68e800;
+      border: 1px solid #68e800;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.85rem;
+    }
+    
+    .matched-coach {
+      display: none;
+      width: 100%;
+      height: auto;
+    }
+    
+    .matched-coach .coach-card {
+      height: auto;
+      min-height: 800px;
+      max-height: none;
+    }
+    
+    .matched-coach .coach-image {
+      height: 600px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .matched-coach .coach-image img {
+      width: 100%;
+      height: auto;
+      position: absolute;
+      top: 0;
+      transform: translateY(-20%);
+    }
+    
+    /* Coach-specific image positions */
+    #coach-caroline .coach-image img {
+      transform: translateY(-17%);
+    }
+    
+    #coach-niles .coach-image img {
+      transform: translateY(-23%);
+    }
+    
+    #coach-mathew .coach-image img {
+      transform: translateY(-20%);
+    }
+    
+    #coach-lorraine .coach-image img {
+      transform: translateY(-15%);
+    }
+    
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .coaches-grid {
+        grid-template-columns: 1fr;
+        max-width: 450px;
+      }
+    }
+  </style>
+
+  <!-- Add modal styles -->
+  <style>
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 12px;
+      border: 2px solid #68e800;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      margin: 15px 0;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: white;
+      font-size: 16px;
+    }
+
+    .modal button {
+      background: #68e800;
+      color: black;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .modal h2 {
+      font-family: 'Orbitron', sans-serif;
+      color: #68e800;
+      margin-bottom: 15px;
+    }
+
+    .status-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 1000;
+      font-weight: bold;
+    }
+
+    .status-success {
+      background-color: #68e800;
+      color: #1e1e1e;
+    }
+
+    .status-error {
+      background-color: #ff4444;
+      color: #1e1e1e;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Username Modal -->
+<div class="modal-overlay" id="username-modal">
+  <div class="modal">
+    <h2>Welcome to NLI Coaching</h2>
+    <p>Please enter your name to begin</p>
+    <input type="text" id="username-input" placeholder="Your name" />
+    <button onclick="setUsername()">Continue</button>
+  </div>
+</div>
+
+<header>
+  <a href="index.html" class="back-button">← Back</a>
+  <h1>NLI Coaching Practice</h1>
+</header>
+
+<div id="main-content">
+  <h2 class="page-title">Find Your Ideal Coach</h2>
+  
+  <div class="setup-section" id="setup-section">
+    <h3 class="setup-title">Customize Your Coaching Experience</h3>
+    <p class="setup-description">Select your preferences below to be matched with the most suitable coach for your needs.</p>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="gender">Gender Preference</label>
+        <select id="gender">
+          <option value="">No preference</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="age">Coach Age Range</label>
+        <select id="age">
+          <option value="">No preference</option>
+          <option value="30-40">30-40 years</option>
+          <option value="40-50">40-50 years</option>
+          <option value="50-60">50-60 years</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="industry">Industry Experience</label>
+        <select id="industry">
+          <option value="">No preference</option>
+          <option value="technology">Technology</option>
+          <option value="finance">Finance & Banking</option>
+          <option value="healthcare">Healthcare</option>
+          <option value="education">Education</option>
+          <option value="manufacturing">Manufacturing</option>
+          <option value="retail">Retail & Consumer Goods</option>
+          <option value="consulting">Consulting</option>
+          <option value="entrepreneurship">Entrepreneurship</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="style">Coaching Style</label>
+        <select id="style">
+          <option value="">No preference</option>
+          <option value="supportive">Supportive & Empathetic</option>
+          <option value="directive">Direct & Challenging</option>
+          <option value="analytical">Analytical & Strategic</option>
+          <option value="creative">Creative & Innovative</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="background">Professional Background</label>
+        <select id="background">
+          <option value="">No preference</option>
+          <option value="corporate">Corporate Leadership</option>
+          <option value="academic">Academic & Research</option>
+          <option value="entrepreneurial">Entrepreneurial</option>
+          <option value="consulting">Consulting</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="accent">Accent Preference</label>
+        <select id="accent">
+          <option value="">No preference</option>
+          <option value="american">American</option>
+          <option value="british">British</option>
+        </select>
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: center;">
+      <button id="find-coach" class="start-button">Find My Coach</button>
+    </div>
+  </div>
+  
+  <!-- Matched Coach Card - Caroline -->
+  <div class="matched-coach" id="coach-caroline">
+    <div class="coach-card" onclick="selectCoach('caroline')">
+      <div class="coach-image">
+        <img src="Caroline.png" alt="Caroline">
+      </div>
+      <div class="coach-info">
+        <h3 class="coach-name">Caroline</h3>
+        <div class="coach-stats">
+          <div class="stat-item">
+            <span class="stat-label">Age</span>
+            <span class="stat-value" id="caroline-age">53</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Gender</span>
+            <span class="stat-value">Female</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Experience</span>
+            <span class="stat-value" id="caroline-exp">25 years</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Style</span>
+            <span class="stat-value" id="caroline-style">Supportive</span>
+          </div>
+        </div>
+        <p class="coach-description" id="caroline-bio">Caroline is a seasoned coach with expertise in personal development and leadership growth. Her strategic approach creates a safe space for meaningful exploration.</p>
+        <div class="selection-tags" id="caroline-tags">
+          <!-- Tags will be added dynamically -->
+        </div>
+        <a href="#" onclick="selectCoach('caroline'); return false;" class="select-coach-btn">Select Caroline</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Matched Coach Card - NILES -->
+  <div class="matched-coach" id="coach-niles">
+    <div class="coach-card" onclick="selectCoach('niles')">
+      <div class="coach-image">
+        <img src="NILES.png" alt="NILES">
+      </div>
+      <div class="coach-info">
+        <h3 class="coach-name">NILES</h3>
+        <div class="coach-stats">
+          <div class="stat-item">
+            <span class="stat-label">Age</span>
+            <span class="stat-value" id="niles-age">45</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Gender</span>
+            <span class="stat-value">Male</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Experience</span>
+            <span class="stat-value" id="niles-exp">15 years</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Style</span>
+            <span class="stat-value" id="niles-style">Analytical</span>
+          </div>
+        </div>
+        <p class="coach-description" id="niles-bio">NILES specializes in leadership development and workplace challenges. His direct, solution-focused approach helps clients identify clear paths forward.</p>
+        <div class="selection-tags" id="niles-tags">
+          <!-- Tags will be added dynamically -->
+        </div>
+        <a href="#" onclick="selectCoach('niles'); return false;" class="select-coach-btn">Select NILES</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Matched Coach Card - Mathew -->
+  <div class="matched-coach" id="coach-mathew">
+    <div class="coach-card" onclick="selectCoach('mathew')">
+      <div class="coach-image">
+        <img src="Mathew.png" alt="Mathew">
+      </div>
+      <div class="coach-info">
+        <h3 class="coach-name">Mathew</h3>
+        <div class="coach-stats">
+          <div class="stat-item">
+            <span class="stat-label">Age</span>
+            <span class="stat-value" id="mathew-age">48</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Gender</span>
+            <span class="stat-value">Male</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Experience</span>
+            <span class="stat-value" id="mathew-exp">20 years</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Style</span>
+            <span class="stat-value" id="mathew-style">Direct</span>
+          </div>
+        </div>
+        <p class="coach-description" id="mathew-bio">Mathew is a former senior executive in strategy development with extensive banking experience. His direct and sharp approach misses nothing, helping clients achieve clarity and focus on key issues.</p>
+        <div class="selection-tags" id="mathew-tags">
+          <!-- Tags will be added dynamically -->
+        </div>
+        <a href="#" onclick="selectCoach('mathew'); return false;" class="select-coach-btn">Select Mathew</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Matched Coach Card - Lorraine -->
+  <div class="matched-coach" id="coach-lorraine">
+    <div class="coach-card" onclick="selectCoach('lorraine')">
+      <div class="coach-image">
+        <img src="Lorraine.png" alt="Lorraine">
+      </div>
+      <div class="coach-info">
+        <h3 class="coach-name">Lorraine</h3>
+        <div class="coach-stats">
+          <div class="stat-item">
+            <span class="stat-label">Age</span>
+            <span class="stat-value" id="lorraine-age">36</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Gender</span>
+            <span class="stat-value">Female</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Experience</span>
+            <span class="stat-value" id="lorraine-exp">12 years</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Style</span>
+            <span class="stat-value" id="lorraine-style">Direct</span>
+          </div>
+        </div>
+        <p class="coach-description" id="lorraine-bio">Lorraine is a forward-thinking entrepreneur with a passion for innovation. Her direct and energetic coaching style pushes clients to reach their full potential with a balance of challenge and support.</p>
+        <div class="selection-tags" id="lorraine-tags">
+          <!-- Tags will be added dynamically -->
+        </div>
+        <a href="#" onclick="selectCoach('lorraine'); return false;" class="select-coach-btn">Select Lorraine</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2025 The NeuroLeadership Institute. All Rights Reserved.</p>
+  <img src="NLI.png" alt="NeuroLeadership Logo" class="logo" />
+</footer>
+
+<script>
+  // Coach profiles and matching logic
+  const coachProfiles = {
+    caroline: {
+      id: "bzb6ybXctNSysRqknLVD", // Caroline bot ID
+      name: "Caroline",
+      gender: "female",
+      age: {min: 45, max: 55},
+      accent: "american",
+      styles: ["supportive", "analytical"],
+      industries: ["healthcare", "education", "consulting", "retail"],
+      backgrounds: ["corporate", "academic"]
+    },
+    niles: {
+      id: "rI4k2913KxCBlbFr2Imx", // NILES bot ID
+      name: "NILES",
+      gender: "male",
+      age: {min: 40, max: 50},
+      accent: "american",
+      styles: ["analytical", "directive"],
+      industries: ["technology", "finance", "consulting"],
+      backgrounds: ["corporate", "consulting"]
+    },
+    mathew: {
+      id: "tf6c7I8annF0etPiL4vG", // Mathew bot ID
+      name: "Mathew",
+      gender: "male",
+      age: {min: 45, max: 55},
+      accent: "british",
+      styles: ["directive", "analytical"],
+      industries: ["finance", "consulting"],
+      backgrounds: ["corporate", "consulting"]
+    },
+    lorraine: {
+      id: "xklKUaa1IPvcOBJAsfli", // Lorraine bot ID
+      name: "Lorraine",
+      gender: "female",
+      age: {min: 30, max: 40},
+      accent: "british",
+      styles: ["directive", "creative"],
+      industries: ["technology", "retail", "entrepreneurship"],
+      backgrounds: ["entrepreneurial", "consulting"]
+    },
+    daryl: {
+      id: "bzb6ybXctNSysRqknLVD", // Daryl bot ID
+      name: "Daryl",
+      gender: "male",
+      age: {min: 35, max: 45},
+      accent: "american",
+      styles: ["supportive", "educational"],
+      industries: ["education", "coaching", "professional development"],
+      backgrounds: ["coaching", "education"]
+    }
+  };
+  
+  // Coach bios that can be customized based on selections
+  const coachBioTemplates = {
+    caroline: "{name} is a {age}-year-old coach with {experience} years of experience in {industry}. With a background in {background}, she brings a {style} approach to help clients overcome challenges and achieve their goals.",
+    niles: "{name} is a {age}-year-old coach with {experience} years of experience in {industry}. His background in {background} has shaped his {style} coaching style that focuses on practical solutions and tangible results.",
+    mathew: "{name} is a {age}-year-old former senior executive with {experience} years of experience in {industry}. His background in {background} has developed his {style} coaching style. He's direct, sharp, and misses nothing when helping clients solve complex problems.",
+    lorraine: "{name} is a {age}-year-old entrepreneur with {experience} years of experience in {industry}. With her background in {background}, she brings a {style} coaching style that's both energetic and results-oriented."
+  };
+  
+  // Utility to get readable values from selects
+  function getReadableValue(id) {
+    const select = document.getElementById(id);
+    const option = select.options[select.selectedIndex];
+    return option ? option.textContent : '';
+  }
+  
+  // Function to match coaches based on preferences
+  function matchCoaches(preferences) {
+    // Filter eligible coaches (only strict constraints: gender and accent)
+    let eligibleCoaches = Object.keys(coachProfiles);
+    
+    // Gender filter (strict constraint)
+    if (preferences.gender) {
+      eligibleCoaches = eligibleCoaches.filter(coachId => {
+        return coachProfiles[coachId].gender === preferences.gender;
+      });
+    }
+    
+    // Accent filter (strict constraint)
+    if (preferences.accent) {
+      eligibleCoaches = eligibleCoaches.filter(coachId => {
+        return coachProfiles[coachId].accent === preferences.accent;
+      });
+    }
+    
+    // If we still have multiple eligible coaches, use soft constraints to score them
+    if (eligibleCoaches.length > 1) {
+      const matchScores = {};
+      
+      // Initialize scores for eligible coaches
+      eligibleCoaches.forEach(coachId => {
+        matchScores[coachId] = 0;
+      });
+      
+      // Age range preference (soft constraint)
+      if (preferences.age) {
+        const [minAge, maxAge] = preferences.age.split('-').map(Number);
+        eligibleCoaches.forEach(coachId => {
+          const profile = coachProfiles[coachId];
+          if (profile.age.min <= maxAge && profile.age.max >= minAge) {
+            matchScores[coachId] += 1;
+          }
+        });
+      }
+      
+      // Industry preference (very soft constraint - just for coach selection)
+      if (preferences.industry) {
+        eligibleCoaches.forEach(coachId => {
+          const profile = coachProfiles[coachId];
+          if (profile.industries.includes(preferences.industry)) {
+            matchScores[coachId] += 1;
+          }
+        });
+      }
+      
+      // Sort coaches by match score
+      const rankedCoaches = Object.entries(matchScores)
+        .sort((a, b) => b[1] - a[1])
+        .map(entry => entry[0]);
+      
+      return rankedCoaches[0]; // Return the best match
+    }
+    
+    // If we have exactly one eligible coach or no coaches left after filtering
+    return eligibleCoaches[0] || Object.keys(coachProfiles)[0]; // Return the first eligible coach or default to first coach
+  }
+  
+  // Function to generate a dynamic bio based on preferences
+  function generateDynamicBio(coachId, preferences) {
+    const template = coachBioTemplates[coachId];
+    const coach = coachProfiles[coachId];
+    
+    // Calculate age within the acceptable range
+    const age = preferences.age ? 
+      parseInt(preferences.age.split('-')[0]) + 5 : 
+      Math.floor((coach.age.min + coach.age.max) / 2);
+    
+    // Calculate experience (roughly 60-75% of age minus 22)
+    const experience = Math.floor((age - 22) * (0.6 + Math.random() * 0.15));
+    
+    // Get industry or default
+    const industry = preferences.industry ? 
+      getReadableValue('industry') : 
+      coach.industries[0];
+    
+    // Get background or default
+    const background = preferences.background ? 
+      getReadableValue('background') : 
+      coach.backgrounds[0];
+    
+    // Get style or default
+    const style = preferences.style ? 
+      getReadableValue('style') : 
+      coach.styles[0];
+    
+    // Replace placeholders
+    const bioText = template
+      .replace('{name}', coach.name)
+      .replace('{age}', age)
+      .replace('{experience}', experience)
+      .replace('{industry}', industry)
+      .replace('{background}', background)
+      .replace('{style}', style);
+      
+    return bioText;
+  }
+  
+  // Function to update coach display
+  function updateCoachDisplay(coachId, preferences) {
+    // Hide all coach cards
+    document.querySelectorAll('.matched-coach').forEach(el => {
+      el.style.display = 'none';
+    });
+    
+    // Show only the matched coach
+    const coachElement = document.getElementById(`coach-${coachId}`);
+    coachElement.style.display = 'block';
+    
+    // Get coach profile
+    const coach = coachProfiles[coachId];
+    
+    // Calculate age within the acceptable range
+    const age = preferences.age ? 
+      parseInt(preferences.age.split('-')[0]) + 5 : 
+      Math.floor((coach.age.min + coach.age.max) / 2);
+    
+    // Calculate experience (roughly 60-75% of age minus 22)
+    const experience = Math.floor((age - 22) * (0.6 + Math.random() * 0.15));
+    
+    // Update the coach's stats
+    document.getElementById(`${coachId}-age`).textContent = age;
+    document.getElementById(`${coachId}-exp`).textContent = `${experience} years`;
+    
+    // Update the style if selected
+    if (preferences.style) {
+      const styleText = getReadableValue('style');
+      document.getElementById(`${coachId}-style`).textContent = styleText.split('&')[0].trim();
+    }
+    
+    // Update the bio
+    const bio = generateDynamicBio(coachId, preferences);
+    document.getElementById(`${coachId}-bio`).textContent = bio;
+    
+    // Add selection tags
+    const tagsContainer = document.getElementById(`${coachId}-tags`);
+    tagsContainer.innerHTML = '';
+    
+    // Add tags for each selected preference
+    const tagMappings = {
+      gender: 'Gender',
+      age: 'Age',
+      industry: 'Industry',
+      style: 'Style',
+      background: 'Background',
+      accent: 'Accent'
+    };
+    
+    Object.entries(preferences).forEach(([key, value]) => {
+      if (value) {
+        const tagElement = document.createElement('span');
+        tagElement.className = 'selection-tag';
+        tagElement.textContent = `${tagMappings[key]}: ${getReadableValue(key)}`;
+        tagsContainer.appendChild(tagElement);
+      }
+    });
+  }
+  
+  // Function to handle coach selection and redirect
+  function selectCoach(coachId) {
+    console.log(`Coach selected: ${coachId}`);
+    
+    // Get preferences from localStorage (saved when finding coach)
+    const preferences = JSON.parse(localStorage.getItem('coachPreferences') || '{}');
+    
+    // Get coach details
+    const coach = coachProfiles[coachId];
+    
+    // Store coach selection and preferences to pass to the next page
+    localStorage.setItem('selectedCoach', coachId);
+    localStorage.setItem('coachAgentId', coach.id);
+    
+    // Debug log to ensure correct coach is selected
+    console.log('Selected coach details:', coach);
+    
+    // Store ALL coach details for the profile page
+    const coachDetails = {
+      name: coach.name,
+      bio: document.getElementById(`${coachId}-bio`).textContent,
+      age: document.getElementById(`${coachId}-age`).textContent,
+      experience: document.getElementById(`${coachId}-exp`).textContent,
+      style: document.getElementById(`${coachId}-style`).textContent,
+      accent: coach.accent === 'british' ? 'British' : 'American',
+      gender: coach.gender,
+      // Get the selected preferences as readable values
+      industry: preferences.industry ? getReadableValue('industry') : '',
+      background: preferences.background ? getReadableValue('background') : ''
+    };
+    localStorage.setItem('coachDetails', JSON.stringify(coachDetails));
+    
+    // Store the bio text so it can be used on the profile page
+    localStorage.setItem('coachBioText', document.getElementById(`${coachId}-bio`).textContent);
+    
+    // Gather dynamic variables to pass to the coach bot
+    const dynamicVars = {
+      user_name: localStorage.getItem('username') || 'User',
+      session_id: localStorage.getItem('conversationSessionId') || Date.now() + '-' + Math.random().toString(36).substring(2, 10),
+      gender: coach.gender,
+      age: document.getElementById(`${coachId}-age`).textContent,
+      experience: document.getElementById(`${coachId}-exp`).textContent.replace(' years', ''),
+      industry: preferences.industry ? getReadableValue('industry') : '',
+      background: preferences.background ? getReadableValue('background') : '',
+      style: preferences.style ? getReadableValue('style') : '',
+      accent: coach.accent
+    };
+    
+    // Store dynamic variables to use in coach-profile page
+    localStorage.setItem('coachDynamicVars', JSON.stringify(dynamicVars));
+    
+    // Build URL with all necessary parameters
+    const urlParams = new URLSearchParams();
+    urlParams.append('coach', coachId);
+    
+    // Add all preferences
+    urlParams.append('gender', coach.gender);
+    urlParams.append('accent', coach.accent);
+    urlParams.append('age', document.getElementById('age').value);
+    urlParams.append('industry', getReadableValue('industry'));
+    urlParams.append('background', getReadableValue('background'));
+    urlParams.append('style', getReadableValue('style'));
+    
+    // Calculate experience based on age
+    const age = parseInt(document.getElementById('age').value.split('-')[0]) + 5;
+    const experience = Math.floor((age - 22) * (0.6 + Math.random() * 0.15));
+    urlParams.append('experience', experience.toString());
+    
+    // Store dynamic variables for the widget
+    const widgetVars = {
+      user_name: localStorage.getItem('username') || 'User',
+      session_id: Date.now() + '-' + Math.random().toString(36).substring(2, 10),
+      gender: coach.gender,
+      age: age.toString(),
+      experience: experience.toString(),
+      industry: getReadableValue('industry'),
+      background: getReadableValue('background'),
+      style: getReadableValue('style'),
+      accent: coach.accent
+    };
+    localStorage.setItem('coachDynamicVars', JSON.stringify(widgetVars));
+    
+    // Redirect with all parameters
+    console.log(`Redirecting to coach profile for: ${coachId} with preferences`);
+    window.location.href = `coach-profile-fixed.html?${urlParams.toString()}`;
+  }
+  
+  // Utility Functions for Username Handling
+  function showStatus(message, type = 'success') {
+    const existingStatus = document.querySelector('.status-message');
+    if (existingStatus) {
+      existingStatus.remove();
+    }
+
+    const statusDiv = document.createElement('div');
+    statusDiv.textContent = message;
+    statusDiv.className = `status-message status-${type}`;
+    document.body.appendChild(statusDiv);
+    setTimeout(() => statusDiv.remove(), 3000);
+  }
+
+  function showError(message) {
+    showStatus(message, 'error');
+  }
+
+  function showUsernameModal() {
+    document.getElementById('username-modal').style.display = 'flex';
+  }
+
+  function setUsername() {
+    const usernameInput = document.getElementById('username-input');
+    const username = usernameInput.value.trim();
+    
+    if (username.length < 2) {
+      showError('Please enter a valid name (at least 2 characters)');
+      return;
+    }
+    
+    localStorage.setItem('username', username);
+    document.getElementById('username-modal').style.display = 'none';
+    showStatus('Welcome, ' + username + '!');
+    updateUsernameDisplay();
+  }
+
+  function updateUsernameDisplay() {
+    const username = localStorage.getItem('username');
+    if (username) {
+      const welcomeText = document.querySelector('.setup-description');
+      welcomeText.textContent = `Welcome ${username}! Let's find the perfect coach for you. Start by selecting your preferences below.`;
+    }
+  }
+
+  // Add event listener for Enter key in username input
+  document.getElementById('username-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      setUsername();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check if username exists
+    const username = localStorage.getItem('username');
+    if (!username) {
+      showUsernameModal();
+    } else {
+      updateUsernameDisplay();
+    }
+    
+    // Find coach button event listener
+    document.getElementById('find-coach').addEventListener('click', function() {
+      // Gather all preferences
+      const preferences = {
+        gender: document.getElementById('gender').value,
+        age: document.getElementById('age').value,
+        industry: document.getElementById('industry').value,
+        style: document.getElementById('style').value,
+        background: document.getElementById('background').value,
+        accent: document.getElementById('accent').value
+      };
+      
+      // Save preferences
+      localStorage.setItem('coachPreferences', JSON.stringify(preferences));
+      
+      // Match with the best coach
+      const matchedCoach = matchCoaches(preferences);
+      
+      // Update the display
+      updateCoachDisplay(matchedCoach, preferences);
+      
+      // Hide setup section
+      document.getElementById('setup-section').style.display = 'none';
+    });
+    
+    // Handle URL params if coming back from another page
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('reset')) {
+      // Show setup again
+      document.getElementById('setup-section').style.display = 'block';
+      
+      // Hide all coach cards
+      document.querySelectorAll('.matched-coach').forEach(el => {
+        el.style.display = 'none';
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

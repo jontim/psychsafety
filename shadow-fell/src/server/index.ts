@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
 import { HumeClient, fetchAccessToken } from "hume";
 import { WORLDS, getWorld, publicWorld } from "../worlds/index.js";
+import type { World } from "../engine/world.js";
 import { createDirector } from "./director.js";
 import { speak } from "./tts.js";
 import { findCast } from "../engine/world.js";
@@ -44,9 +45,18 @@ app.get("/api/worlds", (_req, res) => {
   res.json({ data: Object.values(WORLDS).map((w) => ({ id: w.id, title: w.title, tagline: w.tagline, roles: w.roles })) });
 });
 
+/** Any clip with a rendered file under public/clips is served; the manifest never needs editing. */
+function withRenderedClips(world: World): World {
+  const dir = path.join(root, "public/clips");
+  return {
+    ...world,
+    clips: world.clips.map((c) => (c.file || !fs.existsSync(path.join(dir, `${c.key}.mp4`)) ? c : { ...c, file: `/clips/${c.key}.mp4` })),
+  };
+}
+
 app.get("/api/worlds/:id", (req, res) => {
   try {
-    res.json({ data: publicWorld(getWorld(String(req.params.id))) });
+    res.json({ data: withRenderedClips(publicWorld(getWorld(String(req.params.id)))) });
   } catch (error) {
     res.status(404).json({ error: (error as Error).message });
   }

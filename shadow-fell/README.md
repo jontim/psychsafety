@@ -12,9 +12,20 @@ A voice-first story set in the Stormwardens world, in the unshown middle of *Dea
 - **Three voices.** The ear is Hume's Empathic Voice Interface, paused so it never speaks. The director is Claude, returning a structured turn (line, acting note, meter deltas, shot, beat status). The voices are Hume's Octave with acting instructions per character, falling back to the browser's own voice.
 - **Offline first.** Without keys, a mock ear lets you type lines and pick a tone, and an understudy director takes every turn deterministically. The whole loop is playable on a laptop with no accounts.
 
+## Getting it out of the carrier
+
+The project was first pushed inside another repository as a carrier. To lift it into its own repository on a Mac, without needing a clone of the carrier:
+
+```bash
+git clone --branch claude/hume-emotion-product-ideas-vix7je --single-branch git@github.com:jontim/psychsafety.git /tmp/shadow-fell-carrier
+/tmp/shadow-fell-carrier/shadow-fell/scripts/export-to-local.sh      # creates ~/Projects/shadow-fell as a fresh git repo
+rm -rf /tmp/shadow-fell-carrier
+```
+
 ## Run it locally
 
 ```bash
+cd ~/Projects/shadow-fell
 cp .env.example .env     # add HUME_API_KEY, HUME_SECRET_KEY, ANTHROPIC_API_KEY when you have them
 npm install
 npm run dev              # web on http://localhost:5173, server on :8787
@@ -54,7 +65,7 @@ The consent gate before the microphone opens states that an AI system infers exp
 
 ## Canon notes for Jon
 
-- The attaché is written as **Lt. Navid Qasran**, the name canonised in the vault on 1 September 2026. If "Nevinde" is a different person, add him to the cast.
+- The attaché is **Lt. Navid Qasran**, confirmed by Jon on 17 September 2026.
 - The heckler, the watch captain, the sleeping wizard and the carriage visitor are working material for your canon check; the film shows them but does not name them.
 - The final town is never named. The carriage visitor's employer is never named. The three seals are prohibitions in the brief and in the world pack.
 

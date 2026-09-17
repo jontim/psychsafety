@@ -115,8 +115,7 @@ function stageScreen(): HTMLElement {
   }
   stage.append(
     h("div", { class: `vignette ${snap.affect.latest ? tag : ""}` }),
-    h("div", { class: "scene" }, `${snap.act.title} · ${snap.beat.title}`),
-    h("div", { class: "goal" }, snap.beat.goal),
+    h("div", { class: "top" }, h("div", { class: "scene" }, `${snap.act.title} · ${snap.beat.title}`), h("div", { class: "goal" }, snap.beat.goal)),
     h("div", { class: "card" },
       h("div", { class: "who" }, `${counterpart.name}${counterpart.title ? `, ${counterpart.title}` : ""}`),
       h("div", { class: "where" }, snap.beat.location),
@@ -134,7 +133,7 @@ function stageScreen(): HTMLElement {
   side.append(debrief);
 
   const main = h("main", {},
-    h("div", { class: "stage-grid" }, h("div", {}, stage, controls(snap)), side),
+    h("div", { class: "stage-grid" }, h("div", {}, stage, h("div", { class: "goal-line" }, snap.beat.goal), controls(snap)), side),
   );
   return main;
 }

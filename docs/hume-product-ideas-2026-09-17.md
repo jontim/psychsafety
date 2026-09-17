@@ -83,3 +83,64 @@ Build Option A as the product, with Option B's engine as the first playable mile
 - LLM interrogation games: https://store.steampowered.com/app/3716000 and https://steamcommunity.com/app/2778780
 - Voice Charades (friends-guess only): https://play.google.com/store/apps/details?id=com.redif.actparty
 - Storytime AI (scores prosody): https://www.storytimeaiapp.com/
+
+---
+
+# Part 2 (same day): the story engine with reactive video
+
+Jon clarified that "jurist" was "utility", liked Option A, and proposed combining it with near-real-time generated video: a story engine where the jury simulation is one world among several (courtroom with a choice of roles, fantasy diplomacy as a lord, spy interrogation from either side), and video snippets are generated in response to the player's input.
+
+## 7. What real-time video can do this month (verified Sep 2026)
+
+| Layer | Tech | Latency | Cost | Notes |
+|---|---|---|---|---|
+| Live faces | Runway Characters (GWM-1): single image to live character, 24 fps HD | ~1.75 s turnaround | ~$0.20/min | API available; Simli ~$0.01/min rendering only; LiveKit Agents wraps 14+ avatar providers |
+| Clip library | Pre-generated shots via H3 / Seedance 2.5 / Kling 3.0 (Showrunner already routes to FAL H3, Seedance, Wan 2.7) | zero at runtime | zero marginal | Yoroll's AI Odyssey: 140 clips, 11 endings, ~$250, two days, 10k plays in week one |
+| Bespoke shots | fal H3 Max: 5 s at 768p | under 3 s | $0.04 to $0.08 per second ($0.20 to $0.40 per clip) | first/last-frame steering; hosted MiniMax H3 at 2K takes minutes per clip, so it is offline only |
+| Navigable worlds | Genie 3, Runway GWM Worlds, Odyssey-2, Decart MirageLSD | real time | n/a or research | built for exploration, not directed drama; not needed for launch |
+
+Closest products: PopVid (real-time video roleplay), Vidy (live video characters, launched 29 Jul 2026), Yoroll (playable films). None reads the player's voice tone.
+
+## 8. Engine shape
+
+- **Ear:** Hume EVI session; each utterance's 48 prosody scores are smoothed into an affect state; each world declares which axes matter.
+- **Director:** Claude via EVI's custom language model endpoint; holds world rules, cast, authored tells, beat plan; emits the next line plus an Octave acting instruction plus a shot spec.
+- **Stage:** live faces for the person you are talking to; clip library for reactions and establishing shots keyed by affect state; bespoke shots for verdicts, treaties, confessions, pre-rendered speculatively while the player is still speaking, with a reaction close-up masking the 1 to 3 s wait.
+- **Two stances per world:** reading (you read their authored tells) and being read (your composure is what they react to). Same verb set across worlds; a world that needs a new verb is a different game.
+- **Debrief:** a replay ribbon showing how you came across, which doubles as the Article 50 disclosure.
+
+## 9. Economics
+
+A 10-minute session costs roughly $2 to $5 all in: EVI $0.40 to $0.70, live faces $0.10 to $2.00, director model $0.20 to $0.50, three to six bespoke shots $1 to $2. Pricing follows the NUMEN "Breath" principle: money buys the compute that costs, named honestly, never advantage. Episodes as tickets or credit packs; generous free allowance; sessions of 8 to 12 minutes.
+
+## 10. Where it fits
+
+This is a Gilded Machine product, not a day-job one. The Hundred Kingdoms are a diplomacy sandbox and the Caliph's table dinner from Death Came to Dinner is a ready-made tone-reading episode with film-frame identities and voice canon, so a Stormwardens world pack is the fastest route to something beautiful. The courtroom pack is the broadest proven market (Ace Attorney, 14M copies) with no IP dependency. Recommendation: build the engine on the Stormwardens dinner as the vertical slice, ship the courtroom pack as the first paid world, keep the spy world as the third.
+
+## 11. Milestones
+
+1. Engine core with illustrated portraits: EVI session, affect state, Claude director, one scene, reading ribbon. Prove tone-reactive dialogue is fun before any video.
+2. Live faces from film frames driven by EVI audio; Octave voices per accent canon.
+3. Clip library of 40 to 80 reaction and establishing shots produced through Showrunner; runtime selection by affect.
+4. Bespoke shots via fal H3 Max with speculative pre-render.
+5. Courtroom pack with role choice, debrief, credits model, disclosures; US and UK launch.
+
+## 12. Risks to hold
+
+- Video multiplies cost three to five times and adds vendors; it amplifies a fun mechanic and cannot rescue a dull one.
+- The moat is not the sensor: Hume's API is public and Google holds the models. Moat is authored worlds, director craft and the debrief.
+- Consistency: generated clips drift; single-image live faces and a curated library fix it; bespoke shots use canonical stills as first/last frames.
+- Bandwidth: NUMEN, Bright Ruin, Showrunner and Cortex are live; this earns its place only by sharing Showrunner's pipeline and Bright Ruin's worlds.
+- Camera input is a later layer at most; voice-only keeps the regulatory surface small.
+
+## Sources for Part 2
+- fal H3 Max launch: https://www.prnewswire.com/news-releases/fal-launches-h3-max-a-new-post-trained-video-model-with-frontier-quality-and-faster-than-real-time-generation-302866462.html
+- H3 Max pricing: https://kie.ai/blog/what-is-minimax-h3-max
+- MiniMax H3 speed tests and FastH3: https://blog.segmind.com/minimax-h3-vs-seedance-2-5-api-pricing-and-8-real-clips/ and https://www.orcarouter.ai/blog/minimax-h3-hailuo-3-explained
+- Runway Characters: https://runwayml.com/news/building-runway-characters
+- Runway GWM-1: https://runway.com/research/introducing-runway-gwm-1
+- Avatar API pricing: https://www.spatius.ai/blog/compare-pricing-leading-ai-avatar-services-2026/
+- Yoroll AI Odyssey: https://www.manilatimes.net/2026/07/24/tmt-newswire/globenewswire/yoroll-launches-ai-odyssey-a-playable-ai-film-inspired-by-homers-epic/2391107
+- PopVid: https://popvid.ai/ ; Vidy: https://finance.yahoo.com/technology/ai/articles/vidy-launches-real-time-video-130000193.html
+- Article 50 labelling: https://artificialintelligenceact.eu/transparency-rules-article-50/
+- Character.AI stats: https://www.businessofapps.com/data/character-ai-statistics/ ; AI Dungeon: https://dungeonsdeep.ai/blog/ai-dungeon-review-2026 ; Sekai: https://www.axios.com/2026/06/01/sekai-mini-app-startup-funding

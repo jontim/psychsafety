@@ -83,13 +83,14 @@ main { padding: clamp(16px, 3vw, 32px); max-width: 1320px; margin: 0 auto; }
 .stage .top { position: absolute; top: 0; left: 0; right: 0; padding: 12px 14px 22px; background: linear-gradient(180deg, rgba(20,18,16,0.85), transparent); display: grid; gap: 4px; }
 .stage .scene { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--white-gold); opacity: 0.85; }
 .stage .goal { font-family: var(--serif); font-style: italic; font-size: 14.5px; color: var(--parchment); opacity: 0.92; max-width: 62ch; }
+.goal-line { display: none; font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--ink-soft); margin: 10px 2px 0; }
 @media (max-width: 600px) {
   .stage { aspect-ratio: 4/5; }
   .stage .goal { display: none; }
   .stage .card .who { font-size: 21px; }
   .goal-line { display: block; }
 }
-.goal-line { display: none; font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--ink-soft); margin: 10px 2px 0; }
+
 
 .panel { background: var(--parchment); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: 0 8px 24px rgba(20,18,16,0.08); }
 .panel + .panel { margin-top: 14px; }

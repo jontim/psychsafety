@@ -117,7 +117,17 @@ if (fs.existsSync(dist)) {
   app.get(/^(?!\/api).*/, (_req, res) => res.sendFile(path.join(dist, "index.html")));
 }
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`The Shadow Fell server listening on http://localhost:${PORT}`);
   console.log(`  ear: ${humeKey && humeSecret ? "Hume EVI" : "mock only"} | voice: ${humeKey ? "Octave" : "browser"} | director: ${anthropic ? model : "understudy"}`);
+});
+
+server.on("error", (error: NodeJS.ErrnoException) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`Port ${PORT} is already in use, probably by an earlier "npm run dev" that is still running.`);
+    console.error(`  Stop it with:  lsof -ti :${PORT} | xargs kill      (and the same for the Vite port, 5173)`);
+    console.error(`  Or set PORT in .env to another port; the Vite proxy follows it.`);
+    process.exit(1);
+  }
+  throw error;
 });

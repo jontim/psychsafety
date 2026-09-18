@@ -1,0 +1,12 @@
+import { chromium } from "playwright-core";
+const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome", headless: true });
+const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
+const logs = [];
+page.on("console", (m) => logs.push(`[${m.type()}] ${m.text()}`));
+page.on("pageerror", (e) => logs.push(`[pageerror] ${e.message}\n${e.stack ?? ""}`));
+page.on("requestfailed", (r) => logs.push(`[requestfailed] ${r.url()} ${r.failure()?.errorText}`));
+await page.goto("http://localhost:5173/", { waitUntil: "networkidle" });
+await page.waitForTimeout(1500);
+const text = (await page.textContent("body"))?.trim().slice(0, 200);
+console.log(JSON.stringify({ bodyText: text, appChildren: await page.$eval("#app", (e) => e.children.length), logs }, null, 2));
+await browser.close();

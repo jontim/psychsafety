@@ -1,4 +1,4 @@
-import { api } from "./api.js";
+import { api } from "./backend.js";
 
 /** Speaks lines in order: Octave through the server when available, the browser's own voice otherwise. */
 export class Voice {

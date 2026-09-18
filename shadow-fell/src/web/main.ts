@@ -2,7 +2,7 @@ import { StorySession, type SessionSnapshot } from "../engine/session.js";
 import { findCast, type World } from "../engine/world.js";
 import { affectTagFromAxes } from "../engine/clips.js";
 import type { DirectorResponse } from "../engine/director-contract.js";
-import { api, type Health } from "./api.js";
+import { api, type Health } from "./backend.js";
 import { MockEar } from "./ear/mock-ear.js";
 import { HumeEar } from "./ear/hume-ear.js";
 import type { Ear, Utterance } from "./ear/types.js";

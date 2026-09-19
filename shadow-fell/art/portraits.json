@@ -40,6 +40,11 @@
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_1687efe4-3139-4e94-aca5-dc5b731c0743.png",
         "job": "1687efe4-3139-4e94-aca5-dc5b731c0743",
         "note": "rerun 24: cinematic_studio_2_5 1k, element Tavian_la"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_071613_45c68cfb-d4ee-47c6-bb6d-bf2de84dea92.png",
+        "job": "45c68cfb-d4ee-47c6-bb6d-bf2de84dea92",
+        "note": "rerun 31: nano_banana_pro 2k, element Tavian-1 (the uploaded original, not a generated frame)"
       }
     ]
   },
@@ -124,6 +129,11 @@
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_5ceb6804-90ec-4524-b09e-c3cbb697b59b.png",
         "job": "5ceb6804-90ec-4524-b09e-c3cbb697b59b",
         "note": "rerun 26: cinematic_studio_2_5 1k, element char_kael_s (platform flagged the reference ip_detected)"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_071613_ac94df41-c26b-4464-a8b6-961e07503ca3.png",
+        "job": "ac94df41-c26b-4464-a8b6-961e07503ca3",
+        "note": "rerun 30: nano_banana_pro 2k, element char_kael-stormere (older element, not flagged in the earlier runs)"
       }
     ]
   }

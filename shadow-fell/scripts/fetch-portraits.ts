@@ -10,7 +10,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-type Take = { url: string; job?: string; note?: string };
+type Take = { url: string; job?: string; note?: string; rejected?: string };
 type Entry = Take & { candidates?: Take[] };
 
 const manifestPath = path.resolve("art/portraits.json");
@@ -51,6 +51,7 @@ for (const [id, entry] of Object.entries(manifest)) {
   const candidateDir = path.join(outDir, "candidates");
   fs.mkdirSync(candidateDir, { recursive: true });
   for (const [i, take] of entry.candidates.entries()) {
+    if (take.rejected) continue;
     const candidateTarget = path.join(candidateDir, `${id}-${i + 1}.png`);
     if (!force && fs.existsSync(candidateTarget)) { console.log(`  candidate ${i + 1}: already there`); continue; }
     process.stdout.write(`  candidate ${i + 1} (${take.note ?? take.job ?? "no note"}): downloading... `);

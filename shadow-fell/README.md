@@ -19,6 +19,7 @@ The project was first pushed inside another repository as a carrier. To lift it 
 ```bash
 git clone --branch claude/hume-emotion-product-ideas-vix7je --single-branch git@github.com:jontim/psychsafety.git /tmp/shadow-fell-carrier
 /tmp/shadow-fell-carrier/shadow-fell/scripts/export-to-local.sh      # creates ~/Projects/shadow-fell as a fresh git repo
+/tmp/shadow-fell-carrier/shadow-fell/scripts/sync-to-local.sh        # every time after that: updates ~/Projects/shadow-fell in place, keeps your .env, portraits and clips
 rm -rf /tmp/shadow-fell-carrier
 ```
 

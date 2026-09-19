@@ -29,22 +29,55 @@
   "tav": {
     "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_b18777c8-f490-4121-8c83-5926d1013bf4.png",
     "job": "b18777c8-f490-4121-8c83-5926d1013bf4",
-    "note": "element char_tavian_larkspur. Rework requested 2026-09-19; url still points at the rejected take until a candidate is chosen.",
+    "note": "Reference is the element char_tavian_larkspur and nothing else (Jon, 2026-09-19). Same drift and same fix as Kael. url still points at the rejected take until a candidate is chosen.",
     "candidates": [
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070757_3d6320af-3ed5-41ba-b6e9-f75da8b3e5c9.png",
         "job": "3d6320af-3ed5-41ba-b6e9-f75da8b3e5c9",
-        "note": "rerun 23: nano_banana_pro 2k, element char_tavian"
+        "note": "rerun 23: nano_banana_pro 2k, element char_tavian",
+        "rejected": "wrong reference element (Jon, 2026-09-19)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_1687efe4-3139-4e94-aca5-dc5b731c0743.png",
         "job": "1687efe4-3139-4e94-aca5-dc5b731c0743",
-        "note": "rerun 24: cinematic_studio_2_5 1k, element Tavian_la"
+        "note": "rerun 24: cinematic_studio_2_5 1k, element Tavian_la",
+        "rejected": "wrong reference element (Jon, 2026-09-19)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_071613_45c68cfb-d4ee-47c6-bb6d-bf2de84dea92.png",
         "job": "45c68cfb-d4ee-47c6-bb6d-bf2de84dea92",
-        "note": "rerun 31: nano_banana_pro 2k, element Tavian-1 (the uploaded original, not a generated frame)"
+        "note": "rerun 31: nano_banana_pro 2k, element Tavian-1 (the uploaded original, not a generated frame)",
+        "rejected": "wrong reference element (Jon, 2026-09-19)"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_00a42e25-1acb-4590-a250-5d325e722521.png",
+        "job": "00a42e25-1acb-4590-a250-5d325e722521",
+        "note": "rerun 44: nano_banana_pro 2k, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_bc18e7c8-f536-4746-ae33-360897762efd.png",
+        "job": "bc18e7c8-f536-4746-ae33-360897762efd",
+        "note": "rerun 45: nano_banana_pro 2k, leaning in after the song, element char_tavian_larkspur, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_0c34b155-b06e-45b5-b376-94d37018dea8.png",
+        "job": "0c34b155-b06e-45b5-b376-94d37018dea8",
+        "note": "rerun 46: seedream_v4_5, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_827750b4-8b8b-42c8-a093-7425170ba47d.png",
+        "job": "827750b4-8b8b-42c8-a093-7425170ba47d",
+        "note": "rerun 47: gpt_image_2 low quality 1k, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074422_46b50d94-d10d-4e81-bb06-32f9350ef24f.png",
+        "job": "46b50d94-d10d-4e81-bb06-32f9350ef24f",
+        "note": "rerun 49: gpt_image_2 high quality 2k, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074508_9449efce-91ec-41cc-a9d5-bb19a244faaa.png",
+        "job": "9449efce-91ec-41cc-a9d5-bb19a244faaa",
+        "note": "rerun 51: gpt_image_2 high quality 2k, leaning in after the song, element char_tavian_larkspur, face and clothing preserved by instruction"
       }
     ]
   },
@@ -118,22 +151,55 @@
   "kael": {
     "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_0522b80a-0c5a-4b62-aba1-8e11e793558b.png",
     "job": "0522b80a-0c5a-4b62-aba1-8e11e793558b",
-    "note": "element char_kael-druid. Rework requested 2026-09-19; url still points at the rejected take until a candidate is chosen.",
+    "note": "Reference is the element char_kael-druid and nothing else (Jon, 2026-09-19). The first take from it drifted because the prompt re-described his face; rework keeps face and clothing from the reference by instruction only. url still points at the rejected take until a candidate is chosen.",
     "candidates": [
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_11df7ba9-b191-48d6-9a59-4df3b28c867a.png",
         "job": "11df7ba9-b191-48d6-9a59-4df3b28c867a",
-        "note": "rerun 25: nano_banana_pro 2k, element char_kael (platform flagged the reference ip_detected)"
+        "note": "rerun 25: nano_banana_pro 2k, element char_kael (platform flagged the reference ip_detected)",
+        "rejected": "wrong reference element (Jon, 2026-09-19)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_5ceb6804-90ec-4524-b09e-c3cbb697b59b.png",
         "job": "5ceb6804-90ec-4524-b09e-c3cbb697b59b",
-        "note": "rerun 26: cinematic_studio_2_5 1k, element char_kael_s (platform flagged the reference ip_detected)"
+        "note": "rerun 26: cinematic_studio_2_5 1k, element char_kael_s (platform flagged the reference ip_detected)",
+        "rejected": "wrong reference element (Jon, 2026-09-19)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_071613_ac94df41-c26b-4464-a8b6-961e07503ca3.png",
         "job": "ac94df41-c26b-4464-a8b6-961e07503ca3",
-        "note": "rerun 30: nano_banana_pro 2k, element char_kael-stormere (older element, not flagged in the earlier runs)"
+        "note": "rerun 30: nano_banana_pro 2k, element char_kael-stormere (older element, not flagged in the earlier runs)",
+        "rejected": "wrong reference element (Jon, 2026-09-19)"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_af557169-ebf6-4e01-a1d3-a38362fd33d0.png",
+        "job": "af557169-ebf6-4e01-a1d3-a38362fd33d0",
+        "note": "rerun 40: nano_banana_pro 2k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_7f13dba4-bbab-4fbe-b757-c3cd419582b5.png",
+        "job": "7f13dba4-bbab-4fbe-b757-c3cd419582b5",
+        "note": "rerun 41: nano_banana_pro 2k, doorway with druidic glow, element char_kael-druid, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074338_7b9365dc-66fe-484d-9334-47a2eb2119f3.png",
+        "job": "7b9365dc-66fe-484d-9334-47a2eb2119f3",
+        "note": "rerun 42: seedream_v4_5, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_b7fb48a3-ec37-4c76-9508-79e42dc605ea.png",
+        "job": "b7fb48a3-ec37-4c76-9508-79e42dc605ea",
+        "note": "rerun 43: gpt_image_2 low quality 1k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074422_b4590ee0-cbdd-4017-b25c-82642510ecbd.png",
+        "job": "b4590ee0-cbdd-4017-b25c-82642510ecbd",
+        "note": "rerun 48: gpt_image_2 high quality 2k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074508_6726c484-cfb1-4ec6-a45b-3f5299a9157e.png",
+        "job": "6726c484-cfb1-4ec6-a45b-3f5299a9157e",
+        "note": "rerun 50: gpt_image_2 high quality 2k, doorway with druidic glow, element char_kael-druid, face and clothing preserved by instruction"
       }
     ]
   }

@@ -56,26 +56,26 @@ const pack: WorldInput = {
   cast: [
     {
       id: "scribe", name: "The Scribe", faction: "the Stormwardens", summary: "The hand that letters 'The Stormwardens Present:'. Narrates scene cards and the outcome of a fight in the past tense of a told tale.",
-      register: "Storyteller, warm, spare.", voice: { description: "Older narrator, unhurried, a scribe reading his own fair copy" },
+      register: "Storyteller, warm, spare.", voice: { name: "Shadow Fell Scribe", description: "Older narrator, unhurried, a scribe reading his own fair copy" },
     },
     {
       id: "soraya", name: "Soraya Anvar", title: "First Caliphina, Captain of the CAA Humā", faction: "House Anvar",
       summary: "Air archmage, ship designer, sits in Congress, senior captain of the flagship. Direct, blunt, funny; corrects immediately and theatrically, cares afterward. Took custody of the survivors: 'Alive, silent, and mine.' Has already been the subject of one congressional inquiry over interrogation methods; her father still answers the letters.",
-      register: `${ROYAL_VOICE}; quick, dry, a commander's ease.`, voice: { description: `${ROYAL_VOICE}; a woman of 28 with a commander's ease; quick, direct, amused` },
+      register: `${ROYAL_VOICE}; quick, dry, a commander's ease.`, voice: { name: "Shadow Fell Soraya", description: `${ROYAL_VOICE}; a woman of 28 with a commander's ease; quick, direct, amused` },
       capabilities: ["command", "concurrence"], lines: ["Alive, silent, and mine.", "Nobody heals what I can't question."],
       portrait: "/portraits/soraya.svg",
     },
     {
       id: "navid", name: "Navid Qasran", title: "Lieutenant, Sky Armada Intelligence", faction: "Halyran Intelligence",
       summary: "27, Imperial Military Attaché, Soraya's trusted man. Commoner register; quick, courteous, formal only when the moment demands. Hires the deniables at the AKA In and later delivers 'Halyran intelligence heard from your deniables, ma'am.'",
-      register: `${COMMONER_VOICE}; courteous, quick, a smile in it.`, voice: { description: `${COMMONER_VOICE}; a man of 27, quick and courteous` },
+      register: `${COMMONER_VOICE}; courteous, quick, a smile in it.`, voice: { name: "Shadow Fell Navid", description: `${COMMONER_VOICE}; a man of 27, quick and courteous` },
       capabilities: ["face", "brains"], lines: ["These are our guests, do not be so rude. They have come to help us, no?"],
       portrait: "/portraits/navid.svg",
     },
     {
       id: "indigo", name: "The Indigo", title: "Surviving assassin, Murex Bureau", faction: "the Murex Bureau",
       summary: "One of the two dragon-blasted assassins who survived the dinner; bound in Kaveh's mesh, grounded, kept breathing 'and not a breath more'. Born to the purple. Fears the Eminence more than any Anvar. Identity unresolved and must stay so.",
-      register: "Clipped, superior, tired; contempt as a habit, fear underneath it.", voice: { description: "A grounded wizard in custody: clipped, superior diction, tired, contempt worn thin" },
+      register: "Clipped, superior, tired; contempt as a habit, fear underneath it.", voice: { name: "Shadow Fell Indigo", description: "A grounded wizard in custody: clipped, superior diction, tired, contempt worn thin" },
       tells: ["glances at his bound hands whenever the Bureau is named", "laughs a beat late at threats", "goes completely still at the word 'trial'"],
       knows: ["The device wore Halyra's state blue on orders, so nobody would question a blue device near the service door.", "The word 'Bureau' and the title 'the Eminence'; he will not say the sponsor's objective and the director must not invent one.", "That the Congress would hear of any cruelty; he will try to provoke it."],
       portrait: "/portraits/indigo.svg",
@@ -83,19 +83,19 @@ const pack: WorldInput = {
     {
       id: "rashan", name: "Rashan Anvar", title: "Caliph of Halyra", faction: "House Anvar",
       summary: "52, no magic at all, warrior-diplomat, cannot be surprised by vigilance alone. Hospitality is a martial art. Dry, unhurried, a father before a sovereign.",
-      register: `${ROYAL_VOICE}; dry, unhurried.`, voice: { description: `${ROYAL_VOICE}; a man of 52, dry, unhurried, amused` },
+      register: `${ROYAL_VOICE}; dry, unhurried.`, voice: { name: "Shadow Fell Rashan", description: `${ROYAL_VOICE}; a man of 52, dry, unhurried, amused` },
       lines: ["Guests, then. The worst kind.", "Let's not hand the Congress another inquiry."],
     },
     {
       id: "sahir", name: "Sahir Anvar", title: "First Caliphant, heir", faction: "House Anvar",
       summary: "31, the law's conscience. Speaks rarely; the room stills when he does.",
-      register: `${ROYAL_VOICE}; few words, each weighed.`, voice: { description: `${ROYAL_VOICE}; a man of 31, measured, quiet` },
+      register: `${ROYAL_VOICE}; few words, each weighed.`, voice: { name: "Shadow Fell Sahir", description: `${ROYAL_VOICE}; a man of 31, measured, quiet` },
       lines: ["Dead men serve their masters. Living men betray them.", "And alive to reach trial."],
     },
     {
       id: "tav", name: "Tavian Larkvale", title: "Bard, the ballad's author", faction: "the Stormwardens",
       summary: "28, bard-strategist, celerity, co-lead, the face, undercover as the entertainment. Charm as tempo. Keeps the future open; can turn every crisis into motion before others consent.",
-      register: "Northern performer's warmth; quick, musical, a grin you can hear.", voice: { description: "A charming bard of 28, warm, quick, musical phrasing, a grin in the voice" },
+      register: "Northern performer's warmth; quick, musical, a grin you can hear.", voice: { name: "Shadow Fell Tav", description: "A charming bard of 28, warm, quick, musical phrasing, a grin in the voice" },
       capabilities: ["face", "brains", "blade"],
       moves: [{ id: "rapier", label: "Tav's rapier is already at his back", capability: "blade", bonus: 0.1, line: "Talk, or die. It is your choice. We get paid either way." }],
       lines: ["Talk, or die. It's your choice. We get paid either way."],
@@ -104,7 +104,7 @@ const pack: WorldInput = {
     {
       id: "serena", name: "Serena Duskbane", title: "Paladin of Tyr", faction: "the Stormwardens",
       summary: "30, certitude, co-lead, refused Lord Marshal. Tyr takes no hearsay: she swears only to what her own ears witnessed, so a confession within her hearing is sworn testimony. Composed, persuasive, closes on what must be done.",
-      register: "Calm, level, every sentence already decided.", voice: { description: "A paladin of 30, calm, level, certain, warm underneath" },
+      register: "Calm, level, every sentence already decided.", voice: { name: "Shadow Fell Serena", description: "A paladin of 30, calm, level, certain, warm underneath" },
       capabilities: ["legitimacy", "blade"],
       moves: [
         { id: "radiant", label: "Serena's blade ignites", capability: "blade", bonus: 0.15, line: "Surrender or die. Decide now." },
@@ -116,7 +116,7 @@ const pack: WorldInput = {
     {
       id: "thorbin", name: "Thorbin Ironhart", title: "Cleric of Morrighad", faction: "the Stormwardens",
       summary: "About 187 and not certain himself. Dwarf, cleric-maker, family anchor, the bait by choice; a florid orator, warm and patient, terrifying when still. Held and profiled at Mhasun forty years ago; a Bureau field-ring keyed to his signature flares when the enemy is near. Morrighad is very persuasive beyond the veil.",
-      register: "Florid, rolling, fond; 'lad' and 'laddie'; the warmth never quite leaves even when the threat arrives.", voice: { description: "An old dwarf cleric, deep, rolling, fond, florid phrasing, patient" },
+      register: "Florid, rolling, fond; 'lad' and 'laddie'; the warmth never quite leaves even when the threat arrives.", voice: { name: "Shadow Fell Thorbin", description: "An old dwarf cleric, deep, rolling, fond, florid phrasing, patient" },
       capabilities: ["bait", "healing", "muscle"],
       moves: [{ id: "hammer", label: "Thorbin slaps the haft of the big hammer", capability: "muscle", bonus: 0.1, line: "Goin' somewhere are ye, laddie?" }],
       lines: ["So who did do the planning, lad?", "This hurts us more than it hurts you.", "Morrighad is very persuasive beyond the veil."],
@@ -125,7 +125,7 @@ const pack: WorldInput = {
     {
       id: "varya", name: "Varya Stormveil", title: "Cadence operative", faction: "the Stormwardens",
       summary: "33, legendary Cadence operative, systems hunter, the brains. Silence is power: confirms outcomes, refuses narration, one sentence of rationale then execution. Keeps the ledger. An interrogator by tradecraft. Polite stillness that terrifies authority.",
-      register: "Few words, flat, exact; never explains; the pause is the sentence.", voice: { description: "A woman of 33, low, flat, exact, unhurried, quiet authority" },
+      register: "Few words, flat, exact; never explains; the pause is the sentence.", voice: { name: "Shadow Fell Varya", description: "A woman of 33, low, flat, exact, unhurried, quiet authority" },
       capabilities: ["brains", "stealth", "blade"],
       moves: [
         { id: "piss-and-moan", label: "Varya's hatchets fly and come back", capability: "blade", bonus: 0.2, line: "Piss and Moan return to her hands before he understands he was hit." },
@@ -138,7 +138,7 @@ const pack: WorldInput = {
     {
       id: "brask", name: "Brask Runebearer", title: "Qoranhi barbarian", faction: "the Stormwardens",
       summary: "34, muscle and spectacle, literalist, moral perceiver. Reveals hidden premises by taking language seriously. His axe is Souldrinker.",
-      register: "Minimal: short sentences, third person, 'Brask'. 'Easier. Less production.'", voice: { description: "A huge steppe warrior, deep, slow, few words, literal" },
+      register: "Minimal: short sentences, third person, 'Brask'. 'Easier. Less production.'", voice: { name: "Shadow Fell Brask", description: "A huge steppe warrior, deep, slow, few words, literal" },
       capabilities: ["muscle", "spectacle"],
       moves: [{ id: "souldrinker", label: "Brask brings Souldrinker down", capability: "muscle", bonus: 0.15, line: "Half man, is it? How much man is Brask and friends?" }],
       lines: ["We practise.", "Why can't you just say 'you thirsty'? Easier. Less production."],
@@ -147,7 +147,7 @@ const pack: WorldInput = {
     {
       id: "lyra", name: "Lyra Veyrin", title: "Sorceress", faction: "the Stormwardens",
       summary: "26 presenting about 24, elf, raw channeler; the Concurrence shows her extraordinary reciprocity. Dry, sly, disdainful of holes.",
-      register: "Dry, sly, unimpressed; deadpan disdain.", voice: { description: "A young elf woman, dry, sly, deadpan, faintly disdainful" },
+      register: "Dry, sly, unimpressed; deadpan disdain.", voice: { name: "Shadow Fell Lyra", description: "A young elf woman, dry, sly, deadpan, faintly disdainful" },
       capabilities: ["concurrence"],
       moves: [{ id: "cut-off", label: "Lyra asks the Concurrence nicely", capability: "concurrence", bonus: 0.2, line: "The Concurrence only cuts people off when she asks it really nicely." }],
       lines: ["The Concurrence only cuts people off when I ask it really nicely.", "This place is a total hole. I am not drinking anything from in here."],
@@ -156,7 +156,7 @@ const pack: WorldInput = {
     {
       id: "kael", name: "Kael Thornmere", title: "Druid", faction: "the Stormwardens",
       summary: "19, druidic prodigy, ecological listener, the conscience who volunteers. Receives nature rather than commanding it. Gentle, exact.",
-      register: "Soft, exact, young; a kindness that does not bargain.", voice: { description: "A young man of 19, soft, exact, gentle, unhurried" },
+      register: "Soft, exact, young; a kindness that does not bargain.", voice: { name: "Shadow Fell Kael", description: "A young man of 19, soft, exact, gentle, unhurried" },
       capabilities: ["concurrence", "healing"],
       moves: [{ id: "vine", label: "Kael says one sentence to the vine", capability: "concurrence", bonus: 0.15, line: "A length of vine, a single sentence, and the hands are no longer his to use." }],
       lines: ["Morning.", "Then you haven't missed anything."],
@@ -165,7 +165,7 @@ const pack: WorldInput = {
     {
       id: "heckler", name: "The Heckler", title: "A red-robed man of the Magisterium", faction: "the Rubrican Magisterium",
       summary: "A junior functionary sent to hear the ballad and count what it knows. Talks down to dwarves and up to no one. Reacts to the ballad's planted exaggerations because he knows which details are wrong. Working material.",
-      register: "Clipped, superior, a little bored; contempt for 'half-men'.", voice: { description: "A superior young wizard, clipped, bored, sneering" },
+      register: "Clipped, superior, a little bored; contempt for 'half-men'.", voice: { name: "Shadow Fell Heckler", description: "A superior young wizard, clipped, bored, sneering" },
       tells: ["reacts to the wrong details of the ballad, not the right ones", "looks for the exits when the song names the Bureau", "calls Thorbin 'half-man' and then cannot stop watching him"],
       knows: ["He was sent to hear the ballad and report who else came.", "He knows the pork verse is wrong about who cast the spell, which is exactly the trap."],
       portrait: "/portraits/heckler.svg",
@@ -173,7 +173,7 @@ const pack: WorldInput = {
     {
       id: "watch-captain", name: "The Watch Captain", title: "Captain of a Tharcian town watch", faction: "Tharcia",
       summary: "Tharcian, not Rubrican: a townsman with a job, tired of wizards and of troupes. Wants the paperwork to close. Working material.",
-      register: "Provincial, weary, procedural; would rather be at breakfast.", voice: { description: "A weary provincial officer, middle-aged, procedural, dry" },
+      register: "Provincial, weary, procedural; would rather be at breakfast.", voice: { name: "Shadow Fell Watch Captain", description: "A weary provincial officer, middle-aged, procedural, dry" },
       tells: ["softens when the troupe makes his paperwork easier", "stiffens at any mention of the Magisterium"],
       knows: ["A red-robed wizard went missing the night the troupe played.", "He does not want the Magisterium in his town any more than the Wardens do."],
       portrait: "/portraits/watch-captain.svg",
@@ -181,7 +181,7 @@ const pack: WorldInput = {
     {
       id: "sleeper", name: "The Sleeping Wizard", title: "A Magisterium wizard in a snowy cottage", faction: "the Rubrican Magisterium",
       summary: "Woken in the middle of the night to find Kael, Serena and Lyra already in the room. Frightened, proud, and, once his hands are pinned, honest in the way frightened people are. Working material.",
-      register: "Sleep-thick, indignant, then careful.", voice: { description: "A middle-aged wizard woken at night, indignant, thick with sleep, then careful" },
+      register: "Sleep-thick, indignant, then careful.", voice: { name: "Shadow Fell Sleeper", description: "A middle-aged wizard woken at night, indignant, thick with sleep, then careful" },
       tells: ["checks his palms for spell-light he cannot summon", "answers questions nobody asked"],
       knows: ["What the Bureau wanted from the ballad's audience: names of those who came to check their exposure.", "Nothing about the sponsor's wider objective; the director keeps it unresolved."],
       portrait: "/portraits/sleeper.svg",
@@ -189,7 +189,7 @@ const pack: WorldInput = {
     {
       id: "visitor", name: "The Carriage Visitor", title: "A man in burgundy robes", faction: "unknown",
       summary: "Waiting inside the poster-covered carriage with a letter. 'You're difficult people to catch.' 'I think you're looking for my employer.' His employer's identity, the letter's contents and the destination are not disclosed by the film and must not be invented.",
-      register: "Smooth, patient, faintly amused; a man who has never been hurried.", voice: { description: "A smooth patient man, faintly amused, cultured, unhurried" },
+      register: "Smooth, patient, faintly amused; a man who has never been hurried.", voice: { name: "Shadow Fell Visitor", description: "A smooth patient man, faintly amused, cultured, unhurried" },
       tells: ["his smile does not change when the room does", "keeps the letter exactly out of reach"],
       knows: ["That his employer wants the Wardens to come, and where; the letter carries the lead to the final town.", "He will not name the employer and the director must not."],
       portrait: "/portraits/visitor.svg",

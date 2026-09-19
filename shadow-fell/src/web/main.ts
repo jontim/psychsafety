@@ -96,7 +96,7 @@ function startBeat(beatId: string): void {
   const opening = app.session.opening();
   app.screen = "stage";
   render();
-  void app.voice.speak(opening.speaker, opening.text);
+  void speakMuted(opening.speaker, opening.text);
 }
 
 function stageScreen(): HTMLElement {
@@ -205,7 +205,8 @@ async function startHume(): Promise<void> {
   try {
     setStatus("Minting a Hume token...");
     const { accessToken, configId } = await api.token();
-    const ear = new HumeEar({ accessToken, configId });
+    const pauseAssistant = new URLSearchParams(location.search).get("pause") === "1";
+    const ear = new HumeEar({ accessToken, configId, pauseAssistant });
     ear.onUtterance(onUtterance);
     ear.onStatus(setStatus);
     await ear.start();
@@ -220,6 +221,18 @@ function stopHume(): void {
   if (app.ear.kind === "hume") {
     app.ear.stop();
     app.ear = app.mock;
+    app.status = "Microphone closed. Type a line, or open the microphone again.";
+    render();
+  }
+}
+
+/** Speak a line with the microphone muted, so the ear never hears our own characters. */
+async function speakMuted(speaker: string, text: string, acting?: string): Promise<void> {
+  app.ear.mute?.();
+  try {
+    await app.voice.speak(speaker, text, acting);
+  } finally {
+    app.ear.unmute?.();
   }
 }
 
@@ -243,7 +256,7 @@ async function onUtterance(u: Utterance): Promise<void> {
     app.reaction = turn.response.escalate ? "hands move" : clip ? `reads you as ${clip.tag}` : `reads you as ${tag}`;
     setStatus(turn.note ?? "");
     render();
-    await app.voice.speak(turn.response.speaker, turn.response.line, turn.response.acting);
+    await speakMuted(turn.response.speaker, turn.response.line, turn.response.acting);
     const after = session.snapshot();
     if (after.status === "advanced" || after.status === "failed") {
       app.screen = "debrief";
@@ -251,7 +264,7 @@ async function onUtterance(u: Utterance): Promise<void> {
     } else if (after.status === "playing" && after.transcript.at(-1)?.speaker === app.world.narrator) {
       // a clean force win narrated itself
       const last = after.transcript.at(-1)!;
-      await app.voice.speak(last.speaker, last.text);
+      await speakMuted(last.speaker, last.text);
     }
   } catch (e) {
     setStatus(`Turn failed: ${(e as Error).message}`);
@@ -271,7 +284,7 @@ function callStrategy(idOrSpeech: string, abandon = false): void {
   }
   app.reaction = res.outcome === "lost" ? "they slip the net" : res.outcome === "costly" ? "it works, at a price" : "settled";
   render();
-  void app.voice.speak(app.world.narrator ?? session.snapshot().playerRole, res.narration).then(() => {
+  void speakMuted(app.world.narrator ?? session.snapshot().playerRole, res.narration).then(() => {
     const after = session.snapshot();
     if (after.status === "failed") { app.screen = "debrief"; render(); }
   });
@@ -295,7 +308,7 @@ function debriefScreen(): HTMLElement {
       app.reaction = "";
       app.screen = "stage";
       render();
-      void app.voice.speak(opening.speaker, opening.text);
+      void speakMuted(opening.speaker, opening.text);
       setStatus(`${castName(app.world, beat.playerRole)}: ${beat.goal}`);
     } else {
       app.screen = "roles";

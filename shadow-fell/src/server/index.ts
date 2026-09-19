@@ -45,11 +45,25 @@ app.get("/api/worlds", (_req, res) => {
   res.json({ data: Object.values(WORLDS).map((w) => ({ id: w.id, title: w.title, tagline: w.tagline, roles: w.roles })) });
 });
 
-/** Any clip with a rendered file under public/clips is served; the manifest never needs editing. */
+const PORTRAIT_EXTENSIONS = ["png", "jpg", "jpeg", "webp"];
+
+/** A real still under public/portraits/<id>.<ext> beats the placeholder in the pack. */
+export function localPortrait(id: string): string | null {
+  for (const ext of PORTRAIT_EXTENSIONS) {
+    if (fs.existsSync(path.join(root, "public/portraits", `${id}.${ext}`))) return `/portraits/${id}.${ext}`;
+  }
+  return null;
+}
+
+/** Rendered clips and real portraits on disk are served automatically; the pack never needs editing. */
 function withRenderedClips(world: World): World {
   const dir = path.join(root, "public/clips");
   return {
     ...world,
+    cast: world.cast.map((c) => {
+      const local = localPortrait(c.id);
+      return local ? { ...c, portrait: local } : c;
+    }),
     clips: world.clips.map((c) => (c.file || !fs.existsSync(path.join(dir, `${c.key}.mp4`)) ? c : { ...c, file: `/clips/${c.key}.mp4` })),
   };
 }

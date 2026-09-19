@@ -47,11 +47,10 @@ fal.config({ credentials: key });
 
 const uploaded = new Map<string, string>();
 async function portraitUrl(characterId: string): Promise<string | null> {
-  const member = world.cast.find((c) => c.id === characterId);
-  const rel = member?.portrait;
-  if (!rel) return null;
-  const local = path.resolve("public", rel.replace(/^\//, ""));
-  if (!fs.existsSync(local) || local.endsWith(".svg")) return null; // placeholders are not identity references
+  // A real still under public/portraits/<id>.png|jpg|webp is the identity reference; SVG placeholders are not.
+  const candidates = ["png", "jpg", "jpeg", "webp"].map((ext) => path.resolve("public/portraits", `${characterId}.${ext}`));
+  const local = candidates.find((f) => fs.existsSync(f));
+  if (!local) return null;
   if (uploaded.has(local)) return uploaded.get(local)!;
   const bytes = fs.readFileSync(local);
   const type = local.endsWith(".png") ? "image/png" : "image/jpeg";

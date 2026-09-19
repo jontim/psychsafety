@@ -6,4 +6,5 @@ dist
 .DS_Store
 public/clips/*
 !public/clips/.gitkeep
-art/
+art/*
+!art/portraits.json

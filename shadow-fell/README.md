@@ -59,6 +59,12 @@ public/clips     reaction and establishing clips once rendered (see the clip man
 scripts/         smoke test (headless Chromium) and the export script
 ```
 
+## Portraits and voices
+
+Portraits were generated through Higgsfield from Jon's saved elements (new faces for the unmasked Indigo, the heckler, the watch captain, the sleeping wizard and the carriage visitor); their URLs are in `art/portraits.json`. Run `npx tsx scripts/fetch-portraits.ts` to download them into `public/portraits/`; the server serves a real still over the placeholder automatically, and the clip renderer uses it as the first frame.
+
+Voices: see `docs/voices.md` for the seventeen Octave voices, their design descriptions and the exact names the pack expects; `scripts/design-voices.ts` auditions and saves them.
+
 ## Clips
 
 The world pack carries a clip manifest: one reaction clip per counterpart per affect tag (warming, cooling, shock, bored, calculating, pressed, neutral) and one establishing shot per location, each with a render prompt. Render them through Showrunner, drop the files under `public/clips/`, and set each clip's `file` to its public path. Until then the stage shows the counterpart's portrait with an affect-tinted vignette.

@@ -35,6 +35,10 @@ Other scripts: `npm test` (engine and world-pack tests), `npm run typecheck`, `n
 
 Keys never reach the browser. The server mints a short-lived Hume access token per session and proxies Octave and the director.
 
+## Holding the floor
+
+EVI commits a transcript at every natural pause. The app gathers those fragments on "the floor" and only hands the whole speech to the director when your turn ends: after 2, 3 or 5 seconds of silence (your choice, remembered), or only when you press "Done, over to them" or hit Return. A dramatic pause never ends a turn. The merged speech carries a word-weighted blend of how each fragment sounded.
+
 ## How a turn works
 
 1. The ear reports a final utterance: transcript plus 48 prosody scores (`user_message.models.prosody.scores`).

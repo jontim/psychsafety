@@ -7,6 +7,7 @@ import { MockEar } from "./ear/mock-ear.js";
 import { HumeEar } from "./ear/hume-ear.js";
 import type { Ear, Utterance } from "./ear/types.js";
 import { Voice } from "./voice.js";
+import { Floor, type Fragment, type FloorMode } from "./floor.js";
 import { h, castName, renderMeters, renderRibbon, renderTranscript, portraitFor } from "./ui/render.js";
 import type { TonePreset } from "../engine/mock-ear.js";
 
@@ -26,6 +27,8 @@ interface App {
   lastSource: string;
   reaction: string;
   screen: "roles" | "stage" | "debrief";
+  floor: Floor;
+  speechSoFar: Fragment[];
 }
 
 const root = document.getElementById("app")!;
@@ -36,10 +39,35 @@ async function boot(): Promise<void> {
   const mock = new MockEar();
   const voice = new Voice(WORLD_ID);
   voice.octave = health.octave;
-  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "roles" };
-  mock.onUtterance(onUtterance);
+  const savedMode = (safeGet("floorMode") as FloorMode | null) ?? "silence";
+  const savedSilence = Number(safeGet("floorSilenceMs") ?? 3000);
+  const floor = new Floor({
+    mode: savedMode,
+    silenceMs: savedSilence,
+    onChange: (fragments) => { app.speechSoFar = fragments; renderSpeechSoFar(); },
+    onCommit: (merged) => { void processUtterance(merged); },
+  });
+  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "roles", floor, speechSoFar: [] };
+  mock.onUtterance((u) => { void processUtterance(u); });
   mock.onStatus(setStatus);
   render();
+}
+
+function safeGet(key: string): string | null {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+function safeSet(key: string, value: string): void {
+  try { localStorage.setItem(key, value); } catch { /* private mode */ }
+}
+
+/** The live "your speech so far" line, updated without a full redraw. */
+function renderSpeechSoFar(): void {
+  const el = document.querySelector<HTMLElement>(".speech-so-far");
+  if (!el) return;
+  const text = app.speechSoFar.map((f) => f.text).join(" ");
+  el.textContent = text ? `Your speech so far: "${text}"` : "";
+  const done = document.querySelector<HTMLButtonElement>(".btn-done");
+  if (done) done.disabled = !app.speechSoFar.length;
 }
 
 function setStatus(s: string): void {
@@ -159,6 +187,29 @@ function controls(snap: SessionSnapshot): HTMLElement {
   }
 
   const status = h("div", { class: "status" }, app.status);
+  if (app.ear.kind === "hume") {
+    const select = h("select", { class: "floor-mode" }) as HTMLSelectElement;
+    for (const [value, label] of [["silence:2000", "End my turn after 2 s of silence"], ["silence:3000", "End my turn after 3 s of silence"], ["silence:5000", "End my turn after 5 s of silence"], ["manual:0", "Only when I press Done"]] as const) {
+      const o = h("option", { value }, label) as HTMLOptionElement;
+      if ((app.floor.mode === "manual" && value.startsWith("manual")) || (app.floor.mode === "silence" && value === `silence:${app.floor.silenceMs}`)) o.selected = true;
+      select.append(o);
+    }
+    select.addEventListener("change", () => {
+      const [mode, ms] = select.value.split(":") as [FloorMode, string];
+      app.floor.mode = mode;
+      if (mode === "silence") app.floor.silenceMs = Number(ms);
+      safeSet("floorMode", mode);
+      safeSet("floorSilenceMs", String(app.floor.silenceMs));
+      app.floor.touch();
+    });
+    const done = h("button", { class: "btn gold btn-done" }, "Done, over to them") as HTMLButtonElement;
+    done.disabled = !app.speechSoFar.length;
+    done.addEventListener("click", () => app.floor.commit());
+    box.append(
+      h("div", { class: "row" }, select, done),
+      h("div", { class: "speech-so-far" }, app.speechSoFar.length ? `Your speech so far: "${app.speechSoFar.map((f) => f.text).join(" ")}"` : ""),
+    );
+  }
   const row = h("div", { class: "row" });
   const micBtn = h("button", { class: `btn ${app.ear.kind === "hume" ? "live" : "gold"}` }, app.ear.kind === "hume" ? "Listening (stop)" : "Use the microphone");
   micBtn.addEventListener("click", () => (app.ear.kind === "hume" ? stopHume() : askConsent()));
@@ -207,8 +258,8 @@ async function startHume(): Promise<void> {
     const { accessToken, configId } = await api.token();
     const pauseAssistant = new URLSearchParams(location.search).get("pause") === "1";
     const ear = new HumeEar({ accessToken, configId, pauseAssistant });
-    ear.onUtterance(onUtterance);
-    ear.onStatus(setStatus);
+    ear.onUtterance((u) => app.floor.add(u));
+    ear.onStatus((status) => { if (status.startsWith("Hearing:")) app.floor.touch(); setStatus(status); });
     await ear.start();
     app.ear = ear;
     render();
@@ -221,6 +272,7 @@ function stopHume(): void {
   if (app.ear.kind === "hume") {
     app.ear.stop();
     app.ear = app.mock;
+    app.floor.clear();
     app.status = "Microphone closed. Type a line, or open the microphone again.";
     render();
   }
@@ -236,9 +288,14 @@ async function speakMuted(speaker: string, text: string, acting?: string): Promi
   }
 }
 
-async function onUtterance(u: Utterance): Promise<void> {
+async function processUtterance(u: Utterance): Promise<void> {
   const session = app.session;
-  if (!session || app.busy) return;
+  if (!session) return;
+  if (app.busy) {
+    // the director is still thinking or a character is speaking; hold the speech and try again
+    setTimeout(() => { void processUtterance(u); }, 400);
+    return;
+  }
   const snap = session.snapshot();
   if (snap.status === "force") { callStrategy(u.text); return; }
   if (snap.status !== "playing") return;
@@ -321,6 +378,13 @@ function debriefScreen(): HTMLElement {
   main.append(grid, h("div", { class: "row", style: "margin-top:16px" }, next, again));
   return main;
 }
+
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || e.shiftKey) return;
+  const target = e.target as HTMLElement | null;
+  if (target && (target.tagName === "TEXTAREA" || target.tagName === "INPUT" || target.tagName === "SELECT")) return;
+  if (app?.ear.kind === "hume" && app.floor.hasSpeech) { e.preventDefault(); app.floor.commit(); }
+});
 
 boot().catch((e) => {
   root.replaceChildren(h("main", {}, h("h2", { class: "screen-title" }, "The server is not answering"), h("p", {}, `Start it with npm run dev. (${(e as Error).message})`)));

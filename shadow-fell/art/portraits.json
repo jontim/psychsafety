@@ -2,7 +2,19 @@
   "soraya": {
     "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_9ee4495c-279e-4a29-9f54-e367163cef7e.png",
     "job": "9ee4495c-279e-4a29-9f54-e367163cef7e",
-    "note": "element char_captain-soraya"
+    "note": "element char_captain-soraya. Rework requested 2026-09-19; url still points at the rejected take until a candidate is chosen.",
+    "candidates": [
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070757_45833907-a195-48b5-bbbb-f926388baa94.png",
+        "job": "45833907-a195-48b5-bbbb-f926388baa94",
+        "note": "rerun 21: nano_banana_pro 2k, element char_caliphina_soraya"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070911_36a19efa-0e0b-471f-b950-43ce07798380.png",
+        "job": "36a19efa-0e0b-471f-b950-43ce07798380",
+        "note": "rerun 29: nano_banana_pro 2k, element char_soraya, identity-lock prompt"
+      }
+    ]
   },
   "navid": {
     "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_b3b5e9a8-77db-4c5b-8b49-30162969c8b8.png",
@@ -17,7 +29,19 @@
   "tav": {
     "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_b18777c8-f490-4121-8c83-5926d1013bf4.png",
     "job": "b18777c8-f490-4121-8c83-5926d1013bf4",
-    "note": "element char_tavian_larkspur"
+    "note": "element char_tavian_larkspur. Rework requested 2026-09-19; url still points at the rejected take until a candidate is chosen.",
+    "candidates": [
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070757_3d6320af-3ed5-41ba-b6e9-f75da8b3e5c9.png",
+        "job": "3d6320af-3ed5-41ba-b6e9-f75da8b3e5c9",
+        "note": "rerun 23: nano_banana_pro 2k, element char_tavian"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_1687efe4-3139-4e94-aca5-dc5b731c0743.png",
+        "job": "1687efe4-3139-4e94-aca5-dc5b731c0743",
+        "note": "rerun 24: cinematic_studio_2_5 1k, element Tavian_la"
+      }
+    ]
   },
   "serena": {
     "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_5bf8f6c0-e443-4154-ba0b-9c2ba95057ef.png",
@@ -52,7 +76,19 @@
   "sahir": {
     "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_53738f6d-17d3-44c5-8835-d4b791bb3654.png",
     "job": "53738f6d-17d3-44c5-8835-d4b791bb3654",
-    "note": "element char_sahir"
+    "note": "element char_sahir, wrongly in his father's gold robes. Rework requested 2026-09-19; url still points at the rejected take until a candidate is chosen.",
+    "candidates": [
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_d81e0582-3817-465a-b7a0-d18f0da44ee2.png",
+        "job": "d81e0582-3817-465a-b7a0-d18f0da44ee2",
+        "note": "rerun 27: nano_banana_pro 2k, element char_caliphant_sahir, his own steel-blue archmage court coat"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_3954bce0-d8fb-4b28-a173-1d70eb791cce.png",
+        "job": "3954bce0-d8fb-4b28-a173-1d70eb791cce",
+        "note": "rerun 28: cinematic_studio_2_5 1k, element char_caliphant_sahir, his own steel-blue archmage court coat"
+      }
+    ]
   },
   "heckler": {
     "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070133_3fe80c6b-15bb-4cdf-b6c5-481b13938cab.png",
@@ -77,6 +113,18 @@
   "kael": {
     "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_0522b80a-0c5a-4b62-aba1-8e11e793558b.png",
     "job": "0522b80a-0c5a-4b62-aba1-8e11e793558b",
-    "note": "element char_kael-druid"
+    "note": "element char_kael-druid. Rework requested 2026-09-19; url still points at the rejected take until a candidate is chosen.",
+    "candidates": [
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_11df7ba9-b191-48d6-9a59-4df3b28c867a.png",
+        "job": "11df7ba9-b191-48d6-9a59-4df3b28c867a",
+        "note": "rerun 25: nano_banana_pro 2k, element char_kael (platform flagged the reference ip_detected)"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_5ceb6804-90ec-4524-b09e-c3cbb697b59b.png",
+        "job": "5ceb6804-90ec-4524-b09e-c3cbb697b59b",
+        "note": "rerun 26: cinematic_studio_2_5 1k, element char_kael_s (platform flagged the reference ip_detected)"
+      }
+    ]
   }
 }

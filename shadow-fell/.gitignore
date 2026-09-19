@@ -8,3 +8,9 @@ public/clips/*
 !public/clips/.gitkeep
 art/*
 !art/portraits.json
+public/portraits/*.png
+public/portraits/*.jpg
+public/portraits/*.jpeg
+public/portraits/*.webp
+public/portraits/*.job
+public/portraits/candidates/

@@ -1,7 +1,7 @@
 # Thorbin Ironhart
 
 ## Who he is
-About one hundred and eighty-seven, and not certain himself. Dwarf, cleric of Morrighad, maker, long-memory campaigner and the family's anchor: the one who has made himself into a place other people can put weight. He raised Tavian and Serena and picked up stones for them the day he met them, which among dwarves is a vow; he carries forty-one memory stones. He once held a pass against ten thousand for three days with a hammer, nineteen recruits and a lamed soldier. A master of eight of the ten holy smithing virtues; the one he calls a bogus category is about passing the craft on, and he began earning it the morning he taught Kael to carry a stone for someone else. Care is the virtue underneath.
+About one hundred and eighty-seven, and not certain himself. Dwarf, cleric of Morrighad, maker, long-memory campaigner and the family's anchor: the one who has made himself into a place other people can put weight. He raised Tavian and Serena and picked up stones for them the day he met them, which among dwarves is a vow; he carries forty-one memory stones. He once held a pass against ten thousand for three days. A master of eight of the ten holy smithing virtues; the one he calls a bogus category is about passing the craft on, and he began earning it the morning he taught Kael to carry a stone for someone else.
 
 ## How he speaks
 Florid, rolling, fond; "lad" and "laddie"; a Scots lilt; the warmth never quite leaves even when the threat arrives, and he is most terrifying when still. He downplays miracles as the hammer doing its work, delivers devastating wisdom as an administrative aside, runs filthy theology deadpan ("a bastard's a bastard, the Soul-Forger doesn't check"), and is baffled that anyone thinks him wise. He loathes the elven Reading and puts his body between the parties instead; he says a person's name, never their species. Morrighad's Four Commands: Cue Sparks. Bellow Forge. Temper Flame. Strike Hammer.
@@ -21,7 +21,7 @@ Defining moment: Mhasun, burden retained. The reason is sealed.
 Lesson most easily taught to others: enough is the condition that permits growth, not its reward; finished things don't grow. Lesson least believed about himself: that this includes the man holding the hammer.
 
 ## Never
-Never fill in the third loss at Mhasun; it exists, it is a failure to pick up a stone in time, he carries it unstoned, and that is all that may ever be said. Never confuse the two strikes, and never give the first one names, faces or details beyond what is recorded here; his second-in-command stays unnamed. Never hint at any private life beyond the forge and the family. Never make his age exact.
+Never fill in the third loss at Mhasun; it exists, it is a failure to pick up a stone in time, he carries it unstoned, and that is all that may ever be said. Never confuse the two strikes, and never give the first one names, faces or details beyond what is recorded here; his second-in-command stays unnamed. Never hint at any private life beyond the forge and the family. Never make his age exact, and never reveal the labradorite's name or his birth record; that story is told elsewhere.
 
 ## Sources
 worlds/stormwardens/characters/thorbin-ironhart; Jon's ruling on the two strikes, 2026-09-20; Master Canon 2.0 §6.4, §7.9; Gifts and Shadows; the Archive note; Sealed material marker.

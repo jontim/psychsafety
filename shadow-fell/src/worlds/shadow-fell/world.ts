@@ -61,14 +61,14 @@ const pack: WorldInput = {
     {
       id: "soraya", name: "Soraya Anvar", title: "First Caliphina, Captain of the CAA Humā", faction: "House Anvar",
       summary: "Air archmage, ship designer, sits in Congress, senior captain of the flagship. Direct, blunt, funny; corrects immediately and theatrically, cares afterward. Took custody of the survivors: 'Alive, silent, and mine.' Has already been the subject of one congressional inquiry over interrogation methods; her father still answers the letters.",
-      register: `${ROYAL_VOICE}; quick, dry, a commander's ease.`, voice: { name: "Shadow Fell Soraya", description: `${ROYAL_VOICE}; a woman of 28 with a commander's ease; quick, direct, amused` },
+      register: `${ROYAL_VOICE}; quick, dry, a commander's ease.`, voice: { name: "Soraya", description: `${ROYAL_VOICE}; a woman of 28 with a commander's ease; quick, direct, amused` },
       capabilities: ["command", "concurrence"], lines: ["Alive, silent, and mine.", "Nobody heals what I can't question."],
       portrait: "/portraits/soraya.svg",
     },
     {
       id: "navid", name: "Navid Qasran", title: "Lieutenant, Sky Armada Intelligence", faction: "Halyran Intelligence",
       summary: "27, Imperial Military Attaché, Soraya's trusted man. Commoner register; quick, courteous, formal only when the moment demands. Hires the deniables at the AKA In and later delivers 'Halyran intelligence heard from your deniables, ma'am.'",
-      register: `${COMMONER_VOICE}; courteous, quick, a smile in it.`, voice: { name: "Shadow Fell Navid", description: `${COMMONER_VOICE}; a man of 27, quick and courteous` },
+      register: `${COMMONER_VOICE}; courteous, quick, a smile in it.`, voice: { name: "Navid", description: `${COMMONER_VOICE}; a man of 27, quick and courteous` },
       capabilities: ["face", "brains"], lines: ["These are our guests, do not be so rude. They have come to help us, no?"],
       portrait: "/portraits/navid.svg",
     },
@@ -83,19 +83,19 @@ const pack: WorldInput = {
     {
       id: "rashan", name: "Rashan Anvar", title: "Caliph of Halyra", faction: "House Anvar",
       summary: "52, no magic at all, warrior-diplomat, cannot be surprised by vigilance alone. Hospitality is a martial art. Dry, unhurried, a father before a sovereign.",
-      register: `${ROYAL_VOICE}; dry, unhurried.`, voice: { name: "Shadow Fell Rashan", description: `${ROYAL_VOICE}; a man of 52, dry, unhurried, amused` },
+      register: `${ROYAL_VOICE}; dry, unhurried.`, voice: { name: "Rashan", description: `${ROYAL_VOICE}; a man of 52, dry, unhurried, amused` },
       lines: ["Guests, then. The worst kind.", "Let's not hand the Congress another inquiry."],
     },
     {
       id: "sahir", name: "Sahir Anvar", title: "First Caliphant, heir", faction: "House Anvar",
       summary: "31, the law's conscience. Speaks rarely; the room stills when he does.",
-      register: `${ROYAL_VOICE}; few words, each weighed.`, voice: { name: "Shadow Fell Sahir", description: `${ROYAL_VOICE}; a man of 31, measured, quiet` },
+      register: `${ROYAL_VOICE}; few words, each weighed.`, voice: { description: `${ROYAL_VOICE}; a man of 31, measured, quiet` },
       lines: ["Dead men serve their masters. Living men betray them.", "And alive to reach trial."],
     },
     {
       id: "tav", name: "Tavian Larkvale", title: "Bard, the ballad's author", faction: "the Stormwardens",
       summary: "28, bard-strategist, celerity, co-lead, the face, undercover as the entertainment. Charm as tempo. Keeps the future open; can turn every crisis into motion before others consent.",
-      register: "Northern performer's warmth; quick, musical, a grin you can hear.", voice: { name: "Shadow Fell Tav", description: "A charming bard of 28, warm, quick, musical phrasing, a grin in the voice" },
+      register: "Northern performer's warmth; quick, musical, a grin you can hear.", voice: { name: "Tavian", description: "A charming bard of 28, warm, quick, musical phrasing, a grin in the voice" },
       capabilities: ["face", "brains", "blade"],
       moves: [{ id: "rapier", label: "Tav's rapier is already at his back", capability: "blade", bonus: 0.1, line: "Talk, or die. It is your choice. We get paid either way." }],
       lines: ["Talk, or die. It's your choice. We get paid either way."],
@@ -104,7 +104,7 @@ const pack: WorldInput = {
     {
       id: "serena", name: "Serena Duskbane", title: "Paladin of Tyr", faction: "the Stormwardens",
       summary: "30, certitude, co-lead, refused Lord Marshal. Tyr takes no hearsay: she swears only to what her own ears witnessed, so a confession within her hearing is sworn testimony. Composed, persuasive, closes on what must be done.",
-      register: "Calm, level, every sentence already decided.", voice: { name: "Shadow Fell Serena", description: "A paladin of 30, calm, level, certain, warm underneath" },
+      register: "Calm, level, every sentence already decided.", voice: { name: "Serena", description: "A paladin of 30, calm, level, certain, warm underneath" },
       capabilities: ["legitimacy", "blade"],
       moves: [
         { id: "radiant", label: "Serena's blade ignites", capability: "blade", bonus: 0.15, line: "Surrender or die. Decide now." },
@@ -116,7 +116,7 @@ const pack: WorldInput = {
     {
       id: "thorbin", name: "Thorbin Ironhart", title: "Cleric of Morrighad", faction: "the Stormwardens",
       summary: "About 187 and not certain himself. Dwarf, cleric-maker, family anchor, the bait by choice; a florid orator, warm and patient, terrifying when still. Held and profiled at Mhasun forty years ago; a Bureau field-ring keyed to his signature flares when the enemy is near. Morrighad is very persuasive beyond the veil.",
-      register: "Florid, rolling, fond; 'lad' and 'laddie'; the warmth never quite leaves even when the threat arrives.", voice: { name: "Shadow Fell Thorbin", description: "An old dwarf cleric, deep, rolling, fond, florid phrasing, patient" },
+      register: "Florid, rolling, fond; 'lad' and 'laddie'; the warmth never quite leaves even when the threat arrives.", voice: { name: "Thorbin", description: "An old dwarf cleric, deep, rolling, fond, florid phrasing, patient" },
       capabilities: ["bait", "healing", "muscle"],
       moves: [{ id: "hammer", label: "Thorbin slaps the haft of the big hammer", capability: "muscle", bonus: 0.1, line: "Goin' somewhere are ye, laddie?" }],
       lines: ["So who did do the planning, lad?", "This hurts us more than it hurts you.", "Morrighad is very persuasive beyond the veil."],
@@ -125,7 +125,7 @@ const pack: WorldInput = {
     {
       id: "varya", name: "Varya Stormveil", title: "Cadence operative", faction: "the Stormwardens",
       summary: "33, legendary Cadence operative, systems hunter, the brains. Silence is power: confirms outcomes, refuses narration, one sentence of rationale then execution. Keeps the ledger. An interrogator by tradecraft. Polite stillness that terrifies authority.",
-      register: "Few words, flat, exact; never explains; the pause is the sentence.", voice: { name: "Shadow Fell Varya", description: "A woman of 33, low, flat, exact, unhurried, quiet authority" },
+      register: "Few words, flat, exact; never explains; the pause is the sentence.", voice: { name: "Varya", description: "A woman of 33, low, flat, exact, unhurried, quiet authority" },
       capabilities: ["brains", "stealth", "blade"],
       moves: [
         { id: "piss-and-moan", label: "Varya's hatchets fly and come back", capability: "blade", bonus: 0.2, line: "Piss and Moan return to her hands before he understands he was hit." },
@@ -138,7 +138,7 @@ const pack: WorldInput = {
     {
       id: "brask", name: "Brask Runebearer", title: "Qoranhi barbarian", faction: "the Stormwardens",
       summary: "34, muscle and spectacle, literalist, moral perceiver. Reveals hidden premises by taking language seriously. His axe is Souldrinker.",
-      register: "Minimal: short sentences, third person, 'Brask'. 'Easier. Less production.'", voice: { name: "Shadow Fell Brask", description: "A huge steppe warrior, deep, slow, few words, literal" },
+      register: "Minimal: short sentences, third person, 'Brask'. 'Easier. Less production.'", voice: { name: "Brask", description: "A huge steppe warrior, deep, slow, few words, literal" },
       capabilities: ["muscle", "spectacle"],
       moves: [{ id: "souldrinker", label: "Brask brings Souldrinker down", capability: "muscle", bonus: 0.15, line: "Half man, is it? How much man is Brask and friends?" }],
       lines: ["We practise.", "Why can't you just say 'you thirsty'? Easier. Less production."],
@@ -147,7 +147,7 @@ const pack: WorldInput = {
     {
       id: "lyra", name: "Lyra Veyrin", title: "Sorceress", faction: "the Stormwardens",
       summary: "26 presenting about 24, elf, raw channeler; the Concurrence shows her extraordinary reciprocity. Dry, sly, disdainful of holes.",
-      register: "Dry, sly, unimpressed; deadpan disdain.", voice: { name: "Shadow Fell Lyra", description: "A young elf woman, dry, sly, deadpan, faintly disdainful" },
+      register: "Dry, sly, unimpressed; deadpan disdain.", voice: { name: "Lyra", description: "A young elf woman, dry, sly, deadpan, faintly disdainful" },
       capabilities: ["concurrence"],
       moves: [{ id: "cut-off", label: "Lyra asks the Concurrence nicely", capability: "concurrence", bonus: 0.2, line: "The Concurrence only cuts people off when she asks it really nicely." }],
       lines: ["The Concurrence only cuts people off when I ask it really nicely.", "This place is a total hole. I am not drinking anything from in here."],
@@ -156,7 +156,7 @@ const pack: WorldInput = {
     {
       id: "kael", name: "Kael Thornmere", title: "Druid", faction: "the Stormwardens",
       summary: "19, druidic prodigy, ecological listener, the conscience who volunteers. Receives nature rather than commanding it. Gentle, exact.",
-      register: "Soft, exact, young; a kindness that does not bargain.", voice: { name: "Shadow Fell Kael", description: "A young man of 19, soft, exact, gentle, unhurried" },
+      register: "Soft, exact, young; a kindness that does not bargain.", voice: { name: "Kael", description: "A young man of 19, soft, exact, gentle, unhurried" },
       capabilities: ["concurrence", "healing"],
       moves: [{ id: "vine", label: "Kael says one sentence to the vine", capability: "concurrence", bonus: 0.15, line: "A length of vine, a single sentence, and the hands are no longer his to use." }],
       lines: ["Morning.", "Then you haven't missed anything."],

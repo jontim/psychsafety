@@ -9,6 +9,7 @@ import { WORLDS, getWorld, publicWorld } from "../worlds/index.js";
 import type { World } from "../engine/world.js";
 import { createDirector } from "./director.js";
 import { speak } from "./tts.js";
+import { createVoiceDirectory, formatResolutions } from "./voices.js";
 import { findCast } from "../engine/world.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -24,6 +25,7 @@ const effort = (process.env.DIRECTOR_EFFORT ?? "medium") as "low" | "medium" | "
 
 const anthropic = anthropicKey ? new Anthropic({ apiKey: anthropicKey }) : null;
 const hume = humeKey ? new HumeClient({ apiKey: humeKey }) : null;
+const voices = createVoiceDirectory(hume);
 const directors = new Map(Object.values(WORLDS).map((w) => [w.id, createDirector(w, { model, effort, brief }, anthropic)]));
 
 const app = express();
@@ -106,6 +108,21 @@ app.post("/api/director", async (req, res) => {
   }
 });
 
+/**
+ * Which library voice each character will speak with. Query: world (default: the first world),
+ * refresh=1 to reload the library after adding a voice in Hume.
+ * Response: { data: { library, loadedAt, error, cast: [{ id, character, requested, resolved, via, designed }] } }
+ */
+app.get("/api/voices", async (req, res) => {
+  try {
+    if (req.query.refresh) await voices.refresh();
+    const world = getWorld(String(req.query.world ?? Object.keys(WORLDS)[0]));
+    res.json({ data: { ...voices.status(), cast: voices.table(world) } });
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+});
+
 app.post("/api/tts", async (req, res) => {
   try {
     if (!hume) {
@@ -115,7 +132,7 @@ app.post("/api/tts", async (req, res) => {
     const { worldId, speaker, text, acting } = req.body ?? {};
     const world = getWorld(String(worldId));
     const member = findCast(world, String(speaker));
-    const audio = await speak(hume, { text: String(text), acting: acting ? String(acting) : undefined, voice: member.voice }, process.env.HUME_DEFAULT_VOICE);
+    const audio = await speak(hume, { text: String(text), acting: acting ? String(acting) : undefined, voice: voices.voiceFor(member) }, process.env.HUME_DEFAULT_VOICE);
     res.setHeader("Content-Type", "audio/mpeg");
     res.setHeader("Cache-Control", "no-store");
     res.send(audio);
@@ -134,6 +151,17 @@ if (fs.existsSync(dist)) {
 const server = app.listen(PORT, () => {
   console.log(`The Shadow Fell server listening on http://localhost:${PORT}`);
   console.log(`  ear: ${humeKey && humeSecret ? "Hume EVI" : "mock only"} | voice: ${humeKey ? "Octave" : "browser"} | director: ${anthropic ? model : "understudy"}`);
+  if (hume) {
+    void voices.refresh().then(() => {
+      const { library, error } = voices.status();
+      if (error) return;
+      for (const world of Object.values(WORLDS)) {
+        console.log(`Voices for ${world.title} (${library.length} custom voices in your Hume library):`);
+        console.log(formatResolutions(voices.table(world)));
+      }
+      console.log("  (GET /api/voices shows the same table; add ?refresh=1 after saving a new voice in Hume)");
+    });
+  }
 });
 
 server.on("error", (error: NodeJS.ErrnoException) => {

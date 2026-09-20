@@ -27,9 +27,9 @@
     "note": "new face, unmasked, no element"
   },
   "tav": {
-    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_b18777c8-f490-4121-8c83-5926d1013bf4.png",
-    "job": "b18777c8-f490-4121-8c83-5926d1013bf4",
-    "note": "Reference is the element char_tavian_larkspur and nothing else (Jon, 2026-09-19). Same drift and same fix as Kael. url still points at the rejected take until a candidate is chosen.",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074508_9449efce-91ec-41cc-a9d5-bb19a244faaa.png",
+    "job": "9449efce-91ec-41cc-a9d5-bb19a244faaa",
+    "note": "Jon's pick 2026-09-20: rerun 51, gpt_image_2 high 2k, leaning in after the song, element char_tavian_larkspur, face and clothing preserved by instruction. Approved alternates: 49 (good), 45 (90%), 46 (88%, grin reads as the Joker).",
     "candidates": [
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070757_3d6320af-3ed5-41ba-b6e9-f75da8b3e5c9.png",
@@ -52,32 +52,38 @@
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_00a42e25-1acb-4590-a250-5d325e722521.png",
         "job": "00a42e25-1acb-4590-a250-5d325e722521",
-        "note": "rerun 44: nano_banana_pro 2k, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction"
+        "note": "rerun 44: nano_banana_pro 2k, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction",
+        "verdict": "not chosen (Jon, 2026-09-20)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_bc18e7c8-f536-4746-ae33-360897762efd.png",
         "job": "bc18e7c8-f536-4746-ae33-360897762efd",
-        "note": "rerun 45: nano_banana_pro 2k, leaning in after the song, element char_tavian_larkspur, face and clothing preserved by instruction"
+        "note": "rerun 45: nano_banana_pro 2k, leaning in after the song, element char_tavian_larkspur, face and clothing preserved by instruction",
+        "verdict": "90% there, usable (Jon, 2026-09-20)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_0c34b155-b06e-45b5-b376-94d37018dea8.png",
         "job": "0c34b155-b06e-45b5-b376-94d37018dea8",
-        "note": "rerun 46: seedream_v4_5, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction"
+        "note": "rerun 46: seedream_v4_5, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction",
+        "verdict": "88% usable; the grin reads as the Joker (Jon, 2026-09-20)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_827750b4-8b8b-42c8-a093-7425170ba47d.png",
         "job": "827750b4-8b8b-42c8-a093-7425170ba47d",
-        "note": "rerun 47: gpt_image_2 low quality 1k, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction"
+        "note": "rerun 47: gpt_image_2 low quality 1k, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction",
+        "rejected": "face drift, do not use (Jon, 2026-09-20)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074422_46b50d94-d10d-4e81-bb06-32f9350ef24f.png",
         "job": "46b50d94-d10d-4e81-bb06-32f9350ef24f",
-        "note": "rerun 49: gpt_image_2 high quality 2k, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction"
+        "note": "rerun 49: gpt_image_2 high quality 2k, mid-performance on the dais, element char_tavian_larkspur, face and clothing preserved by instruction",
+        "verdict": "good (Jon, 2026-09-20)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074508_9449efce-91ec-41cc-a9d5-bb19a244faaa.png",
         "job": "9449efce-91ec-41cc-a9d5-bb19a244faaa",
-        "note": "rerun 51: gpt_image_2 high quality 2k, leaning in after the song, element char_tavian_larkspur, face and clothing preserved by instruction"
+        "note": "rerun 51: gpt_image_2 high quality 2k, leaning in after the song, element char_tavian_larkspur, face and clothing preserved by instruction",
+        "verdict": "good (Jon, 2026-09-20); chosen"
       }
     ]
   },
@@ -149,9 +155,9 @@
     "note": "new face, no element"
   },
   "kael": {
-    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070125_0522b80a-0c5a-4b62-aba1-8e11e793558b.png",
-    "job": "0522b80a-0c5a-4b62-aba1-8e11e793558b",
-    "note": "Reference is the element char_kael-druid and nothing else (Jon, 2026-09-19). The first take from it drifted because the prompt re-described his face; rework keeps face and clothing from the reference by instruction only. url still points at the rejected take until a candidate is chosen.",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_af557169-ebf6-4e01-a1d3-a38362fd33d0.png",
+    "job": "af557169-ebf6-4e01-a1d3-a38362fd33d0",
+    "note": "Jon's pick 2026-09-20: rerun 40, nano_banana_pro 2k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction. Approved alternates: 42 (right), 50 (pretty good), 43 (80%, usable).",
     "candidates": [
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_11df7ba9-b191-48d6-9a59-4df3b28c867a.png",
@@ -174,32 +180,38 @@
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_af557169-ebf6-4e01-a1d3-a38362fd33d0.png",
         "job": "af557169-ebf6-4e01-a1d3-a38362fd33d0",
-        "note": "rerun 40: nano_banana_pro 2k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction"
+        "note": "rerun 40: nano_banana_pro 2k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction",
+        "verdict": "right (Jon, 2026-09-20); chosen"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_7f13dba4-bbab-4fbe-b757-c3cd419582b5.png",
         "job": "7f13dba4-bbab-4fbe-b757-c3cd419582b5",
-        "note": "rerun 41: nano_banana_pro 2k, doorway with druidic glow, element char_kael-druid, face and clothing preserved by instruction"
+        "note": "rerun 41: nano_banana_pro 2k, doorway with druidic glow, element char_kael-druid, face and clothing preserved by instruction",
+        "verdict": "not chosen (Jon, 2026-09-20)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074338_7b9365dc-66fe-484d-9334-47a2eb2119f3.png",
         "job": "7b9365dc-66fe-484d-9334-47a2eb2119f3",
-        "note": "rerun 42: seedream_v4_5, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction"
+        "note": "rerun 42: seedream_v4_5, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction",
+        "verdict": "right (Jon, 2026-09-20)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074337_b7fb48a3-ec37-4c76-9508-79e42dc605ea.png",
         "job": "b7fb48a3-ec37-4c76-9508-79e42dc605ea",
-        "note": "rerun 43: gpt_image_2 low quality 1k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction"
+        "note": "rerun 43: gpt_image_2 low quality 1k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction",
+        "verdict": "80% there, usable (Jon, 2026-09-20)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074422_b4590ee0-cbdd-4017-b25c-82642510ecbd.png",
         "job": "b4590ee0-cbdd-4017-b25c-82642510ecbd",
-        "note": "rerun 48: gpt_image_2 high quality 2k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction"
+        "note": "rerun 48: gpt_image_2 high quality 2k, candlelit bedroom, element char_kael-druid, face and clothing preserved by instruction",
+        "verdict": "not chosen (Jon, 2026-09-20)"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_074508_6726c484-cfb1-4ec6-a45b-3f5299a9157e.png",
         "job": "6726c484-cfb1-4ec6-a45b-3f5299a9157e",
-        "note": "rerun 50: gpt_image_2 high quality 2k, doorway with druidic glow, element char_kael-druid, face and clothing preserved by instruction"
+        "note": "rerun 50: gpt_image_2 high quality 2k, doorway with druidic glow, element char_kael-druid, face and clothing preserved by instruction",
+        "verdict": "pretty good (Jon, 2026-09-20)"
       }
     ]
   }

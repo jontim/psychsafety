@@ -1,5 +1,6 @@
 // Audition and save Octave voices for every speaking character.
 // Usage:
+//   HUME_API_KEY=... npx tsx scripts/design-voices.ts --check                  -> which library voice each character resolves to
 //   HUME_API_KEY=... npx tsx scripts/design-voices.ts --list
 //   HUME_API_KEY=... npx tsx scripts/design-voices.ts --audition [id ...]     -> art/voices/<id>-<n>.mp3 + candidates.json
 //   HUME_API_KEY=... npx tsx scripts/design-voices.ts --save soraya=2 tav=1  -> saves candidate n under the pack's voice name
@@ -8,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { HumeClient } from "hume";
 import { shadowFell as world } from "../src/worlds/shadow-fell/world.js";
+import { formatResolutions, loadVoiceLibrary, resolveVoices } from "../src/server/voices.js";
 
 const SAMPLE: Record<string, string> = {
   scribe: "The Stormwardens present: what the ballad did not sing.",
@@ -39,6 +41,13 @@ const client = new HumeClient({ apiKey: key });
 
 type Candidates = Record<string, { name: string; generationIds: string[] }>;
 const loadCandidates = (): Candidates => (fs.existsSync(candidatesPath) ? JSON.parse(fs.readFileSync(candidatesPath, "utf8")) : {});
+
+if (args.includes("--check")) {
+  const library = await loadVoiceLibrary(client);
+  console.log(`${library.length} custom voices in the library.`);
+  console.log(formatResolutions(resolveVoices(world.cast, library)));
+  process.exit(0);
+}
 
 if (args.includes("--list")) {
   const page = await client.tts.voices.list({ provider: "CUSTOM_VOICE" });
@@ -86,4 +95,4 @@ if (args.includes("--save")) {
   process.exit(0);
 }
 
-console.log("Usage: --list | --audition [ids] | --save id=n ...");
+console.log("Usage: --check | --list | --audition [ids] | --save id=n ...");

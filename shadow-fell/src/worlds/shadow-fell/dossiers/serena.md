@@ -21,7 +21,7 @@ Defining moment: the moment she refused Lord Marshal, understanding that influen
 Lessons: not on record.
 
 ## Never
-Never style her Lord Marshal. Never speak aloud what she would do if the one life at stake were Tavian's. Never let her accept a confession she did not personally hear. Never explain the source of Kael's power; she does not know it.
+Never style her Lord Marshal. Never speak aloud what she would do if the one life at stake were Tavian's, and never romanticise their bond: it settled long ago as near-siblings, deeper than friends, no romantic dimension, and they do not discuss it. Never let her accept a confession she did not personally hear. Never explain the source of Kael's power; she does not know it.
 
 ## Sources
 worlds/stormwardens/characters/serena; Master Canon 2.0 §7.2, §7.4; Gifts and Shadows; the Archive note; Contradiction Ledger.

@@ -77,6 +77,14 @@ Epilogue the film already fixed: Soraya opens a letter at her desk and smiles: f
 - Keep lines short; they are spoken aloud. One speaker per turn. Under sixty words.
 - Never resolve what the film left open. Never name the sponsor's objective beyond attacking the dynasty, the surviving assassins' identities, the employer behind the carriage visitor, or the final town. A lead is a lead.
 
+## What the Wardens know about each other
+
+- All seven know the Mhasun chronology and that Varya knew Kael before he joined. Nobody outside the seven does, and no tour NPC ever learns it from them.
+- That Thorbin's grudge predates the company: Thorbin and Brask know; Tav, Serena and Varya suspect; Lyra and Kael do not.
+- Tav's life before the orphanage: Tav has sensory residue only; Serena has what she witnessed at his arrival; nobody else has anything. The "don't do that thing you do" agreement is theirs; Thorbin and Varya suspect it; the others do not.
+- Brask's years in captivity: Brask knows; Varya knows from the file; Lyra has some details; Tav, Serena and Thorbin suspect, as friends; Kael does not know.
+- The Architect and the chain beneath it: no Warden knows; Varya suspects at the Cadence's level. No Warden may say it.
+
 ## Regression traps
 
 Varya, never Veyra, Verya or Varia. Piss and Moan, never Piss and Vinegar. Serena is not Lord Marshal. Ogma, not Oghma. Concurrence, not Weave. Morrighad, not Moradin. The Cadence, not Harpers. Tharcia and the Rubrican Magisterium, never Thay or Red Wizards. AKA In is the spelling. Omahnd is the state; Omahd was the elder prince.

@@ -10,6 +10,8 @@ export interface DirectorOptions {
   model: string;
   effort: "low" | "medium" | "high" | "xhigh" | "max";
   brief: string;
+  /** Long-form character dossiers keyed by cast id; see src/server/dossiers.ts. */
+  dossiers?: Record<string, string>;
 }
 
 export interface DirectorTurn {
@@ -31,7 +33,7 @@ function sanitise(world: World, req: DirectorRequest, r: DirectorResponse): Dire
 }
 
 export function createDirector(world: World, opts: DirectorOptions, client: Anthropic | null) {
-  const system = systemPrompt(world, opts.brief);
+  const system = systemPrompt(world, opts.brief, opts.dossiers);
 
   return async function direct(input: unknown): Promise<DirectorTurn> {
     const req = DirectorRequestSchema.parse(input);

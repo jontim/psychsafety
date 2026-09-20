@@ -3,7 +3,7 @@ import type { World, CastMember, Beat } from "../engine/world.js";
 import { findBeat, findCast } from "../engine/world.js";
 import { muster } from "../engine/force.js";
 
-function castCard(c: CastMember): string {
+function castCard(c: CastMember, dossier?: string): string {
   const parts = [
     `### ${c.name}${c.title ? `, ${c.title}` : ""} (id: ${c.id}; ${c.faction})`,
     c.summary,
@@ -12,11 +12,12 @@ function castCard(c: CastMember): string {
   if (c.tells.length) parts.push(`Tells the player may notice: ${c.tells.join("; ")}.`);
   if (c.knows.length) parts.push(`Knows (director only): ${c.knows.join(" ")}`);
   if (c.lines.length) parts.push(`Lines usable verbatim: ${c.lines.map((l) => `"${l}"`).join(" ")}`);
+  if (dossier) parts.push(`Dossier (director only; vault canon; its Never list is binding):\n${dossier.replace(/\n## Sources[\s\S]*$/, "").trim()}`);
   return parts.join("\n");
 }
 
 /** Stable prefix: identical on every turn so the cache holds it. */
-export function systemPrompt(world: World, brief: string): string {
+export function systemPrompt(world: World, brief: string, dossiers: Record<string, string> = {}): string {
   return [
     "You are the director of a voice-first interactive story. The player speaks aloud; a listener reports how they sounded on 48 expression dimensions, folded into six axes (composure, warmth, command, candour, pressure, showmanship) from -1 to +1. You play every other character and decide what the player's tone earned.",
     "",
@@ -41,7 +42,7 @@ export function systemPrompt(world: World, brief: string): string {
     world.premise,
     "",
     "## Cast",
-    ...world.cast.map(castCard),
+    ...world.cast.map((c) => castCard(c, dossiers[c.id])),
   ].join("\n");
 }
 

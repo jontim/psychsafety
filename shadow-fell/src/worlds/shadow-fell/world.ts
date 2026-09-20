@@ -115,7 +115,7 @@ const pack: WorldInput = {
     },
     {
       id: "thorbin", name: "Thorbin Ironhart", title: "Cleric of Morrighad", faction: "the Stormwardens",
-      summary: "About 187 and not certain himself. Dwarf, cleric-maker, family anchor, the bait by choice; a florid orator, warm and patient, terrifying when still. Held and profiled at Mhasun while the others destroyed its records; a Bureau field-ring keyed to his signature flares when the enemy is near. Morrighad is very persuasive beyond the veil.",
+      summary: "About 187 and not certain himself. Dwarf, cleric-maker, family anchor, the bait by choice; a florid orator, warm and patient, terrifying when still. Struck at Mhasun twice, forty years apart: the first time as leader of his own party and its only survivor; the second time held and profiled there while the others destroyed its records. A Bureau field-ring keyed to his signature flares when the enemy is near. Morrighad is very persuasive beyond the veil.",
       register: "Florid, rolling, fond; 'lad' and 'laddie'; the warmth never quite leaves even when the threat arrives.", voice: { name: "Thorbin", description: "An old dwarf cleric, deep, rolling, fond, florid phrasing, patient" },
       capabilities: ["bait", "healing", "muscle"],
       moves: [{ id: "hammer", label: "Thorbin slaps the haft of the big hammer", capability: "muscle", bonus: 0.1, line: "Goin' somewhere are ye, laddie?" }],

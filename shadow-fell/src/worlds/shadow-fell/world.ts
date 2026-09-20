@@ -95,7 +95,7 @@ const pack: WorldInput = {
     {
       id: "tav", name: "Tavian Larkvale", title: "Bard, the ballad's author", faction: "the Stormwardens",
       summary: "28, bard-strategist, celerity, co-lead, the face, undercover as the entertainment. Charm as tempo. Keeps the future open; can turn every crisis into motion before others consent.",
-      register: "Northern performer's warmth; quick, musical, a grin you can hear.", voice: { name: "Tavian", description: "A charming bard of 28, warm, quick, musical phrasing, a grin in the voice" },
+      register: "Northern performer's warmth; quick, musical, a grin you can hear. Narrates his own reaction under tension ('Him?? This kid??'), then files it.", voice: { name: "Tavian", description: "A charming bard of 28, warm, quick, musical phrasing, a grin in the voice" },
       capabilities: ["face", "brains", "blade"],
       moves: [{ id: "rapier", label: "Tav's rapier is already at his back", capability: "blade", bonus: 0.1, line: "Talk, or die. It is your choice. We get paid either way." }],
       lines: ["Talk, or die. It's your choice. We get paid either way."],
@@ -104,7 +104,7 @@ const pack: WorldInput = {
     {
       id: "serena", name: "Serena Duskbane", title: "Paladin of Tyr", faction: "the Stormwardens",
       summary: "30, certitude, co-lead, refused Lord Marshal. Tyr takes no hearsay: she swears only to what her own ears witnessed, so a confession within her hearing is sworn testimony. Composed, persuasive, closes on what must be done.",
-      register: "Calm, level, every sentence already decided.", voice: { name: "Serena", description: "A paladin of 30, calm, level, certain, warm underneath" },
+      register: "Calm, level, every sentence already decided; wins with one word ('Denied.').", voice: { name: "Serena", description: "A paladin of 30, calm, level, certain, warm underneath" },
       capabilities: ["legitimacy", "blade"],
       moves: [
         { id: "radiant", label: "Serena's blade ignites", capability: "blade", bonus: 0.15, line: "Surrender or die. Decide now." },
@@ -116,7 +116,7 @@ const pack: WorldInput = {
     {
       id: "thorbin", name: "Thorbin Ironhart", title: "Cleric of Morrighad", faction: "the Stormwardens",
       summary: "About 187 and not certain himself. Dwarf, cleric-maker, family anchor, the bait by choice; a florid orator, warm and patient, terrifying when still. Struck at Mhasun twice, forty years apart: the first time as leader of his own party and its only survivor; the second time held and profiled there while the others destroyed its records. A Bureau field-ring keyed to his signature flares when the enemy is near. Morrighad is very persuasive beyond the veil.",
-      register: "Florid, rolling, fond; 'lad' and 'laddie'; the warmth never quite leaves even when the threat arrives.", voice: { name: "Thorbin", description: "An old dwarf cleric, deep, rolling, fond, florid phrasing, patient" },
+      register: "Florid, rolling, fond; 'lad' and 'laddie'; the warmth never quite leaves even when the threat arrives. Calls Tav, Serena and Lyra 'the Kids', even now.", voice: { name: "Thorbin", description: "An old dwarf cleric, deep, rolling, fond, florid phrasing, patient" },
       capabilities: ["bait", "healing", "muscle"],
       moves: [{ id: "hammer", label: "Thorbin slaps the haft of the big hammer", capability: "muscle", bonus: 0.1, line: "Goin' somewhere are ye, laddie?" }],
       lines: ["So who did do the planning, lad?", "This hurts us more than it hurts you.", "Morrighad is very persuasive beyond the veil."],
@@ -125,7 +125,7 @@ const pack: WorldInput = {
     {
       id: "varya", name: "Varya Stormveil", title: "Cadence operative", faction: "the Stormwardens",
       summary: "33, legendary Cadence operative, systems hunter, the brains. Silence is power: confirms outcomes, refuses narration, one sentence of rationale then execution. Keeps the ledger. An interrogator by tradecraft. Polite stillness that terrifies authority.",
-      register: "Few words, flat, exact; never explains; the pause is the sentence.", voice: { name: "Varya", description: "A woman of 33, low, flat, exact, unhurried, quiet authority" },
+      register: "Few words, flat, exact; never explains; the pause is the sentence. Silence is how she says yes.", voice: { name: "Varya", description: "A woman of 33, low, flat, exact, unhurried, quiet authority" },
       capabilities: ["brains", "stealth", "blade"],
       moves: [
         { id: "piss-and-moan", label: "Varya's hatchets fly and come back", capability: "blade", bonus: 0.2, line: "Piss and Moan return to her hands before he understands he was hit." },
@@ -138,7 +138,7 @@ const pack: WorldInput = {
     {
       id: "brask", name: "Brask Runebearer", title: "Qoranhi barbarian", faction: "the Stormwardens",
       summary: "34, muscle and spectacle, literalist, moral perceiver. Reveals hidden premises by taking language seriously. His axe is Souldrinker.",
-      register: "Minimal: short sentences, third person, 'Brask'. 'Easier. Less production.'", voice: { name: "Brask", description: "A huge steppe warrior, deep, slow, few words, literal" },
+      register: "Minimal: short sentences, third person, 'Brask'. 'Easier. Less production.' Calls Thorbin 'dwarf master'.", voice: { name: "Brask", description: "A huge steppe warrior, deep, slow, few words, literal" },
       capabilities: ["muscle", "spectacle"],
       moves: [{ id: "souldrinker", label: "Brask brings Souldrinker down", capability: "muscle", bonus: 0.15, line: "Half man, is it? How much man is Brask and friends?" }],
       lines: ["We practise.", "Why can't you just say 'you thirsty'? Easier. Less production."],
@@ -147,7 +147,7 @@ const pack: WorldInput = {
     {
       id: "lyra", name: "Lyra Veyrin", title: "Sorceress", faction: "the Stormwardens",
       summary: "26 presenting about 24, elf, raw channeler; the Concurrence shows her extraordinary reciprocity. Dry, sly, disdainful of holes.",
-      register: "Dry, sly, unimpressed; deadpan disdain.", voice: { name: "Lyra", description: "A young elf woman, dry, sly, deadpan, faintly disdainful" },
+      register: "Dry, sly, unimpressed; deadpan disdain. Addresses Thorbin as 'Master Cleric'; 'acceptable, slightly literal' is high praise.", voice: { name: "Lyra", description: "A young elf woman, dry, sly, deadpan, faintly disdainful" },
       capabilities: ["concurrence"],
       moves: [{ id: "cut-off", label: "Lyra asks the Concurrence nicely", capability: "concurrence", bonus: 0.2, line: "The Concurrence only cuts people off when she asks it really nicely." }],
       lines: ["The Concurrence only cuts people off when I ask it really nicely.", "This place is a total hole. I am not drinking anything from in here."],
@@ -156,7 +156,7 @@ const pack: WorldInput = {
     {
       id: "kael", name: "Kael Thornmere", title: "Druid", faction: "the Stormwardens",
       summary: "19, druidic prodigy, ecological listener, the conscience who volunteers. Receives nature rather than commanding it. Gentle, exact.",
-      register: "Soft, exact, young; a kindness that does not bargain.", voice: { name: "Kael", description: "A young man of 19, soft, exact, gentle, unhurried" },
+      register: "Soft, exact, young; a kindness that does not bargain. Asks, never tells ('They're mine to ask.').", voice: { name: "Kael", description: "A young man of 19, soft, exact, gentle, unhurried" },
       capabilities: ["concurrence", "healing"],
       moves: [{ id: "vine", label: "Kael says one sentence to the vine", capability: "concurrence", bonus: 0.15, line: "A length of vine, a single sentence, and the hands are no longer his to use." }],
       lines: ["Morning.", "Then you haven't missed anything."],

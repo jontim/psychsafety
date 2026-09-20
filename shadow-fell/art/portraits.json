@@ -7,12 +7,34 @@
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070757_45833907-a195-48b5-bbbb-f926388baa94.png",
         "job": "45833907-a195-48b5-bbbb-f926388baa94",
-        "note": "rerun 21: nano_banana_pro 2k, element char_caliphina_soraya"
+        "note": "rerun 21: nano_banana_pro 2k, element char_caliphina_soraya",
+        "verdict": "made with the face-describing prompt; superseded by reruns 62-68"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070911_36a19efa-0e0b-471f-b950-43ce07798380.png",
         "job": "36a19efa-0e0b-471f-b950-43ce07798380",
-        "note": "rerun 29: nano_banana_pro 2k, element char_soraya, identity-lock prompt"
+        "note": "rerun 29: nano_banana_pro 2k, element char_soraya, identity-lock prompt",
+        "verdict": "made with the face-describing prompt; superseded by reruns 62-68"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260920_000352_8cdecd2a-d0f3-4f0f-b032-dc34d5d4bd8e.png",
+        "job": "8cdecd2a-d0f3-4f0f-b032-dc34d5d4bd8e",
+        "note": "rerun 62: gpt_image_2 high 2k, airship cabin, element char_captain-soraya, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260920_000352_caaa4abd-0a4d-4764-bd38-c718a908a144.png",
+        "job": "caaa4abd-0a4d-4764-bd38-c718a908a144",
+        "note": "rerun 63: gpt_image_2 high 2k, airship cabin, element char_caliphina_soraya, face and clothing preserved by instruction"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260920_000511_24576d24-de15-497d-8bbf-2eb4a85bceac.png",
+        "job": "24576d24-de15-497d-8bbf-2eb4a85bceac",
+        "note": "rerun 67: nano_banana_pro 2k, airship cabin, element char_captain-soraya, face and clothing preserved by instruction (reworded after the safety filter tripped on 60)"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260920_000512_ec3b74e1-7e33-4e01-98a7-a53ca20017c5.png",
+        "job": "ec3b74e1-7e33-4e01-98a7-a53ca20017c5",
+        "note": "rerun 68: seedream_v4_5, airship cabin, element char_captain-soraya, face and clothing preserved by instruction (reworded after the safety filter tripped on 61)"
       }
     ]
   },
@@ -125,12 +147,29 @@
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_d81e0582-3817-465a-b7a0-d18f0da44ee2.png",
         "job": "d81e0582-3817-465a-b7a0-d18f0da44ee2",
-        "note": "rerun 27: nano_banana_pro 2k, element char_caliphant_sahir, his own steel-blue archmage court coat"
+        "note": "rerun 27: nano_banana_pro 2k, element char_caliphant_sahir, his own steel-blue archmage court coat",
+        "verdict": "made with the face-describing prompt; superseded by reruns 64-66"
       },
       {
         "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260919_070756_3954bce0-d8fb-4b28-a173-1d70eb791cce.png",
         "job": "3954bce0-d8fb-4b28-a173-1d70eb791cce",
-        "note": "rerun 28: cinematic_studio_2_5 1k, element char_caliphant_sahir, his own steel-blue archmage court coat"
+        "note": "rerun 28: cinematic_studio_2_5 1k, element char_caliphant_sahir, his own steel-blue archmage court coat",
+        "verdict": "made with the face-describing prompt; superseded by reruns 64-66"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260920_000353_4bad7392-bc2b-4e75-bf4b-c24525a0d073.png",
+        "job": "4bad7392-bc2b-4e75-bf4b-c24525a0d073",
+        "note": "rerun 64: nano_banana_pro 2k, sky-palace hall, element char_sahir, face preserved by instruction, his own steel-blue court coat described"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260920_000354_8fe20a56-9989-454c-a73f-f61e94593480.png",
+        "job": "8fe20a56-9989-454c-a73f-f61e94593480",
+        "note": "rerun 65: gpt_image_2 high 2k, sky-palace hall, element char_sahir, face preserved by instruction, his own steel-blue court coat described"
+      },
+      {
+        "url": "https://d8j0ntlcm91z4.cloudfront.net/user_2w1Z6FRtYLVIPn8ovUrtOkc8kyK/hf_20260920_000356_e235446c-bd65-46e1-a7a4-add235ac42e4.png",
+        "job": "e235446c-bd65-46e1-a7a4-add235ac42e4",
+        "note": "rerun 66: gpt_image_2 high 2k, sky-palace hall, element char_caliphant_sahir, face preserved by instruction, his own steel-blue court coat described"
       }
     ]
   },

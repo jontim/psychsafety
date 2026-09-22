@@ -60,6 +60,7 @@ if (dry && !has("dry")) console.log("No ANTHROPIC_API_KEY: running dry with the 
 fs.mkdirSync(outDir, { recursive: true });
 
 const samples: Sample[] = resume ? (JSON.parse(fs.readFileSync(path.join(outDir, "samples.json"), "utf8")) as Sample[]) : [];
+if (resume) { const present = [...new Set(samples.map((s) => s.condition))]; conditions.splice(0, conditions.length, ...conditions.filter((c) => present.includes(c))); }
 if (resume) console.log(`resuming from ${path.relative(root, outDir)}: ${samples.length} saved samples, judging only`);
 for (const condition of resume ? [] : conditions) {
   const spec = CONDITIONS[condition];

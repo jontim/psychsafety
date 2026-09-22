@@ -87,7 +87,7 @@ Epilogue the film already fixed: Soraya opens a letter at her desk and smiles: f
 - Thorbin and Melindre: private, not secret. Serena treats it as old news; Tavian and Lyra deny it with absurd evidentiary standards.
 - The name: they became the Stormwardens in the aftermath of Mhasun, after re-entering it to get Thorbin out. Before that, Thorbin, Serena, Tavian and Lyra were a troupe of four learning his tradecraft any chance they got, from the second month the Kids knew him; never call the pre-Mhasun troupe the Stormwardens.
 - The railroad: built over forty years against the day of the assault, supplied, kept warm, its people trained; the stop at Melindre's farm is older than the romance. No stream of escapees before the crucible, only the occasional scattered caravan as a test of readiness.
-- Lyra's formation finished at sixteen; at nine she was nowhere near finished. The troupe was never on the road full time: Thorbin's service trips of the countryside, with Serena and Tavian tagging along more and more and living with him towards the end, swinging through the farm for Lyra as her lessons grew less intensive and more spaced. The road was where she practised the control the farm taught.
+- Lyra's formation finished at sixteen, when she left for Valerith; at nine she was nowhere near finished. The troupe was never on the road full time: Thorbin's service trips of the countryside, with Serena and Tavian tagging along more and more and living with him towards the end, swinging through the farm for Lyra as her lessons grew less intensive and more spaced. The road was where she practised the control the farm taught.
 
 ## Regression traps
 

@@ -1,4 +1,4 @@
-<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. Jon's amendments of 2026-09-22, dictated in chat and applied here in his words, still need folding into the docx: the section 17 stand-and-hold limit, the section 19 visitor test, and section 20, Validation Status. -->
+<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. Jon's amendments of 2026-09-22, dictated in chat and applied here in his words, still need folding into the docx: the section 17 stand-and-hold limit, the section 19 visitor test, section 20, Validation Status, and the section 12.1 sentences on Lyra's formation (finished at sixteen, when she left for Valerith) and the shape of the troupe years. -->
 
 STORMWARDENS
 
@@ -822,7 +822,9 @@ STATUS: Jon-ruling, 21 September 2026. This section supersedes any earlier relat
 
 - Thorbin and Melindre knew one another through the Mhasun underground railroad. After the break in the slave route, Melindre's farm became a major safe stop for escaped Mhasun slaves. Thorbin passed through repeatedly. Their bond grew from shared work, mutual interest, respect, trust and character, not world-burning romantic passion.
 
-- In the second year Thorbin arrived at the farm with Serena and Tavian in tow. Melindre had raised Lyra there and was finishing her formation. Thorbin introduced Serena and Tavian to Lyra.
+- In the second year Thorbin arrived at the farm with Serena and Tavian in tow. Melindre was raising Lyra there; Lyra was in no way finished at nine. Her formation finished at sixteen, when she left for Valerith. Thorbin introduced Serena and Tavian to Lyra.
+
+- The troupe was never on the road full time. Think of Thorbin's service trips of the countryside, which Serena and Tavian increasingly tagged along on (they had nowhere else to be, and towards the end they were living with him anyway), swinging through the farm to collect Lyra as her lessons became less intensive and more spaced, so that time on the road was where she implemented the control she was learning at the farm.
 
 - Serena, Tavian and Lyra subsequently travelled with Thorbin, learning from his adventurer's ken and becoming seasoned adventurers in their own right. Do NOT phrase this as Thorbin learning to adventure alongside them. He was the experienced adult hand.
 

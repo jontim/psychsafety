@@ -34,11 +34,6 @@ export const RULINGS: Array<{ find: RegExp; replace: string; source: string }> =
     replace: "Melindre's farm was a stop on the railroad for years before the strike, and before the two of them were anything to each other: a network Thorbin built, supplied, kept warm and trained over forty years against the day of the assault, with no stream of escapees before the crucible, only the occasional scattered caravan as a test of readiness.",
     source: "Jon, 2026-09-22: the route breaks only at the end of the Mhasun assault; the railroad was primed against the assault and the stop is older than the romance.",
   },
-  {
-    find: /Melindre had raised Lyra there and was finishing her formation\./,
-    replace: "Melindre was raising Lyra there; her formation would finish at sixteen, and the road with the troupe became where she implemented the control she was learning at the farm.",
-    source: "Jon, 2026-09-22: Lyra was in no way finished at nine; finished at sixteen; the troupe rode Thorbin's service trips and collected her as her lessons spaced out.",
-  },
 ];
 
 function clean(text: string): string {

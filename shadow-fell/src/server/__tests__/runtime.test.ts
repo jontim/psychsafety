@@ -60,7 +60,7 @@ describe("the compiled canon", () => {
     expect(json).not.toMatch(/fag/i);
     expect(runtime.kids.join(" ")).toContain("for years before the strike");
     expect(runtime.kids.join(" ")).not.toContain("After the break in the slave route");
-    expect(runtime.kids.join(" ")).toContain("finish at sixteen");
+    expect(runtime.kids.join(" ")).toContain("finished at sixteen, when she left for Valerith");
     expect(runtime.kids.join(" ")).not.toContain("finishing her formation");
     expect(runtime.tests.some((t) => t.section === "19" && /unnamed employer/.test(t.test))).toBe(true);
     expect(runtime.fallbacks.find((f) => f.domain === "Stand-and-hold")!.limit).toMatch(/^Brask's mass, reach, pain tolerance/);

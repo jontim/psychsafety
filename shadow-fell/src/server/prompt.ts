@@ -37,7 +37,7 @@ function castCard(c: CastMember, dossier?: string, runtime?: WardenRuntime): str
 }
 
 /** The company's runtime as a stable block: rules, directed pairs and wrong lines. */
-function runtimeBlock(world: World, rt: CanonRuntime): string[] {
+function runtimeBlock(world: World, rt: CanonRuntime, gate: boolean): string[] {
   const first = (id: string) => world.cast.find((c) => c.id === id)?.name.split(" ")[0] ?? id;
   const pairs = new Map<string, { a: string; b: string; ab?: string; ba?: string; chosenUse: string; risk: string }>();
   for (const p of Object.values(rt.pairs)) {
@@ -63,12 +63,7 @@ function runtimeBlock(world: World, rt: CanonRuntime): string[] {
     "",
     "Dialogue guardrails:",
     ...rt.guardrails.map((r) => `- ${r}`),
-    "",
-    "Candidate scoring:",
-    ...rt.scoring.map((r) => `- ${r}`),
-    "",
-    "Generation loop:",
-    ...rt.generationLoop.map((r) => `- ${r}`),
+    ...(gate ? ["", "Candidate scoring:", ...rt.scoring.map((r) => `- ${r}`), "", "Generation loop:", ...rt.generationLoop.map((r) => `- ${r}`)] : []),
     "",
     `Outsiders: ${rt.classificationRule}`,
     `Absence: ${rt.absenceRule}`,
@@ -88,7 +83,7 @@ function runtimeBlock(world: World, rt: CanonRuntime): string[] {
 }
 
 /** Stable prefix: identical on every turn so the cache holds it. */
-export function systemPrompt(world: World, brief: string, dossiers: Record<string, string> = {}, runtime?: CanonRuntime): string {
+export function systemPrompt(world: World, brief: string, dossiers: Record<string, string> = {}, runtime?: CanonRuntime, gate = true): string {
   return [
     "You are the director of a voice-first interactive story. The player speaks aloud; a listener reports how they sounded on 48 expression dimensions, folded into six axes (composure, warmth, command, candour, pressure, showmanship) from -1 to +1. You play every other character and decide what the player's tone earned.",
     "",
@@ -101,7 +96,7 @@ export function systemPrompt(world: World, brief: string, dossiers: Record<strin
     "- Set beat.status to advance when succeedWhen is met, fail when failWhen is met, otherwise continue. Resolve by maxTurns.",
     "- escalate only on a beat that declares force, and only when the counterpart resorts to violence or the player's words leave no other road. Never on a palace beat.",
     "- shot.kind reaction with a key from the counterpart's clip list; establishing on a scene's first turn; bespoke only for a verdict, a capture or a reveal, with a one-sentence prompt.",
-    "- Before the line, run the generation loop from the company's runtime and report it in slate: the owner of the problem this turn, the coverage mode, the outsider mode you used, and two to four scored candidate intentions. Render the line from the best of them; never from a −2.",
+    ...(gate ? ["- Before the line, run the generation loop from the company's runtime and report it in slate: the owner of the problem this turn, the coverage mode, the outsider mode you used, and two to four scored candidate intentions. Render the line from the best of them; never from a −2."] : []),
     "- Obey every prohibition below. If a scene seems to ask for a sealed answer, the gap is deliberate: leave it open.",
     "",
     "## Prohibitions",
@@ -110,7 +105,7 @@ export function systemPrompt(world: World, brief: string, dossiers: Record<strin
     "## Canon brief",
     brief,
     "",
-    ...(runtime ? [...runtimeBlock(world, runtime), ""] : []),
+    ...(runtime ? [...runtimeBlock(world, runtime, gate), ""] : []),
     "## The story",
     world.premise,
     "",
@@ -145,7 +140,7 @@ function beatCard(world: World, beat: Beat): string {
 }
 
 /** The per-turn message. */
-export function turnMessage(world: World, req: DirectorRequest, runtime?: CanonRuntime): string {
+export function turnMessage(world: World, req: DirectorRequest, runtime?: CanonRuntime, gate = true): string {
   const { beat } = findBeat(world, req.beatId);
   const transcript = req.transcript.slice(-14).map((l) => {
     const who = world.cast.find((c) => c.id === l.speaker)?.name ?? l.speaker;
@@ -155,7 +150,7 @@ export function turnMessage(world: World, req: DirectorRequest, runtime?: CanonR
   return [
     beatCard(world, beat),
     "",
-    ...(runtime ? [slateCard(world, beat, runtime), ""] : []),
+    ...(runtime ? [slateCard(world, beat, runtime, gate), ""] : []),
     `Turn ${req.turn} of ${req.maxTurns}.`,
     `Meters now: ${Object.entries(req.meters).filter(([k]) => beat.meters.includes(k)).map(([k, v]) => `${k} ${Math.round(v)}`).join(", ")}.`,
     "",

@@ -17,7 +17,8 @@
     "test:watch": "vitest",
     "start": "NODE_ENV=production tsx src/server/index.ts",
     "preview": "vite preview",
-    "compile:canon": "tsx scripts/compile-canon.ts"
+    "compile:canon": "tsx scripts/compile-canon.ts",
+    "eval:attribution": "tsx scripts/eval-attribution.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",

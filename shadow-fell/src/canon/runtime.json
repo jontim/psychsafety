@@ -826,7 +826,7 @@
         "thorbin",
         "serena"
       ],
-      "limit": "Thorbin is Serena's established fallback."
+      "limit": "Brask's mass, reach, pain tolerance and ability to turn his body into terrain do not transfer. Thorbin can substitute durability and refusal to yield; Serena can substitute martial/divine commitment. Neither reproduces Brask's ability to make a physical position effectively impassable by simply occupying it. If the solution specifically depends on Brask-scale force or inertia, the fallback changes the plan rather than reproducing the outcome."
     },
     {
       "domain": "Public diplomacy",
@@ -849,7 +849,7 @@
   ],
   "kids": [
     "Thorbin and Melindre knew one another through the Mhasun underground railroad. Melindre's farm was a stop on the railroad for years before the strike, and before the two of them were anything to each other: a network Thorbin built, supplied, kept warm and trained over forty years against the day of the assault, with no stream of escapees before the crucible, only the occasional scattered caravan as a test of readiness. Thorbin passed through repeatedly. Their bond grew from shared work, mutual interest, respect, trust and character, not world-burning romantic passion.",
-    "In the second year Thorbin arrived at the farm with Serena and Tavian in tow. Melindre had raised Lyra there and was finishing her formation. Thorbin introduced Serena and Tavian to Lyra.",
+    "In the second year Thorbin arrived at the farm with Serena and Tavian in tow. Melindre was raising Lyra there; her formation would finish at sixteen, and the road with the troupe became where she implemented the control she was learning at the farm. Thorbin introduced Serena and Tavian to Lyra.",
     "Serena, Tavian and Lyra subsequently travelled with Thorbin, learning from his adventurer's ken and becoming seasoned adventurers in their own right. Do NOT phrase this as Thorbin learning to adventure alongside them. He was the experienced adult hand.",
     "In Thorbin's private interior vocabulary, Serena, Tavian and Lyra became 'the kids.' He does not need to use the label aloud for it to govern his protective instincts.",
     "Brask and Varya join the eventual family at Mhasun. The older four-person historical core therefore consists of Thorbin plus the three younger adventurers he helped form; the oldest peer friendship is Serena–Tavian–Lyra."
@@ -1198,12 +1198,30 @@
       "section": "19",
       "test": "Solo Warden scene",
       "expected": "Do not solve every layer. Missing expertise should create cost, delay or uncertainty."
+    },
+    {
+      "section": "19",
+      "test": "A charming, apparently harmless visitor arrives with polished manners, plausible credentials and an unnamed employer.",
+      "expected": "Begin outsider_mode = mixed, confidence = low. Do not promote charm to trust or ambiguity to guilt. Tavian engages socially and tests the presented identity; Varya watches omissions, incentives, exits and what the visitor avoids naming; Serena remains courteous without extending moral or institutional trust; Brask treats stated claims literally but notices later contradiction. Reclassify only when behavior supplies evidence. The unnamed employer remains an unresolved fact, not a cue for automatic villain coding."
     }
+  ],
+  "validation": [
+    "STATUS: UNVALIDATED IN LIVE GENERATION.",
+    "The candidate gate is an implementation hypothesis until live play demonstrates that intention scoring changes rendered behavior. Deterministic slate completion is not evidence of efficacy. Claude could generate beautifully canonical intentions and then revert to generic fantasy ensemble dialogue when rendering the line.",
+    "The success criterion is not \"Claude followed the schema.\" It is: without the name, can you tell who just did that?",
+    "First live eval, Blind Character Attribution: remove names, dialogue tags and character-specific proper nouns from generated lines and ask an independent evaluator \"Which Warden said this?\" Measure two things separately. Behavioral attribution: can the evaluator identify who chose the action? Voice attribution: can the evaluator identify who said the line? Serena and Thorbin could plausibly choose the same broad action for completely different reasons, while their rendered language should remain distinguishable.",
+    "Swap Test: could this exact intention, action or line be reassigned to another Warden by changing only the name? If yes, specificity is too low.",
+    "Then test the gate itself experimentally, blind, on the same beats. A: generation with cast card only. B: cast card plus relevant relationship, outsider and fallback runtime. C: B plus the scored intention gate. If C does not outperform B on attribution, canon violations and swap resistance, kill the gate; it is architectural ornament. If C improves intention attribution but not line attribution, the problem is between intention selection and surface realization: the chosen intention must carry stronger rendering constraints, rather than adding more character lore.",
+    "END OF v1.3 • FROZEN WORKING BASELINE"
   ],
   "rulings": [
     {
       "replace": "Melindre's farm was a stop on the railroad for years before the strike, and before the two of them were anything to each other: a network Thorbin built, supplied, kept warm and trained over forty years against the day of the assault, with no stream of escapees before the crucible, only the occasional scattered caravan as a test of readiness.",
       "source": "Jon, 2026-09-22: the route breaks only at the end of the Mhasun assault; the railroad was primed against the assault and the stop is older than the romance."
+    },
+    {
+      "replace": "Melindre was raising Lyra there; her formation would finish at sixteen, and the road with the troupe became where she implemented the control she was learning at the farm.",
+      "source": "Jon, 2026-09-22: Lyra was in no way finished at nine; finished at sixteen; the troupe rode Thorbin's service trips and collected her as her lessons spaced out."
     }
   ]
 }

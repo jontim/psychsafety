@@ -34,6 +34,11 @@ export const RULINGS: Array<{ find: RegExp; replace: string; source: string }> =
     replace: "Melindre's farm was a stop on the railroad for years before the strike, and before the two of them were anything to each other: a network Thorbin built, supplied, kept warm and trained over forty years against the day of the assault, with no stream of escapees before the crucible, only the occasional scattered caravan as a test of readiness.",
     source: "Jon, 2026-09-22: the route breaks only at the end of the Mhasun assault; the railroad was primed against the assault and the stop is older than the romance.",
   },
+  {
+    find: /Melindre had raised Lyra there and was finishing her formation\./,
+    replace: "Melindre was raising Lyra there; her formation would finish at sixteen, and the road with the troupe became where she implemented the control she was learning at the farm.",
+    source: "Jon, 2026-09-22: Lyra was in no way finished at nine; finished at sixteen; the troupe rode Thorbin's service trips and collected her as her lessons spaced out.",
+  },
 ];
 
 function clean(text: string): string {
@@ -191,6 +196,8 @@ export function compileCanon(markdown: string): CanonRuntime {
     else if (b.text.startsWith("Instead:") && w.wrongLines.length) w.wrongLines[w.wrongLines.length - 1]!.instead = clean(b.text.slice(8));
   }
 
+  const validation = texts(at(20));
+
   const tests: CanonTest[] = [
     ...testsOf("6", at(6)),
     ...testsOf("12.7", at(12, (s) => s.startsWith("12.7"))),
@@ -213,12 +220,13 @@ export function compileCanon(markdown: string): CanonRuntime {
   if (fallbacks.length !== 10) throw new Error(`Expected 10 fallback domains, found ${fallbacks.length}`);
   if (!classificationRule || !absenceRule || Object.keys(microParties).length !== 5) throw new Error("Sections 16 and 17 incomplete");
   if (tests.length < 40) throw new Error(`Expected at least 40 regression tests, found ${tests.length}`);
+  if (validation.length < 3) throw new Error("Section 20, Validation Status, is missing");
 
   return {
     version: DOC_VERSION, header, primaryLaw, retrieval, companyRuntime, pluralLeadership, combinedLeadership, guardrails,
     scoring, stateVariables, generationLoop, classificationRule, absenceRule, microParties, machineFields,
     wardens, pairs, fallbacks, kids, creekBed, thorbinMelindre, sleepingArrangements, relationshipConsequences, genderedReflex,
-    sourceMined, careCustody, careRules, torMorrighad, torMorrighadState, tests,
+    sourceMined, careCustody, careRules, torMorrighad, torMorrighadState, tests, validation,
     rulings: RULINGS.map((r) => ({ replace: r.replace, source: r.source })),
   };
 }

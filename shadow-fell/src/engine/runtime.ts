@@ -70,6 +70,8 @@ export interface CanonRuntime {
   torMorrighad: string[];
   torMorrighadState: Record<string, string>;
   tests: CanonTest[];
+  /** Section 20: the candidate gate's validation status and the eval that decides it. Never sent to the director. */
+  validation: string[];
   rulings: Array<{ replace: string; source: string }>;
 }
 
@@ -97,7 +99,7 @@ export function livePairs(runtime: CanonRuntime, present: string[]): DirectedPai
 }
 
 /** The per-turn slate: who is here, who owns what, who covers for whom, and how the outsider reads. */
-export function slateCard(world: World, beat: Beat, runtime: CanonRuntime): string {
+export function slateCard(world: World, beat: Beat, runtime: CanonRuntime, gate = true): string {
   const { present, absent } = wardensInBeat(runtime, beat);
   const first = (id: string) => findCast(world, id).name.split(" ")[0]!;
   const lines: string[] = ["## The slate"];
@@ -119,6 +121,6 @@ export function slateCard(world: World, beat: Beat, runtime: CanonRuntime): stri
   if (beat.outsider) {
     lines.push(`The outsider as the scene opens: ${beat.outsider.mode}, confidence ${beat.outsider.confidence}.${beat.outsider.note ? ` ${beat.outsider.note}` : ""} Classify by demonstrated behaviour, never by rank, species or magic, and reclassify as it changes.`);
   }
-  lines.push("Before the line: two to four candidate intentions for the speaker, scored −2 to +2; reject −2, rewrite −1, render the best. Report them in slate.intentions with the owner, coverage and outsider mode you used.");
+  if (gate) lines.push("Before the line: two to four candidate intentions for the speaker, scored −2 to +2; reject −2, rewrite −1, render the best. Report them in slate.intentions with the owner, coverage and outsider mode you used.");
   return lines.join("\n");
 }

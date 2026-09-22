@@ -60,6 +60,11 @@ describe("the compiled canon", () => {
     expect(json).not.toMatch(/fag/i);
     expect(runtime.kids.join(" ")).toContain("for years before the strike");
     expect(runtime.kids.join(" ")).not.toContain("After the break in the slave route");
+    expect(runtime.kids.join(" ")).toContain("finish at sixteen");
+    expect(runtime.kids.join(" ")).not.toContain("finishing her formation");
+    expect(runtime.tests.some((t) => t.section === "19" && /unnamed employer/.test(t.test))).toBe(true);
+    expect(runtime.fallbacks.find((f) => f.domain === "Stand-and-hold")!.limit).toMatch(/^Brask's mass, reach, pain tolerance/);
+    expect(runtime.validation.join(" ")).toContain("UNVALIDATED IN LIVE GENERATION");
     expect(runtime.pairs["serena->tav"]!.risk).toMatch(/^The fault line remains canon/);
     expect(runtime.wardens.thorbin!.wrongLines[0]!.line).toMatch(/^Morrighad commands it/);
     expect(runtime.torMorrighad.join(" ")).not.toContain("LEGACY PLACEHOLDER");
@@ -109,6 +114,7 @@ describe("the slate", () => {
     const block = system.slice(system.indexOf("## The company's runtime"), system.indexOf("## The story"));
     for (const dead of DEAD) expect(block, `dead name ${dead}`).not.toMatch(dead);
     expect(block).not.toMatch(/95\s*%/);
+    expect(system).not.toContain("UNVALIDATED");
     expect(block).toContain("Serena → Tavian:");
     const msg = turnMessage(shadowFell, request("morning"), runtime);
     expect(msg).toContain("## The slate");

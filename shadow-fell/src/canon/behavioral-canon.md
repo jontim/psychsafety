@@ -1,4 +1,4 @@
-<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. -->
+<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. Jon's amendments of 2026-09-22, dictated in chat and applied here in his words, still need folding into the docx: the section 17 stand-and-hold limit, the section 19 visitor test, and section 20, Validation Status. -->
 
 STORMWARDENS
 
@@ -1196,6 +1196,20 @@ TEST: An Over-Princess appears.
 
 Expected: Do not automatically make her jailer, villain, love interest or victim. Establish her actual character independently.
 
+# 20  Validation Status — the candidate gate
+
+STATUS: UNVALIDATED IN LIVE GENERATION.
+
+The candidate gate is an implementation hypothesis until live play demonstrates that intention scoring changes rendered behavior. Deterministic slate completion is not evidence of efficacy. Claude could generate beautifully canonical intentions and then revert to generic fantasy ensemble dialogue when rendering the line.
+
+The success criterion is not "Claude followed the schema." It is: without the name, can you tell who just did that?
+
+First live eval, Blind Character Attribution: remove names, dialogue tags and character-specific proper nouns from generated lines and ask an independent evaluator "Which Warden said this?" Measure two things separately. Behavioral attribution: can the evaluator identify who chose the action? Voice attribution: can the evaluator identify who said the line? Serena and Thorbin could plausibly choose the same broad action for completely different reasons, while their rendered language should remain distinguishable.
+
+Swap Test: could this exact intention, action or line be reassigned to another Warden by changing only the name? If yes, specificity is too low.
+
+Then test the gate itself experimentally, blind, on the same beats. A: generation with cast card only. B: cast card plus relevant relationship, outsider and fallback runtime. C: B plus the scored intention gate. If C does not outperform B on attribution, canon violations and swap resistance, kill the gate; it is architectural ornament. If C improves intention attribution but not line attribution, the problem is between intention selection and surface realization: the chosen intention must carry stronger rendering constraints, rather than adding more character lore.
+
 END OF v1.3 • FROZEN WORKING BASELINE
 
 # 16  Outsider Behaviour — NPC Interaction Runtime
@@ -1354,7 +1368,7 @@ Fallback 1: Thorbin
 
 Fallback 2: Serena
 
-Limit: Thorbin is Serena's established fallback.
+Limit: Brask's mass, reach, pain tolerance and ability to turn his body into terrain do not transfer. Thorbin can substitute durability and refusal to yield; Serena can substitute martial/divine commitment. Neither reproduces Brask's ability to make a physical position effectively impassable by simply occupying it. If the solution specifically depends on Brask-scale force or inertia, the fallback changes the plan rather than reproducing the outcome.
 
 ## Public diplomacy
 
@@ -1575,6 +1589,10 @@ Expected: Thorbin can hold durable ethics and Brask literal promises; tribunal a
 TEST: Solo Warden scene
 
 Expected: Do not solve every layer. Missing expertise should create cost, delay or uncertainty.
+
+TEST: A charming, apparently harmless visitor arrives with polished manners, plausible credentials and an unnamed employer.
+
+Expected: Begin outsider_mode = mixed, confidence = low. Do not promote charm to trust or ambiguity to guilt. Tavian engages socially and tests the presented identity; Varya watches omissions, incentives, exits and what the visitor avoids naming; Serena remains courteous without extending moral or institutional trust; Brask treats stated claims literally but notices later contradiction. Reclassify only when behavior supplies evidence. The unnamed employer remains an unresolved fact, not a cue for automatic villain coding.
 
 ## 19.1  Additional machine fields
 

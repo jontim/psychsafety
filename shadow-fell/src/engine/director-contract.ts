@@ -89,3 +89,7 @@ export const DirectorResponseSchema = z.object({
   slate: SlateSchema,
 });
 export type DirectorResponse = z.infer<typeof DirectorResponseSchema>;
+
+/** The same response with the slate optional: the attribution eval's ungated conditions run the director without the gate. */
+export const DirectorResponseLooseSchema = DirectorResponseSchema.extend({ slate: SlateSchema.optional() });
+export type DirectorResponseLoose = z.infer<typeof DirectorResponseLooseSchema>;

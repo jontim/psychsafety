@@ -68,6 +68,8 @@ Voices: see `docs/voices.md` for the seventeen Octave voices, their design descr
 
 The company's runtime: see `docs/runtime.md` for how the Behavioral Canon is compiled into the director (`npm run compile:canon` after editing `src/canon/behavioral-canon.md`), the per-beat slate, the scored intentions the director returns, and the Slate panel (the S key).
 
+The attribution eval: see `docs/eval.md` for the blind test that decides whether the runtime and the scored gate make the Wardens tell apart (`npm run eval:attribution`, `--dry` without keys).
+
 ## Clips
 
 The world pack carries a clip manifest: one reaction clip per counterpart per affect tag (warming, cooling, shock, bored, calculating, pressed, neutral) and one establishing shot per location, each with a render prompt. Render them through Showrunner, drop the files under `public/clips/`, and set each clip's `file` to its public path. Until then the stage shows the counterpart's portrait with an affect-tinted vignette.

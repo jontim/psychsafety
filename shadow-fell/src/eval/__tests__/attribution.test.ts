@@ -4,7 +4,7 @@ import { validateWorld, findBeat } from "../../engine/world.js";
 import { loadCanonRuntime } from "../../server/runtime.js";
 import { systemPrompt, turnMessage } from "../../server/prompt.js";
 import { understudy } from "../../server/understudy.js";
-import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, hitsWrongLine, judgeSystem, matchJudgements, sampleLine, slipsStyle, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
+import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, hitsWrongLine, judgeSystem, matchJudgements, sampleLine, slipsStyle, opensOnCare, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
 import { chooseMoves, scoreSteering, steeringVerdict, matchSteering, type SteeringPair } from "../steering.js";
 
 const runtime = loadCanonRuntime();
@@ -41,10 +41,23 @@ describe("the attribution eval", () => {
     expect(hitsWrongLine("Sit down. You have walked a long way to say very little.", runtime)).toBe(false);
   });
 
+  it("hears the shared care reflex", () => {
+    expect(opensOnCare("Sit down. Eat something first. Three nights, you said.")).toBe(true);
+    expect(opensOnCare("You've walked since dawn and you're shaking. Which way do the alders face?")).toBe(true);
+    expect(opensOnCare("Three nights. Not four. Which night did it start?")).toBe(false);
+    expect(opensOnCare("Brask does not know what it is. Brask knows water does not climb.")).toBe(false);
+  });
+
   it("hears Brask conjugate", () => {
     expect(slipsStyle("brask", "Brask did not ask for a cup. You said wagons. What was in them?")).toBe(true);
     expect(slipsStyle("brask", "Brask no ask for cup. You say wagons? What they have?")).toBe(false);
     expect(slipsStyle("brask", "Barn has straw, door, Brask. Eat the bread.")).toBe(false);
+    expect(slipsStyle("brask", "That is not true. You promised.")).toBe(false);
+    expect(slipsStyle("brask", "Bridge only crossing? Creature live somewhere else? Then we not know. Find out.")).toBe(false);
+    expect(slipsStyle("brask", "Why is he angry?")).toBe(true);
+    expect(slipsStyle("brask", "Nevertheless, the incentives are misaligned.")).toBe(true);
+    expect(slipsStyle("brask", "Give him the benefit of the doubt.")).toBe(true);
+    expect(slipsStyle("brask", "That's not the hill I want to die on.")).toBe(true);
     expect(slipsStyle("serena", "That was decided, not promised.")).toBe(false);
   });
 
@@ -80,7 +93,7 @@ describe("the attribution eval", () => {
 
   it("says what the data says", () => {
     const base = (condition: "A" | "B" | "C", over: Partial<ConditionScore>): ConditionScore => ({
-      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, voice: 1, action: 1, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], ...over,
+      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 1, action: 1, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], ...over,
     });
     const A = base("A", {});
     const B = base("B", { swapResistance: 1 });
@@ -132,8 +145,11 @@ describe("the steering test", () => {
       ["p3", { index: 3, distinct: true, enactsFirst: true, enactsSecond: false, sameVoice: true }],
     ]);
     const s = scoreSteering(pairs, judged, []);
-    expect(s).toMatchObject({ pairs: 3, judged: 3, identical: 1, causal: 1 / 3, distinct: 2 / 3, enacted: 2 / 3, sameVoice: 1, alternativeSourced: 0 });
-    expect(s.perWarden.serena).toEqual({ n: 2, causal: 0.5 });
+    expect(s).toMatchObject({ pairs: 3, judged: 3, identical: 1, causal: 1 / 3, distinct: 2 / 3, enacted: 2 / 3, sameVoice: 1, converged: 0 });
+    expect(s.perWarden.serena).toEqual({ n: 2, causal: 0.5, converged: 0 });
+    const withConverged = scoreSteering(pairs, judged, [], [{ scenario: "counsel", warden: "thorbin", stimulus: "hayloft", move: "sit him down and ask what care requires" }]);
+    expect(withConverged.converged).toBe(1);
+    expect(withConverged.perWarden.thorbin).toEqual({ n: 0, causal: 0, converged: 1 });
     expect(steeringVerdict(s)).toMatch(/^Mixed/);
     expect(steeringVerdict({ ...s, causal: 0.8 })).toMatch(/does causal work/);
     expect(steeringVerdict({ ...s, distinct: 0.1, causal: 0.05 })).toMatch(/decorative/);

@@ -74,7 +74,7 @@ Epilogue the film already fixed: Soraya opens a letter at her desk and smiles: f
 - Characters react to how the player sounded, as the listener reported it, not to what the player meant. Calm authority earns standing; contempt costs rapport and, for Soraya, risks the Congress inquiry; warmth opens people; anxiety leaks and the reader notices.
 - Confessions must be spoken by the enemy's own mouth to count; the Wardens never put words in a mouth. Evidence rises only on usable admission.
 - Comedy is opsec. Keep the Stormwardens' bickering, Brask's literalism, Thorbin's florid warmth, Lyra's dryness, Varya's stillness.
-- Brask's Common is a second language, broken by canon: present tense only, "no" before the verb, no articles, no "to be" ("Brask no ask for cup. You say wagons? What they have?"). He reaches for possession over containment, the learner's relation: the wagon has, never what is in it. Never let him conjugate.
+- Brask's Common is a second language, broken by canon and bound by his language rail: simple present, "no" before the verb, auxiliaries and articles mostly dropped, possession over containment ("You say two wagons. What they have?"). A complex thought is decomposed into short questions, never made native ("Bridge only crossing? Creature live somewhere else? Then we not know. Find out."). His intelligence shows in which question comes next, never in his syntax.
 - Keep lines short; they are spoken aloud. One speaker per turn. Under sixty words.
 - Never resolve what the film left open. Never name the sponsor's objective beyond attacking the dynasty, the surviving assassins' identities, the employer behind the carriage visitor, or the final town. A lead is a lead.
 

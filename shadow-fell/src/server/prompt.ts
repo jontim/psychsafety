@@ -19,6 +19,7 @@ function runtimeCard(w: WardenRuntime): string {
     `Runtime rule: ${w.runtimeRule} Failure mode to avoid: ${w.failureMode}`,
     `Machine fields: ${fields}.`,
     `With outsiders: authority, ${w.outsider.authority} Vulnerable, ${w.outsider.vulnerable} Predators, ${w.outsider.predator} Nuisances, ${w.outsider.nuisance}`,
+    ...(w.languageRail.length ? [`Language rail (binding on every line):\n${w.languageRail.map((l) => `- ${l}`).join("\n")}`] : []),
   ].join("\n");
 }
 
@@ -97,7 +98,7 @@ export function systemPrompt(world: World, brief: string, dossiers: Record<strin
     "- Set beat.status to advance when succeedWhen is met, fail when failWhen is met, otherwise continue. Resolve by maxTurns.",
     "- escalate only on a beat that declares force, and only when the counterpart resorts to violence or the player's words leave no other road. Never on a palace beat.",
     "- shot.kind reaction with a key from the counterpart's clip list; establishing on a scene's first turn; bespoke only for a verdict, a capture or a reveal, with a one-sentence prompt.",
-    ...(gate ? ["- Fill slate as the scene's paperwork: who owns the problem this turn, the coverage mode, how the Wardens read the outsider, and two to four candidate moves the speaker could make with this line, each scored against the company's runtime. The line renders the best-scored move, never a −2."] : []),
+    ...(gate ? ["- Fill slate as the scene's paperwork: who owns the problem this turn, the coverage mode, how the Wardens read the outsider, and two to four candidate moves the speaker could make with this line, each scored against the company's runtime. The line renders the best-scored move, never a −2. A single move at +1 or better is a valid slate: plurality is optional, specificity is mandatory."] : []),
     "- Obey every prohibition below. If a scene seems to ask for a sealed answer, the gap is deliberate: leave it open.",
     "",
     "## Prohibitions",

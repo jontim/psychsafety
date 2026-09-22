@@ -30,6 +30,8 @@ export interface WardenRuntime {
   outsider: Record<Exclude<OutsiderMode, "mixed">, string>;
   /** Fast drift diagnostics (section 18). */
   wrongLines: WrongLine[];
+  /** Voice rules that bind the rendered line (section 21); empty for most Wardens. */
+  languageRail: string[];
 }
 
 /** What A does differently because B is here (section 5). */

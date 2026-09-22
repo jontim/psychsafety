@@ -89,11 +89,13 @@ for (const condition of resume ? [] : conditions) {
 /** One judge call per condition and scenario, items shuffled so order is no clue. */
 function seeded(seed: number): () => number { let x = seed || 1; return () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return ((x >>> 0) % 10000) / 10000; }; }
 const rand = seeded(20260922);
-const judged = new Map<string, JudgedItem>();
+const judgementsFile = path.join(outDir, "judgements.json");
+const judged = new Map<string, JudgedItem>(resume && fs.existsSync(judgementsFile) ? (JSON.parse(fs.readFileSync(judgementsFile, "utf8")) as Array<[string, JudgedItem]>) : []);
+if (judged.size) console.log(`${judged.size} judgements already saved; judging only what is missing`);
 for (const condition of conditions) {
   for (const s of scenarios) {
     const mine = samples.filter((x) => x.condition === condition && x.scenario === s.id && x.speaker === x.warden && (dry || x.source === "claude"));
-    const items: JudgeItem[] = mine.flatMap((x) => {
+    const items: JudgeItem[] = mine.filter((x) => !judged.has(`${x.id}:line`)).flatMap((x) => {
       const situation = `${s.title.split(",")[0]} says, ${x.tone}: "${x.stimulusLine}"`;
       const out: JudgeItem[] = [{ id: `${x.id}:line`, kind: "line", text: stripIdentity(x.line, terms), situation }];
       if (x.intention) out.push({ id: `${x.id}:intention`, kind: "intention", text: stripIdentity(x.intention, terms), situation });
@@ -119,13 +121,14 @@ for (const condition of conditions) {
       if (!message.parsed_output) { console.log(`judge returned ${message.stop_reason} for ${condition}/${s.id} items ${start + 1} to ${start + batch.length}; those stay unjudged`); continue; }
       const { matched, unmatched } = matchJudgements(batch, message.parsed_output);
       for (const [id, it] of matched) judged.set(id, it);
+      fs.writeFileSync(judgementsFile, `${JSON.stringify([...judged.entries()], null, 2)}\n`);
       matchedTotal += matched.size;
       unmatchedTotal += unmatched;
     }
     console.log(`judged ${matchedTotal} of ${items.length} items for ${condition}/${s.id}${unmatchedTotal ? ` (${unmatchedTotal} answers matched nothing)` : ""}`);
   }
 }
-fs.writeFileSync(path.join(outDir, "judgements.json"), `${JSON.stringify([...judged.values()], null, 2)}\n`);
+fs.writeFileSync(judgementsFile, `${JSON.stringify([...judged.entries()], null, 2)}\n`);
 
 const scores = conditions.map((c) => scoreCondition(c, samples, judged, runtime, dry));
 const report = formatReport(scores, {

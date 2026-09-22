@@ -23,7 +23,7 @@ import { createDirector } from "../src/server/director.js";
 import { StorySession } from "../src/engine/session.js";
 import { toneVector } from "../src/engine/mock-ear.js";
 import { SCENARIOS, WARDENS, evalWorld, evalBeatId, sampleLine, type WardenId } from "../src/eval/attribution.js";
-import { chooseMoves, steeringJudgeSystem, steeringJudgeUser, SteeringJudgementSchema, matchSteering, scoreSteering, formatSteeringReport, type SteeringPair, type SteeringSkip, type JudgedPair } from "../src/eval/steering.js";
+import { chooseMoves, steeringJudgeSystem, steeringJudgeUser, SteeringJudgementSchema, matchSteering, scoreSteering, formatSteeringReport, type SteeringPair, type SteeringSkip, type SteeringConverged, type JudgedPair } from "../src/eval/steering.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -53,6 +53,7 @@ fs.mkdirSync(outDir, { recursive: true });
 
 const pairs: SteeringPair[] = [];
 const skips: SteeringSkip[] = [];
+const converged: SteeringConverged[] = [];
 for (const s of scenarios) {
   for (const w of wardens) {
     for (const st of s.stimuli) {
@@ -63,32 +64,24 @@ for (const s of scenarios) {
       };
       const first = await direct(request());
       if (!dry && first.source !== "claude") { skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: first.note ?? "the director did not answer" }); continue; }
-      let moves = chooseMoves(first.response.slate) ?? (dry ? ["hold the line and ask for the concrete rule", "give a little ground to see what he does with it"] as [string, string] : null);
-      let alternativeSourced = false;
-      let one, two;
-      if (moves) {
-        one = await direct(request(moves[0]));
-        two = await direct(request(moves[1]));
-      } else {
-        // The slate offered one move at +1 or better: render it, then ask for a different one and read it off that slate.
+      const moves = chooseMoves(first.response.slate) ?? (dry ? ["hold the line and ask for the concrete rule", "give a little ground to see what he does with it"] as [string, string] : null);
+      if (!moves) {
+        // Plurality is optional, specificity is mandatory: one move at +1 or better is character data, not a failure.
         const best = [...first.response.slate.intentions].filter((i) => i.score >= 1).sort((a, b) => b.score - a.score)[0];
-        if (!best) { skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: "no move at +1 or better in the slate" }); continue; }
-        one = await direct(request(best.intention));
-        two = await direct(request(`a different move from "${best.intention}", still canon-valid at +1 or better, named in the slate`));
-        const alt = [...two.response.slate.intentions].filter((i) => i.score >= 1 && i.intention.trim().toLowerCase() !== best.intention.trim().toLowerCase()).sort((a, b) => b.score - a.score)[0];
-        if (!alt) { skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: "no second move even when asked for one" }); continue; }
-        moves = [best.intention, alt.intention];
-        alternativeSourced = true;
+        if (best) converged.push({ scenario: s.id, warden: w, stimulus: st.id, move: best.intention });
+        else skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: "no move at +1 or better in the slate" });
+        continue;
       }
+      const one = await direct(request(moves[0]));
+      const two = await direct(request(moves[1]));
       if (!dry && (one.source !== "claude" || two.source !== "claude")) { skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: one.note ?? two.note ?? "a steered turn did not answer" }); continue; }
       const pair: SteeringPair = {
         id: `${s.id}-${w}-${st.id}`, scenario: s.id, warden: w, stimulus: st.id, stimulusLine: st.line, tone: st.tone,
         moves, lines: [sampleLine(one.response.line).line, sampleLine(two.response.line).line], sources: [one.source, two.source],
-        ...(alternativeSourced ? { alternativeSourced } : {}),
       };
       pairs.push(pair);
       console.log(`${s.id}/${w}/${st.id}\n  one: ${moves[0]}\n       ${pair.lines[0].slice(0, 100)}\n  two: ${moves[1]}\n       ${pair.lines[1].slice(0, 100)}`);
-      fs.writeFileSync(path.join(outDir, "pairs.json"), `${JSON.stringify({ pairs, skips }, null, 2)}\n`);
+      fs.writeFileSync(path.join(outDir, "pairs.json"), `${JSON.stringify({ pairs, skips, converged }, null, 2)}\n`);
     }
   }
 }
@@ -114,14 +107,16 @@ for (const s of scenarios) {
   if (!message.parsed_output) throw new Error(`Judge returned ${message.stop_reason} for ${s.id}`);
   const { matched, unmatched } = matchSteering(mine, message.parsed_output);
   for (const [id, j] of matched) judged.set(id, j);
+  fs.writeFileSync(path.join(outDir, "judgements.json"), `${JSON.stringify([...judged.entries()], null, 2)}\n`);
   console.log(`judged ${matched.size} of ${mine.length} pairs for ${s.id}${unmatched ? ` (${unmatched} answers matched nothing)` : ""}`);
 }
 fs.writeFileSync(path.join(outDir, "judgements.json"), `${JSON.stringify([...judged.entries()], null, 2)}\n`);
 
-const score = scoreSteering(pairs, judged, skips);
+fs.writeFileSync(path.join(outDir, "pairs.json"), `${JSON.stringify({ pairs, skips, converged }, null, 2)}\n`);
+const score = scoreSteering(pairs, judged, skips, converged);
 const report = formatSteeringReport(score, {
   run: stamp, dry, director: dry ? "understudy" : model, judge: dry ? "stand-in (seeded random)" : judgeModel,
   wardens: wardens.join(", "), scenarios: scenarios.map((s) => s.id).join(", "), stimuliPerScenario: stimuliPer,
-}, pairs, judged, skips);
+}, pairs, judged, skips, converged);
 fs.writeFileSync(path.join(outDir, "report.md"), `${report}\n`);
 console.log(`\n${report}\n\nwritten to ${path.relative(root, outDir)}`);

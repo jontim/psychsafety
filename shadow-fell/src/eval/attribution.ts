@@ -323,6 +323,8 @@ export interface ConditionScore {
   unjudged: number;
   /** Lines that break their Warden's grammar rules (Brask conjugating). */
   styleSlips: number;
+  /** Lines that open on the shared care reflex (sit, eat, you have walked): the family resemblance becoming one voice. */
+  careOpeners: number;
   voice: number;
   action: number;
   intention?: number;
@@ -348,10 +350,26 @@ function jaccard(a: Set<string>, b: Set<string>): number {
 /** Voice rules a line can break by grammar alone; today only Brask's broken Common, by canon. */
 export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
   brask: [
-    /\b(did not|does not|do not|is not|was not|were not|are not|will not|didn't|doesn't|isn't|wasn't|weren't|aren't|won't)\b/i,
-    /\b(is|are|was|were|am|did|said|asked|came|saw|told|had|has been|have been)\b/i,
+    // do-support and auxiliary negatives
+    /\b(did not|does not|do not|didn't|doesn't|don't|isn't|wasn't|weren't|aren't|won't|will not|would not|wouldn't|couldn't|shouldn't)\b/i,
+    // native question frames
+    /\b(why|what|where|when|how|who)\s+(is|are|was|were|do|does|did)\b/i,
+    // connectors and abstraction he does not produce
+    /\b(nevertheless|whereas|even though|given that|insofar|in order to|the fact that|which means|sufficient|necessarily|assum(e|es|ing)|incentives?|presumably|essentially)\b/i,
+    // native idioms
+    /\b(hill (I|to|I'd) (want to )?die on|read between the lines|ball('s| is) in your court|benefit of the doubt)\b/i,
+    // auxiliary contractions
+    /\b(I'm|I've|I'll|you're|we're|they're|it's|that's|there's|he's|she's)\b/,
+    // common past forms where the rail wants an adverb and the present
+    /\b(said|was|were|did|came|went|saw|told|took|brought|knew|thought|got|made)\b/i,
   ],
 };
+
+/** True when a line opens on the shared practical-care reflex: sit, eat, you have walked, you are shaking. */
+export function opensOnCare(line: string): boolean {
+  const opening = line.split(/\s+/).slice(0, 14).join(" ");
+  return /\b(sit|eat|walked since|you're shaking|you are shaking|shaking)\b/i.test(opening);
+}
 
 /** True when a line breaks its Warden's grammar rules (Brask conjugating, for instance). */
 export function slipsStyle(warden: WardenId, line: string): boolean {
@@ -417,6 +435,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
     proseLeaks: live.filter((s) => s.rawLine).length,
     unjudged,
     styleSlips,
+    careOpeners: onSpeaker.filter((s) => opensOnCare(s.line)).length,
     voice: rate(voice, judgedLines),
     action: rate(action, judgedLines),
     ...(intentionJudged ? { intention: rate(intentionRight, intentionJudged) } : {}),
@@ -468,7 +487,7 @@ export function verdict(scores: Partial<Record<Condition, ConditionScore>>): str
 
 export function formatReport(scores: ConditionScore[], meta: Record<string, string | number | boolean>, samples: Sample[], terms: string[]): string {
   const pct = (x: number | undefined) => (x === undefined ? "" : `${Math.round(x * 100)}%`);
-  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${s.judged} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.styleSlips} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
+  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${s.judged} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.styleSlips} | ${s.careOpeners} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
   const byWarden = WARDENS.map((w) => `| ${w} | ${scores.map((s) => (s.perWarden[w] ? `${pct(s.perWarden[w]!.voice)} / ${pct(s.perWarden[w]!.action)} (${s.perWarden[w]!.n})` : "")).join(" | ")} |`);
   const pairRows = scores.flatMap((s) => s.pairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair.join(" and ")} | ${p.n} | ${pct(p.voice)} | ${p.crossed} |`));
   const confusionRows = scores.flatMap((s) => s.confusions.slice(0, 12).map((c) => `- ${s.condition}, ${c.scenario}: ${c.truth} taken for ${c.guess} ×${c.count}`));
@@ -479,8 +498,8 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     "",
     ...Object.entries(meta).map(([k, v]) => `- ${k}: ${v}`),
     "",
-    "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | style slips | fallbacks | unjudged | off-speaker |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+    "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | style slips | care openers | fallbacks | unjudged | off-speaker |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ...rows,
     "",
     `Verdict: ${verdict(Object.fromEntries(scores.map((s) => [s.condition, s])))}`,

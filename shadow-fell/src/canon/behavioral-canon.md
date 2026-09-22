@@ -1,4 +1,4 @@
-<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. Jon's amendments of 2026-09-22, dictated in chat and applied here in his words, still need folding into the docx: the section 17 stand-and-hold limit, the section 19 visitor test, section 20, Validation Status, the section 12.1 sentences on Lyra's formation (finished at sixteen, when she left for Valerith) and the shape of the troupe years, and the section 20 paragraphs on sampling, collision pairs and the steering test. -->
+<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. Jon's amendments of 2026-09-22, dictated in chat and applied here in his words, still need folding into the docx: the section 17 stand-and-hold limit, the section 19 visitor test, section 20, Validation Status, the section 12.1 sentences on Lyra's formation (finished at sixteen, when she left for Valerith) and the shape of the troupe years, the section 20 paragraphs on sampling, collision pairs and the steering test, section 21, Language Rails, with Brask's rail, the section 20 status change to VALIDATED PRELIMINARILY with the plurality rule, and the section 7 shared-care de-duplication guardrail. -->
 
 STORMWARDENS
 
@@ -515,6 +515,8 @@ Expected: Success usually becomes logistics, teasing, aftercare, investigation o
 - Characters may use another member’s method, but execution must remain in their own voice.
 
 - Behavioral canon outranks convenient plot behavior. Out-of-character branches must earn the deviation on screen.
+
+- Shared-care de-duplication: the company shares a practical-care ethic, but each Warden expresses it through their own attentional priority. Do not default multiple Wardens to sit, eat and reassure unless the physical state genuinely makes those actions primary. Thorbin feeds him because hunger is a material problem. Serena secures him because his safety is now her responsibility. Kael notices horse, person and environment dysregulation. Lyra notices the uncontained consequence. Tavian changes the social state so shame stops obstructing action. Varya obtains the fact whose absence prevents action. Brask makes the concrete guarantee true. Same family ethic, seven different doors.
 
 # 8  Open Integration Work
 
@@ -1200,7 +1202,7 @@ Expected: Do not automatically make her jailer, villain, love interest or victim
 
 # 20  Validation Status — the candidate gate
 
-STATUS: UNVALIDATED IN LIVE GENERATION.
+STATUS: VALIDATED PRELIMINARILY. In an initial four-pair steering evaluation, alternate +1/+2 intentions produced distinct enacted tactics while preserving speaker voice in 4/4 judged pairs. Sample remains too small for strong generalization. Retain gate pending larger evaluation. (Until 22 September 2026 the status read UNVALIDATED IN LIVE GENERATION; the steering test changed it, having been built to kill the gate.)
 
 The candidate gate is an implementation hypothesis until live play demonstrates that intention scoring changes rendered behavior. Deterministic slate completion is not evidence of efficacy. Claude could generate beautifully canonical intentions and then revert to generic fantasy ensemble dialogue when rendering the line.
 
@@ -1215,6 +1217,50 @@ Then test the gate itself experimentally, blind, on the same beats. A: generatio
 Sampling: easy pairs such as Serena versus Brask show the pipeline works, but they are almost maximally different already, and the bare card can saturate voice attribution on them. Use twenty or thirty stimuli per condition across all seven Wardens, with beats deliberately selected to create collisions: Serena versus Thorbin on moral counsel; Tavian versus Varya on a smooth liar; Lyra versus Kael on a magical or natural anomaly; Thorbin versus Brask on a frightened victim; Serena versus Varya confronting competent authority. A condition whose generations fell back to the understudy is invalid, not evidence: the gate is then unvalidated, not disproven.
 
 The steering test, the cleaner test of the gate: for the same Warden and the same stimulus, deliberately force two different canon-valid intentions and render a line from each. For the smooth visitor and Serena: maintain a courteous boundary while gathering provenance; or deliberately grant limited procedural access to test whether the visitor respects rules. Both are Serena-compatible. If the two lines come out effectively identical, the intention slate is decorative. If the difference is obvious while both still sound like Serena, the gate is doing causal work. The test is: can the renderer express two distinct canon-valid intentions for the same character and the same stimulus? If not, kill the gate. If yes, keep it, because then it gives the director an actual steering surface rather than an expensive horoscope.
+
+Plurality is optional. Specificity is mandatory. If there are two or more +1/+2 intentions, the director has a steering surface. If there is only one, that is information about the character, not a generation failure: sometimes a character really does have one overwhelmingly canonical response to a situation, and manufacturing a second move merely to prove the steering architecture works would make them less coherent. Characters with broader tactical repertoires in a situation generate more director latitude; characters with strong value convergence become more predictable. That is human, and it is game design data.
+
+# 21  Language Rails
+
+Voice rules that sit under a Warden's execution card and bind the rendered line. A rail describes production, not cognition: a Warden may think a thought their syntax cannot carry.
+
+## BRASK
+
+Brask's cognition is sophisticated. His Common production is not. He can think a complex thought without possessing the grammar or idiom to express it complexly; his reasoning may be advanced while his syntax remains second-language, concrete and structurally economical. Brask's intelligence is judged from the sequence and quality of his questions, never from the sophistication of his Common. The danger is standard Common with Brask's name substituted into it and a few dropped articles sprinkled on top.
+
+- Tense: defaults heavily to simple present. Time is located with an adverb rather than conjugation: "Yesterday he go north," not "He went north yesterday."
+
+- Copula and auxiliary verbs: frequently omitted. "He angry." "This not same." "What they doing?"
+
+- Do-support: generally absent. "What you want?" "Why he say this?" "You know him?"
+
+- Negation: "no" or "not" before the verb. "Brask no ask for cup." "We not know."
+
+- Articles: often omitted unless needed for clarity. "Put sword down." "Take road east."
+
+- Relation: possession and action over containment and abstraction, the relation a learner reaches for first. "You say two wagons. What they have?", never "What was in them?"
+
+- Sentence architecture: short independent units, fact, fact, question, consequence. Few nested subordinate clauses.
+
+- Connectors: and, but, so, because, if. Never nevertheless, whereas, even though, given that, insofar as.
+
+- Idioms: no native idiomatic thought unless it is a phrase he has clearly learned from someone. No "hill to die on", "read between the lines", "ball in your court", "benefit of the doubt". Those need a cultural fluency he does not have.
+
+- Abstraction: he understands it by converting it into concrete variables. Not "the incentives are misaligned" but "What he gets if he lies?" Not "that doesn't necessarily mean he's lying" but "Maybe lie. Maybe not. What else we know?" Not "you're assuming those two things are connected" but "Why this mean that?" Not "there isn't enough evidence to decide" but "We not know yet." "Yet" is allowed: it is concrete time, not abstract qualification.
+
+- Vocabulary: not artificially tiny. He can know precise words from the domains he actually knows: horses, weapons, slavery, trade, travel, bodies, weather, risk, money, steppe culture, combat. Limited grammar is not limited knowledge.
+
+- Comprehension over production: he can understand a far more complex sentence than he could construct.
+
+- Not every sentence maximally broken, or he becomes a comedy dialect. "That is not true." is plausible. So is "You promised." The marker is not constant grammatical damage; it is that when he must produce a complicated thought he decomposes it instead of suddenly becoming syntactically native.
+
+- He does not compress reasoning into abstract summary phrases when he can state the missing fact directly. Not "we lack sufficient evidence." Not "we do not know enough." "We not know." Then he asks the next question.
+
+Too native: "If the bridge is the only crossing and destroying it would strand the villagers, perhaps we should determine whether the creature has another habitat before we make a decision."
+
+Brask: "Bridge only crossing?" "Yes." "Creature live somewhere else?" "We don't know." "Then we not know." A beat. "Find out."
+
+An interrogation can be extremely sophisticated: "Heavy wagons? Wheel tracks deep?" "Guards with them?" "How many?" "Same road back?" The sophistication appears in which question comes next, not in syntactic complexity.
 
 END OF v1.3 • FROZEN WORKING BASELINE
 

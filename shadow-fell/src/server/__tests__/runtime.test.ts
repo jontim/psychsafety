@@ -64,7 +64,12 @@ describe("the compiled canon", () => {
     expect(runtime.kids.join(" ")).not.toContain("finishing her formation");
     expect(runtime.tests.some((t) => t.section === "19" && /unnamed employer/.test(t.test))).toBe(true);
     expect(runtime.fallbacks.find((f) => f.domain === "Stand-and-hold")!.limit).toMatch(/^Brask's mass, reach, pain tolerance/);
-    expect(runtime.validation.join(" ")).toContain("UNVALIDATED IN LIVE GENERATION");
+    expect(runtime.validation.join(" ")).toContain("VALIDATED PRELIMINARILY");
+    expect(runtime.validation.join(" ")).toContain("Plurality is optional. Specificity is mandatory.");
+    expect(runtime.guardrails.some((g) => g.startsWith("Shared-care de-duplication"))).toBe(true);
+    expect(runtime.wardens.brask!.languageRail.length).toBeGreaterThanOrEqual(14);
+    expect(runtime.wardens.brask!.languageRail.join(" ")).toContain("Then we not know.");
+    for (const id of ["tav", "serena", "thorbin", "varya", "lyra", "kael"]) expect(runtime.wardens[id]!.languageRail).toEqual([]);
     expect(runtime.pairs["serena->tav"]!.risk).toMatch(/^The fault line remains canon/);
     expect(runtime.wardens.thorbin!.wrongLines[0]!.line).toMatch(/^Morrighad commands it/);
     expect(runtime.torMorrighad.join(" ")).not.toContain("LEGACY PLACEHOLDER");
@@ -111,10 +116,12 @@ describe("the slate", () => {
     expect(system).toContain("### Directed pairs");
     expect(system).toContain("### Wrong lines");
     expect(system).toMatch(/### Varya Stormveil[\s\S]*Runtime \(director only; Behavioral Canon\): Ranger/);
+    expect(system).toMatch(/### Brask Runebearer[\s\S]*Language rail \(binding on every line\):[\s\S]*Then we not know/);
     const block = system.slice(system.indexOf("## The company's runtime"), system.indexOf("## The story"));
     for (const dead of DEAD) expect(block, `dead name ${dead}`).not.toMatch(dead);
     expect(block).not.toMatch(/95\s*%/);
-    expect(system).not.toContain("UNVALIDATED");
+    expect(system).not.toContain("VALIDATED PRELIMINARILY");
+    expect(system).toContain("Shared-care de-duplication");
     expect(block).toContain("Serena → Tavian:");
     const msg = turnMessage(shadowFell, request("morning"), runtime);
     expect(msg).toContain("## The slate");

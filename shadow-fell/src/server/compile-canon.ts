@@ -96,7 +96,7 @@ export function compileCanon(markdown: string): CanonRuntime {
   const wardens: Record<string, WardenRuntime> = {};
   const ensure = (id: string): WardenRuntime => (wardens[id] ??= {
     id, name: WARDEN_NAMES[id]!, role: "", thesis: "", card: [], runtimeRule: "", failureMode: "", runtime: {},
-    outsider: { authority: "", vulnerable: "", predator: "", nuisance: "" }, wrongLines: [],
+    outsider: { authority: "", vulnerable: "", predator: "", nuisance: "" }, wrongLines: [], languageRail: [],
   });
   for (const b of at(3)) {
     const id = wardenSub(b.sub);
@@ -192,6 +192,12 @@ export function compileCanon(markdown: string): CanonRuntime {
   }
 
   const validation = texts(at(20));
+
+  // 21: language rails, per Warden, optional
+  for (const s of [...new Set(at(21).map((b) => b.sub))]) {
+    const id = s ? wardenSub(s) : null;
+    if (id) ensure(id).languageRail = texts(at(21, (x) => x === s));
+  }
 
   const tests: CanonTest[] = [
     ...testsOf("6", at(6)),

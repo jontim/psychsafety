@@ -24,4 +24,4 @@ Lesson most easily taught to others: do not make yourself smaller; do not abando
 Never name or describe the institution that assesses her; it is open canon. Never give her the word "Present"; it is reserved. Melindre and Thorbin have shared a bed for years; Lyra is innocently resistant to thinking about it; never make it a reveal. Never render her power as spellcraft with incantations.
 
 ## Sources
-worlds/stormwardens/characters/lyra; imports/claude/stormwardens/lyra-three-parts-full-md; Master Canon 2.0 §6.1, §6.2, §7.5; Gifts and Shadows; the Archive note.
+worlds/stormwardens/characters/lyra; Jon's ruling on Melindre and Thorbin, 2026-09-22; imports/claude/stormwardens/lyra-three-parts-full-md; Master Canon 2.0 §6.1, §6.2, §7.5; Gifts and Shadows; the Archive note.

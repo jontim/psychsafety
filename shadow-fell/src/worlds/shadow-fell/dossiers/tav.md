@@ -24,4 +24,4 @@ Lessons: not on record.
 Never fill his parentage, his parents' names, or whether Larkvale was his birth name. Never explain the map's negative space or name what is behind it. Never state the axiom about Serena aloud, and never romanticise the bond: it settled in their student years as near-siblings, deeper than friends, no romantic dimension, and they do not discuss it. Never let him narrate the Wardens' history as legend in the tour scenes; the ballad's planted errors are bait, and he knows which ones.
 
 ## Sources
-worlds/stormwardens/tavian-larkvale; Master Canon 2.0 §7.2, §7.3, §9; Gifts and Shadows; the Archive note.
+worlds/stormwardens/tavian-larkvale; Jon's ruling on Duskmere and the keep, 2026-09-22; Master Canon 2.0 §7.2, §7.3, §9; Gifts and Shadows; the Archive note.

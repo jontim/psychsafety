@@ -24,4 +24,4 @@ Lesson most easily taught to others: enough is the condition that permits growth
 Never fill in the third loss at Mhasun; it exists, it is a failure to pick up a stone in time, he carries it unstoned, and that is all that may ever be said. Never confuse the two strikes, and never give the first one names, faces or details beyond what is recorded here; his second-in-command stays unnamed. His life with Melindre is private, not secret: Serena has always known, Tavian and Lyra are in denial; never stage it as a reveal or a performance. Never make his age exact, and never reveal the labradorite's name or his birth record; that story is told elsewhere.
 
 ## Sources
-worlds/stormwardens/characters/thorbin-ironhart; Jon's ruling on the two strikes, 2026-09-20; Master Canon 2.0 §6.4, §7.9; Gifts and Shadows; the Archive note; Sealed material marker.
+worlds/stormwardens/characters/thorbin-ironhart; Jon's rulings, 2026-09-20 and 2026-09-22; Master Canon 2.0 §6.4, §7.9; Gifts and Shadows; the Archive note; Sealed material marker.

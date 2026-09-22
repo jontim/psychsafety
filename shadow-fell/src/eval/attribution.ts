@@ -9,6 +9,7 @@ import { z } from "zod";
 import { defineWorld, findCast, type World, type Beat } from "../engine/world.js";
 import type { CanonRuntime } from "../engine/runtime.js";
 import type { TonePreset } from "../engine/mock-ear.js";
+import { speechOnly } from "../engine/speech.js";
 
 export const WARDENS = ["tav", "serena", "thorbin", "varya", "brask", "lyra", "kael"] as const;
 export type WardenId = (typeof WARDENS)[number];
@@ -120,7 +121,8 @@ export function stripIdentity(text: string, terms: string[]): string {
 
 export const JudgementSchema = z.object({
   items: z.array(z.object({
-    id: z.string(),
+    /** The item's number as listed, 1-based. */
+    index: z.number().int(),
     /** Who said it, judging by language, cadence and register alone. */
     voice: z.enum(WARDENS),
     /** Who would choose to do what the item does, judging by behaviour alone. */
@@ -137,6 +139,18 @@ export type JudgedItem = Judgement["items"][number];
 
 export interface JudgeItem { id: string; kind: "line" | "intention"; text: string; situation: string }
 
+/** Map the judge's numbered answers back to item ids; unmatched numbers are dropped and counted. */
+export function matchJudgements(items: JudgeItem[], judgement: Judgement): { matched: Map<string, JudgedItem>; unmatched: number } {
+  const matched = new Map<string, JudgedItem>();
+  let unmatched = 0;
+  for (const j of judgement.items) {
+    const item = items[j.index - 1];
+    if (item) matched.set(item.id, j);
+    else unmatched++;
+  }
+  return { matched, unmatched };
+}
+
 export function judgeSystem(runtime: CanonRuntime): string {
   const cards = WARDENS.map((id) => {
     const w = runtime.wardens[id]!;
@@ -151,7 +165,7 @@ export function judgeSystem(runtime: CanonRuntime): string {
   }).join("\n\n");
   return [
     "You are an independent evaluator of character discriminability. Seven characters, the Stormwardens, each have an execution card below. You will be shown lines and intentions generated for them with every name, dialogue tag and character-specific noun replaced by [name].",
-    "For each item answer, using the ids: voice, who said it judging by language, cadence and register alone; action, who would choose to do what the item does, judging by behaviour alone; swappable, whether the item could be reassigned to a different Warden by changing only the name, and if so to whom; violation, if the item breaks a card's rule or will-not-do in a way worth a −2, named in a few words, otherwise omitted.",
+    "For each numbered item answer, giving its number as index: voice, who said it judging by language, cadence and register alone; action, who would choose to do what the item does, judging by behaviour alone; swappable, whether the item could be reassigned to a different Warden by changing only the name, and if so to whom; violation, if the item breaks a card's rule or will-not-do in a way worth a −2, named in a few words, otherwise omitted.",
     "Judge each item on its own. Do not assume the items are evenly distributed across the seven, and do not use the order of the items as a clue.",
     "",
     "## The seven",
@@ -160,7 +174,7 @@ export function judgeSystem(runtime: CanonRuntime): string {
 }
 
 export function judgeUser(items: JudgeItem[]): string {
-  return ["## Items", ...items.map((i) => `${i.id} (${i.kind}; situation: ${i.situation})\n"${i.text}"`)].join("\n\n");
+  return ["## Items", ...items.map((i, n) => `${n + 1}. (${i.kind}; situation: ${i.situation})\n"${i.text}"`)].join("\n\n");
 }
 
 export interface Sample {
@@ -172,12 +186,25 @@ export interface Sample {
   stimulusLine: string;
   tone: string;
   speaker: string;
+  /** The spoken words, after the speech-only repair. */
   line: string;
+  /** What the director rendered before repair, when it differed. */
+  rawLine?: string;
+  /** Narration the director put in the line instead of the tell. */
+  proseLeak?: string;
   acting: string;
   /** The highest-scored intention, when the gate was on. */
   intention?: string;
   intentionScore?: number;
   source: string;
+  /** The director's note when the turn fell back to the understudy. */
+  note?: string;
+}
+
+/** Build a sample from a director's answer, repairing prose into speech and recording the leak. */
+export function sampleLine(line: string): { line: string; rawLine?: string; proseLeak?: string } {
+  const split = speechOnly(line);
+  return split.leaked ? { line: split.text, rawLine: line, ...(split.narration ? { proseLeak: split.narration } : {}) } : { line };
 }
 
 export interface ConditionScore {
@@ -186,6 +213,12 @@ export interface ConditionScore {
   n: number;
   /** Turns where the director spoke as someone other than the Warden; excluded from attribution. */
   offSpeaker: number;
+  /** Turns the live director did not take (refusals and errors); excluded from attribution. */
+  fallbacks: number;
+  /** Lines the director rendered as prose with quotation marks or stage directions. */
+  proseLeaks: number;
+  /** Lines sent to the judge that came back unjudged. */
+  unjudged: number;
   voice: number;
   action: number;
   intention?: number;
@@ -209,18 +242,20 @@ export function hitsWrongLine(line: string, runtime: CanonRuntime, threshold = 0
   return Object.values(runtime.wardens).some((w) => w.wrongLines.some((wl) => jaccard(t, tokens(wl.line)) >= threshold));
 }
 
-export function scoreCondition(condition: Condition, samples: Sample[], judged: Map<string, JudgedItem>, runtime: CanonRuntime): ConditionScore {
+export function scoreCondition(condition: Condition, samples: Sample[], judged: Map<string, JudgedItem>, runtime: CanonRuntime, dry = false): ConditionScore {
   const mine = samples.filter((s) => s.condition === condition);
-  const onSpeaker = mine.filter((s) => s.speaker === s.warden);
+  const live = dry ? mine : mine.filter((s) => s.source === "claude");
+  const onSpeaker = live.filter((s) => s.speaker === s.warden);
   const perWarden: ConditionScore["perWarden"] = {};
-  let voice = 0, action = 0, swapResistant = 0, violations = 0, wrongLineHits = 0, judgedLines = 0;
+  let voice = 0, action = 0, swapResistant = 0, violations = 0, wrongLineHits = 0, judgedLines = 0, unjudged = 0;
   let intentionRight = 0, intentionJudged = 0;
   for (const s of onSpeaker) {
-    const pw = (perWarden[s.warden] ??= { n: 0, voice: 0, action: 0 });
-    pw.n++;
     if (hitsWrongLine(s.line, runtime)) wrongLineHits++;
     const j = judged.get(`${s.id}:line`);
-    if (j) {
+    if (!j) { unjudged++; }
+    else {
+      const pw = (perWarden[s.warden] ??= { n: 0, voice: 0, action: 0 });
+      pw.n++;
       judgedLines++;
       if (j.voice === s.warden) { voice++; pw.voice++; }
       if (j.action === s.warden) { action++; pw.action++; }
@@ -236,7 +271,10 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
     condition,
     label: CONDITIONS[condition].label,
     n: mine.length,
-    offSpeaker: mine.length - onSpeaker.length,
+    offSpeaker: live.length - onSpeaker.length,
+    fallbacks: mine.length - live.length,
+    proseLeaks: live.filter((s) => s.rawLine).length,
+    unjudged,
     voice: rate(voice, judgedLines),
     action: rate(action, judgedLines),
     ...(intentionJudged ? { intention: rate(intentionRight, intentionJudged) } : {}),
@@ -251,6 +289,9 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
 export function verdict(scores: Partial<Record<Condition, ConditionScore>>): string {
   const { A, B, C } = scores;
   const lines: string[] = [];
+  const ran = (s: ConditionScore | undefined) => s && s.n - s.fallbacks - s.offSpeaker - s.unjudged > 0;
+  for (const s of [A, B, C]) if (s && !ran(s)) lines.push(`Condition ${s.condition} did not run: ${s.fallbacks} of ${s.n} turns fell back to the understudy and ${s.unjudged} came back unjudged, so no verdict rests on it.`);
+  if ((A && !ran(A)) || (B && !ran(B)) || (C && !ran(C))) return lines.join(" ");
   if (A && B) {
     lines.push(B.voice > A.voice && B.action > A.action
       ? "The runtime earns its tokens: B beats A on both voice and behaviour."
@@ -268,16 +309,17 @@ export function verdict(scores: Partial<Record<Condition, ConditionScore>>): str
 
 export function formatReport(scores: ConditionScore[], meta: Record<string, string | number | boolean>, samples: Sample[], terms: string[]): string {
   const pct = (x: number | undefined) => (x === undefined ? "" : `${Math.round(x * 100)}%`);
-  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.offSpeaker} |`);
+  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
+  const notes = samples.filter((x) => x.note).map((x) => `- ${x.condition}, ${x.warden} to the ${x.scenario}: ${x.note}`);
   const byWarden = WARDENS.map((w) => `| ${w} | ${scores.map((s) => `${pct(s.perWarden[w]?.voice)} / ${pct(s.perWarden[w]?.action)}`).join(" | ")} |`);
-  const examples = scores.flatMap((s) => samples.filter((x) => x.condition === s.condition).slice(0, 2).map((x) => `- ${s.condition}, ${x.warden} to the ${x.scenario} (${x.tone}): "${stripIdentity(x.line, terms)}"${x.intention ? ` [intention: ${stripIdentity(x.intention, terms)}]` : ""}`));
+  const examples = scores.flatMap((s) => samples.filter((x) => x.condition === s.condition && x.source === "claude").slice(0, 2).map((x) => `- ${s.condition}, ${x.warden} to the ${x.scenario} (${x.tone}): "${stripIdentity(x.line, terms)}"${x.proseLeak ? ` [narration moved to the tell: ${stripIdentity(x.proseLeak, terms)}]` : ""}${x.intention ? ` [move: ${stripIdentity(x.intention, terms)}]` : ""}`));
   return [
     "# Blind Character Attribution",
     "",
     ...Object.entries(meta).map(([k, v]) => `- ${k}: ${v}`),
     "",
-    "| Condition | n | voice | behaviour | intention | swap resistance | violations | wrong-line hits | off-speaker |",
-    "|---|---|---|---|---|---|---|---|---|",
+    "| Condition | n | voice | behaviour | intention | swap resistance | violations | wrong-line hits | prose leaks | fallbacks | unjudged | off-speaker |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|",
     ...rows,
     "",
     `Verdict: ${verdict(Object.fromEntries(scores.map((s) => [s.condition, s])))}`,
@@ -291,5 +333,6 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     "## Examples, as the judge saw them",
     "",
     ...examples,
+    ...(notes.length ? ["", "## Turns the live director did not take", "", ...notes] : []),
   ].join("\n");
 }

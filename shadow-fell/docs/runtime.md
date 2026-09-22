@@ -30,9 +30,13 @@ In the per-turn message, after the beat card:
 
 Beats with no Warden present (Soraya's room) get an idle slate: the runtime does not apply, and the counterpart is scored against their own card.
 
+## Speech, not prose
+
+A line is what Octave reads aloud. The rules tell the director that the line is the spoken words only, with no quotation marks, stage directions or narrated pauses, and that what the player could see goes in the tell. The sanitiser enforces it: a line rendered as prose is cut down to its quoted speech and the narration becomes the tell when the director left the tell empty. The attribution eval counts these as prose leaks.
+
 ## What the director returns
 
-`DirectorResponse.slate` is required: the owner of the problem this turn (a cast id or "none"), the coverage mode (owner, fallback, containment or retrieval), the outsider mode used, and two to four candidate intentions, each scored from −2 to +2 with a note. The line renders from the best of them and never from a −2. This is §9.6 made visible: the intentions are generated and scored before the speech, and they come back with it. The understudy fills the slate deterministically so the shape holds without a key.
+`DirectorResponse.slate` is required: the owner of the problem this turn (a cast id or "none"), the coverage mode (owner, fallback, containment or retrieval), the outsider mode used, and two to four candidate moves for the speaker, each scored from −2 to +2 with a note. The line renders from the best of them and never from a −2. This is §9.6 made visible. The slate is framed to the model as the scene's paperwork, moves the character could make, not reasoning the model performed: the first live run refused every gated turn, and the API documents a refusal category for requests that try to elicit the model's internal reasoning in the response. When the director refuses, the note carries the refusal category and the understudy takes the turn. The understudy fills the slate deterministically so the shape holds without a key.
 
 ## The slate panel
 

@@ -121,6 +121,6 @@ export function slateCard(world: World, beat: Beat, runtime: CanonRuntime, gate 
   if (beat.outsider) {
     lines.push(`The outsider as the scene opens: ${beat.outsider.mode}, confidence ${beat.outsider.confidence}.${beat.outsider.note ? ` ${beat.outsider.note}` : ""} Classify by demonstrated behaviour, never by rank, species or magic, and reclassify as it changes.`);
   }
-  if (gate) lines.push("Before the line: two to four candidate intentions for the speaker, scored −2 to +2; reject −2, rewrite −1, render the best. Report them in slate.intentions with the owner, coverage and outsider mode you used.");
+  if (gate) lines.push("Slate: two to four candidate moves for the speaker this turn, scored −2 to +2 against the company's runtime; the line renders the best-scored one and never a −2. Give the owner, the coverage and the outsider mode alongside them.");
   return lines.join("\n");
 }

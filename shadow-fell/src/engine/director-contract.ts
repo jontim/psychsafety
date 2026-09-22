@@ -38,17 +38,17 @@ export const ShotSchema = z.object({
 export const OutsiderModeSchema = z.enum(["authority", "vulnerable", "predator", "nuisance", "mixed"]);
 export const CoverageModeSchema = z.enum(["owner", "fallback", "containment", "retrieval"]);
 
-/** One candidate intention from the generation loop, scored against the company's runtime. */
+/** One candidate move the speaker could make this turn, scored against the company's runtime. */
 export const IntentionSchema = z.object({
-  /** One clause: what the speaker means to do with this line. */
+  /** One clause: a move the speaker could make with this line. */
   intention: z.string(),
   /** +2 canon-positive, +1 compatible, 0 neutral, -1 drift risk, -2 canon violation. */
   score: z.number().int().min(-2).max(2),
-  /** A few words on the score. */
+  /** A few words on why it scores so. */
   note: z.string().optional(),
 });
 
-/** The director's slate: the reasoning the runtime asks for before the line is rendered. */
+/** The director's slate: the scene's paperwork, filled every turn alongside the line. */
 export const SlateSchema = z.object({
   /** Cast id of who owns the problem this turn, or "none". */
   owner: z.string(),
@@ -56,7 +56,7 @@ export const SlateSchema = z.object({
   coverage: CoverageModeSchema,
   /** How the Wardens read the outsider right now; reclassified on behaviour. */
   outsiderMode: OutsiderModeSchema,
-  /** The candidates considered; the line renders the best of them. */
+  /** Two to four candidate moves for the speaker this turn; the line renders the best-scored. */
   intentions: z.array(IntentionSchema).min(2).max(4),
 });
 export type Slate = z.infer<typeof SlateSchema>;

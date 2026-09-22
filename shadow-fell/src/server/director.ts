@@ -5,6 +5,7 @@ import type { World } from "../engine/world.js";
 import { findBeat } from "../engine/world.js";
 import type { CanonRuntime } from "../engine/runtime.js";
 import { systemPrompt, turnMessage } from "./prompt.js";
+import { speechOnly } from "../engine/speech.js";
 import { understudy } from "./understudy.js";
 
 export interface DirectorOptions {
@@ -37,12 +38,15 @@ function sanitise(world: World, req: DirectorRequest, r: DirectorResponseLoose, 
   const shot = r.shot.kind === "reaction" && r.shot.key && !world.clips.some((c) => c.key === r.shot.key)
     ? { kind: "reaction" as const }
     : r.shot;
+  const speech = speechOnly(r.line);
+  const line = speech.text || r.line;
+  const tell = r.tell ?? speech.narration;
   const known = new Set(world.cast.map((c) => c.id));
   // With the gate off, the slate is empty on purpose: no intentions were asked for, so none are reported.
   const slate = gate && r.slate
     ? { ...r.slate, owner: known.has(r.slate.owner) ? r.slate.owner : "none" }
     : { owner: "none", coverage: "owner" as const, outsiderMode: beat.outsider?.mode ?? ("mixed" as const), intentions: [] };
-  return { ...r, speaker, shot, slate, ...(escalate ? { escalate } : { escalate: undefined }) };
+  return { ...r, speaker, line, ...(tell ? { tell } : {}), shot, slate, ...(escalate ? { escalate } : { escalate: undefined }) };
 }
 
 export function createDirector(world: World, opts: DirectorOptions, client: Anthropic | null) {
@@ -62,7 +66,9 @@ export function createDirector(world: World, opts: DirectorOptions, client: Anth
         output_config: { effort: opts.effort, format: zodOutputFormat(gate ? DirectorResponseSchema : DirectorResponseLooseSchema) },
       });
       if (message.stop_reason === "refusal" || !message.parsed_output) {
-        return { response: sanitise(world, req, understudy(world, req, opts.runtime), gate), source: "understudy", note: `Model returned ${message.stop_reason}; the understudy took the turn.` };
+        const details = (message as { stop_details?: { category?: string | null; explanation?: string | null } | null }).stop_details;
+        const why = details ? ` (${details.category ?? "uncategorised"}${details.explanation ? `: ${details.explanation}` : ""})` : "";
+        return { response: sanitise(world, req, understudy(world, req, opts.runtime), gate), source: "understudy", note: `Model returned ${message.stop_reason}${why}; the understudy took the turn.` };
       }
       return { response: sanitise(world, req, message.parsed_output, gate), source: "claude" };
     } catch (error) {

@@ -24,7 +24,7 @@ import { StorySession } from "../src/engine/session.js";
 import { toneVector } from "../src/engine/mock-ear.js";
 import {
   CONDITIONS, SCENARIOS, WARDENS, evalWorld, evalBeatId, identityTerms, stripIdentity, judgeSystem, judgeUser, JudgementSchema,
-  scoreCondition, formatReport, type Condition, type Sample, type WardenId, type JudgedItem, type JudgeItem,
+  matchJudgements, sampleLine, scoreCondition, formatReport, type Condition, type Sample, type WardenId, type JudgedItem, type JudgeItem,
 } from "../src/eval/attribution.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -68,7 +68,7 @@ for (const condition of conditions) {
         const best = r.slate.intentions.length ? [...r.slate.intentions].sort((a, b) => b.score - a.score)[0] : undefined;
         const sample: Sample = {
           id: `${condition}-${s.id}-${w}-${st.id}`, condition, scenario: s.id, warden: w, stimulus: st.id, stimulusLine: st.line, tone: st.tone,
-          speaker: r.speaker, line: r.line, acting: r.acting, source: turn.source,
+          speaker: r.speaker, ...sampleLine(r.line), acting: r.acting, source: turn.source, ...(turn.note ? { note: turn.note } : {}),
           ...(best ? { intention: best.intention, intentionScore: best.score } : {}),
         };
         samples.push(sample);
@@ -85,7 +85,7 @@ const rand = seeded(20260922);
 const judged = new Map<string, JudgedItem>();
 for (const condition of conditions) {
   for (const s of scenarios) {
-    const mine = samples.filter((x) => x.condition === condition && x.scenario === s.id && x.speaker === x.warden);
+    const mine = samples.filter((x) => x.condition === condition && x.scenario === s.id && x.speaker === x.warden && (dry || x.source === "claude"));
     const items: JudgeItem[] = mine.flatMap((x) => {
       const situation = `${s.title.split(",")[0]} says, ${x.tone}: "${x.stimulusLine}"`;
       const out: JudgeItem[] = [{ id: `${x.id}:line`, kind: "line", text: stripIdentity(x.line, terms), situation }];
@@ -95,7 +95,7 @@ for (const condition of conditions) {
     for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [items[i], items[j]] = [items[j]!, items[i]!]; }
     if (!items.length) continue;
     if (!client) {
-      for (const it of items) judged.set(it.id, { id: it.id, voice: wardens[Math.floor(rand() * wardens.length)]!, action: wardens[Math.floor(rand() * wardens.length)]!, swappable: rand() < 0.5 });
+      for (const [n, it] of items.entries()) judged.set(it.id, { index: n + 1, voice: wardens[Math.floor(rand() * wardens.length)]!, action: wardens[Math.floor(rand() * wardens.length)]!, swappable: rand() < 0.5 });
       continue;
     }
     const message = await client.messages.parse({
@@ -106,13 +106,14 @@ for (const condition of conditions) {
       output_config: { format: zodOutputFormat(JudgementSchema) },
     });
     if (!message.parsed_output) throw new Error(`Judge returned ${message.stop_reason} for ${condition}/${s.id}`);
-    for (const it of message.parsed_output.items) judged.set(it.id, it);
-    console.log(`judged ${items.length} items for ${condition}/${s.id}`);
+    const { matched, unmatched } = matchJudgements(items, message.parsed_output);
+    for (const [id, it] of matched) judged.set(id, it);
+    console.log(`judged ${matched.size} of ${items.length} items for ${condition}/${s.id}${unmatched ? ` (${unmatched} answers matched nothing)` : ""}`);
   }
 }
 fs.writeFileSync(path.join(outDir, "judgements.json"), `${JSON.stringify([...judged.values()], null, 2)}\n`);
 
-const scores = conditions.map((c) => scoreCondition(c, samples, judged, runtime));
+const scores = conditions.map((c) => scoreCondition(c, samples, judged, runtime, dry));
 const report = formatReport(scores, {
   run: stamp, dry, director: dry ? "understudy" : model, judge: dry ? "stand-in (seeded random)" : judgeModel,
   conditions: conditions.map((c) => `${c} (${CONDITIONS[c].label})`).join("; "), wardens: wardens.join(", "), scenarios: scenarios.map((s) => s.id).join(", "), stimuliPerScenario: stimuliPer,

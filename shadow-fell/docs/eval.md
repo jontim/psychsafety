@@ -14,7 +14,7 @@ The rendered lines, and in C the highest-scored intention, lose every name, dial
 
 ## What it measures
 
-Per condition: voice attribution, behavioural attribution, intention attribution (C only), swap resistance, judge-flagged violations, and rendered lines that match one of the document's wrong lines. Turns where the director spoke as someone other than the Warden are counted and excluded.
+Per condition: voice attribution, behavioural attribution, intention attribution (C only), swap resistance, judge-flagged violations, rendered lines that match one of the document's wrong lines, and prose leaks (lines the director rendered with quotation marks or stage directions; the speech is repaired before judging and the narration moved to the tell). Turns where the director spoke as someone other than the Warden are counted and excluded. Turns the live director did not take (a refusal or an error, so the understudy answered) are counted as fallbacks, excluded from every rate, and listed with the director's note at the end of the report; a condition with no live turns gets no verdict. The judge answers by item number, and answers that match no item are counted as unjudged.
 
 The verdict follows §20. If C does not beat B on voice, behaviour, swap resistance and violations, the gate is ornament and should be killed. If C attributes intentions better than lines, the problem sits between intention selection and surface realisation, and the chosen intention needs stronger rendering constraints rather than more lore. A B that fails to beat A says the runtime is not earning its tokens.
 
@@ -29,6 +29,10 @@ npm run eval:attribution -- --dry              # understudy and a stand-in judge
 Flags: `--conditions`, `--wardens`, `--scenarios`, `--stimuli`, `--model` (the director; default `DIRECTOR_MODEL` or claude-opus-5), `--judge` (default `JUDGE_MODEL` or claude-sonnet-5), `--out`. Without `ANTHROPIC_API_KEY` the run is dry. The full run is 126 director calls and six judge calls; the system prompt is cached per condition.
 
 Output goes to `eval/attribution-<stamp>/`: `samples.json` (every line with its intention), `judgements.json`, and `report.md` with the table, the verdict, per-Warden accuracy and the stripped examples as the judge saw them. The `eval/` directory is not committed; keep reports you want by copying them.
+
+## The first live run
+
+The first run, two Wardens and one line each, produced a refusal on every gated turn: the director answered condition C with a refusal stop reason, the understudy filled in, and the C column was the understudy's canned lines. The report now names that outright instead of scoring it. The likely cause is the slate being read as a request to expose the model's own reasoning (the API has a refusal category for exactly that), so the slate is now framed as the scene's paperwork, candidate moves for the character rather than intentions the model considered, and the director's note carries the refusal category so the next run says which it was. The same run showed condition B rendering Brask in prose with quotation marks and stage directions; the speech-only rule and repair came from that.
 
 ## Reading a report
 

@@ -4,7 +4,7 @@ Behavioral Canon v1.4 §20 marks the scored intention gate UNVALIDATED IN LIVE G
 
 ## What the eval does
 
-Two outsiders meet every Warden alone: the charming visitor with an unnamed employer (mixed, low confidence: the interesting classification case) and the brusque watch captain (authority, high confidence: the easy pole). Each outsider has three scripted lines with a tone from the mock ear. Every Warden answers every line as a one-turn scene, under three conditions:
+Six outsiders meet every Warden alone, each with three scripted lines and a tone from the mock ear. Two are the §19 poles: the charming visitor with an unnamed employer (mixed, low confidence) and the brusque watch captain (authority, high confidence). Four exist only for the eval and are built to collide pairs the bare card cannot easily tell apart: a frightened farrier asking for moral counsel (Serena against Thorbin), a smooth factor with a partly false story (Tavian against Varya), a hill farmer reporting an anomaly (Lyra against Kael), and a frightened runaway (Thorbin against Brask); the captain collides Serena with Varya. Every Warden answers every line as a one-turn scene, under three conditions:
 
 - **A**: cast card and dossier, as the game ran before the runtime.
 - **B**: A plus the relationship, outsider and fallback runtime.
@@ -14,9 +14,15 @@ The rendered lines, and in C the highest-scored intention, lose every name, dial
 
 ## What it measures
 
-Per condition: voice attribution, behavioural attribution, intention attribution (C only), swap resistance, judge-flagged violations, rendered lines that match one of the document's wrong lines, and prose leaks (lines the director rendered with quotation marks or stage directions; the speech is repaired before judging and the narration moved to the tell). Turns where the director spoke as someone other than the Warden are counted and excluded. Turns the live director did not take (a refusal or an error, so the understudy answered) are counted as fallbacks, excluded from every rate, and listed with the director's note at the end of the report; a condition with no live turns gets no verdict. The judge answers by item number, and answers that match no item are counted as unjudged.
+Per condition: voice attribution, behavioural attribution, move attribution (C only), swap resistance, judge-flagged violations, rendered lines that match one of the document's wrong lines, and prose leaks (lines the director rendered with quotation marks or stage directions; the speech is repaired before judging and the narration moved to the tell). Turns where the director spoke as someone other than the Warden are counted and excluded. Turns the live director did not take (a refusal or an error, so the understudy answered) are counted as fallbacks, excluded from every rate, and listed with the director's note at the end of the report; a condition with no live turns gets no verdict. The judge answers by item number, and answers that match no item are counted as unjudged.
 
-The verdict follows §20. If C does not beat B on voice, behaviour, swap resistance and violations, the gate is ornament and should be killed. If C attributes intentions better than lines, the problem sits between intention selection and surface realisation, and the chosen intention needs stronger rendering constraints rather than more lore. A B that fails to beat A says the runtime is not earning its tokens.
+Per-Warden rates are accuracies within that Warden's own judged lines. Collision scenarios report voice accuracy on the pair's own lines and how often one was taken for the other, and a confusion list says who was taken for whom.
+
+The verdict says what the data says and no more. A condition that did not run is called invalid and the gate stays unvalidated, not disproven. Dimensions at ceiling in both conditions are named as such rather than counted as ties, so a runtime that only moves swap resistance is credited for it. Fewer than twenty judged lines is called preliminary. Between B and C the verdict never kills the gate on its own: that is the steering test's job.
+
+## The steering test
+
+`npm run eval:steering` decides whether the gate is causal rather than decorative. For each Warden and stimulus the gated director runs once to fill the slate; the two best distinct moves at +1 or better are then forced one at a time through the request's steering field, and a line is rendered from each. A judge, given the character, the stimulus, the two moves and the two lines, says whether the lines do materially different things, whether each enacts its move, and whether both still sound like the Warden. A pair that passes all three is causal. Word-for-word identical lines are counted before the judge sees them. Jon's rule: if the lines come out effectively identical the slate is decorative and the gate goes; if the difference is obvious while both still sound like the Warden, the director has a steering surface. Sixty percent causal keeps it; under thirty percent distinct kills it; between, read the examples. Flags match the attribution eval; the default is one stimulus per scenario, so a full run is 42 slates and 84 steered lines.
 
 ## Running it
 
@@ -26,7 +32,7 @@ npm run eval:attribution -- --conditions B,C --wardens serena,thorbin --stimuli 
 npm run eval:attribution -- --dry              # understudy and a stand-in judge; exercises the plumbing
 ```
 
-Flags: `--conditions`, `--wardens`, `--scenarios`, `--stimuli`, `--model` (the director; default `DIRECTOR_MODEL` or claude-opus-5), `--judge` (default `JUDGE_MODEL` or claude-sonnet-5), `--out`. Without `ANTHROPIC_API_KEY` the run is dry. The full run is 126 director calls and six judge calls; the system prompt is cached per condition.
+Flags: `--conditions`, `--wardens`, `--scenarios`, `--stimuli`, `--model` (the director; default `DIRECTOR_MODEL` or claude-opus-5), `--judge` (default `JUDGE_MODEL` or claude-sonnet-5), `--out`. Without `ANTHROPIC_API_KEY` the run is dry. A full run at three stimuli is 378 director calls and 18 judge calls; at one stimulus, 126 and 18. The system prompt is cached per condition.
 
 Output goes to `eval/attribution-<stamp>/`: `samples.json` (every line with its intention), `judgements.json`, and `report.md` with the table, the verdict, per-Warden accuracy and the stripped examples as the judge saw them. The `eval/` directory is not committed; keep reports you want by copying them.
 

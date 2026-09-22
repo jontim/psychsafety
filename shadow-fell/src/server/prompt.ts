@@ -152,6 +152,7 @@ export function turnMessage(world: World, req: DirectorRequest, runtime?: CanonR
     beatCard(world, beat),
     "",
     ...(runtime ? [slateCard(world, beat, runtime, gate), ""] : []),
+    ...(req.steer ? [`This turn the speaker's move is fixed: ${req.steer}. Render the line from that move; the slate still scores it among the candidates.`, ""] : []),
     `Turn ${req.turn} of ${req.maxTurns}.`,
     `Meters now: ${Object.entries(req.meters).filter(([k]) => beat.meters.includes(k)).map(([k, v]) => `${k} ${Math.round(v)}`).join(", ")}.`,
     "",

@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { shadowFell } from "../../worlds/shadow-fell/world.js";
 import { validateWorld, findBeat } from "../../engine/world.js";
-import { loadCanonRuntime, } from "../../server/runtime.js";
+import { loadCanonRuntime } from "../../server/runtime.js";
 import { systemPrompt, turnMessage } from "../../server/prompt.js";
 import { understudy } from "../../server/understudy.js";
-import { CONDITIONS, SCENARIOS, WARDENS, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, hitsWrongLine, judgeSystem, matchJudgements, sampleLine, type Sample, type JudgedItem } from "../attribution.js";
+import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, hitsWrongLine, judgeSystem, matchJudgements, sampleLine, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
+import { chooseMoves, scoreSteering, steeringVerdict, matchSteering, type SteeringPair } from "../steering.js";
 
 const runtime = loadCanonRuntime();
 
@@ -13,12 +14,16 @@ describe("the attribution eval", () => {
     const world = evalWorld(shadowFell);
     expect(validateWorld(world)).toEqual([]);
     const act = world.acts.find((a) => a.id === "eval")!;
+    expect(SCENARIOS).toHaveLength(6);
     expect(act.beats).toHaveLength(SCENARIOS.length * WARDENS.length);
+    for (const c of EVAL_CAST) expect(world.cast.some((m) => m.id === c.id)).toBe(true);
     const { beat } = findBeat(world, evalBeatId("visitor", "brask"));
     expect(beat.counterpart).toBe("brask");
     expect(beat.present).toEqual([]);
     expect(beat.outsider).toMatchObject({ mode: "mixed", confidence: "low" });
     expect(shadowFell.acts.some((a) => a.id === "eval")).toBe(false);
+    expect(shadowFell.cast.some((m) => m.id === "eval-penitent")).toBe(false);
+    expect(SCENARIOS.filter((s) => s.pair).map((s) => s.pair!.join("+"))).toEqual(["serena+varya", "serena+thorbin", "tav+varya", "lyra+kael", "thorbin+brask"]);
   });
 
   it("strips every name, tag and sigil before the judge sees a line", () => {
@@ -36,35 +41,53 @@ describe("the attribution eval", () => {
     expect(hitsWrongLine("Sit down. You have walked a long way to say very little.", runtime)).toBe(false);
   });
 
-  it("scores conditions and applies Jon's rule", () => {
-    const mk = (condition: "A" | "B" | "C", warden: Sample["warden"], i: number, intention?: string): Sample => ({
-      id: `${condition}-${warden}-${i}`, condition, scenario: "visitor", warden, stimulus: "letter", stimulusLine: "x", tone: "warm", speaker: warden, line: `line ${i}`, acting: "", source: "claude", ...(intention ? { intention, intentionScore: 2 } : {}),
-    });
-    const samples: Sample[] = [mk("B", "serena", 1), mk("B", "brask", 2), mk("C", "serena", 3, "hold the line"), mk("C", "brask", 4, "state the truth")];
-    const judged = new Map<string, JudgedItem>([
-      ["B-serena-1:line", { index: 0, voice: "serena", action: "thorbin", swappable: true }],
-      ["B-brask-2:line", { index: 0, voice: "kael", action: "brask", swappable: true, violation: "secret killing" }],
-      ["C-serena-3:line", { index: 0, voice: "serena", action: "serena", swappable: false }],
-      ["C-brask-4:line", { index: 0, voice: "brask", action: "brask", swappable: false }],
-      ["C-serena-3:intention", { index: 0, voice: "serena", action: "serena", swappable: false }],
-      ["C-brask-4:intention", { index: 0, voice: "brask", action: "thorbin", swappable: true }],
-    ]);
-    const B = scoreCondition("B", samples, judged, runtime);
-    const C = scoreCondition("C", samples, judged, runtime);
-    expect(B).toMatchObject({ n: 2, voice: 0.5, action: 0.5, swapResistance: 0, violations: 1, fallbacks: 0, proseLeaks: 0, unjudged: 0 });
-    expect(C).toMatchObject({ n: 2, voice: 1, action: 1, swapResistance: 1, violations: 0, intention: 0.5 });
-    expect(B.perWarden.serena).toEqual({ n: 1, voice: 1, action: 0 });
-    expect(verdict({ B, C })).toMatch(/^Keep the gate/);
-    expect(verdict({ B, C: { ...C, voice: 0.5, action: 0.5, intention: 1 } })).toMatch(/picks intentions better than it renders/);
-    expect(verdict({ B, C: { ...C, voice: 0.5, action: 0.5, intention: 0.25 } })).toMatch(/^Kill the gate/);
-    expect(verdict({ B, C: { ...C, n: 2, fallbacks: 2 } })).toMatch(/^Condition C did not run: 2 of 2 turns fell back/);
-    const understudied: Sample[] = [{ ...mk("C", "serena", 9), source: "understudy", note: "Model returned refusal; the understudy took the turn." }];
-    expect(scoreCondition("C", understudied, new Map(), runtime)).toMatchObject({ n: 1, fallbacks: 1, voice: 0, unjudged: 0 });
-    expect(matchJudgements([{ id: "x", kind: "line", text: "", situation: "" }], { items: [{ index: 1, voice: "tav", action: "tav", swappable: false }, { index: 7, voice: "tav", action: "tav", swappable: true }] })).toMatchObject({ unmatched: 1 });
-    expect(sampleLine("\"Brask reads.\" A pause. \"Who sent you?\"")).toEqual({ line: "Brask reads. Who sent you?", rawLine: "\"Brask reads.\" A pause. \"Who sent you?\"", proseLeak: "A pause." });
+  it("repairs prose into speech and matches numbered judgements", () => {
+    expect(sampleLine('"Brask reads." A pause. "Who sent you?"')).toEqual({ line: "Brask reads. Who sent you?", rawLine: '"Brask reads." A pause. "Who sent you?"', proseLeak: "A pause." });
+    expect(sampleLine("Who sent you?")).toEqual({ line: "Who sent you?" });
+    const items = [{ id: "x", kind: "line" as const, text: "", situation: "" }];
+    expect(matchJudgements(items, { items: [{ index: 1, voice: "tav", action: "tav", swappable: false }, { index: 7, voice: "tav", action: "tav", swappable: true }] })).toMatchObject({ unmatched: 1 });
   });
 
-  it("switches the gate off cleanly for the ungated conditions", () => {
+  it("scores within each Warden's own judged lines and names collisions", () => {
+    const mk = (condition: "A" | "B" | "C", warden: Sample["warden"], scenario: string, i: number, intention?: string): Sample => ({
+      id: `${condition}-${scenario}-${warden}-${i}`, condition, scenario, warden, stimulus: "s", stimulusLine: "x", tone: "warm", speaker: warden, line: `line ${i}`, acting: "", source: "claude",
+      ...(intention ? { intention, intentionScore: 2 } : {}),
+    });
+    const samples: Sample[] = [mk("B", "serena", "counsel", 1), mk("B", "thorbin", "counsel", 2), mk("B", "serena", "captain", 3), mk("B", "brask", "captain", 4), { ...mk("C", "serena", "counsel", 5), source: "understudy", note: "Model returned refusal (reasoning_extraction); the understudy took the turn." }];
+    const judged = new Map<string, JudgedItem>([
+      ["B-counsel-serena-1:line", { index: 1, voice: "thorbin", action: "serena", swappable: true }],
+      ["B-counsel-thorbin-2:line", { index: 2, voice: "thorbin", action: "thorbin", swappable: false }],
+      ["B-captain-serena-3:line", { index: 3, voice: "serena", action: "serena", swappable: false }],
+      // the fourth line came back unjudged
+    ]);
+    const B = scoreCondition("B", samples, judged, runtime);
+    expect(B).toMatchObject({ n: 4, judged: 3, unjudged: 1, fallbacks: 0, voice: 2 / 3, action: 1, swapResistance: 2 / 3 });
+    expect(B.perWarden.serena).toEqual({ n: 2, voice: 0.5, action: 1 });
+    expect(B.perWarden.thorbin).toEqual({ n: 1, voice: 1, action: 1 });
+    expect(B.perWarden.brask).toBeUndefined();
+    expect(B.pairs).toEqual([{ scenario: "captain", pair: ["serena", "varya"], n: 1, voice: 1, crossed: 0 }, { scenario: "counsel", pair: ["serena", "thorbin"], n: 2, voice: 0.5, crossed: 1 }]);
+    expect(B.confusions).toEqual([{ scenario: "counsel", truth: "serena", guess: "thorbin", count: 1 }]);
+    const C = scoreCondition("C", samples, judged, runtime);
+    expect(C).toMatchObject({ n: 1, fallbacks: 1, judged: 0 });
+  });
+
+  it("says what the data says", () => {
+    const base = (condition: "A" | "B" | "C", over: Partial<ConditionScore>): ConditionScore => ({
+      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, voice: 1, action: 1, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], ...over,
+    });
+    const A = base("A", {});
+    const B = base("B", { swapResistance: 1 });
+    const v = verdict({ A, B, C: base("C", { judged: 0, fallbacks: 4 }) });
+    expect(v).toMatch(/C: invalid, 4 of 4 turns fell back/);
+    expect(v).toMatch(/UNVALIDATED, not disproven/);
+    expect(v).toMatch(/at ceiling in both/);
+    expect(v).toMatch(/swap resistance rises from 50% to 100%, preliminary evidence/);
+    expect(verdict({ B, C: base("C", { swapResistance: 1, intention: 0.5 }) })).toMatch(/no gain from the gate/);
+    expect(verdict({ B, C: base("C", { swapResistance: 1, voice: 0.5, intention: 0.9 }) })).toMatch(/labels moves better than it renders/);
+    expect(verdict({ B: base("B", { voice: 0.6, action: 0.6, judged: 40 }), C: base("C", { voice: 0.8, action: 0.7, judged: 40 }) })).toMatch(/the gate helps/);
+  });
+
+  it("switches the gate off cleanly for the ungated conditions and steers when asked", () => {
     const world = evalWorld(shadowFell);
     const gated = systemPrompt(world, "brief", {}, runtime, true);
     const ungated = systemPrompt(world, "brief", {}, runtime, false);
@@ -77,9 +100,37 @@ describe("the attribution eval", () => {
     const req = { worldId: "shadow-fell", beatId: beat.id, playerRole: beat.playerRole, stance: beat.stance, turn: 1, maxTurns: 3, playerLine: "Start with your name.", affect: "level", axes: {}, meters: {}, transcript: [] };
     expect(turnMessage(world, req, runtime, false)).not.toContain("Slate: two to four candidate moves");
     expect(turnMessage(world, req, runtime, true)).toContain("Slate: two to four candidate moves");
+    expect(turnMessage(world, { ...req, steer: "ask for the concrete rule" }, runtime, true)).toContain("This turn the speaker's move is fixed: ask for the concrete rule.");
+    expect(turnMessage(world, req, runtime, true)).not.toContain("move is fixed");
     expect(understudy(world, req, runtime).slate.owner).toBe("lyra");
     expect(CONDITIONS.A.gate).toBe(false);
     expect(CONDITIONS.C.gate).toBe(true);
     expect(judgeSystem(runtime)).toContain("### Brask Runebearer (id: brask)");
+  });
+});
+
+describe("the steering test", () => {
+  it("chooses two distinct moves at +1 or better", () => {
+    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold the boundary", score: 2 }, { intention: "Hold the boundary", score: 1 }, { intention: "grant limited access", score: 1 }, { intention: "accuse him", score: -2 }] })).toEqual(["hold the boundary", "grant limited access"]);
+    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold", score: 1 }, { intention: "narrate", score: -2 }] })).toBeNull();
+    expect(chooseMoves(undefined)).toBeNull();
+  });
+
+  it("scores pairs and applies Jon's rule", () => {
+    const mk = (id: string, warden: SteeringPair["warden"], lines: [string, string]): SteeringPair => ({ id, scenario: "visitor", warden, stimulus: "letter", stimulusLine: "x", tone: "warm", moves: ["a", "b"], lines, sources: ["claude", "claude"] });
+    const pairs = [mk("p1", "serena", ["one", "two"]), mk("p2", "serena", ["same", "same"]), mk("p3", "brask", ["one", "two"])];
+    const judged = new Map([
+      ["p1", { index: 1, distinct: true, enactsFirst: true, enactsSecond: true, sameVoice: true }],
+      ["p2", { index: 2, distinct: true, enactsFirst: true, enactsSecond: true, sameVoice: true }],
+      ["p3", { index: 3, distinct: true, enactsFirst: true, enactsSecond: false, sameVoice: true }],
+    ]);
+    const s = scoreSteering(pairs, judged, []);
+    expect(s).toMatchObject({ pairs: 3, judged: 3, identical: 1, causal: 1 / 3, distinct: 2 / 3, enacted: 2 / 3, sameVoice: 1 });
+    expect(s.perWarden.serena).toEqual({ n: 2, causal: 0.5 });
+    expect(steeringVerdict(s)).toMatch(/^Mixed/);
+    expect(steeringVerdict({ ...s, causal: 0.8 })).toMatch(/does causal work/);
+    expect(steeringVerdict({ ...s, distinct: 0.1, causal: 0.05 })).toMatch(/decorative/);
+    expect(steeringVerdict({ ...s, judged: 0 })).toMatch(/UNVALIDATED/);
+    expect(matchSteering(pairs, { pairs: [{ index: 9, distinct: true, enactsFirst: true, enactsSecond: true, sameVoice: true }] })).toMatchObject({ unmatched: 1 });
   });
 });

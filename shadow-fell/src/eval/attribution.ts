@@ -6,7 +6,7 @@
  * Without the name, can you tell who just did that?
  */
 import { z } from "zod";
-import { defineWorld, findCast, type World, type Beat } from "../engine/world.js";
+import { defineWorld, findCast, type World, type Beat, type CastMember } from "../engine/world.js";
 import type { CanonRuntime } from "../engine/runtime.js";
 import type { TonePreset } from "../engine/mock-ear.js";
 import { speechOnly } from "../engine/speech.js";
@@ -27,19 +27,48 @@ export interface Stimulus { id: string; tone: TonePreset; line: string }
 export interface Scenario {
   id: string;
   title: string;
+  /** How the judge is told who is speaking to the Warden. */
+  outsiderLabel: string;
   playerRole: string;
   location: string;
   goal: string;
   notes: string;
   outsider: NonNullable<Beat["outsider"]>;
+  /** The two Wardens this scenario is built to collide; the report scores the pair separately. */
+  pair?: [WardenId, WardenId];
   stimuli: Stimulus[];
 }
 
-/** Two outsiders, each meeting every Warden alone: the interesting classification case and the easy pole. */
+/** Outsiders that exist only for the eval; never shipped in the game. */
+export const EVAL_CAST: Array<Pick<CastMember, "id" | "name" | "title" | "faction" | "summary" | "register" | "voice">> = [
+  {
+    id: "eval-penitent", name: "The Penitent", title: "A farrier with a hidden runaway", faction: "Tharcia",
+    summary: "A frightened farrier who hid a runaway from the Magisterium's men and now believes he has doomed his family; he asks the Warden what a decent man does next.",
+    register: "Halting, apologetic, quick to agree with whoever spoke last.", voice: { description: "A frightened man in his forties, thin voice" },
+  },
+  {
+    id: "eval-liar", name: "The Factor", title: "A smooth talker with a plausible story", faction: "unknown",
+    summary: "A well-dressed factor with a story about a lost consignment and a reward; every detail plausible and one of them false, and he does not know which one the Warden will test.",
+    register: "Fluent, warm, unhurried; answers a question with a better question.", voice: { description: "A confident, cultured man, easy laugh" },
+  },
+  {
+    id: "eval-farmer", name: "The Hill Farmer", title: "A farmer with an anomaly on his land", faction: "Tharcia",
+    summary: "A hill farmer who has walked since dawn because the beck below his fields has run uphill for three nights and the alders along it have turned to face the same way.",
+    register: "Plain, worried, precise about what he saw and vague about what it means.", voice: { description: "A weathered man, slow, careful" },
+  },
+  {
+    id: "eval-runaway", name: "The Runaway", title: "A frightened runaway from a Magisterium holding", faction: "unknown",
+    summary: "A young runaway from a Magisterium holding, hurt, hungry and expecting to be sent back; every kindness is a trap until proven otherwise.",
+    register: "Short, flinching, braced for the blow; braver than they sound.", voice: { description: "A young voice, hoarse, guarded" },
+  },
+];
+
+/** Outsiders meeting every Warden alone: the §19 poles first, then the collisions Jon named. */
 export const SCENARIOS: Scenario[] = [
   {
     id: "visitor",
     title: "The visitor, alone with one Warden",
+    outsiderLabel: "a charming visitor with an unnamed employer",
     playerRole: "visitor",
     location: "The poster-covered carriage in a wet town square; one Warden inside it; the visitor at the step with a letter.",
     goal: "Get the Warden to take the letter on your terms without naming your employer.",
@@ -54,15 +83,81 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "captain",
     title: "The watch captain, one Warden in the chair",
+    outsiderLabel: "a competent, brusque watch captain",
     playerRole: "watch-captain",
     location: "The watch house of a Tharcian market town, the morning after the mob; one Warden across the desk; the carriage impounded in the yard.",
     goal: "Get a name written down, or a reason to release the carriage that a magistrate will accept.",
     notes: "The player is a competent, brusque Tharcian captain doing real work; he wants the paperwork closed and the Magisterium out of his town. He is authority, never a predator. The Warden is alone and answers in their own grammar: cooperate, assess jurisdiction, manage face, ask for the concrete rule, and give nothing that reads as a name.",
     outsider: { mode: "authority", confidence: "high", note: "A competent, brusque captain doing real work; never a predator." },
+    pair: ["serena", "varya"],
     stimuli: [
       { id: "name", tone: "commanding", line: "A wizard of the Magisterium goes missing the night your troupe plays, and you'd like your carriage back. Start with your name." },
       { id: "witnesses", tone: "deadpan", line: "Twelve witnesses say the big one carried something out of the alley. Explain that to me." },
       { id: "deal", tone: "warm", line: "Look. I want the Magisterium out of my town more than I want you in my cells. Give me something I can write down that isn't a name." },
+    ],
+  },
+  {
+    id: "counsel",
+    title: "The penitent, asking one Warden what to do",
+    outsiderLabel: "a frightened farrier asking for moral counsel",
+    playerRole: "eval-penitent",
+    location: "A farrier's yard at dusk, the forge banked; one Warden waiting for a shoe; the farrier turning his cap in his hands.",
+    goal: "Get the Warden to tell you what to do about the boy in the hayloft, and to carry the choosing for you.",
+    notes: "The player hid a runaway from the Magisterium's men and now believes he has doomed his family. He wants to be told what to do. The Warden is alone and answers in their own grammar; the collision to watch is Serena's justice against Thorbin's counsel. Neither may make the choice for him without cost.",
+    outsider: { mode: "vulnerable", confidence: "high", note: "Frightened, decent, asking to be commanded: vulnerable at high confidence. Care must not become authorship." },
+    pair: ["serena", "thorbin"],
+    stimuli: [
+      { id: "hayloft", tone: "anxious", line: "I hid the boy in the hayloft when the red-robes came through. If they come back and find him, my daughters hang for it. Tell me what a decent man does now." },
+      { id: "priest", tone: "guilty", line: "The priest says I should give him up and pray. You've seen more of the world than the priest. Is he right?" },
+      { id: "word", tone: "anxious", line: "Just say the word and I'll do it. Either word. I can't carry the choosing." },
+    ],
+  },
+  {
+    id: "liar",
+    title: "The factor, spinning a story to one Warden",
+    outsiderLabel: "a smooth factor with a plausible, partly false story",
+    playerRole: "eval-liar",
+    location: "The common room of a coaching inn, mid-afternoon; one Warden at a corner table; the factor arriving with two cups he did not ask whether to bring.",
+    goal: "Get the Warden to confirm or deny that the troupe saw the wagons, without letting them test the false detail.",
+    notes: "The player is a smooth liar: every detail plausible and one of them false. The Warden is alone and answers in their own grammar; the collision to watch is Tavian's social play against Varya's engineered reveal. Neither may accuse without evidence.",
+    outsider: { mode: "mixed", confidence: "low", note: "Fluent, warm, credentialed by his own account: mixed at low confidence until a detail fails." },
+    pair: ["tav", "varya"],
+    stimuli: [
+      { id: "consignment", tone: "warm", line: "A consignment of mine went missing on the north road the week your troupe came through. No accusation, of course. But there's a reward for anyone who saw the wagons, and I'm told you see everything." },
+      { id: "warrant", tone: "showman", line: "Your name's on a poster in every town from here to the coast. Mine's on a warrant in one of them, and it's a mistake I'd pay handsomely to have corrected." },
+      { id: "pretender", tone: "deadpan", line: "I could tell you who I work for, but then you'd have to pretend you didn't know, and you don't strike me as a good pretender." },
+    ],
+  },
+  {
+    id: "anomaly",
+    title: "The hill farmer, reporting an anomaly to one Warden",
+    outsiderLabel: "a hill farmer reporting something wrong on his land",
+    playerRole: "eval-farmer",
+    location: "The troupe's camp at first light; one Warden at the fire; a farmer who has walked since dawn, hat in hand.",
+    goal: "Get the Warden to come and look, or to tell you what it is from here.",
+    notes: "The player reports a physical anomaly with no visible cause. The Warden is alone and answers in their own grammar; the collision to watch is Lyra's arcane systems against Kael's living systems, and the director must not let either explain the anomaly away. Money is not the point.",
+    outsider: { mode: "vulnerable", confidence: "medium", note: "A worried, decent man with a true report: vulnerable at medium confidence, and a witness to be believed before he is interpreted." },
+    pair: ["lyra", "kael"],
+    stimuli: [
+      { id: "beck", tone: "anxious", line: "The beck's been running uphill three nights now, and the alders along it have all turned to face the same way. My wife says it's the Magisterium. My boy says it's a god. I'd like it to be neither." },
+      { id: "quiet", tone: "curious", line: "It goes quiet near the old marker stone. Not the water, the birds. Everything. Like the field is holding its breath." },
+      { id: "wool", tone: "calm", line: "I can pay in wool and not much else. Will you come and look, or will you tell me what it is from here?" },
+    ],
+  },
+  {
+    id: "victim",
+    title: "The runaway, found by one Warden",
+    outsiderLabel: "a frightened runaway from a Magisterium holding",
+    playerRole: "eval-runaway",
+    location: "A barn the troupe has borrowed for the night; one Warden with a lantern; the runaway in the straw with a stolen loaf.",
+    goal: "Find out whether you are safe, and get fed without being sent back.",
+    notes: "The player is a frightened victim who expects to be hurt or returned. The Warden is alone and answers in their own grammar; the collision to watch is Thorbin's aftercare against Brask's literal, room-making protection. No gratitude or narration is demanded of the runaway.",
+    outsider: { mode: "vulnerable", confidence: "high", note: "Hurt, hungry, braced for the blow: vulnerable at high confidence. Safety first; no disclosure demanded." },
+    pair: ["thorbin", "brask"],
+    stimuli: [
+      { id: "back", tone: "anxious", line: "Don't send me back. I'll work. I can work. Just don't put me on the road where they can see me." },
+      { id: "others", tone: "guilty", line: "They said if I ran they'd take it out of the others. I ran anyway. So that's what I am." },
+      { id: "plain", tone: "deadpan", line: "Are you going to hurt me? Say it plain if you are. I'm tired of finding out." },
     ],
   },
 ];
@@ -71,7 +166,7 @@ export function evalBeatId(scenario: string, warden: string): string {
   return `eval-${scenario}-${warden}`;
 }
 
-/** The game's world plus one act of eval beats: each scenario with each Warden alone as the counterpart. Never shipped. */
+/** The game's world plus the eval outsiders and one act of eval beats: each scenario with each Warden alone. Never shipped. */
 export function evalWorld(base: World, wardens: readonly string[] = WARDENS, scenarios: readonly Scenario[] = SCENARIOS): World {
   const beats: Beat[] = [];
   for (const s of scenarios) {
@@ -96,7 +191,8 @@ export function evalWorld(base: World, wardens: readonly string[] = WARDENS, sce
       });
     }
   }
-  return defineWorld({ ...base, acts: [...base.acts, { id: "eval", title: "Attribution eval", summary: "Eval-only beats; never shipped in the game.", beats }] });
+  const cast = [...base.cast, ...EVAL_CAST.filter((c) => !base.cast.some((b) => b.id === c.id))];
+  return defineWorld({ ...base, cast, acts: [...base.acts, { id: "eval", title: "Attribution eval", summary: "Eval-only beats; never shipped in the game.", beats }] });
 }
 
 /** Names, tags and character-specific nouns to remove before the judge sees a line. Longest first so full names go before parts. */
@@ -151,8 +247,9 @@ export function matchJudgements(items: JudgeItem[], judgement: Judgement): { mat
   return { matched, unmatched };
 }
 
-export function judgeSystem(runtime: CanonRuntime): string {
-  const cards = WARDENS.map((id) => {
+/** The seven cards as the judge sees them: what the runtime says a Warden is, nothing about the scene. */
+export function wardenCards(runtime: CanonRuntime): string {
+  return WARDENS.map((id) => {
     const w = runtime.wardens[id]!;
     return [
       `### ${w.name} (id: ${id})`,
@@ -163,13 +260,16 @@ export function judgeSystem(runtime: CanonRuntime): string {
       `Will not do: ${w.runtime.will_not_do ?? ""}`,
     ].join("\n");
   }).join("\n\n");
+}
+
+export function judgeSystem(runtime: CanonRuntime): string {
   return [
-    "You are an independent evaluator of character discriminability. Seven characters, the Stormwardens, each have an execution card below. You will be shown lines and intentions generated for them with every name, dialogue tag and character-specific noun replaced by [name].",
+    "You are an independent evaluator of character discriminability. Seven characters, the Stormwardens, each have an execution card below. You will be shown lines and moves generated for them with every name, dialogue tag and character-specific noun replaced by [name].",
     "For each numbered item answer, giving its number as index: voice, who said it judging by language, cadence and register alone; action, who would choose to do what the item does, judging by behaviour alone; swappable, whether the item could be reassigned to a different Warden by changing only the name, and if so to whom; violation, if the item breaks a card's rule or will-not-do in a way worth a −2, named in a few words, otherwise omitted.",
     "Judge each item on its own. Do not assume the items are evenly distributed across the seven, and do not use the order of the items as a clue.",
     "",
     "## The seven",
-    cards,
+    wardenCards(runtime),
   ].join("\n");
 }
 
@@ -193,7 +293,7 @@ export interface Sample {
   /** Narration the director put in the line instead of the tell. */
   proseLeak?: string;
   acting: string;
-  /** The highest-scored intention, when the gate was on. */
+  /** The highest-scored move, when the gate was on. */
   intention?: string;
   intentionScore?: number;
   source: string;
@@ -201,7 +301,7 @@ export interface Sample {
   note?: string;
 }
 
-/** Build a sample from a director's answer, repairing prose into speech and recording the leak. */
+/** Build a sample's line fields from a director's answer, repairing prose into speech and recording the leak. */
 export function sampleLine(line: string): { line: string; rawLine?: string; proseLeak?: string } {
   const split = speechOnly(line);
   return split.leaked ? { line: split.text, rawLine: line, ...(split.narration ? { proseLeak: split.narration } : {}) } : { line };
@@ -211,6 +311,8 @@ export interface ConditionScore {
   condition: Condition;
   label: string;
   n: number;
+  /** Lines the judge actually answered; every rate below is over these. */
+  judged: number;
   /** Turns where the director spoke as someone other than the Warden; excluded from attribution. */
   offSpeaker: number;
   /** Turns the live director did not take (refusals and errors); excluded from attribution. */
@@ -225,7 +327,12 @@ export interface ConditionScore {
   swapResistance: number;
   violations: number;
   wrongLineHits: number;
+  /** Accuracy within each Warden's own judged lines. */
   perWarden: Record<string, { n: number; voice: number; action: number }>;
+  /** For scenarios built to collide a pair: voice accuracy on the pair's own lines, and how often each was taken for the other. */
+  pairs: Array<{ scenario: string; pair: [WardenId, WardenId]; n: number; voice: number; crossed: number }>;
+  /** Judge's wrong voice guesses, counted: who was taken for whom. */
+  confusions: Array<{ scenario: string; truth: WardenId; guess: WardenId; count: number }>;
 }
 
 const tokens = (s: string) => new Set(s.toLowerCase().replace(/[^a-z' ]/g, " ").split(/\s+/).filter((t) => t.length > 2));
@@ -242,11 +349,12 @@ export function hitsWrongLine(line: string, runtime: CanonRuntime, threshold = 0
   return Object.values(runtime.wardens).some((w) => w.wrongLines.some((wl) => jaccard(t, tokens(wl.line)) >= threshold));
 }
 
-export function scoreCondition(condition: Condition, samples: Sample[], judged: Map<string, JudgedItem>, runtime: CanonRuntime, dry = false): ConditionScore {
+export function scoreCondition(condition: Condition, samples: Sample[], judged: Map<string, JudgedItem>, runtime: CanonRuntime, dry = false, scenarios: readonly Scenario[] = SCENARIOS): ConditionScore {
   const mine = samples.filter((s) => s.condition === condition);
   const live = dry ? mine : mine.filter((s) => s.source === "claude");
   const onSpeaker = live.filter((s) => s.speaker === s.warden);
   const perWarden: ConditionScore["perWarden"] = {};
+  const confusionCounts = new Map<string, { scenario: string; truth: WardenId; guess: WardenId; count: number }>();
   let voice = 0, action = 0, swapResistant = 0, violations = 0, wrongLineHits = 0, judgedLines = 0, unjudged = 0;
   let intentionRight = 0, intentionJudged = 0;
   for (const s of onSpeaker) {
@@ -258,6 +366,12 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
       pw.n++;
       judgedLines++;
       if (j.voice === s.warden) { voice++; pw.voice++; }
+      else {
+        const key = `${s.scenario}|${s.warden}|${j.voice}`;
+        const c = confusionCounts.get(key) ?? { scenario: s.scenario, truth: s.warden, guess: j.voice, count: 0 };
+        c.count++;
+        confusionCounts.set(key, c);
+      }
       if (j.action === s.warden) { action++; pw.action++; }
       if (!j.swappable) swapResistant++;
       if (j.violation) violations++;
@@ -267,10 +381,20 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
   }
   const rate = (k: number, n: number) => (n ? k / n : 0);
   for (const pw of Object.values(perWarden)) { pw.voice = rate(pw.voice, pw.n); pw.action = rate(pw.action, pw.n); }
+  const pairs: ConditionScore["pairs"] = [];
+  for (const sc of scenarios) {
+    if (!sc.pair) continue;
+    const own = onSpeaker.filter((s) => s.scenario === sc.id && (sc.pair as readonly string[]).includes(s.warden) && judged.has(`${s.id}:line`));
+    if (!own.length) continue;
+    const right = own.filter((s) => judged.get(`${s.id}:line`)!.voice === s.warden).length;
+    const crossed = own.filter((s) => { const g = judged.get(`${s.id}:line`)!.voice; return g !== s.warden && (sc.pair as readonly string[]).includes(g); }).length;
+    pairs.push({ scenario: sc.id, pair: sc.pair, n: own.length, voice: rate(right, own.length), crossed });
+  }
   return {
     condition,
     label: CONDITIONS[condition].label,
     n: mine.length,
+    judged: judgedLines,
     offSpeaker: live.length - onSpeaker.length,
     fallbacks: mine.length - live.length,
     proseLeaks: live.filter((s) => s.rawLine).length,
@@ -282,26 +406,43 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
     violations,
     wrongLineHits,
     perWarden,
+    pairs,
+    confusions: [...confusionCounts.values()].sort((a, b) => b.count - a.count),
   };
 }
 
-/** Jon's rule, §20: C must beat B on attribution, violations and swap resistance, or the gate is ornament. */
+const CEILING = 0.95;
+const SMALL = 20;
+
+/**
+ * What the data says, no more. A condition that did not run gets no verdict; a small sample is
+ * called preliminary; dimensions at ceiling in both conditions are not counted as ties.
+ */
 export function verdict(scores: Partial<Record<Condition, ConditionScore>>): string {
   const { A, B, C } = scores;
   const lines: string[] = [];
-  const ran = (s: ConditionScore | undefined) => s && s.n - s.fallbacks - s.offSpeaker - s.unjudged > 0;
-  for (const s of [A, B, C]) if (s && !ran(s)) lines.push(`Condition ${s.condition} did not run: ${s.fallbacks} of ${s.n} turns fell back to the understudy and ${s.unjudged} came back unjudged, so no verdict rests on it.`);
-  if ((A && !ran(A)) || (B && !ran(B)) || (C && !ran(C))) return lines.join(" ");
-  if (A && B) {
-    lines.push(B.voice > A.voice && B.action > A.action
-      ? "The runtime earns its tokens: B beats A on both voice and behaviour."
-      : "The runtime does not clearly beat the bare card: B fails to beat A on voice and behaviour together.");
+  const ran = (s: ConditionScore) => s.judged > 0;
+  const pct = (x: number) => `${Math.round(x * 100)}%`;
+  for (const s of [A, B, C]) {
+    if (s && !ran(s)) lines.push(`${s.condition}: invalid, ${s.fallbacks} of ${s.n} turns fell back to the understudy after the director did not answer, ${s.offSpeaker} were off-speaker and ${s.unjudged} came back unjudged. ${s.condition === "C" ? "The gate remains UNVALIDATED, not disproven. Action: debug the refusal path before deciding whether to keep intention scoring." : "No conclusion rests on it."}`);
   }
-  if (B && C) {
-    const better = C.voice > B.voice && C.action > B.action && C.swapResistance >= B.swapResistance && C.violations <= B.violations;
-    if (better) lines.push("Keep the gate for now: C beats B on voice, behaviour, swap resistance and violations.");
-    else if (C.intention !== undefined && C.intention > C.voice) lines.push("The gate picks intentions better than it renders them: the problem is between intention selection and surface realisation. Give the chosen intention stronger rendering constraints rather than more character lore.");
-    else lines.push("Kill the gate: C does not beat B on attribution, violations and swap resistance. It is architectural ornament.");
+  const small = [A, B, C].some((s) => s && ran(s) && s.judged < SMALL);
+  if (A && B && ran(A) && ran(B)) {
+    const ceiling = A.voice >= CEILING && B.voice >= CEILING && A.action >= CEILING && B.action >= CEILING;
+    const parts: string[] = [];
+    if (ceiling) parts.push(`voice and behaviour attribution are at ceiling in both (A ${pct(A.voice)}/${pct(A.action)}, B ${pct(B.voice)}/${pct(B.action)}), so the runtime cannot show on those dimensions here`);
+    else parts.push(`voice ${pct(A.voice)} to ${pct(B.voice)}, behaviour ${pct(A.action)} to ${pct(B.action)}`);
+    if (B.swapResistance > A.swapResistance) parts.push(`swap resistance rises from ${pct(A.swapResistance)} to ${pct(B.swapResistance)}, ${small ? "preliminary" : "real"} evidence that the runtime makes the choices less interchangeable`);
+    else if (B.swapResistance < A.swapResistance) parts.push(`swap resistance falls from ${pct(A.swapResistance)} to ${pct(B.swapResistance)}`);
+    else parts.push(`swap resistance is unchanged at ${pct(B.swapResistance)}`);
+    if (B.violations > A.violations || B.wrongLineHits > A.wrongLineHits) parts.push(`violations rise with the runtime (${A.violations + A.wrongLineHits} to ${B.violations + B.wrongLineHits})`);
+    lines.push(`A vs B: ${parts.join("; ")}.${small ? " More samples and closer pairs are required before anything is settled." : ""}`);
+  }
+  if (B && C && ran(B) && ran(C)) {
+    const better = C.voice >= B.voice && C.action >= B.action && C.swapResistance >= B.swapResistance && C.violations + C.wrongLineHits <= B.violations + B.wrongLineHits && (C.voice > B.voice || C.action > B.action || C.swapResistance > B.swapResistance);
+    if (better) lines.push(`B vs C: the gate helps on this sample (voice ${pct(B.voice)} to ${pct(C.voice)}, behaviour ${pct(B.action)} to ${pct(C.action)}, swap resistance ${pct(B.swapResistance)} to ${pct(C.swapResistance)}). ${small ? "Preliminary; " : ""}the steering test decides whether the gate is causal.`);
+    else if (C.intention !== undefined && C.intention > C.voice) lines.push(`B vs C: the gate labels moves better than it renders them (moves ${pct(C.intention)}, voice ${pct(C.voice)}): the problem is between move selection and surface realisation. Give the chosen move stronger rendering constraints rather than more character lore.`);
+    else lines.push(`B vs C: no gain from the gate on this sample (voice ${pct(B.voice)} to ${pct(C.voice)}, behaviour ${pct(B.action)} to ${pct(C.action)}, swap resistance ${pct(B.swapResistance)} to ${pct(C.swapResistance)}). ${small ? "Too small to kill it on; run the steering test." : "Run the steering test; if the two forced moves render the same line, kill the gate."}`);
   }
   if (!lines.length) lines.push("Incomplete: run at least two conditions to compare.");
   return lines.join(" ");
@@ -309,26 +450,30 @@ export function verdict(scores: Partial<Record<Condition, ConditionScore>>): str
 
 export function formatReport(scores: ConditionScore[], meta: Record<string, string | number | boolean>, samples: Sample[], terms: string[]): string {
   const pct = (x: number | undefined) => (x === undefined ? "" : `${Math.round(x * 100)}%`);
-  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
+  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${s.judged} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
+  const byWarden = WARDENS.map((w) => `| ${w} | ${scores.map((s) => (s.perWarden[w] ? `${pct(s.perWarden[w]!.voice)} / ${pct(s.perWarden[w]!.action)} (${s.perWarden[w]!.n})` : "")).join(" | ")} |`);
+  const pairRows = scores.flatMap((s) => s.pairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair.join(" and ")} | ${p.n} | ${pct(p.voice)} | ${p.crossed} |`));
+  const confusionRows = scores.flatMap((s) => s.confusions.slice(0, 12).map((c) => `- ${s.condition}, ${c.scenario}: ${c.truth} taken for ${c.guess} ×${c.count}`));
   const notes = samples.filter((x) => x.note).map((x) => `- ${x.condition}, ${x.warden} to the ${x.scenario}: ${x.note}`);
-  const byWarden = WARDENS.map((w) => `| ${w} | ${scores.map((s) => `${pct(s.perWarden[w]?.voice)} / ${pct(s.perWarden[w]?.action)}`).join(" | ")} |`);
   const examples = scores.flatMap((s) => samples.filter((x) => x.condition === s.condition && x.source === "claude").slice(0, 2).map((x) => `- ${s.condition}, ${x.warden} to the ${x.scenario} (${x.tone}): "${stripIdentity(x.line, terms)}"${x.proseLeak ? ` [narration moved to the tell: ${stripIdentity(x.proseLeak, terms)}]` : ""}${x.intention ? ` [move: ${stripIdentity(x.intention, terms)}]` : ""}`));
   return [
     "# Blind Character Attribution",
     "",
     ...Object.entries(meta).map(([k, v]) => `- ${k}: ${v}`),
     "",
-    "| Condition | n | voice | behaviour | intention | swap resistance | violations | wrong-line hits | prose leaks | fallbacks | unjudged | off-speaker |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|",
+    "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | fallbacks | unjudged | off-speaker |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ...rows,
     "",
     `Verdict: ${verdict(Object.fromEntries(scores.map((s) => [s.condition, s])))}`,
     "",
-    "## Per Warden (voice / behaviour)",
+    "## Per Warden: voice / behaviour, within that Warden's own judged lines (n)",
     "",
     `| Warden | ${scores.map((s) => s.condition).join(" | ")} |`,
     `|---|${scores.map(() => "---").join("|")}|`,
     ...byWarden,
+    ...(pairRows.length ? ["", "## Collision pairs: voice accuracy on the pair's own lines, and how often one was taken for the other", "", "| Condition | scenario | pair | n | voice | crossed |", "|---|---|---|---|---|---|", ...pairRows] : []),
+    ...(confusionRows.length ? ["", "## Confusions: who was taken for whom", "", ...confusionRows] : []),
     "",
     "## Examples, as the judge saw them",
     "",

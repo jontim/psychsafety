@@ -68,7 +68,7 @@ Voices: see `docs/voices.md` for the seventeen Octave voices, their design descr
 
 The company's runtime: see `docs/runtime.md` for how the Behavioral Canon is compiled into the director (`npm run compile:canon` after editing `src/canon/behavioral-canon.md`), the per-beat slate, the scored intentions the director returns, and the Slate panel (the S key).
 
-The attribution eval: see `docs/eval.md` for the blind test that decides whether the runtime and the scored gate make the Wardens tell apart (`npm run eval:attribution`, `--dry` without keys).
+The evals: see `docs/eval.md` for the blind attribution test that decides whether the runtime makes the Wardens tell apart (`npm run eval:attribution`) and the steering test that decides whether the gate is causal (`npm run eval:steering`); both take `--dry` without keys.
 
 ## Clips
 

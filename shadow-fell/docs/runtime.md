@@ -38,6 +38,10 @@ A line is what Octave reads aloud. The rules tell the director that the line is 
 
 `DirectorResponse.slate` is required: the owner of the problem this turn (a cast id or "none"), the coverage mode (owner, fallback, containment or retrieval), the outsider mode used, and two to four candidate moves for the speaker, each scored from −2 to +2 with a note. The line renders from the best of them and never from a −2. This is §9.6 made visible. The slate is framed to the model as the scene's paperwork, moves the character could make, not reasoning the model performed: the first live run refused every gated turn, and the API documents a refusal category for requests that try to elicit the model's internal reasoning in the response. When the director refuses, the note carries the refusal category and the understudy takes the turn. The understudy fills the slate deterministically so the shape holds without a key.
 
+## The steering surface
+
+`DirectorRequest.steer` fixes the speaker's move for one turn: the turn message says the move is fixed and the line renders from it, while the slate still scores it among the candidates. The game's client never sets it; the steering eval does, and it is the mechanism by which a scene could one day be steered by the story rather than left to the director's pick.
+
 ## The slate panel
 
 The stage has a "Slate" pill in the band, and the S key toggles it. It shows the owner, the coverage, the outsider mode, which director took the turn, and the intentions with their scores: gold for +2, blue for +1, violet and crimson for the drifts and violations, the chosen one framed. It is an authoring view and off by default; the browser remembers the choice.

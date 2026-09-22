@@ -24,6 +24,8 @@ export const DirectorRequestSchema = z.object({
   axes: z.record(z.string(), z.number()).default({}),
   meters: z.record(z.string(), z.number()),
   transcript: z.array(TranscriptLineSchema),
+  /** The steering surface: fix the speaker's move for this turn and render the line from it. Used by the steering eval. */
+  steer: z.string().optional(),
 });
 export type DirectorRequest = z.infer<typeof DirectorRequestSchema>;
 

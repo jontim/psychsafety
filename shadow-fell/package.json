@@ -18,7 +18,8 @@
     "start": "NODE_ENV=production tsx src/server/index.ts",
     "preview": "vite preview",
     "compile:canon": "tsx scripts/compile-canon.ts",
-    "eval:attribution": "tsx scripts/eval-attribution.ts"
+    "eval:attribution": "tsx scripts/eval-attribution.ts",
+    "eval:steering": "tsx scripts/eval-steering.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",

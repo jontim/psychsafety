@@ -32,7 +32,7 @@ await page.screenshot({ path: `${outDir}/03-stage-warm.png` });
 // The director's slate: opened with the S key, off by default.
 await page.keyboard.press("s");
 await page.waitForSelector(".panel.slate");
-await page.screenshot({ path: `${outDir}/03b-slate.png` });
+await (await page.$(".panel.slate")).screenshot({ path: `${outDir}/03b-slate.png` });
 const slate = await page.$eval(".panel.slate", (e) => e.textContent.replace(/\s+/g, " ").trim());
 await page.keyboard.press("s");
 const metersAfterWarm = await page.$$eval(".meter", (els) => els.map((e) => e.textContent.replace(/\s+/g, " ").trim()));

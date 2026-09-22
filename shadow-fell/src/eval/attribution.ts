@@ -364,6 +364,8 @@ export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
     /\b(said|was|were|did|came|went|saw|told|took|brought|knew|thought|got|made)\b/i,
     // the copula is a conjugation of "to be", and he drops it
     /\b(is|are|am)\b/i,
+    // an auxiliary opening a question is TO DO or TO BE doing native work
+    /(^|[.!?]\s+)(do|does|did|is|are|was|were)\s+(you|he|she|they|we|it|i|that|this|there)\b/i,
     // regular past forms are native; "You make promise. Promise fail."
     /\b(?!need|needs|bed|red|feed|seed|weed|speed|bleed|breed|deed|reed|greed|indeed|shed|hundred|wicked|naked|sacred|tired|hatred|blessed|wretched|beloved|ragged|crooked|rugged)\w{3,}ed\b/i,
   ],

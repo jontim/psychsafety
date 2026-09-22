@@ -84,6 +84,7 @@ Epilogue the film already fixed: Soraya opens a letter at her desk and smiles: f
 - Tav's life before the orphanage: Tav has sensory residue only; Serena has what she witnessed at his arrival; nobody else has anything. The "don't do that thing you do" agreement is theirs; Thorbin and Varya suspect it; the others do not.
 - Brask's years in captivity: Brask knows; Varya knows from the file; Lyra has some details; Tav, Serena and Thorbin suspect, as friends; Kael does not know.
 - The Architect and the chain beneath it: no Warden knows; Varya suspects at the Cadence's level. No Warden may say it.
+- Thorbin and Melindre: private, not secret. Serena treats it as old news; Tavian and Lyra deny it with absurd evidentiary standards.
 
 ## Regression traps
 

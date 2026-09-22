@@ -29,6 +29,12 @@ async function say(text, tone) {
 
 await say("Now then, lad. Nobody here wants this to be a long night. Who sent you to hear the song?", "warm");
 await page.screenshot({ path: `${outDir}/03-stage-warm.png` });
+// The director's slate: opened with the S key, off by default.
+await page.keyboard.press("s");
+await page.waitForSelector(".panel.slate");
+await page.screenshot({ path: `${outDir}/03b-slate.png` });
+const slate = await page.$eval(".panel.slate", (e) => e.textContent.replace(/\s+/g, " ").trim());
+await page.keyboard.press("s");
 const metersAfterWarm = await page.$$eval(".meter", (els) => els.map((e) => e.textContent.replace(/\s+/g, " ").trim()));
 await say("Answer me. Now.", "angry");
 await say("I said ANSWER.", "angry");
@@ -58,5 +64,5 @@ await page.setViewportSize({ width: 390, height: 844 });
 await page.waitForTimeout(200);
 await page.screenshot({ path: `${outDir}/07-phone.png`, fullPage: true });
 
-console.log(JSON.stringify({ errors, metersAfterWarm, forceVisible: Boolean(forceVisible), forceText: forceText?.slice(0, 300), screenAfterForce, transcript: transcript.slice(-6) }, null, 2));
+console.log(JSON.stringify({ errors, slate: slate.slice(0, 400), metersAfterWarm, forceVisible: Boolean(forceVisible), forceText: forceText?.slice(0, 300), screenAfterForce, transcript: transcript.slice(-6) }, null, 2));
 await browser.close();

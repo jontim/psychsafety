@@ -362,6 +362,10 @@ export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
     /\b(I'm|I've|I'll|you're|we're|they're|it's|that's|there's|he's|she's)\b/,
     // common past forms where the rail wants an adverb and the present
     /\b(said|was|were|did|came|went|saw|told|took|brought|knew|thought|got|made)\b/i,
+    // the copula is a conjugation of "to be", and he drops it
+    /\b(is|are|am)\b/i,
+    // regular past forms are native; "You make promise. Promise fail."
+    /\b(?!need|needs|bed|red|feed|seed|weed|speed|bleed|breed|deed|reed|greed|indeed|shed|hundred|wicked|naked|sacred|tired|hatred|blessed|wretched|beloved|ragged|crooked|rugged)\w{3,}ed\b/i,
   ],
 };
 

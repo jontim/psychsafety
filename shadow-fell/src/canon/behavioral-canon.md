@@ -1252,7 +1252,7 @@ Brask's cognition is sophisticated. His Common production is not. He can think a
 
 - Comprehension over production: he can understand a far more complex sentence than he could construct.
 
-- Not every sentence maximally broken, or he becomes a comedy dialect. "That is not true." is plausible. So is "You promised." The marker is not constant grammatical damage; it is that when he must produce a complicated thought he decomposes it instead of suddenly becoming syntactically native.
+- Not every sentence maximally broken, or he becomes a comedy dialect, but even the simple lines keep the rail: "That not true.", never "That is not true", because "is" conjugates "to be"; "You make promise. Promise fail.", never "You promised", because the past tense is native and a promise is a thing you make. The marker is not constant grammatical damage; it is that when he must produce a complicated thought he decomposes it instead of suddenly becoming syntactically native.
 
 - He does not compress reasoning into abstract summary phrases when he can state the missing fact directly. Not "we lack sufficient evidence." Not "we do not know enough." "We not know." Then he asks the next question.
 

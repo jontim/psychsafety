@@ -52,7 +52,10 @@ describe("the attribution eval", () => {
     expect(slipsStyle("brask", "Brask did not ask for a cup. You said wagons. What was in them?")).toBe(true);
     expect(slipsStyle("brask", "Brask no ask for cup. You say wagons? What they have?")).toBe(false);
     expect(slipsStyle("brask", "Barn has straw, door, Brask. Eat the bread.")).toBe(false);
-    expect(slipsStyle("brask", "That is not true. You promised.")).toBe(false);
+    expect(slipsStyle("brask", "That is not true.")).toBe(true);
+    expect(slipsStyle("brask", "You promised.")).toBe(true);
+    expect(slipsStyle("brask", "That not true. You make promise. Promise fail.")).toBe(false);
+    expect(slipsStyle("brask", "Brask need bread. Red road. Wicked man.")).toBe(false);
     expect(slipsStyle("brask", "Bridge only crossing? Creature live somewhere else? Then we not know. Find out.")).toBe(false);
     expect(slipsStyle("brask", "Why is he angry?")).toBe(true);
     expect(slipsStyle("brask", "Nevertheless, the incentives are misaligned.")).toBe(true);

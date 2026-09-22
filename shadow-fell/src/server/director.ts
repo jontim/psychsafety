@@ -60,7 +60,7 @@ export function createDirector(world: World, opts: DirectorOptions, client: Anth
     try {
       const message = await client.messages.parse({
         model: opts.model,
-        max_tokens: 4000,
+        max_tokens: 16000,
         system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
         messages: [{ role: "user", content: turnMessage(world, req, opts.runtime, gate) }],
         output_config: { effort: opts.effort, format: zodOutputFormat(gate ? DirectorResponseSchema : DirectorResponseLooseSchema) },

@@ -19,6 +19,8 @@ export interface SteeringPair {
   moves: [string, string];
   lines: [string, string];
   sources: [string, string];
+  /** The slate offered one move at +1 or better; the second came from asking for a different one. */
+  alternativeSourced?: boolean;
 }
 
 export interface SteeringSkip { scenario: string; warden: WardenId; stimulus: string; reason: string }
@@ -97,6 +99,8 @@ export interface SteeringScore {
   sameVoice: number;
   /** Distinct, both enacted, both in voice: the gate steering the line. */
   causal: number;
+  /** Pairs whose second move had to be asked for. */
+  alternativeSourced: number;
   perWarden: Record<string, { n: number; causal: number }>;
 }
 
@@ -118,7 +122,7 @@ export function scoreSteering(pairs: SteeringPair[], judged: Map<string, JudgedP
   }
   const rate = (k: number, n: number) => (n ? k / n : 0);
   for (const pw of Object.values(perWarden)) pw.causal = rate(pw.causal, pw.n);
-  return { pairs: pairs.length, judged: judgedN, unjudged: pairs.length - judgedN, skipped: skips.length, identical, distinct: rate(distinct, judgedN), enacted: rate(enacted, judgedN), sameVoice: rate(sameVoice, judgedN), causal: rate(causal, judgedN), perWarden };
+  return { pairs: pairs.length, judged: judgedN, unjudged: pairs.length - judgedN, skipped: skips.length, identical, distinct: rate(distinct, judgedN), enacted: rate(enacted, judgedN), sameVoice: rate(sameVoice, judgedN), causal: rate(causal, judgedN), alternativeSourced: pairs.filter((p) => p.alternativeSourced).length, perWarden };
 }
 
 /** Jon's rule: identical lines mean decoration; obvious difference in the same voice means causal work. */
@@ -136,16 +140,16 @@ export function formatSteeringReport(score: SteeringScore, meta: Record<string, 
   const wardenRows = Object.entries(score.perWarden).map(([w, v]) => `| ${w} | ${v.n} | ${pct(v.causal)} |`);
   const examples = pairs.slice(0, 6).map((p) => {
     const j = judged.get(p.id);
-    return [`- ${p.warden} to the ${p.scenario} (${p.tone}):`, `  - move one: ${p.moves[0]}`, `    line: "${p.lines[0]}"`, `  - move two: ${p.moves[1]}`, `    line: "${p.lines[1]}"`, j ? `  - judge: ${j.distinct ? "distinct" : "not distinct"}, ${j.enactsFirst && j.enactsSecond ? "both enacted" : "not both enacted"}, ${j.sameVoice ? "same voice" : "voice slips"}${j.note ? `; ${j.note}` : ""}` : "  - unjudged"].join("\n");
+    return [`- ${p.warden} to the ${p.scenario} (${p.tone})${p.alternativeSourced ? ", second move asked for" : ""}:`, `  - move one: ${p.moves[0]}`, `    line: "${p.lines[0]}"`, `  - move two: ${p.moves[1]}`, `    line: "${p.lines[1]}"`, j ? `  - judge: ${j.distinct ? "distinct" : "not distinct"}, ${j.enactsFirst && j.enactsSecond ? "both enacted" : "not both enacted"}, ${j.sameVoice ? "same voice" : "voice slips"}${j.note ? `; ${j.note}` : ""}` : "  - unjudged"].join("\n");
   });
   return [
     "# The steering test",
     "",
     ...Object.entries(meta).map(([k, v]) => `- ${k}: ${v}`),
     "",
-    "| pairs | judged | unjudged | skipped | identical | distinct | both enacted | same voice | causal |",
-    "|---|---|---|---|---|---|---|---|---|",
-    `| ${score.pairs} | ${score.judged} | ${score.unjudged} | ${score.skipped} | ${score.identical} | ${pct(score.distinct)} | ${pct(score.enacted)} | ${pct(score.sameVoice)} | ${pct(score.causal)} |`,
+    "| pairs | judged | unjudged | skipped | second move asked for | identical | distinct | both enacted | same voice | causal |",
+    "|---|---|---|---|---|---|---|---|---|---|",
+    `| ${score.pairs} | ${score.judged} | ${score.unjudged} | ${score.skipped} | ${score.alternativeSourced} | ${score.identical} | ${pct(score.distinct)} | ${pct(score.enacted)} | ${pct(score.sameVoice)} | ${pct(score.causal)} |`,
     "",
     `Verdict: ${steeringVerdict(score)}`,
     ...(wardenRows.length ? ["", "## Per Warden: pairs judged, causal rate", "", "| Warden | n | causal |", "|---|---|---|", ...wardenRows] : []),

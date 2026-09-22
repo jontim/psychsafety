@@ -63,14 +63,28 @@ for (const s of scenarios) {
       };
       const first = await direct(request());
       if (!dry && first.source !== "claude") { skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: first.note ?? "the director did not answer" }); continue; }
-      const moves = chooseMoves(first.response.slate) ?? (dry ? ["hold the line and ask for the concrete rule", "give a little ground to see what he does with it"] as [string, string] : null);
-      if (!moves) { skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: "fewer than two distinct moves at +1 or better in the slate" }); continue; }
-      const one = await direct(request(moves[0]));
-      const two = await direct(request(moves[1]));
+      let moves = chooseMoves(first.response.slate) ?? (dry ? ["hold the line and ask for the concrete rule", "give a little ground to see what he does with it"] as [string, string] : null);
+      let alternativeSourced = false;
+      let one, two;
+      if (moves) {
+        one = await direct(request(moves[0]));
+        two = await direct(request(moves[1]));
+      } else {
+        // The slate offered one move at +1 or better: render it, then ask for a different one and read it off that slate.
+        const best = [...first.response.slate.intentions].filter((i) => i.score >= 1).sort((a, b) => b.score - a.score)[0];
+        if (!best) { skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: "no move at +1 or better in the slate" }); continue; }
+        one = await direct(request(best.intention));
+        two = await direct(request(`a different move from "${best.intention}", still canon-valid at +1 or better, named in the slate`));
+        const alt = [...two.response.slate.intentions].filter((i) => i.score >= 1 && i.intention.trim().toLowerCase() !== best.intention.trim().toLowerCase()).sort((a, b) => b.score - a.score)[0];
+        if (!alt) { skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: "no second move even when asked for one" }); continue; }
+        moves = [best.intention, alt.intention];
+        alternativeSourced = true;
+      }
       if (!dry && (one.source !== "claude" || two.source !== "claude")) { skips.push({ scenario: s.id, warden: w, stimulus: st.id, reason: one.note ?? two.note ?? "a steered turn did not answer" }); continue; }
       const pair: SteeringPair = {
         id: `${s.id}-${w}-${st.id}`, scenario: s.id, warden: w, stimulus: st.id, stimulusLine: st.line, tone: st.tone,
         moves, lines: [sampleLine(one.response.line).line, sampleLine(two.response.line).line], sources: [one.source, two.source],
+        ...(alternativeSourced ? { alternativeSourced } : {}),
       };
       pairs.push(pair);
       console.log(`${s.id}/${w}/${st.id}\n  one: ${moves[0]}\n       ${pair.lines[0].slice(0, 100)}\n  two: ${moves[1]}\n       ${pair.lines[1].slice(0, 100)}`);
@@ -91,7 +105,8 @@ for (const s of scenarios) {
   }
   const message = await client.messages.parse({
     model: judgeModel,
-    max_tokens: 8000,
+    max_tokens: 16000,
+    thinking: { type: "adaptive" },
     system: [{ type: "text", text: steeringJudgeSystem(runtime), cache_control: { type: "ephemeral" } }],
     messages: [{ role: "user", content: steeringJudgeUser(mine) }],
     output_config: { format: zodOutputFormat(SteeringJudgementSchema) },

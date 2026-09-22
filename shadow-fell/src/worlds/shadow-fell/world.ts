@@ -138,7 +138,7 @@ const pack: WorldInput = {
     {
       id: "brask", name: "Brask Runebearer", title: "Qoranhi barbarian", faction: "the Stormwardens",
       summary: "34, muscle and spectacle, literalist, moral perceiver. Reveals hidden premises by taking language seriously. His axe is Souldrinker.",
-      register: "Minimal: short sentences, third person, 'Brask'. 'Easier. Less production.' Calls Thorbin 'dwarf master'.", voice: { name: "Brask", description: "A huge steppe warrior, deep, slow, few words, literal" },
+      register: "Broken Common, by canon: third person, 'Brask'; present tense only, never past or future ('You say wagons?', not 'You said wagons'); the negative is 'no' before the verb ('Brask no ask for cup'); no articles and no 'to be' ('Barn has straw, door, Brask'; 'What they have?', never 'What was in them'); questions by word order alone; never 'did not', 'does not', 'is not', 'was' or 'will not'. Short. 'Easier. Less production.' Calls Thorbin 'dwarf master'.", voice: { name: "Brask", description: "A huge steppe warrior, deep, slow, few words, literal" },
       capabilities: ["muscle", "spectacle"],
       moves: [{ id: "souldrinker", label: "Brask brings Souldrinker down", capability: "muscle", bonus: 0.15, line: "Half man, is it? How much man is Brask and friends?" }],
       lines: ["We practise.", "Why can't you just say 'you thirsty'? Easier. Less production."],

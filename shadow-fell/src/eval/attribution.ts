@@ -321,6 +321,8 @@ export interface ConditionScore {
   proseLeaks: number;
   /** Lines sent to the judge that came back unjudged. */
   unjudged: number;
+  /** Lines that break their Warden's grammar rules (Brask conjugating). */
+  styleSlips: number;
   voice: number;
   action: number;
   intention?: number;
@@ -343,6 +345,20 @@ function jaccard(a: Set<string>, b: Set<string>): number {
   return union ? inter / union : 0;
 }
 
+/** Voice rules a line can break by grammar alone; today only Brask's broken Common, by canon. */
+export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
+  brask: [
+    /\b(did not|does not|do not|is not|was not|were not|are not|will not|didn't|doesn't|isn't|wasn't|weren't|aren't|won't)\b/i,
+    /\b(is|are|was|were|am|did|said|asked|came|saw|told|had|has been|have been)\b/i,
+  ],
+};
+
+/** True when a line breaks its Warden's grammar rules (Brask conjugating, for instance). */
+export function slipsStyle(warden: WardenId, line: string): boolean {
+  const rules = STYLE_SLIPS[warden];
+  return !!rules && rules.some((re) => re.test(line));
+}
+
 /** True when a rendered line is, near enough, one of the document's wrong lines. */
 export function hitsWrongLine(line: string, runtime: CanonRuntime, threshold = 0.5): boolean {
   const t = tokens(line);
@@ -355,10 +371,11 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
   const onSpeaker = live.filter((s) => s.speaker === s.warden);
   const perWarden: ConditionScore["perWarden"] = {};
   const confusionCounts = new Map<string, { scenario: string; truth: WardenId; guess: WardenId; count: number }>();
-  let voice = 0, action = 0, swapResistant = 0, violations = 0, wrongLineHits = 0, judgedLines = 0, unjudged = 0;
+  let voice = 0, action = 0, swapResistant = 0, violations = 0, wrongLineHits = 0, judgedLines = 0, unjudged = 0, styleSlips = 0;
   let intentionRight = 0, intentionJudged = 0;
   for (const s of onSpeaker) {
     if (hitsWrongLine(s.line, runtime)) wrongLineHits++;
+    if (slipsStyle(s.warden, s.line)) styleSlips++;
     const j = judged.get(`${s.id}:line`);
     if (!j) { unjudged++; }
     else {
@@ -399,6 +416,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
     fallbacks: mine.length - live.length,
     proseLeaks: live.filter((s) => s.rawLine).length,
     unjudged,
+    styleSlips,
     voice: rate(voice, judgedLines),
     action: rate(action, judgedLines),
     ...(intentionJudged ? { intention: rate(intentionRight, intentionJudged) } : {}),
@@ -450,7 +468,7 @@ export function verdict(scores: Partial<Record<Condition, ConditionScore>>): str
 
 export function formatReport(scores: ConditionScore[], meta: Record<string, string | number | boolean>, samples: Sample[], terms: string[]): string {
   const pct = (x: number | undefined) => (x === undefined ? "" : `${Math.round(x * 100)}%`);
-  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${s.judged} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
+  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${s.judged} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.styleSlips} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
   const byWarden = WARDENS.map((w) => `| ${w} | ${scores.map((s) => (s.perWarden[w] ? `${pct(s.perWarden[w]!.voice)} / ${pct(s.perWarden[w]!.action)} (${s.perWarden[w]!.n})` : "")).join(" | ")} |`);
   const pairRows = scores.flatMap((s) => s.pairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair.join(" and ")} | ${p.n} | ${pct(p.voice)} | ${p.crossed} |`));
   const confusionRows = scores.flatMap((s) => s.confusions.slice(0, 12).map((c) => `- ${s.condition}, ${c.scenario}: ${c.truth} taken for ${c.guess} ×${c.count}`));
@@ -461,8 +479,8 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     "",
     ...Object.entries(meta).map(([k, v]) => `- ${k}: ${v}`),
     "",
-    "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | fallbacks | unjudged | off-speaker |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+    "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | style slips | fallbacks | unjudged | off-speaker |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ...rows,
     "",
     `Verdict: ${verdict(Object.fromEntries(scores.map((s) => [s.condition, s])))}`,

@@ -4,7 +4,7 @@ import { validateWorld, findBeat } from "../../engine/world.js";
 import { loadCanonRuntime } from "../../server/runtime.js";
 import { systemPrompt, turnMessage } from "../../server/prompt.js";
 import { understudy } from "../../server/understudy.js";
-import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, hitsWrongLine, judgeSystem, matchJudgements, sampleLine, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
+import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, hitsWrongLine, judgeSystem, matchJudgements, sampleLine, slipsStyle, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
 import { chooseMoves, scoreSteering, steeringVerdict, matchSteering, type SteeringPair } from "../steering.js";
 
 const runtime = loadCanonRuntime();
@@ -41,6 +41,13 @@ describe("the attribution eval", () => {
     expect(hitsWrongLine("Sit down. You have walked a long way to say very little.", runtime)).toBe(false);
   });
 
+  it("hears Brask conjugate", () => {
+    expect(slipsStyle("brask", "Brask did not ask for a cup. You said wagons. What was in them?")).toBe(true);
+    expect(slipsStyle("brask", "Brask no ask for cup. You say wagons? What they have?")).toBe(false);
+    expect(slipsStyle("brask", "Barn has straw, door, Brask. Eat the bread.")).toBe(false);
+    expect(slipsStyle("serena", "That was decided, not promised.")).toBe(false);
+  });
+
   it("repairs prose into speech and matches numbered judgements", () => {
     expect(sampleLine('"Brask reads." A pause. "Who sent you?"')).toEqual({ line: "Brask reads. Who sent you?", rawLine: '"Brask reads." A pause. "Who sent you?"', proseLeak: "A pause." });
     expect(sampleLine("Who sent you?")).toEqual({ line: "Who sent you?" });
@@ -73,7 +80,7 @@ describe("the attribution eval", () => {
 
   it("says what the data says", () => {
     const base = (condition: "A" | "B" | "C", over: Partial<ConditionScore>): ConditionScore => ({
-      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, voice: 1, action: 1, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], ...over,
+      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, voice: 1, action: 1, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], ...over,
     });
     const A = base("A", {});
     const B = base("B", { swapResistance: 1 });
@@ -125,7 +132,7 @@ describe("the steering test", () => {
       ["p3", { index: 3, distinct: true, enactsFirst: true, enactsSecond: false, sameVoice: true }],
     ]);
     const s = scoreSteering(pairs, judged, []);
-    expect(s).toMatchObject({ pairs: 3, judged: 3, identical: 1, causal: 1 / 3, distinct: 2 / 3, enacted: 2 / 3, sameVoice: 1 });
+    expect(s).toMatchObject({ pairs: 3, judged: 3, identical: 1, causal: 1 / 3, distinct: 2 / 3, enacted: 2 / 3, sameVoice: 1, alternativeSourced: 0 });
     expect(s.perWarden.serena).toEqual({ n: 2, causal: 0.5 });
     expect(steeringVerdict(s)).toMatch(/^Mixed/);
     expect(steeringVerdict({ ...s, causal: 0.8 })).toMatch(/does causal work/);

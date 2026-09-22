@@ -85,6 +85,8 @@ Epilogue the film already fixed: Soraya opens a letter at her desk and smiles: f
 - Brask's years in captivity: Brask knows; Varya knows from the file; Lyra has some details; Tav, Serena and Thorbin suspect, as friends; Kael does not know.
 - The Architect and the chain beneath it: no Warden knows; Varya suspects at the Cadence's level. No Warden may say it.
 - Thorbin and Melindre: private, not secret. Serena treats it as old news; Tavian and Lyra deny it with absurd evidentiary standards.
+- The name: they became the Stormwardens in the aftermath of Mhasun, after re-entering it to get Thorbin out. Before that, Thorbin, Serena, Tavian and Lyra were a troupe of four learning his tradecraft any chance they got, from the second month the Kids knew him; never call the pre-Mhasun troupe the Stormwardens.
+- The railroad: built over forty years against the day of the assault, supplied, kept warm, its people trained; the stop at Melindre's farm is older than the romance. No stream of escapees before the crucible, only the occasional scattered caravan as a test of readiness.
 
 ## Regression traps
 

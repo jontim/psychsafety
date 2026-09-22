@@ -31,8 +31,8 @@ const NORMALISE: Array<[RegExp, string]> = [
 export const RULINGS: Array<{ find: RegExp; replace: string; source: string }> = [
   {
     find: /After the break in the slave route, Melindre['’]s farm became a major safe stop for escaped Mhasun slaves\./,
-    replace: "Melindre's farm was a major safe stop on the railroad for escaped Mhasun slaves for years before the strike.",
-    source: "Jon, 2026-09-22: the route breaks only at the end of the Mhasun assault; the first foray broke his party, not routes.",
+    replace: "Melindre's farm was a stop on the railroad for years before the strike, and before the two of them were anything to each other: a network Thorbin built, supplied, kept warm and trained over forty years against the day of the assault, with no stream of escapees before the crucible, only the occasional scattered caravan as a test of readiness.",
+    source: "Jon, 2026-09-22: the route breaks only at the end of the Mhasun assault; the railroad was primed against the assault and the stop is older than the romance.",
   },
 ];
 

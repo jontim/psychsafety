@@ -11,6 +11,7 @@ import { createDirector } from "./director.js";
 import { speak } from "./tts.js";
 import { createVoiceDirectory, formatResolutions } from "./voices.js";
 import { loadDossiers } from "./dossiers.js";
+import { loadCanonRuntime } from "./runtime.js";
 import { findCast } from "../engine/world.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -28,7 +29,8 @@ const anthropic = anthropicKey ? new Anthropic({ apiKey: anthropicKey }) : null;
 const hume = humeKey ? new HumeClient({ apiKey: humeKey }) : null;
 const voices = createVoiceDirectory(hume);
 const dossiers = new Map(Object.values(WORLDS).map((w) => [w.id, loadDossiers(root, w.id)]));
-const directors = new Map(Object.values(WORLDS).map((w) => [w.id, createDirector(w, { model, effort, brief, dossiers: dossiers.get(w.id) }, anthropic)]));
+const runtime = loadCanonRuntime();
+const directors = new Map(Object.values(WORLDS).map((w) => [w.id, createDirector(w, { model, effort, brief, dossiers: dossiers.get(w.id), runtime }, anthropic)]));
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -154,6 +156,7 @@ const server = app.listen(PORT, () => {
   console.log(`The Shadow Fell server listening on http://localhost:${PORT}`);
   console.log(`  ear: ${humeKey && humeSecret ? "Hume EVI" : "mock only"} | voice: ${humeKey ? "Octave" : "browser"} | director: ${anthropic ? model : "understudy"}`);
   for (const w of Object.values(WORLDS)) console.log(`  dossiers for ${w.title}: ${Object.keys(dossiers.get(w.id) ?? {}).join(", ") || "none"}`);
+  console.log(`  company runtime: Behavioral Canon v${runtime.version}, ${Object.keys(runtime.wardens).length} wardens, ${Object.keys(runtime.pairs).length} directed pairs, ${runtime.fallbacks.length} fallback domains`);
   if (hume) {
     void voices.refresh().then(() => {
       const { library, error } = voices.status();

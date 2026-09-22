@@ -8,7 +8,7 @@ import { HumeEar } from "./ear/hume-ear.js";
 import type { Ear, Utterance } from "./ear/types.js";
 import { Voice } from "./voice.js";
 import { Floor, type Fragment, type FloorMode } from "./floor.js";
-import { h, castName, renderMeters, renderRibbon, renderTranscript, portraitFor } from "./ui/render.js";
+import { h, castName, renderMeters, renderRibbon, renderTranscript, renderSlate, portraitFor } from "./ui/render.js";
 import type { TonePreset } from "../engine/mock-ear.js";
 
 const WORLD_ID = "shadow-fell";
@@ -29,6 +29,8 @@ interface App {
   screen: "roles" | "stage" | "debrief";
   floor: Floor;
   speechSoFar: Fragment[];
+  /** The director's slate panel: an authoring view, remembered per browser. */
+  slateOpen: boolean;
 }
 
 const root = document.getElementById("app")!;
@@ -47,7 +49,7 @@ async function boot(): Promise<void> {
     onChange: (fragments) => { app.speechSoFar = fragments; renderSpeechSoFar(); },
     onCommit: (merged) => { void processUtterance(merged); },
   });
-  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "roles", floor, speechSoFar: [] };
+  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "roles", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1" };
   mock.onUtterance((u) => { void processUtterance(u); });
   mock.onStatus(setStatus);
   render();
@@ -81,11 +83,24 @@ function band(): HTMLElement {
     h("span", { class: `pill ${app.ear.kind === "hume" ? "on" : "off"}` }, app.ear.kind === "hume" ? "Ear: Hume EVI" : app.health.hume ? "Ear: mock (Hume ready)" : "Ear: mock"),
     h("span", { class: `pill ${app.health.octave ? "on" : "off"}` }, app.health.octave ? "Voice: Octave" : "Voice: browser"),
     h("span", { class: `pill ${app.health.director !== "understudy" ? "on" : "off"}` }, `Director: ${app.health.director}`),
+    slatePill(),
   );
   return h("header", { class: "band" },
     h("div", {}, h("h1", {}, app.world.title), h("div", { class: "tag" }, app.world.tagline)),
     pills,
   );
+}
+
+function toggleSlate(): void {
+  app.slateOpen = !app.slateOpen;
+  safeSet("slateOpen", app.slateOpen ? "1" : "0");
+  render();
+}
+
+function slatePill(): HTMLElement {
+  const pill = h("button", { class: `pill toggle ${app.slateOpen ? "on" : "off"}`, title: "Show the director's slate (S)" }, app.slateOpen ? "Slate: open" : "Slate");
+  pill.addEventListener("click", toggleSlate);
+  return pill;
 }
 
 function render(): void {
@@ -159,6 +174,7 @@ function stageScreen(): HTMLElement {
     app.lastSource === "understudy" ? h("div", { class: "status" }, "The understudy is directing (no Anthropic key).") : null,
   );
   side.append(debrief);
+  if (app.slateOpen) side.append(renderSlate(app.world, app.lastResponse, app.lastSource));
 
   const main = h("main", {},
     h("div", { class: "stage-grid" }, h("div", {}, stage, h("div", { class: "goal-line" }, snap.beat.goal), controls(snap)), side),
@@ -380,9 +396,10 @@ function debriefScreen(): HTMLElement {
 }
 
 document.addEventListener("keydown", (e) => {
-  if (e.key !== "Enter" || e.shiftKey) return;
   const target = e.target as HTMLElement | null;
   if (target && (target.tagName === "TEXTAREA" || target.tagName === "INPUT" || target.tagName === "SELECT")) return;
+  if ((e.key === "s" || e.key === "S") && !e.metaKey && !e.ctrlKey && !e.altKey && app) { e.preventDefault(); toggleSlate(); return; }
+  if (e.key !== "Enter" || e.shiftKey) return;
   if (app?.ear.kind === "hume" && app.floor.hasSpeech) { e.preventDefault(); app.floor.commit(); }
 });
 

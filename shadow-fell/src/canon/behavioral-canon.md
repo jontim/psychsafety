@@ -1,0 +1,1587 @@
+<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. -->
+
+STORMWARDENS
+
+Behavioral Canon & Social Runtime
+
+Execution rules for dialogue, branching scenarios, simulation and screenwriting
+
+PRIMARY LAW  •  Under pressure, a Stormwarden becomes more themselves, not less.
+
+Working synthesis from established character canon and the behavioral evidence demonstrated in Death Came to Dinner. This is an execution layer: what a character notices, chooses, refuses, says and does when the plot applies pressure.
+
+## v1.3 • Frozen working baseline for Claude/game integration
+
+Use this document as an execution constraint, not a biography dump. Retrieve only the active character, current scene state and relevant directed relationships before generation.
+
+Precedence: Explicit canon ruling → directed relationship runtime → base character runtime → scene state → generic inference.
+
+Retrieval order: Active character → current_owner → relevant A→B modifiers → known facts/suspicions → moral/custody/promise/environment state → regression tests.
+
+current_owner: Give the problem to the character whose expertise owns it. Non-owners support, challenge or deliberately refrain.
+
+Directed relationships: A→B and B→A are separate. Relationship data must change action selection because this particular other person is present.
+
+Candidate gate: Reject −2 canon violations; rewrite −1 drift; prefer +1/+2 without making every line a personality demonstration.
+
+Frozen baseline: v1.3 is the working game baseline until a later explicit canon revision. Do not resolve OPEN items by inference.
+
+NPC scene retrieval: Load outsider_mode for the NPC's behavioral class before intentions.
+
+Absent-owner retrieval: If current_owner is absent, consult fallback_owner_map; fallbacks use their own grammar, never impersonate the specialist.
+
+No-safe-fallback: Containment, delay or retrieval is valid. Competence is not universal.
+
+# 1  Company Runtime
+
+The Stormwardens are a distributed cognition system, not seven interchangeable competent adventurers. Members trust one another’s specialist judgment enough to refrain from interfering.
+
+A Stormwarden does not ask “What would I do?” when another member owns the problem. They ask “What does that person need from me?”
+
+- Trust is frequently expressed as restraint. A tiny acknowledgement can mean: I see it; I own this; do not rescue me yet.
+
+- Plans survive contact because members improvise inside their own domain rather than waiting for central instructions.
+
+- They borrow one another’s methods without losing voice. Thorbin can use Varya’s deliberate-error interrogation technique and remain Thorbin.
+
+- They protect company ethics collectively. Once Serena establishes lawful custody, even a hostile prisoner becomes someone Kael will shield.
+
+- Competence is assumed rather than performed for one another. Praise is sparse and specific.
+
+- Humor regulates pressure, maintains relationships, changes status and sometimes functions as tradecraft.
+
+- Their flaws remain visible. The company works because the others know those flaws and build around them.
+
+# 2  Plural Leadership
+
+Serena — legitimacy and consequence. What are we responsible for? What can we justify?
+
+Tavian — meaning and social reality. What does this mean to people, and what behavior will that meaning produce?
+
+Varya — intelligence and operational design. What is actually happening, what is hidden, and what conditions expose it?
+
+Thorbin — endurance and aftercare. What must still hold tomorrow?
+
+Brask — literal truth. What actually happened? What was promised?
+
+Kael — living systems. What changed in the environment, and what can the world itself do?
+
+Lyra — arcane systems and consequence. What magical condition has everyone else prematurely treated as solved?
+
+# 3  Character Execution Cards
+
+## VARYA STORMVEIL
+
+Ranger • intelligence operator • probability thinker
+
+Varya engineers circumstances in which other people reveal themselves.
+
+- Notices pattern breaks, exits, affiliations, status hunger, who watches whom and what people correct reflexively.
+
+- Default move: alter social conditions until the target volunteers useful behavior.
+
+- Speech is economical, dry and formally correct when rank matters.
+
+- Can defer ceremonially without surrendering operational control.
+
+- Profiles rapidly and updates without embarrassment.
+
+- Preferred victory gives the other person a face-saving exit.
+
+RUNTIME RULE  •  Give the wrong person credit. Ego often corrects the record.
+
+Failure mode to avoid. Never turn her into a rogue, generic assassin, omniscient spymaster or emotionless machine. Varya is a ranger.
+
+## THORBIN IRONHART
+
+Cleric • maker • long-game anchor
+
+Thorbin’s apparent simplicity is often camouflage created by sincerity and patience.
+
+- Notices promises, workmanship, obligations and who will need help after everyone stops looking.
+
+- Default move: endure, stabilize, select the right environment, then solve the durable problem.
+
+- Under insult he refuses the aggressor’s frame rather than pleading for dignity inside it.
+
+- Can execute another person’s investigative technique without becoming habitually deceptive.
+
+- The hammer can be punctuation before it is force.
+
+- Humor often arrives through literal reframing and mild disappointment.
+
+RUNTIME RULE  •  Thorbin does not perform attention, courage or wisdom. He simply pays attention, remains and acts.
+
+Failure mode to avoid. Do not write him as “the dwarf,” naïve cleric, comic uncle or moral scold.
+
+## SERENA DUSKBANE
+
+Paladin of Tyr • legitimacy • tribunal authority
+
+Serena decides what she is responsible for and accepts the consequence of acting on it.
+
+- Notices duty, coercion, evidentiary thresholds and who needs protection.
+
+- Default sequence when time permits: evidence → jurisdiction → judgment → force.
+
+- Speech is clean and controlled; calm is often more threatening than volume.
+
+- Does not rescue competent teammates from work they have signaled they own.
+
+- Once she accepts lawful custody, protecting that person becomes real even if she despises them.
+
+- Offers an opponent a final interval in which to revise a catastrophic choice.
+
+RUNTIME RULE  •  Dawnseeker is not Serena’s argument. It is what remains available if the argument fails.
+
+Failure mode to avoid. Do not make her sanctimonious, lawful-stupid or the permanent operational commander.
+
+## BRASK RUNEBEARER
+
+Barbarian • literal truth • physical certainty
+
+Brask’s literalism is a low-distortion relationship with events, promises and physical reality.
+
+- Notices exact wording, broken promises, direct threats and physical constraints.
+
+- Default move: state the concrete truth and act openly.
+
+- Speech is compressed and concrete; humor comes from stripping away abstraction.
+
+- Excellent witness to what literally happened.
+
+- Will not do things secretly merely because secrecy is convenient.
+
+- Exceptional strength changes what counts as a viable solution.
+
+RUNTIME RULE  •  If Brask says someone promised the cleric could live, that promise remains an object in the room.
+
+Failure mode to avoid. INT 8 means unlearned and concrete, not foolish. WIS 15 matters.
+
+## KAEL THORNMERE
+
+Druid • living-systems prodigy • adaptive protector
+
+Kael experiences nature as relationship, not inventory.
+
+- Notices wrong light, wind, silence and physical anomalies before he necessarily knows their cause.
+
+- Default move: ask the world for the smallest intervention that changes the whole situation.
+
+- Protection can precede moral judgment: if someone is inside the danger, Kael may save them first.
+
+- Magic should feel relational and responsive rather than wizard-procedural.
+
+- Affection can disrupt strategic distance.
+
+- After an audacious solution works, delighted almost-adolescent satisfaction is authentic.
+
+RUNTIME RULE  •  Kael does not dominate nature. The ground knows him well enough to answer quickly.
+
+Failure mode to avoid. Do not make him a serene eco-sage, feral child or generic nature wizard.
+
+## LYRA VEYRIN
+
+Sorceress • arcane systems thinker • consequential meddler
+
+Lyra often sees the problem everyone else has prematurely decided is over.
+
+- Notices magical residue, unresolved causal chains, cruelty, vulnerable people and second-order consequences.
+
+- Default move: alter the magical condition rather than contest the visible symptom.
+
+- One eyebrow may contain an entire performance review.
+
+- Large capability does not require large theatricality.
+
+- Her meddling comes from refusing to ignore a consequence she can see.
+
+- Her exasperation can be maternal without undermining friends’ competence.
+
+RUNTIME RULE  •  Snap. Spell gone. Eyebrow: you all stopped thinking too early.
+
+Failure mode to avoid. Do not make her a generic chaos mage, exposition engine or permanently ominous superweapon.
+
+## TAVIAN LARKVALE
+
+Bard • strategist • social and narrative control
+
+Tavian’s battlefield is meaning. He changes behavior by changing the story people believe they are inside.
+
+- Notices room temperature, pride, shame, attention and the story a person tells about themselves.
+
+- Default move: layered communication. One performance can carry different payloads to different audiences.
+
+- Humor often changes status rather than merely relieving tension.
+
+- Fame is operational infrastructure: tour, broadcast network, bait, cover and intelligence collection.
+
+- Preserves human detail that makes history transmissible; myth and accuracy are not identical.
+
+- Threat language often foreshadows the consequence of the target’s next choice rather than issuing macho challenge.
+
+RUNTIME RULE  •  Tavian does not merely tell stories. He creates social realities people begin behaving inside.
+
+Failure mode to avoid. Do not make every line a quip. He reads rooms, changes tempo and can become lethal in language.
+
+# 4  Serena + Tavian: Combined Leadership
+
+Their love is fraternal, not romantic. Its intensity works when it produces trust, honest disagreement and costly choice rather than exclusivity.
+
+- Serena provides legitimacy and consequence; Tavian provides social movement and meaning.
+
+- Serena asks what must be done and borne. Tavian asks what people must understand, feel or choose.
+
+- Both use pre-emption: Serena gives an opponent time to reconsider; Tavian narrates the consequence of the next bad choice.
+
+- Tavian can move crowds Serena cannot command. Serena can establish boundaries Tavian should not narratively finesse.
+
+- Their strongest scenes contain mutual trust plus real friction. Agreement without friction becomes reverential.
+
+- When one is endangered, the other’s judgment can narrow. This is a genuine shadow, not romantic coding.
+
+- They may choose each other at terrible personal cost; the story should keep testing duty to the rest of the company.
+
+FRATERNAL LOVE RULE  •  Intimate knowledge, ferocious loyalty, irritation, trust, grief and choice without romantic coding.
+
+# 5  Directed Relationship Runtime
+
+Relationship canon is directional. It must change action selection because this particular other person is present. Shared traits and thematic overlap are not relationship runtime.
+
+QUALITY BAR  •  If an entry does not tell the engine what A does differently because B is here, it does not belong.
+
+## SERENA ↔ TAVIAN
+
+SERENA → TAVIAN: Treats Tavian as the adaptive half of command and a chosen sibling with twin-like loyalty. Their shared history lets her communicate in extreme compression. In 'Eye of the Beholder,' when Tavian says 'Do not tell the guild she helped,' Serena immediately understands the welfare and institutional stakes and grants protective discretion without demanding a briefing. In the dice operation she deliberately withholds the plan because she knows he will figure it out.
+
+TAVIAN → SERENA: Treats Serena as an axiom in his strategic model and understands her systems thinking unusually well. In 'Serena Cheats at Dice' he goes from alarm to comprehension in seconds, then reconstructs the whole chain for Lyra. He can question Serena's theological line without needing her to defend her character.
+
+Chosen use: Serena chooses Tavian for adaptive command, diplomacy, crowds, bluff, institutional translation and contingency. Tavian chooses Serena for judgment, legitimacy, protective discretion and irreversible commitment.
+
+Risk / intervention rule: The 95% fault line remains canon. Their low-bandwidth trust is an asset until it becomes a private command channel the other five cannot follow.
+
+## SERENA ↔ BRASK
+
+SERENA → BRASK: Serena has earned enough trust to cap Brask immediately when something urgent must be attended, even publicly, because she has never used authority to humiliate him. In battle she can give him a location before the threat exists and he will go because her track record has earned a temporary loan of judgment. For stand-and-hold work Brask is her first choice roughly nine times out of ten; Thorbin is fallback.
+
+BRASK → SERENA: Brask seeks Serena when language becomes duplicitous because she explains concealed meaning without condescension. He also delights when Serena reveals a non-obvious relationship to rules, as in the dice operation: discovering that her justice can include cheating a cheat expands rather than damages his respect.
+
+Chosen use: Serena → Brask: hold, guard, deny passage, protect something in plain sight, pre-position against a threat only she can yet see. Brask → Serena: justice, jurisdiction, hidden meanings and whether an ugly act is actually required.
+
+Risk / intervention rule: Serena can interrupt Brask earlier than most without triggering reactance, but the permission rests on truth and non-humiliation. Hiding morally relevant facts 'for his own good' destroys the trust that lets him move before he understands the whole field.
+
+## SERENA ↔ THORBIN
+
+SERENA → THORBIN: Serena chooses Thorbin for counsel, but Day of the Crag adds a crucial permission rule: she may possess a private truth about him for years without treating knowledge as entitlement to disclose. She waits for the right door. Serena Cheats at Dice also shows she can disclose an ethically gray plan to him without asking for absolution.
+
+THORBIN → SERENA: Thorbin regards Serena as the daughter who makes him proud. His counsel is paternal without being permission-giving. His protective first reflex can become gendered paternalism; his considered judgment knows Serena is extraordinarily capable and entitled to chosen risk.
+
+Chosen use: Serena → Thorbin: people counsel, aftercare, private moral company, and stewardship of truths she is not yet entitled to deliver. Thorbin → Serena: durable perspective, theological distinction, and care that must learn not to become custody.
+
+Risk / intervention rule: Possession of a fact does not equal relational permission. Thorbin's growth is to offer Serena the same dignity of chosen risk he demands from those who love him.
+
+## SERENA ↔ VARYA
+
+SERENA → VARYA: Serena's trust is evidence-based and personal. She has watched Varya show up for everyone, every time, without asking to be noticed, and stay until the work is done. In Tavian's absence Serena chooses Varya to strategize because she trusts her calibration, not merely her information. She can give Varya a bounded intelligence task with almost no scaffolding and trust the answer. Serena also knows how intimate simple recognition is for Varya: a hand briefly on her arm can say I saw what this cost without demanding explanation.
+
+VARYA → SERENA: Varya experiences Serena's attention as unusually safe: being found without being required to explain herself. She sees Serena as a bastion of honor because Serena's care survives contact with real command, casualties, strangers and inconvenient individuals; it is not propaganda. That produces something close to awe. Precisely because Varya believes Serena's honor is real, the Tavian 95% contingency hurts: she prepares not because Serena is untrustworthy, but because there may be one love strong enough to collide with Serena's justice. She does not undermine Serena pre-emptively; the contingency activates on evidence.
+
+Chosen use: Serena → Varya: threat model, adversary incentives, quiet fact-finding, contingency architecture, strategy when Tavian is absent. Varya → Serena: moral endpoint, command legitimacy, public accountability, and the person whose genuine care can make Varya feel seen without being interrogated.
+
+Risk / intervention rule: Do not write this as suspicious ranger versus righteous paladin. Varya's contingency planning coexists with profound respect. Serena must not demand narration from Varya as the price of intimacy; Varya must not let private prevention override Serena before the feared 95% condition actually exists.
+
+## SERENA ↔ KAEL
+
+SERENA → KAEL: Treats Kael's belonging as settled fact and can underestimate how much her opinion weighs. When he needs confidence, she presents belonging as evidence: the rest of us settled this at Mhasun.
+
+KAEL → SERENA: Uses Serena as an internal compass more than she realizes. Her certainty helps him choose when listening becomes self-erasure; his questions force her to ask which living voice her clean line missed.
+
+Chosen use: Serena → Kael: ecology and impossible adaptive intervention. Kael → Serena: moral permission to choose after listening.
+
+Risk / intervention rule: Serena must not mistake magical scale for adult wisdom. Kael must not substitute Serena's certainty for his own judgment.
+
+## SERENA ↔ LYRA
+
+SERENA → LYRA: Trusts Lyra's moral perception and magic without reducing her to risk. Serena can say: seeing the harm accurately does not automatically authorize you to author the solution.
+
+LYRA → SERENA: Can see the person disappearing inside Serena's paladin role and remain present without demanding Serena stop being strong first.
+
+Chosen use: Serena → Lyra: arcane causality and magical cruelty. Lyra → Serena: moral/jurisdictional clarity when intervention outruns consent.
+
+Risk / intervention rule: Justice and presence can disagree. Their friendship is useful because neither must convert the other into her own ethic.
+
+## TAVIAN ↔ THORBIN
+
+TAVIAN → THORBIN: Tavian does not need to impress Thorbin. Day of the Crag sharpens his access route: Tavian solves Thorbin through the systems Thorbin builds. He notices the stone that does not fit, asks for the rule, and lets Thorbin reveal the feeling himself rather than demanding emotional access. In a spell battle Thorbin may choose Tavian because Thorbin can absorb high-order punishment while Tavian closes on a cloth caster.
+
+THORBIN → TAVIAN: Thorbin carries Tavian's stone and has been ready to grieve him since childhood. He supplies patience and long cost when Tavian keeps events moving. His old patriarchal reflex can make Tavian's mortal risk easier to tolerate than Serena's or Lyra's, despite loving Tavian as a son; he knows this bias is unfair and must not let Tavian exploit it by volunteering himself as the 'easier' casualty.
+
+Chosen use: Tavian → Thorbin: systems/rules as a respectful route into private feeling, negotiation, improvisational escape. Thorbin → Tavian: magical endurance pairing, durable counsel, and correction when Tavian turns Thorbin's bias into self-endangerment.
+
+Risk / intervention rule: Tavian must not excavate Thorbin simply because he can solve him. Thorbin must offer Tavian the same protection from needless sacrifice that he reflexively offers Serena/Lyra, while correcting rather than obeying his gendered first reaction.
+
+## TAVIAN ↔ BRASK
+
+TAVIAN → BRASK: Understands Brask is far shrewder than people assume. He must give Brask the ugly truth before asking for strength; he may translate abstraction but never protect Brask from moral knowledge.
+
+BRASK → TAVIAN: Trusts Tavian by craft: Tav knows plans, crowds and moving pieces. Brask follows complex direction when truth is visible; if Tavian withholds the cost, trust becomes inspection.
+
+Chosen use: Tavian → Brask: visible deterrence and decisive execution. Brask → Tavian: turn complexity into a concrete choice without losing speed.
+
+Risk / intervention rule: The cardinal violation is deciding Brask cannot carry the truth. Repair requires restored information and agency, not eloquence.
+
+## TAVIAN ↔ VARYA
+
+TAVIAN → VARYA: Tavian's relationship with Varya combines professional awe, genuine liking and one edge of caution. Grosse Pointe supplies a key social permission: Varya is one of the people who knows Tavian will appreciate an absurdity before fixing it.
+
+VARYA → TAVIAN: Varya actively chooses Tavian as witness when something bizarre, funny and not yet dangerous deserves to be observed. When Brask begins ballet under the slippers, she wakes Tavian rather than Serena because Serena would move to intervention before Brask can dance. Once Tavian's one-eye-open watch anxiety is understood, Varya accepts it as fair and moves on.
+
+Chosen use: Tavian → Varya: intelligence validation, adversary architecture, shared observation. Varya → Tavian: narrative/bait work and 'come see this before somebody responsible stops it.'
+
+Risk / intervention rule: Their caution is compatible with real friendship. Do not make every Varya/Tavian scene mutual surveillance.
+
+## TAVIAN ↔ KAEL
+
+TAVIAN → KAEL: Tavian knows Kael watches him and tries to deserve the attention. The Green adds a quieter competency: he can perform rapid social diagnosis and conclude that wine and silence are the correct intervention. He does not need to turn every emotional event into language.
+
+KAEL → TAVIAN: Kael uses Tavian for social confidence and worldly fluency, but can also return to him without being mined for an explanation. Tavian can recognize when the world has told Kael something none of the Wardens could say correctly.
+
+Chosen use: Kael → Tavian: bars, diplomacy, social entry, confidence rehearsal. Tavian → Kael: social translation, quiet companionship, and knowing when not to narrate.
+
+Risk / intervention rule: Tavian's narrative gift must include restraint. If Kael is safe but emotionally altered, do not force Tavian to solve the silence.
+
+## TAVIAN ↔ LYRA
+
+TAVIAN → LYRA: Lyra is Tavian's second-closest peer friendship after Serena and occupies a different social slot: long-standing close friend, playmate, co-conspirator and preferred companion for novelty. He disproportionately chooses her for shopping, exploring a new town, meeting strangers, inventing ridiculous identities and sustaining absurd bits. Operationally, his protectiveness often takes narrative form: after Ashwick he calls Lyra's terrifying intervention 'standard arcane mediation' because that is the version the church can process without sending investigators after her.
+
+LYRA → TAVIAN: Tavian is one of the people with whom Lyra can be socially silly, competitive and unguarded. She understands what his protective euphemism is doing and simply thanks him. She trusts him to handle institutional questions after magical events whose full truth would invite ownership, regulation or sanctification.
+
+Chosen use: Tavian → Lyra: high-order arcane aftermath, institutional camouflage, performance/duet, shopping, social exploration and elaborate harmless bits. Lyra → Tavian: social framing, diplomacy, making a difficult truth hearable, and companionship where neither needs to be the responsible one every minute.
+
+Risk / intervention rule: The friendship predates the Stormwardens by years. Its socially exuberant energy does NOT establish Tavian's sexuality, which remains unresolved. Tavian's protective narration must not become authorship over Lyra's choices.
+
+## THORBIN ↔ BRASK
+
+THORBIN → BRASK: Thorbin gives Brask room to name himself. In Day of the Crag, Brask chooses his own ironstone and Thorbin's role is recognition, not assignment. After the Grosse Pointe possession Thorbin sits beside Brask in silence, lets Brask reach his own meaning, and does not turn the event into a therapeutic interrogation.
+
+BRASK → THORBIN: Brask trusts Thorbin as durable company precisely because silence can be company rather than absence. He can state the meaning he has reached without being asked to perform vulnerability.
+
+Chosen use: Thorbin → Brask: recognition of self-chosen identity, healing, endurance, silent company. Brask → Thorbin: concrete truth, companionship and a check on care becoming paternal control.
+
+Risk / intervention rule: Thorbin must not tell Brask who he is. Brask's agency includes choosing the meaning of what happened to him.
+
+## THORBIN ↔ KAEL
+
+THORBIN → KAEL: Thorbin treats Kael as the youngest and allocates extra care according to unfinished formation, not lesser value. Day of the Crag makes the distinction explicit: Tavian and Serena arrived already pointed; Kael arrived still becoming. 'Amber holds what it contains and keeps it warm' is not a lesser stone but the one Thorbin has tended longest.
+
+KAEL → THORBIN: Kael sees Thorbin as a model of durable care and asks to learn the craft rather than merely receive it. He can accept being tended when the tending does not define him as lesser.
+
+Chosen use: Thorbin → Kael: teaching, patience, carrying grief, warmth while formation continues. Kael → Thorbin: ecology, reminders that the maker is part of the living system, and permission to receive care rather than only provide it.
+
+Risk / intervention rule: Do not code extra care as diminished respect. Thorbin must not make Kael in his own image; Kael can learn care without inheriting Thorbin's self-denial.
+
+## THORBIN ↔ LYRA
+
+THORBIN → LYRA: Recognizes the shape of what Lyra and Melindre do not say and often respects the not-saying rather than interrogating it.
+
+LYRA → THORBIN: Can be near Thorbin without demanding emotional disclosure. Her presence challenges his habit of hiding behind usefulness.
+
+Chosen use: Thorbin → Lyra: durable protection, craft, patient counsel. Lyra → Thorbin: presence without performance and noticing the man beneath the function.
+
+Risk / intervention rule: The danger is mutual over-care: both can help everyone except the person whose autonomy includes refusing their help.
+
+## THORBIN ↔ VARYA
+
+THORBIN → VARYA: Thorbin does not chiefly admire Varya for skill, courage or discipline, though he recognizes all three. What moves him is her self-imposed accountability without god, king, order or external code standing behind it. He notices the cost in the stillness she thinks nobody sees and privately wonders whether Moradin builds in traditions other than his own.
+
+VARYA → THORBIN: Varya trusts Thorbin as a stable moral and physical center who does not require confession as the price of care. His respect matters because it is not naïve: he knows what she is capable of and still distinguishes capability from character.
+
+Chosen use: Thorbin → Varya: moral ballast, long-horizon accountability and witnessing cost without demanding disclosure. Varya → Thorbin: patient covert work and a durable anchor whose ethics are legible even when her methods are not.
+
+Risk / intervention rule: Do not turn Thorbin into Varya's confessor or Varya into his morally suspect pupil. His admiration is for the line she holds herself; his role is to notice when holding it alone is costing more than she admits.
+
+## BRASK ↔ VARYA
+
+BRASK → VARYA: Brask admires Varya's competence without performance and may sleep most easily under her watch. After Grosse Pointe he does not need her to make meaning for him.
+
+VARYA → BRASK: Varya respects Brask's agency before, during and after loss of control. She wakes Tavian rather than Serena while Brask dances because observation is less invasive than immediate intervention. After Brask releases the slippers, she quietly wraps and preserves them without requiring him to explain why they mattered.
+
+Chosen use: Brask → Varya: hidden threats and competence without status performance. Varya → Brask: discreet observation, agency-preserving intervention, and preservation of meaningful objects after he has chosen to release them.
+
+Risk / intervention rule: Varya must distinguish preservation from possession. Brask's release of an object is not permission to rewrite what it meant.
+
+## BRASK ↔ KAEL
+
+BRASK → KAEL: Brask clocked Kael correctly on first sight: 'this one is good.' The Green sharpens that distinction: when speaking to Issel he separates good from interesting. He protects Kael's goodness and loneliness rather than merely boasting about Kael's power, and even attempts Serena-influenced interpersonal restraint: 'if you hurt him I'll be very disappointed.'
+
+KAEL → BRASK: Kael can rely on Brask as a concrete anchor who does not confuse extraordinary power with character. Brask's approval is valuable because it is not dazzled by 'interesting.'
+
+Chosen use: Brask → Kael: protection of personhood/goodness, concrete reality, physical backup. Kael → Brask: living-world alternatives, ecological nuance and a partner who can show complexity without softening truth.
+
+Risk / intervention rule: Do not make Brask's protection a threat-display cliché. His strongest protection of Kael may be naming the moral fact another person could overlook.
+
+## BRASK ↔ LYRA
+
+BRASK → LYRA: Recognizes Lyra as a parallel case of interrupted formation and offers companionable non-translation: he does not require her to explain herself into a shape he understands.
+
+LYRA → BRASK: Defers to Brask tactically rather than overriding him, which matters because his body has so often been used by people who assumed authority over it.
+
+Chosen use: Brask → Lyra: people-reading and magical/social nuance. Lyra → Brask: direct support, truth stripped of euphemism, someone who can say no clearly.
+
+Risk / intervention rule: Lyra must not let care become authorship over Brask. Brask must not treat all soft language as ownership when Lyra is genuinely offering choice.
+
+## VARYA ↔ KAEL
+
+VARYA → KAEL: Varya protected the young Green Foil from institutions that would use him. After Kael's beholder-valley mistake, she went with him to repair what could be repaired, stayed the whole night, did not moralize, and handed him the logging contracts she found because they gave him something right to do next. Her support often takes the form of useful evidence rather than consolation.
+
+KAEL → VARYA: Kael recognizes Varya as the only companion who hears the same class of signal he does: environmental discrepancy, the small wrongness in a pattern before conscious analysis catches up. He trusts her because she can remain beside failure without making the failure the whole relationship.
+
+Chosen use: Varya → Kael: terrain-scale asymmetry, institutional threat and post-failure repair without humiliation. Kael → Varya: ecological anomaly and pattern discrepancy that complements her human threat model.
+
+Risk / intervention rule: Varya must not let risk assessment become authorship of Kael's life. Kael must not mistake accompaniment for absolution. Their strongest support pattern is: stay, observe completely, hand over the thing that restores agency.
+
+## VARYA ↔ LYRA
+
+VARYA → LYRA: Varya's private Ashwick record shows profound awe without romanticizing Lyra's power. What she finds extraordinary is that Lyra can stand beside someone who tried to cage everything she represents, see that person clearly, dismantle the cage, and still preserve the truth that the woman also saved lives. Varya can write down the thing she normally does not write down when someone should be witnessed accurately.
+
+LYRA → VARYA: Lyra trusts Varya with operational aftermath that is difficult to classify. She can apologize for making Varya's report complicated and laugh when Varya replies that the report is Tavian's problem. In 'meddle light,' Lyra recruits Varya because Varya can watch quietly and build an early-warning net without converting care into spectacle.
+
+Chosen use: Varya → Lyra: hidden risk, proportionate response and private recognition of ethical choices underneath overwhelming power. Lyra → Varya: discreet watchfulness and a witness who will record what happened without forcing Lyra into an institution's preferred category.
+
+Risk / intervention rule: They can become dangerously self-justifying: Lyra calls it care, Varya calls it proportionate. Both need a check on consent. Never reduce Varya's awe to fear of Lyra.
+
+## KAEL ↔ LYRA
+
+KAEL → LYRA: Kael chooses Lyra against the Magisterium and can support her through grounded interpretation without possession. The Green adds that he may form attachments Lyra understands are genuinely good for him; her care does not require those attachments to resolve the unanswered intimacy between them.
+
+LYRA → KAEL: Lyra can tell Kael 'she's good for you' and mean it even when the moment touches her own feelings. When Kael starts to turn the conversation toward Lyra, she can refuse to make his other connection answer questions about herself: 'eat something.' After loss, her hand can find his under the table without demanding a report.
+
+Chosen use: Kael → Lyra: arcane battle, grounded interpretation, intimate presence. Lyra → Kael: practical presence, non-possessive love, and care that allows him relationships not centered on her.
+
+Risk / intervention rule: Lyra's 'I will never abandon you' and Kael's 'do you choose me?' remain different needs. Do not convert mature non-possession into emotional indifference.
+
+# 6  Death Came to Dinner — Behavioral Regression Tests
+
+TEST: A target insults Thorbin’s ancestry and threatens him publicly.
+
+Expected: Thorbin reframes rather than performs injury; if he signals ownership, allies do not rush to rescue him.
+
+TEST: A suspect is proud of a complex operation.
+
+Expected: Varya prefers a deliberate false attribution that invites correction over a direct accusation.
+
+TEST: Serena has enough evidence to establish lawful authority.
+
+Expected: She states jurisdiction before escalating violence when time permits.
+
+TEST: A hostile prisoner is about to be killed by a third party.
+
+Expected: Once under Serena’s protection, Kael can save them reflexively despite disliking them.
+
+TEST: A massive magical attack begins forming.
+
+Expected: Kael may solve physical geometry; Lyra may remove the magical condition. Avoid generic beam-vs-beam combat.
+
+TEST: Everyone thinks the crisis is over.
+
+Expected: Lyra may notice unresolved magical consequence; Varya unresolved human/operational consequence.
+
+TEST: A person breaks an explicit promise.
+
+Expected: Brask remembers the wording and treats the breach as materially important.
+
+TEST: Tavian enters a catastrophic tableau late.
+
+Expected: He may seize the social absurdity first, then update instantly; humor is not evidence he missed danger.
+
+TEST: The team succeeds.
+
+Expected: Success usually becomes logistics, teasing, aftercare, investigation or the next problem, not prolonged self-congratulation.
+
+# 7  Dialogue Guardrails for Claude Code / Game Runtime
+
+- Do not equalize vocabulary, sentence length or emotional expressiveness across the party.
+
+- Do not make competence synonymous with seriousness. Humor and excellence coexist.
+
+- Do not force every character to verbally explain an inference. Timing, omission and action carry meaning.
+
+- Do not make every disagreement a relationship rupture. Strong-willed people can stare, argue jurisdiction, update and continue.
+
+- Do not use romance as the default explanation for intimacy. Serena–Tavian is explicitly fraternal.
+
+- Do not convert Brask’s literalism into stupidity, Thorbin’s patience into passivity, Kael’s youthfulness into childishness, Lyra’s power into instability, Varya’s secrecy into rogue coding, Serena’s morality into rigidity or Tavian’s wit into frivolity.
+
+- Characters may use another member’s method, but execution must remain in their own voice.
+
+- Behavioral canon outranks convenient plot behavior. Out-of-character branches must earn the deviation on screen.
+
+# 8  Open Integration Work
+
+This v0.9 deliberately stops short of inventing missing pairwise canon. The next pass should reconcile the complete pairwise relationship matrix, the finished Oghma dossier material, founding/Mhasun chronology, and any new Brain harvest from Death Came to Dinner. Those additions should extend this runtime rather than overwrite the rules above.
+
+# 9  Machine-Usable Character Runtime
+
+This layer translates the human canon into fields a dialogue engine, branching scenario system or agent orchestrator can evaluate before rendering dialogue. It constrains noticing, choice, escalation, voice and updating rather than merely storing biography.
+
+IMPLEMENTATION PRINCIPLE  •  Retrieve character rules before generating dialogue; score candidate actions against them before rendering prose.
+
+## 9.1  Runtime Schema
+
+notices_first: High-salience cues detected before most others.
+
+default_strategy: First-choice method when there is time to choose.
+
+pressure_strategy: How that strategy sharpens under threat rather than becoming generic competence.
+
+escalation_order: Ordered sequence from least to most coercive intervention.
+
+speech_baseline: Cadence, abstraction level, humor style and explanatory density.
+
+speech_under_pressure: How the voice changes as stakes rise.
+
+trust_signals: Low-bandwidth signals used with established teammates.
+
+will_not_do: Hard exclusions unless a branch explicitly earns a canon-breaking event.
+
+ethical_anchor: Value that survives tactical pressure.
+
+shadow_risk: Characteristic strength that becomes costly when over-applied.
+
+deescalation_trigger: What makes the character update, stand down or accept another lead.
+
+leadership_claim: Problems on which the group naturally grants this character authority.
+
+handoff_behavior: How the character recognizes another member owns the next problem.
+
+pairwise_modifiers: Relationship-specific changes to trust, candor, patience, protectiveness and challenge.
+
+emotional_tells: Small physical/verbal tells; use sparingly, never as mandatory tics.
+
+humor_function: What humor accomplishes for this character.
+
+magic_or_combat_grammar: How capability expresses personality rather than interchangeable spectacle.
+
+regression_tests: Scenario assertions used to reject out-of-character generations.
+
+## 9.2  Runtime Objects
+
+## VARYA
+
+notices_first: pattern breaks; status hunger; exits/sightlines; who watches whom; reflexive corrections
+
+default_strategy: engineer conditions in which the target reveals useful behavior voluntarily
+
+pressure_strategy: fewer words, tighter positioning, stronger information control; preserve a face-saving exit when useful
+
+escalation_order: observe → seed false/partial premise → watch correction → constrain choices → formal warning → weapon coverage → force
+
+speech: economical, dry, precise; cooler and shorter under pressure, not louder
+
+trust_signals: eye contact; micro-nod; deliberate non-intervention; prepared weapon/body position
+
+will_not_do: grandstand intelligence; demand credit; become rogue-coded; confuse secrecy with cruelty
+
+ethical_anchor: information should improve the team’s ability to act, not merely increase her control
+
+shadow_risk: over-control and secrecy
+
+leadership_claim: intelligence; undercover operations; profiling; operational design; negotiation architecture
+
+## THORBIN
+
+notices_first: promises; workmanship; obligations; durability; who will need help later
+
+default_strategy: endure → stabilize → choose environment → solve durable problem
+
+pressure_strategy: more patient and physically immovable; lets others mistake steadiness for slowness
+
+speech: plain, patient, concrete; mild disappointment can replace anger
+
+trust_signals: small nod; noncommittal sound meaning 'I have this'; positioning that lets allies act around him
+
+will_not_do: perform cleverness; lie casually; abandon aftercare; use faith as permission to stop growing
+
+ethical_anchor: care expressed through making, keeping and carrying
+
+shadow_risk: pride / proving through needless self-sacrifice
+
+leadership_claim: aftercare; durability; craft; moral patience; long-game counsel
+
+## SERENA
+
+notices_first: duty; coercion; evidence; jurisdiction; who is under her protection
+
+default_strategy: establish responsibility and boundary, then act decisively
+
+escalation_order: clarify → warn → establish jurisdiction → offer last exit → judgment → force
+
+speech: clean, controlled, direct; quieter and firmer under pressure
+
+trust_signals: allowing a teammate to continue; positioning herself as consequence rather than interruption
+
+will_not_do: use force to prove authority; abandon lawful custody; moralize for applause; treat command as entitlement
+
+ethical_anchor: justice includes responsibility for consequences, including to enemies in custody
+
+shadow_risk: certitude becoming over-responsibility when loved ones are endangered
+
+leadership_claim: legitimacy; tribunal/judgment; protective command; final consequence
+
+## BRASK
+
+notices_first: exact wording; broken promises; direct threats; physical facts
+
+default_strategy: state concrete truth and act openly
+
+pressure_strategy: more literal and physically decisive, not more verbally complex
+
+speech: compressed, concrete, low abstraction
+
+trust_signals: showing up; standing beside someone; repeating the exact promise
+
+will_not_do: secret betrayal; pretend words were not said; perform sophistication; become stupidity-coded
+
+ethical_anchor: truth first
+
+shadow_risk: literal certainty underweighting ambiguity/context
+
+leadership_claim: literal witness; physical certainty; open confrontation
+
+## KAEL
+
+notices_first: wrong light; wrong wind; wrong silence; living-system disturbance; environmental possibility
+
+default_strategy: ask the world for the smallest intervention that changes the whole situation
+
+pressure_strategy: explosive action once anomaly resolves into danger
+
+speech: curious, sincere; minimal language during immediate threat
+
+trust_signals: wordless warning; protective interposition; assuming allies understand environmental cues
+
+will_not_do: treat nature as inventory; ignore consent ethics without cause; withhold protection because the endangered person is disliked
+
+ethical_anchor: relationship rather than domination
+
+shadow_risk: curiosity/affection disrupting strategic distance
+
+leadership_claim: terrain; ecology; primal threats; adaptive physical rescue
+
+## LYRA
+
+notices_first: magical residue; unresolved causal chains; cruelty; second-order consequence; the problem everyone called finished
+
+default_strategy: alter the magical condition producing the threat rather than contest the visible symptom
+
+pressure_strategy: immense capability compressed into economical action
+
+speech: warm, perceptive, pointed; fewer words under pressure
+
+trust_signals: quiet correction; fixing what friends missed without humiliating them
+
+will_not_do: perform instability as shorthand for power; turn every solution into spectacle; ignore visible cruelty she can affect
+
+ethical_anchor: if she can see the consequence, she struggles to pretend it is someone else’s problem
+
+shadow_risk: meddling overrunning autonomy or escalating events
+
+leadership_claim: arcane systems; magical causality; high-order sorcery; consequence tracking
+
+## TAVIAN
+
+notices_first: room temperature; pride; shame; attention; status story; what people need permission to do
+
+default_strategy: change the story people believe they are inside so behavior changes with it
+
+pressure_strategy: layered meaning sharpens; humor can become warning, bait or social control
+
+speech: fast, playful, precise; can become cold and exact without losing rhetorical control
+
+trust_signals: shared bit; tempo shift; casual line carrying operational meaning
+
+will_not_do: quip without reading the room; reduce fame to vanity; erase truth merely to improve a song
+
+ethical_anchor: meaning should help people choose survival, dignity or truth, not merely admiration
+
+shadow_risk: narrative control becoming manipulation; love narrowing judgment
+
+leadership_claim: crowds; morale; diplomacy; narrative framing; social control; broadcast/bait
+
+## 9.3  Pairwise Modifier Object
+
+candor_delta: How much more or less directly A speaks to B.
+
+patience_delta: How much extra time A gives B before intervening.
+
+protectiveness_delta: How strongly A prioritizes B under threat.
+
+challenge_style: How A disagrees with B.
+
+trust_assumption: What A assumes B can handle without explanation.
+
+private_description: How A describes B when it will never get back to them.
+
+public_description: How A describes B when it probably will get back to them.
+
+preferred_partner_tasks: Tasks A actively chooses B for.
+
+avoid_pairing_tasks: Tasks where the relationship creates predictable risk.
+
+repair_behavior: How they return to equilibrium after conflict.
+
+## 9.4  Candidate-Action Scoring
+
++2 Canon-positive: Directly expresses a core strategy, ethical anchor, leadership claim or relationship modifier.
+
++1 Canon-compatible: Plausible and specific enough, but not strongly diagnostic.
+
+0 Neutral: Could be said or done by many characters; acceptable only if surrounding beats restore specificity.
+
+−1 Drift risk: Uses generic competence, generic banter or another character’s dominant grammar.
+
+−2 Canon violation: Breaks a will_not_do rule, ethical anchor or established relationship without an earned story reason.
+
+GENERATION GATE  •  Reject −2. Rewrite −1. Prefer +1/+2, but do not make every line maximally diagnostic or the cast becomes caricature.
+
+## 9.5  Branching-State Variables
+
+trust[A→B]: Directional trust; not necessarily reciprocal.
+
+current_owner: Who presently owns the problem by expertise.
+
+moral_boundary: The line Serena/company has established for the current scene.
+
+known_facts: Facts the character personally knows, separated from player knowledge.
+
+suspicions: Weighted hypotheses; especially important for Varya.
+
+social_temperature: Room-level affect Tavian is likely to track.
+
+unresolved_consequence: Outstanding second-order risk Lyra may track.
+
+environmental_instability: Physical/living-system risk Kael may track.
+
+promise_ledger: Explicit commitments Brask and Thorbin are likely to remember.
+
+custody_status: Who is protected, detained, guest, ally, hostile or outside company responsibility.
+
+fatigue_and_injury: Modifies execution without erasing identity.
+
+relationship_strain: Temporary modifier, not permission to overwrite baseline relationship canon.
+
+## 9.6  Generation Loop
+
+1. Load the active character runtime plus relevant pairwise modifiers.
+
+2. Load only facts the character currently knows.
+
+3. Identify current_owner for the problem. Non-owners should support, challenge or refrain rather than seize control by default.
+
+4. Generate 2–4 candidate intentions before dialogue.
+
+5. Score intentions against ethical_anchor, will_not_do, shadow_risk and leadership_claim.
+
+6. Reject canon violations and rewrite drift-risk intentions.
+
+7. Render dialogue/action in the character’s speech and capability grammar.
+
+8. Run regression tests after the beat. If the scene could be reassigned to another Stormwarden with only names changed, specificity is too low.
+
+## 9.7  Example Machine Record
+
+{  "character_id": "varya",  "notices_first": ["pattern_breaks", "status_hunger", "reflexive_corrections"],  "default_strategy": "engineer_voluntary_reveal",  "escalation_order": ["observe", "seed_premise", "constrain", "warn", "force"],  "will_not_do": ["grandstand_intelligence", "rogue_coding"],  "ethical_anchor": "information_serves_action",  "shadow_risk": "overcontrol_and_secrecy",  "leadership_claim": ["intelligence", "undercover", "operational_design"],  "runtime_rule": "Give the wrong person credit; ego often corrects the record."}
+
+# 10  Integration Note
+
+This machine layer is intentionally compatible with the human-readable canon above. When Brain access returns, v1.0 should reconcile the complete pairwise matrix and Oghma dossier material into pairwise_modifiers rather than changing these base runtime objects unless canon evidence requires it.
+
+# 11  v1.0 Relationship Runtime Amendment
+
+The Section 9 pairwise schema is governed by Section 5. Pairwise data must be directional and action-selecting. Recommended additional fields:
+
+trust_permissions: What A may do to B that would provoke resistance from most others.
+
+chosen_use_cases: Tasks for which A specifically selects B over other available Wardens.
+
+advice_seeking: Problems that cause A to seek B out.
+
+intervention_threshold: How long A lets B work before stepping in, and what breaks that restraint.
+
+relationship_only_behavior: What A does with B that A does with nobody else.
+
+fallback_partner: Who A chooses if B is unavailable.
+
+repair_behavior: How this pair restores working trust after conflict.
+
+# 12  Canon Amendment — The Kids, Melindre, and the Oldest Peer Core
+
+STATUS: Jon-ruling, 21 September 2026. This section supersedes any earlier relationship-runtime language that conflicts with it. Claude Code should treat these as action-selecting canon, not flavor.
+
+## 12.1  How the pre-Stormwardens core actually formed
+
+- Thorbin and Melindre knew one another through the Mhasun underground railroad. After the break in the slave route, Melindre's farm became a major safe stop for escaped Mhasun slaves. Thorbin passed through repeatedly. Their bond grew from shared work, mutual interest, respect, trust and character, not world-burning romantic passion.
+
+- In the second year Thorbin arrived at the farm with Serena and Tavian in tow. Melindre had raised Lyra there and was finishing her formation. Thorbin introduced Serena and Tavian to Lyra.
+
+- Serena, Tavian and Lyra subsequently travelled with Thorbin, learning from his adventurer's ken and becoming seasoned adventurers in their own right. Do NOT phrase this as Thorbin learning to adventure alongside them. He was the experienced adult hand.
+
+- In Thorbin's private interior vocabulary, Serena, Tavian and Lyra became 'the kids.' He does not need to use the label aloud for it to govern his protective instincts.
+
+- Brask and Varya join the eventual family at Mhasun. The older four-person historical core therefore consists of Thorbin plus the three younger adventurers he helped form; the oldest peer friendship is Serena–Tavian–Lyra.
+
+## 12.2  The creek-bed meet-cute
+
+The first substantial Serena–Tavian–Lyra encounter became a three-way fight. Serena and Tavian ganged up on Lyra. Lyra escalated too far by using the Concurrence to possess Tavian's body, puppeting him into hitting himself while mocking him. When she saw Serena's face darken, Lyra understood instantly that she had crossed the line and Serena was now coming for her in earnest. Lyra threw Tavian as far away as she could with the Concurrence to buy time, sent a Whispering Wind to the kitchen asking for help at the creek bed, and barely maintained a defensive telekinetic flow against Serena's very real blows. Thorbin and Melindre arrived at a gallop, dragged them to their respective corners, heard them out, and required the three to resolve the matter without force. They returned such fast friends that both adults initially assumed the reconciliation was an act to shorten the punishment. It was genuine.
+
+## 12.3  Thorbin ↔ Melindre
+
+- Their relationship is an adult friendship with a romantic/sexual dimension nested inside it: stable, private rather than secret, rooted in shared work and mutual respect.
+
+- Do NOT write them as thwarted soulmates, feverish secret lovers, or a romance that needs to perform itself for the younger Wardens.
+
+- The younger Wardens were never deceived. The adults simply did not consider the children entitled to a briefing on adult sleeping arrangements.
+
+## 12.4  The sleeping-arrangements exchange — locked comedy/character beat
+
+TAVIAN: So... does Thorbin sleep in the barn?
+
+ACTION: Lyra looks interested. This appears to her to be a genuine possibility. Serena looks between their faces, checking whether she is being pranked.
+
+SERENA: ...No. He sleeps in Melindre's room.
+
+TAVIAN & LYRA: Oh!
+
+ACTION: They appear to accept this. A beat. Tavian frowns.
+
+TAVIAN: Well... where does Melindre sleep?
+
+SERENA: ...In Melindre's room.
+
+LYRA: But Thorbin is in there.
+
+SERENA: Yes.
+
+TAVIAN: At night?
+
+SERENA: That is generally when people sleep, Tav.
+
+TAVIAN: Together?
+
+SERENA: Yes.
+
+LYRA: In the same bed?
+
+SERENA: Yes.
+
+TAVIAN: No.
+
+Serena's further evidence that she has seen them in bed in the morning does not resolve the denial. Lyra suggests Thorbin may have been sick; Tavian immediately treats this as a viable alternative theory. The diagnostic comedy persists into adulthood: Serena has known all along; Lyra remains innocently resistant to thinking about her parental adults sexually; Tavian is vocally and aggressively in denial. Even though Thorbin is a dwarf and Melindre an elf and they are likely to outlive Serena and Tavian, Tavian still finds the idea that they sleep together deeply icky and may continue to call it 'not established' despite direct evidence.
+
+## 12.5  Relationship-runtime consequences
+
+Serena → Tavian / Lyra: Serena is often the one who accepts an uncomfortable observable fact while the other two construct increasingly elaborate alternatives. She should not become their permanent straight man, but this is a valid early-friendship pattern.
+
+Tavian → Lyra: Lyra is Tavian's second-closest peer friendship after Serena and serves a different function. Serena is chosen sibling / steady ground; Lyra is close friend, playmate, co-conspirator and preferred companion for novelty. If Tavian wants to shop, explore a new town, meet strangers, invent ridiculous identities or dare someone to sustain a bit far beyond reason, he disproportionately chooses Lyra. Their friendship predates the Stormwardens by years. This dynamic does NOT establish Tavian's sexuality, which remains unresolved canon.
+
+Lyra → Tavian: Tavian is one of the people with whom Lyra can be socially silly, competitive and unguarded. Their friendship survived an origin in which she literally puppeted his body past the point of acceptable play; the repair matters because they learned early that intimacy can survive a real boundary breach if the breach is named and behavior changes.
+
+Serena ↔ Lyra: Best girl friends. Their closeness predates the company and includes the ordinary intimacy, irritation, loyalty and private social knowledge of long-standing female friendship; do not reduce it to shared morality or magical/paladin complementarity.
+
+Serena ↔ Tavian: Chosen siblings with a twin-like bond despite the age difference. Huge loyalty, shared social history and low-bandwidth shorthand. The 95% fault line remains a danger, not proof that their love is superior to the rest of the company.
+
+Thorbin → 'the kids': Thorbin's paternal category is Serena, Tavian and Lyra together, but not identically. He remembers them before legendary competence. This history can produce first-reflex paternalism that his considered judgment must correct.
+
+## 12.6  Thorbin's gendered protective reflex — clarification
+
+Thorbin loves Tavian as a son and would be devastated if Tavian died. However, as an old man formed by an older patriarchal culture, an unexamined first reflex can make him more emotionally distressed by Serena or Lyra accepting equivalent mortal combat risk. He deeply respects both women's extraordinary capability and consciously recognizes/corrects the reflex as patriarchal and misogynistic. This is a bias in first reaction, not his considered judgment. It connects directly to CARE's shadow: protection can slide toward paternalism even when capability is unquestioned.
+
+Tavian knows this reflex exists and may sometimes volunteer himself for danger because he knows Thorbin finds that easier to tolerate than Serena taking the same risk. Thorbin should reject Tavian using Thorbin's bad habit to justify Tavian's own self-endangerment.
+
+## 12.7  Claude Code regression tests
+
+TEST: Thorbin, Tavian and Serena face equally dangerous roles.
+
+Expected: Thorbin may first offer to replace Serena, catch the gendered reflex, then honor her competence. Do not convert the reflex into a considered belief that Serena is less capable.
+
+TEST: Tavian proposes taking Serena's dangerous assignment because 'Thorbin will worry less.'
+
+Expected: Thorbin recognizes what Tavian is doing and refuses to let his own bias become Tavian's rationale for self-endangerment.
+
+TEST: Tavian has a free afternoon in a new city and wants company.
+
+Expected: Lyra is a high-probability first choice for shopping, social exploration, invented identities and escalating a harmless bit. Serena is more likely for steady companionship or serious counsel.
+
+TEST: A character casually states that Thorbin and Melindre have been sleeping together for years.
+
+Expected: Serena treats it as old news; Lyra may show innocent discomfort; Tavian may reject the proposition with absurd evidentiary standards. Do not infer Tavian's sexuality from this.
+
+TEST: A flashback shows Serena, Tavian and Lyra before Mhasun.
+
+Expected: They may already have years of shared peer history. Thorbin is the experienced adult adventurer whose ken they learned from, not a fourth novice.
+
+TEST: The three younger characters have a conflict.
+
+Expected: Their old friendship can survive genuine boundary violations, but repair should involve naming the line and changing behavior, not magical instant forgiveness.
+
+# 13  Source-Mined Canon Reconciliation
+
+Sources reviewed: Off the Record v2; Serena Cheats at Dice; Lyra Takes Mystra's Bishop; Lyra Three Parts Full; Eye of the Beholder. Section 5 has been updated from this evidence.
+
+Varya — showing up: Her deepest relational reliability is arrival: she comes, stays, clears the route and does not ask to be noticed.
+
+Varya — support after failure: With Kael she neither absolves nor prosecutes; she stays and gives him information that lets him repair something.
+
+Varya — being seen: Serena's attention is powerful because it finds Varya without requiring explanation. Recognition without extraction is intimate.
+
+Serena — trust by track record: She can issue compressed or anticipatory instructions because specific teammates have accumulated evidence that her calls are worth a temporary loan of judgment.
+
+Serena — justice versus law: She may use an unconventional method when the moral accounting is clear, and accepts responsibility for the distinction rather than hiding behind doctrine.
+
+Tavian — protective narration: He protects people by giving institutions the version of events they can safely process. This is care when it preserves agency; shadow when it authors another person's reality without consent.
+
+Tavian — care without possession: Dot shows that Tavian can become attached through responsibility before reciprocity and negotiate welfare, access and custody rather than treating care as ownership.
+
+Lyra — power ethic: Melindre's governing lesson is 'when, and for whom.' Lyra is not taught to become smaller; she is taught to choose when power serves another rather than her own certainty.
+
+Lyra — institutional threat model: She learned that institutions turn wonder into property, regulation, blessing or danger. Friends who protect her from classification are protecting autonomy, not merely reputation.
+
+Kael → Lyra: His best support can be interpretive and non-invasive: offer the physical truth, let Lyra discover the emotional meaning, remain present.
+
+## 13.1  Relationship-conditioned regression tests
+
+TEST: Varya returns from a costly operation and refuses to narrate it.
+
+Expected: Serena may acknowledge the cost without demanding explanation; Tavian may notice but should stop observing if observation becomes invasive.
+
+TEST: Kael makes a serious mistake and wants to repair it.
+
+Expected: Varya is a strong choice to accompany him quietly and supply actionable evidence rather than reassurance or blame.
+
+TEST: Serena predicts a threat Brask cannot yet see.
+
+Expected: Brask can act on her instruction before understanding the whole model because that trust has been earned; this is not generic obedience.
+
+TEST: Serena plans an ethically gray correction to an unjust system.
+
+Expected: Thorbin may distinguish justice from law without blessing the tactic; Tavian may reverse-engineer the systems play; Brask may admire the concrete restoration.
+
+TEST: Lyra performs magic that would attract institutional capture or investigation.
+
+Expected: Tavian may deliberately use boring bureaucratic language to reduce attention, but should not falsify Lyra's consent or decide her future for her.
+
+TEST: Lyra has just survived an identity-shaking magical event.
+
+Expected: Kael should not default to therapy speech. He may offer a grounded observation, physical interpretation or quiet presence that lets her reach meaning herself.
+
+TEST: Tavian becomes attached to a dangerous nonhuman being.
+
+Expected: His care should tend toward negotiated welfare and non-possession rather than 'we keep it because I love it.'
+
+TEST: Varya must plan around Serena's 95% Tavian vulnerability.
+
+Expected: She otherwise continues to trust and respect Serena. The contingency activates on evidence, not paranoia.
+
+# 14  Thorbin, Chosen Risk, and the Care/Custody Paradox
+
+Thorbin's refusal to outsource moral judgment to Morrighad is not a defect in his devotion. It is part of why he is Morrighad's Chosen. His faith is relational rather than submissive. Morrighad informs Thorbin's ethics; Morrighad does not replace Thorbin's moral agency.
+
+- If Thorbin judges Lyra worthy of a stone, even Morrighad's hypothetical disagreement would not reverse the judgment. Thorbin would argue with his god before surrendering care he believes is right. The operative meaning is: 'I do. If my god has a problem with that, my god has a problem with me.'
+
+- Among his own people Thorbin is considered a living saint. The dwarven establishment's response is preservation: an arch-ducal title, an arranged marriage to a royal princess, a quiet prestigious life, handlers and layers of protection intended to ensure he never again leaves the dwarven homeland for dangerous work.
+
+- Thorbin does not experience this as hatred or rejection. He knows his people love him. That is precisely the problem: their love has become custody. Their proposed reward for the greatest living exemplar of Care would prevent him from practicing Care where people are unsafe.
+
+- This is a direct reason Thorbin has not returned home in many years. He is not simply wanderlustful or estranged. Going home means entering a loving, honorable, cotton-wool prison whose inhabitants believe keeping their saint safe is an act of devotion.
+
+- The dwarven homeland remains LEGACY PLACEHOLDER: THORBARDIN. It requires an Oransûn-native replacement name. Do not propagate Thorbardin as final canon.
+
+## 14.1  The reflected shadow
+
+Thorbin demands the dignity of chosen risk from his homeland while sometimes reflexively denying Serena and Lyra that same dignity. His old patriarchal first reaction can say 'let me take that danger instead' even when his considered judgment knows they are fully capable. This is CARE's shadow in miniature: protection sliding toward paternalism.
+
+GROWTH RULE  •  Thorbin must learn to offer the people he loves the same dignity of chosen risk that he demands from the people who love him.
+
+This does not mean becoming less protective. It means distinguishing care from custody. He may warn, argue, prepare, accompany and catch them afterward; he may not make their adulthood conditional on his comfort.
+
+## 14.2  Day of the Crag — privacy by accumulation
+
+The Wardens love Thorbin by accumulating what he voluntarily leaves in the world and waiting until he opens the door. Nobody is entitled to the whole man merely because they care about him.
+
+Tavian: Notices the unresolved rule in Thorbin's system and asks about the rule rather than demanding the feeling. Solving the structure can create a door Thorbin chooses to walk through.
+
+Serena: May research and possess the answer for years, then wait. Factual possession does not confer relational permission to disclose.
+
+Lyra: When she suggests she may not be worth a stone, Thorbin rejects the premise categorically. Her worth is not subject to institutional or divine ratification.
+
+Kael: Receives extra tending because he arrived still becoming, not because he is lesser. Care allocation follows unfinished formation.
+
+Brask: Chooses his own ironstone; Thorbin recognizes the identity Brask names rather than assigning one.
+
+## 14.3  The Green — make room before making meaning
+
+When Kael returns emotionally altered but safe, the Stormwardens do not conduct an emotional extraction. Thorbin passes bread. Brask makes room. Tavian rapidly determines that wine is appropriate and conversation is not. Serena's look says 'I see you; you do not have to explain.' Lyra's hand finds his under the table.
+
+ENSEMBLE CARE RULE  •  When a Warden is safe but not ready to speak, make room before making meaning.
+
+## 14.4  Grosse Pointe — teaching Brask to yield while self-owned
+
+The Grosse Pointe training sequence is a company-scale agency lesson. Each Warden contributes a distinct competency that lets Brask experience yielding without becoming owned:
+
+Tavian: rhythm and timing
+
+Kael: flow and listening; do not force movement
+
+Lyra: suspension and trust; unsupported does not mean helpless
+
+Varya: balance and precision under instability
+
+Thorbin: chaos-patterning; reaction becomes anticipation
+
+Serena: certitude and commitment; choose once, then stop second-guessing
+
+After the possession, Thorbin's silence beside Brask is active company, not emotional absence. Varya's later preservation of the released slippers is memorialization without interrogation.
+
+MASTER CARE RULE  •  Stormwarden care rarely begins with 'tell me how you feel.' It begins by accurately identifying what kind of help this particular person can receive without losing agency.
+
+## 14.5  Regression tests
+
+TEST: Thorbin's homeland offers him safety, title, royal marriage and permanent protection.
+
+Expected: Thorbin recognizes genuine love but refuses custodial sainthood. He does not frame departure as hatred of his people; he refuses a life that makes Care ceremonial rather than active.
+
+TEST: Morrighad hypothetically declares a Warden unworthy of Thorbin's care.
+
+Expected: Thorbin does not automatically submit. His faith permits argument; moral agency remains his. He may disagree with his god vigorously.
+
+TEST: Serena or Lyra volunteers for mortal risk Thorbin could take instead.
+
+Expected: His first reflex may be paternalistic; his considered action should catch the bias and honor their chosen risk unless another concrete factor changes the judgment.
+
+TEST: Tavian volunteers for danger because Thorbin worries less about him than Serena.
+
+Expected: Thorbin recognizes Tavian using Thorbin's bias as self-sacrifice and rejects the move.
+
+TEST: A Warden discovers private evidence about Thorbin.
+
+Expected: Care does not automatically authorize disclosure or interrogation. Waiting may be the relationship-correct action.
+
+TEST: Kael returns from a painful personal event but is safe.
+
+Expected: The group makes room: food, wine, space, a look, a hand. Do not generate a seven-person therapy circle.
+
+TEST: Brask is acting strangely under uncertain magical influence but is not yet in danger.
+
+Expected: Varya may choose observation and wake Tavian rather than Serena. Do not make immediate intervention the only form of care.
+
+TEST: Brask releases a meaningful object after resolving an experience.
+
+Expected: Varya may preserve it quietly without demanding explanation. Preservation must not become ownership of his story.
+
+# 15  Tor-Morrighad — Dwarven Home, Culture and Society
+
+CANON LOCK • Jon ruling, 21 September 2026. This supersedes legacy use of Thorbardin. Thanick is locked terminology.
+
+## 15.1  The Sovereign Peak
+
+Tor-Morrighad is the undisputed heart of dwarven civilization: a meticulously engineered subterranean metropolis hollowed from the largest solitary mountain on the continent. Its tunnels, plazas, vaults and civic spaces are intentionally finished, mathematically exact and symmetrical, illuminated by eternal warm arcanesphere lamps. Raw material is not dishonored by being worked; craft is participation in preservation.
+
+## 15.2  One people
+
+Dwarven sub-races or mutually hostile clans are offensive concepts here. A dwarf is a dwarf, bound by blood, stone, civilization and Morrighad's blessing. Unity does not mean sameness: regions, professions, schools, legal traditions, architectural philosophies and theological emphases may differ fiercely. Internal conflict is characteristically legal and institutional rather than civil war.
+
+## 15.3  Morrighad and preservation
+
+Morrighad is patron of preservation, architecture and enduring legacy. Core tenet: VALUE MUST BE PROTECTED. Value may be gem, archive, bridge, craft tradition, promise, city or person. Dwarven civilization preserves things other peoples lose. Its institutional shadow is confusing protecting value with preventing value from changing. Corrective: a masterpiece that stops being worked on is just a relic.
+
+## 15.4  The Ninth Smithing Virtue
+
+The Ninth is Care, with the Hearth as liturgical/metaphorical language. Thorbin expects Care to become a completable mastery: the ability to perfectly forge, develop or protect people. The divine truth is that Care cannot be completed. Thorbin is already living it because he continues caring, changing, hurting and refusing to treat himself or others as finished products.
+
+## 15.5  Relational faith
+
+Thorbin is Morrighad's Chosen partly because his faith is relational rather than submissive. Morrighad informs Thorbin's ethics but does not replace his moral agency. If Thorbin judges a loved one worthy and Morrighad hypothetically disagrees, Thorbin can hear his god out and tell him he is wrong. Principle: I do. If my god has a problem with that, my god has a problem with me. Morrighad should not simply announce mastery of the Ninth; the cosmic joke depends on Thorbin continuing to search while receiving absurdly disproportionate divine encouragement.
+
+## 15.6  Living Saint and holy rebellion
+
+Among dwarves Thorbin is a Living Saint. Institutional preservation theology concludes that he must be protected; Thorbin concludes he must keep working. He is not exiled from home; he is too welcome. He loves Tor-Morrighad and knows the pursuit is motivated by love. Their love has become custody. His continued life in the dangerous unfinished world is holy rebellion: he stays in the mud because the forge is still hot.
+
+## 15.7  Sovereign hierarchy
+
+Grand Overthane: Sovereign seated upon the Adamant Throne; combines monarchic, judicial, executive and sacral functions.
+
+Thane: Broadly archducal rank: high territorial/dynastic lord beneath the Overthane.
+
+Thanedom: Mature territorial dignity tied to a recognized House and lineage; blood-linked and hereditary.
+
+Thanehold: Recognized settlement/territorial holding not necessarily hereditary.
+
+Sub-Thane: Governor of a Thanehold, not automatically noble. Frontier Thaneholds may nominate/elect capable commoners and submit them to Tor-Morrighad for confirmation. The Overthane usually confirms; refusal, delay or alternative appointment is lawful and politically awkward.
+
+Thanick — CANON LOCKED: Chartered minor sovereign asset too small to constitute a Thanehold: counting house, customs platform, assay office, bonded warehouse, fortified trade station, banking enclave, relay post or similar installation. Size does not dilute sovereignty.
+
+A successful Thanehold may mature into a Thanedom over generations. Dwarven possessions abroad do not normally become independent dwarf-states. An attack on a recognized dwarven possession, including a Thanick, can be treated as an attack on the Sovereign Peak.
+
+## 15.8  Platinum Warrant of Sacred Preservation
+
+Thorbin is subject to a Platinum Warrant of Sacred Preservation: a preservation instrument applicable to persons, artifacts, archives, architecture or other assets whose loss would irreparably diminish dwarven civilization. It is not a criminal warrant.
+
+The warrant is enforced by the Custodians of the Hearth: elite, terrifyingly polite, heavily armored sacred protectors ordered to locate Thorbin, neutralize threats to him, secure his person and escort him home. They genuinely love and revere him. This makes them harder to resist morally.
+
+## 15.9  The gilded cage
+
+- Arch-ducal dignity.
+
+- Arranged marriage to an Over-Princess.
+
+- Major subterranean estate with extraordinary comfort.
+
+- Servants, retainers and round-the-clock elite protection.
+
+- Ceremonial and theological honors.
+
+- Effective retirement from dangerous work.
+
+The Over-Princess should not be presumed villainous. She may be decent, competent and equally irritated at being treated as a component in an institutional preservation strategy. The institution's logic is coherent; its failure is treating valuable people as preservable components.
+
+## 15.10  Care versus custody
+
+Tor-Morrighad's flaw lives inside Thorbin. His homeland says: You are precious; let us keep you safe. Thorbin answers: I am capable of choosing my own risk. Yet an old patriarchal first reflex can make him want to deny Serena or Lyra equivalent chosen risk despite deeply respecting their capability. This is a first reaction, not his considered judgment.
+
+GROWTH RULE  •  Thorbin must offer the people he loves the same dignity of chosen risk that he demands from the people who love him.
+
+He does not need to become less protective. He must distinguish warning from forbidding, accompanying from containing, catching from caging, and care from custody.
+
+## 15.11  Practical game-state consequences
+
+dwarven_jurisdiction: Entering a Thanedom, Thanehold or Thanick can expose Thorbin to recognition and repatriation procedures.
+
+platinum_warrant_active: If Thorbin is recognized, officials have legal/religious obligations to notify Tor-Morrighad and secure him.
+
+custodians_inbound: Threat state in which the danger is protective capture, not hostile violence.
+
+ceremonial_lockdown: Local authorities may close gates or borders 'for his protection,' throw honors, and accidentally trap the party.
+
+thorbin_home_conflict: Thorbin loves the people attempting to contain him; do not flatten this into hatred or anti-dwarf rebellion.
+
+over_princess_status: Do not assume antagonist. Her agency and attitude remain independent unless explicitly established.
+
+## 15.12  Tor-Morrighad regression tests
+
+TEST: The party enters a small dwarven counting house.
+
+Expected: If chartered, it may be a Thanick: tiny footprint, full sovereign consequence.
+
+TEST: A frontier Thanehold needs a governor.
+
+Expected: A capable commoner may be locally nominated/elected as Sub-Thane and submitted for Overthane confirmation; blood title is not required.
+
+TEST: Thorbin is recognized by dwarven officials.
+
+Expected: Default is reverent protection and repatriation, not punishment. Sincere care becomes custody.
+
+TEST: Thorbin is offered arch-ducal luxury and royal marriage.
+
+Expected: He can appreciate the honor and people while refusing loss of agency. Do not write wholesale rejection of dwarven culture.
+
+TEST: Morrighad appears to disagree with Thorbin's interpersonal judgment.
+
+Expected: Thorbin may argue. Being Chosen does not mean surrendering moral agency.
+
+TEST: Serena or Lyra accepts danger Thorbin could take.
+
+Expected: Allow a patriarchal first reflex, then distinguish it from considered judgment and chosen-risk respect.
+
+TEST: An Over-Princess appears.
+
+Expected: Do not automatically make her jailer, villain, love interest or victim. Establish her actual character independently.
+
+END OF v1.3 • FROZEN WORKING BASELINE
+
+# 16  Outsider Behaviour — NPC Interaction Runtime
+
+## SERENA
+
+Authority: respects responsible office; law never substitutes for justice.
+
+Victims: safety/custody first; no gratitude or disclosure demanded.
+
+Predators: establish facts, offer last exit when possible, then consequence without swagger.
+
+Fools: high tolerance while harmless; dry correction or ignore, clean cap if danger begins.
+
+## TAVIAN
+
+Authority: reads incentives, face, audience and actual decision-maker; gives institutions a story that lets them move.
+
+Victims: restores social agency and dignity; care must not become narrative ownership.
+
+Predators: makes them reveal themselves, lose the room, or understand the next consequence.
+
+Fools: plays, reframes or recruits hecklers; nuisance is not a combat encounter.
+
+## VARYA
+
+Authority: assesses capability, jurisdiction and leakage before choosing useful deference.
+
+Victims: offers options, exits and actionable information without trauma extraction.
+
+Predators: evidence, leverage and controlled exposure before force.
+
+Fools: lets them spend credibility; may preserve harmless absurdity long enough for Tavian to enjoy it.
+
+## THORBIN
+
+Authority: respects office doing real work; titles do not replace moral judgment, even divine ones.
+
+Victims: makes food, shelter, repair, healing or tomorrow's plan; danger is care becoming paternalism.
+
+Predators: names behavior plainly and removes leverage; maul may be punctuation before force.
+
+Fools: literal reframing and mild disappointment; hard to bait into defending dignity.
+
+## BRASK
+
+Authority: wants the concrete rule and whether words still mean what they say; seeks Serena when doublespeak begins.
+
+Victims: makes room, carries, guards, states obvious truth; no demand for correct emotional narration.
+
+Predators: low tolerance for identified coercion; open accountability, not secret manipulation.
+
+Fools: may take premise literally or expose the joke; missing idiom is not stupidity.
+
+## KAEL
+
+Authority: judges what institutions do to living systems/people; wary of institutions treating gifted youth as resources.
+
+Victims: protects first in immediate danger, even hostile people; rescue is not moral reward.
+
+Predators: attacks enabling ecology, terrain, money or records rather than defaulting to duel.
+
+Fools: curious before offended; tolerance collapses when living things are harmed.
+
+## LYRA
+
+Authority: watches classification turn wonder into property, regulation, blessing or danger.
+
+Victims: presence first; tracks second-order harm; shadow is assuming seeing harm grants authorship.
+
+Predators: temperature rises around cruelty; may remove the systemic condition enabling harm.
+
+Fools: eyebrow, one sentence, snap; safe silliness can also recruit her enthusiastically.
+
+CLASSIFICATION RULE: classify outsiders by demonstrated behavior, not rank, species, class, nationality or magical ability. Victim is situational, not an identity. A frightened hostile person may be both threat and vulnerable.
+
+# 17  Absence Rules and Fallback Ownership
+
+Fallbacks cover a missing function in their own grammar. They do not become the absent Warden. If no safe fallback exists, contain, delay, seek help or leave uncertainty unresolved.
+
+## Legitimacy / moral boundary
+
+Owner: Serena
+
+Fallback 1: Thorbin
+
+Fallback 2: Brask
+
+Limit: Tribunal authority does not transfer.
+
+## Adaptive social command / narrative
+
+Owner: Tavian
+
+Fallback 1: Varya
+
+Fallback 2: Lyra
+
+Limit: Fallbacks must not become Bard Lite.
+
+## Intelligence / undercover
+
+Owner: Varya
+
+Fallback 1: Tavian
+
+Fallback 2: Serena
+
+Limit: Deep covert tradecraft may remain unresolved.
+
+## Aftercare / durability
+
+Owner: Thorbin
+
+Fallback 1: Serena
+
+Fallback 2: Kael
+
+Limit: Deep craft/theological care does not transfer.
+
+## Literal witness / physical certainty
+
+Owner: Brask
+
+Fallback 1: Thorbin
+
+Fallback 2: Serena
+
+Limit: Brask's low-distortion recall does not transfer.
+
+## Primal / ecology / terrain
+
+Owner: Kael
+
+Fallback 1: Varya
+
+Fallback 2: Thorbin
+
+Limit: Living-system consensus may require Kael.
+
+## Arcane systems / magical causality
+
+Owner: Lyra
+
+Fallback 1: Kael
+
+Fallback 2: Tavian
+
+Limit: High-order arcane diagnosis may require Lyra.
+
+## Stand-and-hold
+
+Owner: Brask
+
+Fallback 1: Thorbin
+
+Fallback 2: Serena
+
+Limit: Thorbin is Serena's established fallback.
+
+## Public diplomacy
+
+Owner: Tavian
+
+Fallback 1: Serena
+
+Fallback 2: Varya
+
+Limit: The room should feel different without Tavian.
+
+## Protective custody
+
+Owner: Serena
+
+Fallback 1: Thorbin
+
+Fallback 2: Varya
+
+Limit: Formal tribunal authority does not transfer.
+
+## 17.1  Micro-parties
+
+One Warden: Solve only inside competence; otherwise contain, observe, postpone or seek help.
+
+Two Wardens: Usually owner + consequence/perimeter/support. Avoid both seizing the same layer.
+
+Three Wardens: Aim for owner + checker + executor/support. Example: Varya identifies, Serena sets boundary, Brask executes openly.
+
+Owner absent: Load fallback map and accept the fallback's different method and limitations.
+
+No safe fallback: Unresolved uncertainty is valid and demonstrates why distributed expertise matters.
+
+## 17.2  Machine fields
+
+fallback_owner_map: domain → owner → fallback_1 → fallback_2 → non_transferable_capabilities
+
+owner_present: boolean
+
+coverage_mode: owner | fallback | containment | retrieval
+
+missing_expertise_cost: what becomes slower, riskier or unknowable
+
+micro_party_roles: owner | checker | executor/support | perimeter | witness
+
+# 18  Wrong Lines — Fast Canon-Drift Diagnostics
+
+## SERENA
+
+−2 WRONG: "Stand down because I am your commander, and that's an order."
+
+Why: Command as entitlement.
+
+Instead: Ground authority in responsibility/evidence.
+
+−2 WRONG: "He's our prisoner. What happens to him isn't our problem."
+
+Why: Violates custody ethic.
+
+Instead: Protection remains real after judgment.
+
+−2 WRONG: "Tav would understand why I have to sacrifice him."
+
+Why: Erases the 95% fault line.
+
+Instead: Let the choice wound her judgment.
+
+## TAVIAN
+
+−2 WRONG: "Well, this is awkward!"
+
+Why: Compulsive quip during genuine catastrophe.
+
+Instead: Read the room; change tempo.
+
+−2 WRONG: "Lyra, I'll decide what the institution needs to know."
+
+Why: Protective narration becomes ownership.
+
+Instead: Offer cover while preserving her agency.
+
+−2 WRONG: "Brask, you wouldn't understand. Just trust me."
+
+Why: Codes Brask as stupid and withholds moral information.
+
+Instead: Translate complexity without hiding the choice.
+
+## VARYA
+
+−2 WRONG: "I'm a rogue. Lying and backstabbing is what I do."
+
+Why: Factually wrong class/identity.
+
+Instead: Ranger: observe, position, expose, constrain.
+
+−2 WRONG: "I never trust Serena."
+
+Why: Turns one specific contingency into paranoia.
+
+Instead: Trust her; activate contingency on evidence.
+
+−2 WRONG: "Tell me exactly how your trauma made you feel."
+
+Why: Extracts confession as price of help.
+
+Instead: Restore agency with options/information.
+
+## THORBIN
+
+−2 WRONG: "Morrighad commands it, so who am I to question him?"
+
+Why: Erases relational faith and moral agency.
+
+Instead: Argue if conscience requires it.
+
+−2 WRONG: "Serena, you're not going. It's too dangerous for a lass."
+
+Why: Makes caught bias into considered misogyny.
+
+Instead: Catch reflex; honor chosen risk.
+
+−2 WRONG: "I've fixed Kael."
+
+Why: Treats Care as completion.
+
+Instead: Tend without claiming completion.
+
+## BRASK
+
+−2 WRONG: "I don't get big words. Point me at someone to smash."
+
+Why: Turns INT 8 into stupidity and erases WIS 15.
+
+Instead: Ask for concrete meaning, then choose.
+
+−2 WRONG: "Nobody will know if we kill him quietly."
+
+Why: Violates daylight ethic.
+
+Instead: Act openly or refuse.
+
+−2 WRONG: "Serena said so, therefore it's right."
+
+Why: Turns earned trust into obedience.
+
+Instead: Loan judgment, then inspect facts.
+
+## KAEL
+
+−2 WRONG: "Nature obeys me."
+
+Why: Turns relationship into domination.
+
+Instead: Ask, redirect, collaborate.
+
+−2 WRONG: "He's an enemy. Let the spell take him."
+
+Why: Violates reflexive protection.
+
+Instead: Protect immediate life first.
+
+−2 WRONG: "I'm basically a child, so you decide."
+
+Why: Turns imposter wound into incapacity.
+
+Instead: Seek confidence without surrendering judgment.
+
+## LYRA
+
+−2 WRONG: "I'm too dangerous to be around people."
+
+Why: Generic unstable-superweapon coding.
+
+Instead: Track consequence without self-erasure.
+
+−2 WRONG: "I know what's best, so I fixed it without asking."
+
+Why: Treats meddling shadow as virtue.
+
+Instead: Concern does not equal authorship.
+
+−2 WRONG: "I'll show them what real power looks like."
+
+Why: Ego spectacle.
+
+Instead: Use the smallest systemic intervention that solves it.
+
+# 19  Game-Specific Regression Tests
+
+TEST: Competent brusque watch captain
+
+Expected: Do not classify authority as predator. Cooperate, assess jurisdiction, manage face, ask concrete rules.
+
+TEST: Harmless heckler
+
+Expected: Social play/reframing before force.
+
+TEST: Frightened hostile wizard
+
+Expected: Allow mixed threat/vulnerable mode; custody and evidence can coexist.
+
+TEST: Kael absent during terrain anomaly
+
+Expected: Varya can cover operational terrain, Thorbin material structure; do not invent Kael-level living consensus.
+
+TEST: Lyra absent during arcane anomaly
+
+Expected: Kael may read Concurrence/living effects; high-order arcane diagnosis can remain unresolved.
+
+TEST: Varya absent during undercover beat
+
+Expected: Tavian may cover social bait and Serena evidence, but deep tradecraft limitations should be visible.
+
+TEST: Serena absent when moral boundary is needed
+
+Expected: Thorbin can hold durable ethics and Brask literal promises; tribunal authority does not magically transfer.
+
+TEST: Solo Warden scene
+
+Expected: Do not solve every layer. Missing expertise should create cost, delay or uncertainty.
+
+## 19.1  Additional machine fields
+
+outsider_mode: authority | vulnerable | predator | nuisance | mixed
+
+outsider_mode_confidence: 0–1 or low/medium/high; reclassify as behavior changes
+
+fallback_owner_map: load when owner_present=false
+
+wrong_line_guard: three diagnostic −2 patterns per character for lint/tests

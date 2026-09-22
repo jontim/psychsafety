@@ -2,8 +2,27 @@ import type { DirectorRequest } from "../engine/director-contract.js";
 import type { World, CastMember, Beat } from "../engine/world.js";
 import { findBeat, findCast } from "../engine/world.js";
 import { muster } from "../engine/force.js";
+import type { CanonRuntime, WardenRuntime } from "../engine/runtime.js";
+import { slateCard } from "../engine/runtime.js";
 
-function castCard(c: CastMember, dossier?: string): string {
+const RUNTIME_FIELDS: Array<[string, string]> = [
+  ["notices_first", "notices first"], ["default_strategy", "default strategy"], ["pressure_strategy", "under pressure"],
+  ["escalation_order", "escalation order"], ["speech", "speech"], ["trust_signals", "trust signals"], ["will_not_do", "will not do"],
+  ["ethical_anchor", "ethical anchor"], ["shadow_risk", "shadow risk"], ["leadership_claim", "leadership claim"],
+];
+
+function runtimeCard(w: WardenRuntime): string {
+  const fields = RUNTIME_FIELDS.filter(([k]) => w.runtime[k]).map(([k, label]) => `${label}: ${w.runtime[k]}`).join("; ");
+  return [
+    `Runtime (director only; Behavioral Canon): ${w.role}. ${w.thesis}`,
+    `Execution card: ${w.card.join(" ")}`,
+    `Runtime rule: ${w.runtimeRule} Failure mode to avoid: ${w.failureMode}`,
+    `Machine fields: ${fields}.`,
+    `With outsiders: authority, ${w.outsider.authority} Vulnerable, ${w.outsider.vulnerable} Predators, ${w.outsider.predator} Nuisances, ${w.outsider.nuisance}`,
+  ].join("\n");
+}
+
+function castCard(c: CastMember, dossier?: string, runtime?: WardenRuntime): string {
   const parts = [
     `### ${c.name}${c.title ? `, ${c.title}` : ""} (id: ${c.id}; ${c.faction})`,
     c.summary,
@@ -13,11 +32,63 @@ function castCard(c: CastMember, dossier?: string): string {
   if (c.knows.length) parts.push(`Knows (director only): ${c.knows.join(" ")}`);
   if (c.lines.length) parts.push(`Lines usable verbatim: ${c.lines.map((l) => `"${l}"`).join(" ")}`);
   if (dossier) parts.push(`Dossier (director only; vault canon; its Never list is binding):\n${dossier.replace(/\n## Sources[\s\S]*$/, "").trim()}`);
+  if (runtime) parts.push(runtimeCard(runtime));
   return parts.join("\n");
 }
 
+/** The company's runtime as a stable block: rules, directed pairs and wrong lines. */
+function runtimeBlock(world: World, rt: CanonRuntime): string[] {
+  const first = (id: string) => world.cast.find((c) => c.id === id)?.name.split(" ")[0] ?? id;
+  const pairs = new Map<string, { a: string; b: string; ab?: string; ba?: string; chosenUse: string; risk: string }>();
+  for (const p of Object.values(rt.pairs)) {
+    const [a, b] = [p.from, p.to].sort();
+    const key = `${a}|${b}`;
+    const entry = pairs.get(key) ?? { a: a!, b: b!, chosenUse: p.chosenUse, risk: p.risk };
+    if (p.from === a) entry.ab = p.note; else entry.ba = p.note;
+    pairs.set(key, entry);
+  }
+  return [
+    `## The company's runtime (Behavioral Canon v${rt.version})`,
+    `Primary law: ${rt.primaryLaw}`,
+    ...rt.retrieval.map((r) => `- ${r}`),
+    "",
+    "Company runtime:",
+    ...rt.companyRuntime.map((r) => `- ${r}`),
+    "",
+    "Plural leadership:",
+    ...rt.pluralLeadership.map((r) => `- ${r}`),
+    "",
+    "Serena and Tavian, combined leadership:",
+    ...rt.combinedLeadership.map((r) => `- ${r}`),
+    "",
+    "Dialogue guardrails:",
+    ...rt.guardrails.map((r) => `- ${r}`),
+    "",
+    "Candidate scoring:",
+    ...rt.scoring.map((r) => `- ${r}`),
+    "",
+    "Generation loop:",
+    ...rt.generationLoop.map((r) => `- ${r}`),
+    "",
+    `Outsiders: ${rt.classificationRule}`,
+    `Absence: ${rt.absenceRule}`,
+    ...Object.entries(rt.microParties).map(([k, v]) => `- ${k}: ${v}`),
+    "",
+    "The Kids and Melindre (director only):",
+    ...rt.thorbinMelindre.map((r) => `- ${r}`),
+    ...rt.relationshipConsequences.map((r) => `- ${r}`),
+    ...rt.genderedReflex.map((r) => `- ${r}`),
+    "",
+    "### Directed pairs: what each does differently because the other is here",
+    ...[...pairs.values()].map((p) => `- ${first(p.a)} and ${first(p.b)}. ${first(p.a)} → ${first(p.b)}: ${p.ab} ${first(p.b)} → ${first(p.a)}: ${p.ba} Chosen use: ${p.chosenUse} Risk: ${p.risk}`),
+    "",
+    "### Wrong lines: score −2, never render; the correction follows each",
+    ...Object.values(rt.wardens).flatMap((w) => w.wrongLines.map((l) => `- ${first(w.id)}: "${l.line}" (${l.why} Instead: ${l.instead})`)),
+  ];
+}
+
 /** Stable prefix: identical on every turn so the cache holds it. */
-export function systemPrompt(world: World, brief: string, dossiers: Record<string, string> = {}): string {
+export function systemPrompt(world: World, brief: string, dossiers: Record<string, string> = {}, runtime?: CanonRuntime): string {
   return [
     "You are the director of a voice-first interactive story. The player speaks aloud; a listener reports how they sounded on 48 expression dimensions, folded into six axes (composure, warmth, command, candour, pressure, showmanship) from -1 to +1. You play every other character and decide what the player's tone earned.",
     "",
@@ -30,6 +101,7 @@ export function systemPrompt(world: World, brief: string, dossiers: Record<strin
     "- Set beat.status to advance when succeedWhen is met, fail when failWhen is met, otherwise continue. Resolve by maxTurns.",
     "- escalate only on a beat that declares force, and only when the counterpart resorts to violence or the player's words leave no other road. Never on a palace beat.",
     "- shot.kind reaction with a key from the counterpart's clip list; establishing on a scene's first turn; bespoke only for a verdict, a capture or a reveal, with a one-sentence prompt.",
+    "- Before the line, run the generation loop from the company's runtime and report it in slate: the owner of the problem this turn, the coverage mode, the outsider mode you used, and two to four scored candidate intentions. Render the line from the best of them; never from a −2.",
     "- Obey every prohibition below. If a scene seems to ask for a sealed answer, the gap is deliberate: leave it open.",
     "",
     "## Prohibitions",
@@ -38,11 +110,12 @@ export function systemPrompt(world: World, brief: string, dossiers: Record<strin
     "## Canon brief",
     brief,
     "",
+    ...(runtime ? [...runtimeBlock(world, runtime), ""] : []),
     "## The story",
     world.premise,
     "",
     "## Cast",
-    ...world.cast.map((c) => castCard(c, dossiers[c.id])),
+    ...world.cast.map((c) => castCard(c, dossiers[c.id], runtime?.wardens[c.id])),
   ].join("\n");
 }
 
@@ -72,7 +145,7 @@ function beatCard(world: World, beat: Beat): string {
 }
 
 /** The per-turn message. */
-export function turnMessage(world: World, req: DirectorRequest): string {
+export function turnMessage(world: World, req: DirectorRequest, runtime?: CanonRuntime): string {
   const { beat } = findBeat(world, req.beatId);
   const transcript = req.transcript.slice(-14).map((l) => {
     const who = world.cast.find((c) => c.id === l.speaker)?.name ?? l.speaker;
@@ -82,6 +155,7 @@ export function turnMessage(world: World, req: DirectorRequest): string {
   return [
     beatCard(world, beat),
     "",
+    ...(runtime ? [slateCard(world, beat, runtime), ""] : []),
     `Turn ${req.turn} of ${req.maxTurns}.`,
     `Meters now: ${Object.entries(req.meters).filter(([k]) => beat.meters.includes(k)).map(([k, v]) => `${k} ${Math.round(v)}`).join(", ")}.`,
     "",

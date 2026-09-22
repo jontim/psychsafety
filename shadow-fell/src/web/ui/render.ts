@@ -2,7 +2,7 @@ import { EMOTION_LABELS, topDimensions, type EmotionVector } from "../../engine/
 import { CORE_AXES, formatSigned, type AffectState } from "../../engine/affect.js";
 import type { World, CastMember } from "../../engine/world.js";
 import type { SessionSnapshot } from "../../engine/session.js";
-import type { TranscriptLine } from "../../engine/director-contract.js";
+import type { TranscriptLine, DirectorResponse } from "../../engine/director-contract.js";
 
 export function h<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string, string> = {}, ...children: Array<Node | string | null | undefined>): HTMLElementTagNameMap[K] {
   const el = document.createElement(tag);
@@ -79,4 +79,31 @@ export function portraitFor(member: CastMember | undefined): string {
 
 export function describeScores(v: EmotionVector): string {
   return topDimensions(v, 3).map((d) => EMOTION_LABELS[d.key].toLowerCase()).join(", ");
+}
+
+/** The director's slate: the generation loop made visible. An authoring view, off by default. */
+export function renderSlate(world: World, response: DirectorResponse | null, source: string): HTMLElement {
+  const box = h("div", { class: "panel slate" }, h("h3", {}, "The director's slate"));
+  if (!response?.slate) {
+    box.append(h("div", { class: "empty" }, "Fills after the first line: who owned the problem, who covered for whom, how the outsider read, and the intentions weighed before the line was spoken."));
+    return box;
+  }
+  const s = response.slate;
+  box.append(h("div", { class: "facts" },
+    h("span", { class: "fact" }, h("b", {}, "Owner "), s.owner === "none" ? "nobody" : castName(world, s.owner)),
+    h("span", { class: "fact" }, h("b", {}, "Coverage "), s.coverage),
+    h("span", { class: "fact" }, h("b", {}, "Outsider "), s.outsiderMode),
+    h("span", { class: "fact" }, h("b", {}, "Director "), source || "unknown"),
+  ));
+  const best = Math.max(...s.intentions.map((i) => i.score));
+  const list = h("div", { class: "intentions" });
+  for (const i of s.intentions) {
+    const cls = `intention s${i.score < 0 ? "n" : ""}${Math.abs(i.score)} ${i.score === best ? "chosen" : ""}`;
+    list.append(h("div", { class: cls },
+      h("span", { class: "score" }, i.score > 0 ? `+${i.score}` : String(i.score)),
+      h("span", { class: "what" }, i.intention, i.note ? h("span", { class: "why" }, ` ${i.note}`) : null),
+    ));
+  }
+  box.append(list);
+  return box;
 }

@@ -109,6 +109,12 @@ export const BeatSchema = z.object({
   maxTurns: z.number().int().positive().default(10),
   /** Absent means the scene cannot become a fight; the director must not escalate it. */
   force: ForceSchema.optional(),
+  /** How the Wardens read the non-Warden party as the scene opens; the director reclassifies on behaviour. */
+  outsider: z.object({
+    mode: z.enum(["authority", "vulnerable", "predator", "nuisance", "mixed"]),
+    confidence: z.enum(["low", "medium", "high"]).default("medium"),
+    note: z.string().optional(),
+  }).optional(),
 });
 export type Beat = z.infer<typeof BeatSchema>;
 

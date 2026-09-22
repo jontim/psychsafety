@@ -2,8 +2,10 @@ import { describe, it, expect } from "vitest";
 import { defineWorld, validateWorld, nextBeatId, type World } from "../world.js";
 import { StorySession } from "../session.js";
 import { toneVector } from "../mock-ear.js";
-import { DirectorResponseSchema } from "../director-contract.js";
+import { DirectorResponseSchema, type DirectorResponse } from "../director-contract.js";
 import { affectTagFromAxes, selectClip } from "../clips.js";
+
+const SLATE: DirectorResponse["slate"] = { owner: "none", coverage: "containment", outsiderMode: "mixed", intentions: [{ intention: "hold the line", score: 1 }, { intention: "narrate the feeling", score: -2 }] };
 
 function tinyWorld(): World {
   return defineWorld({
@@ -90,6 +92,7 @@ describe("session", () => {
       shot: { kind: "reaction", key: "other-neutral" },
       beat: { status: "continue" },
       debrief: "You led with command.",
+      slate: SLATE,
     });
     const before = s.snapshot().meters;
     const { applied, clip } = s.applyDirector(response);
@@ -116,7 +119,7 @@ describe("session", () => {
     const s = new StorySession(tinyWorld(), "b1");
     s.ingest("Hi", toneVector("calm"));
     expect(() =>
-      s.applyDirector({ speaker: "ghost", line: "", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "" }),
+      s.applyDirector({ speaker: "ghost", line: "", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "", slate: SLATE }),
     ).toThrow(/Unknown cast member/);
   });
 });

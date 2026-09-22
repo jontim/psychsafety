@@ -35,6 +35,32 @@ export const ShotSchema = z.object({
   prompt: z.string().optional(),
 });
 
+export const OutsiderModeSchema = z.enum(["authority", "vulnerable", "predator", "nuisance", "mixed"]);
+export const CoverageModeSchema = z.enum(["owner", "fallback", "containment", "retrieval"]);
+
+/** One candidate intention from the generation loop, scored against the company's runtime. */
+export const IntentionSchema = z.object({
+  /** One clause: what the speaker means to do with this line. */
+  intention: z.string(),
+  /** +2 canon-positive, +1 compatible, 0 neutral, -1 drift risk, -2 canon violation. */
+  score: z.number().int().min(-2).max(2),
+  /** A few words on the score. */
+  note: z.string().optional(),
+});
+
+/** The director's slate: the reasoning the runtime asks for before the line is rendered. */
+export const SlateSchema = z.object({
+  /** Cast id of who owns the problem this turn, or "none". */
+  owner: z.string(),
+  /** Whether the owner is here, a fallback covers in their own grammar, or the scene contains and delays. */
+  coverage: CoverageModeSchema,
+  /** How the Wardens read the outsider right now; reclassified on behaviour. */
+  outsiderMode: OutsiderModeSchema,
+  /** The candidates considered; the line renders the best of them. */
+  intentions: z.array(IntentionSchema).min(2).max(4),
+});
+export type Slate = z.infer<typeof SlateSchema>;
+
 export const DirectorResponseSchema = z.object({
   /** Cast id of who speaks next. */
   speaker: z.string(),
@@ -59,5 +85,7 @@ export const DirectorResponseSchema = z.object({
    * player's words leave no other road. The line above is the move that starts it.
    */
   escalate: z.object({ threat: z.string() }).optional(),
+  /** Required: the generation loop, reported. */
+  slate: SlateSchema,
 });
 export type DirectorResponse = z.infer<typeof DirectorResponseSchema>;

@@ -2,13 +2,14 @@ import type { DirectorRequest, DirectorResponse } from "../engine/director-contr
 import type { World } from "../engine/world.js";
 import { findBeat, findCast } from "../engine/world.js";
 import { affectTagFromAxes } from "../engine/clips.js";
+import { wardensInBeat, type CanonRuntime } from "../engine/runtime.js";
 
 /**
  * The understudy: a deterministic director for playing without an Anthropic key.
  * It is not clever. It is enough to feel the loop: warmth opens people, pressure
  * closes them, composure keeps cover, and a hot voice on an armed beat starts a fight.
  */
-export function understudy(world: World, req: DirectorRequest): DirectorResponse {
+export function understudy(world: World, req: DirectorRequest, runtime?: CanonRuntime): DirectorResponse {
   const { beat } = findBeat(world, req.beatId);
   const counterpart = findCast(world, beat.counterpart);
   const a = req.axes;
@@ -107,6 +108,18 @@ export function understudy(world: World, req: DirectorRequest): DirectorResponse
     }
   }
 
+  const present = runtime ? wardensInBeat(runtime, beat).present : [];
+  const owner = present.find((id) => id !== req.playerRole) ?? (present.length ? counterpart.id : "none");
+  const slate: DirectorResponse["slate"] = {
+    owner,
+    coverage: present.length ? "owner" : "containment",
+    outsiderMode: beat.outsider?.mode ?? "mixed",
+    intentions: [
+      { intention: `answer the tone the listener reported: ${debrief.toLowerCase()}`, score: 1, note: "reacts to how it sounded, not what was meant" },
+      { intention: "explain the tell out loud", score: -2, note: "narrates inner state" },
+    ],
+  };
+
   return {
     speaker: counterpart.id,
     line,
@@ -116,6 +129,7 @@ export function understudy(world: World, req: DirectorRequest): DirectorResponse
     shot: req.turn === 1 ? { kind: "establishing" } : { kind: "reaction", key: `${counterpart.id}-${tag}` },
     beat: { status, resolution },
     debrief,
+    slate,
     ...(escalate ? { escalate } : {}),
   };
 }

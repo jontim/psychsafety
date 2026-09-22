@@ -3,6 +3,9 @@ import { defineWorld, type World } from "../world.js";
 import { muster, strategies, matchStrategy, resolveForce } from "../force.js";
 import { StorySession } from "../session.js";
 import { toneVector } from "../mock-ear.js";
+import type { DirectorResponse } from "../director-contract.js";
+
+const SLATE: DirectorResponse["slate"] = { owner: "none", coverage: "containment", outsiderMode: "mixed", intentions: [{ intention: "hold the line", score: 1 }, { intention: "narrate the feeling", score: -2 }] };
 
 function world(present: string[]): World {
   return defineWorld({
@@ -68,7 +71,7 @@ describe("force", () => {
   it("runs the fight inside a session: clean win auto-resolves, short cover waits for a call", () => {
     const clean = new StorySession(world(["brask", "lyra"]), "alley");
     clean.ingest("Talk.", toneVector("commanding"));
-    clean.applyDirector({ speaker: "wizard", line: "Begone, halfman!", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "", escalate: { threat: "His hands ignite violet." } });
+    clean.applyDirector({ speaker: "wizard", line: "Begone, halfman!", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "", slate: SLATE, escalate: { threat: "His hands ignite violet." } });
     let snap = clean.snapshot();
     expect(snap.status).toBe("playing");
     expect(snap.transcript.at(-1)!.speaker).toBe("scribe");
@@ -76,7 +79,7 @@ describe("force", () => {
 
     const short = new StorySession(world(["brask"]), "alley");
     short.ingest("Talk.", toneVector("commanding"));
-    short.applyDirector({ speaker: "wizard", line: "Begone!", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "", escalate: { threat: "His hands ignite violet." } });
+    short.applyDirector({ speaker: "wizard", line: "Begone!", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "", slate: SLATE, escalate: { threat: "His hands ignite violet." } });
     snap = short.snapshot();
     expect(snap.status).toBe("force");
     expect(snap.force?.strategies.length).toBeGreaterThan(0);
@@ -91,7 +94,7 @@ describe("force", () => {
   it("loses the fight when nobody moves", () => {
     const s = new StorySession(world(["brask"]), "alley");
     s.ingest("Talk.", toneVector("angry"));
-    s.applyDirector({ speaker: "wizard", line: "Begone!", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "", escalate: { threat: "x" } });
+    s.applyDirector({ speaker: "wizard", line: "Begone!", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "", slate: SLATE, escalate: { threat: "x" } });
     expect(s.abandonFight().outcome).toBe("lost");
     expect(s.snapshot().status).toBe("failed");
   });
@@ -101,7 +104,7 @@ describe("force", () => {
     delete w.acts[0]!.beats[0]!.force;
     const s = new StorySession(w, "alley");
     s.ingest("Talk.", toneVector("calm"));
-    s.applyDirector({ speaker: "wizard", line: "No.", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "", escalate: { threat: "x" } });
+    s.applyDirector({ speaker: "wizard", line: "No.", acting: "", meterDeltas: {}, shot: { kind: "reaction" }, beat: { status: "continue" }, debrief: "", slate: SLATE, escalate: { threat: "x" } });
     expect(s.snapshot().status).toBe("playing");
     expect(s.snapshot().force).toBeNull();
   });

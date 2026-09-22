@@ -3,6 +3,7 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { DirectorRequestSchema, DirectorResponseSchema, type DirectorRequest, type DirectorResponse } from "../engine/director-contract.js";
 import type { World } from "../engine/world.js";
 import { findBeat } from "../engine/world.js";
+import type { CanonRuntime } from "../engine/runtime.js";
 import { systemPrompt, turnMessage } from "./prompt.js";
 import { understudy } from "./understudy.js";
 
@@ -12,6 +13,8 @@ export interface DirectorOptions {
   brief: string;
   /** Long-form character dossiers keyed by cast id; see src/server/dossiers.ts. */
   dossiers?: Record<string, string>;
+  /** The compiled Behavioral Canon; see src/server/runtime.ts. */
+  runtime?: CanonRuntime;
 }
 
 export interface DirectorTurn {
@@ -29,34 +32,36 @@ function sanitise(world: World, req: DirectorRequest, r: DirectorResponse): Dire
   const shot = r.shot.kind === "reaction" && r.shot.key && !world.clips.some((c) => c.key === r.shot.key)
     ? { kind: "reaction" as const }
     : r.shot;
-  return { ...r, speaker, shot, ...(escalate ? { escalate } : { escalate: undefined }) };
+  const known = new Set(world.cast.map((c) => c.id));
+  const slate = { ...r.slate, owner: known.has(r.slate.owner) ? r.slate.owner : "none" };
+  return { ...r, speaker, shot, slate, ...(escalate ? { escalate } : { escalate: undefined }) };
 }
 
 export function createDirector(world: World, opts: DirectorOptions, client: Anthropic | null) {
-  const system = systemPrompt(world, opts.brief, opts.dossiers);
+  const system = systemPrompt(world, opts.brief, opts.dossiers, opts.runtime);
 
   return async function direct(input: unknown): Promise<DirectorTurn> {
     const req = DirectorRequestSchema.parse(input);
-    if (!client) return { response: sanitise(world, req, understudy(world, req)), source: "understudy", note: "No ANTHROPIC_API_KEY; the understudy is directing." };
+    if (!client) return { response: sanitise(world, req, understudy(world, req, opts.runtime)), source: "understudy", note: "No ANTHROPIC_API_KEY; the understudy is directing." };
 
     try {
       const message = await client.messages.parse({
         model: opts.model,
         max_tokens: 4000,
         system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: turnMessage(world, req) }],
+        messages: [{ role: "user", content: turnMessage(world, req, opts.runtime) }],
         output_config: { effort: opts.effort, format: zodOutputFormat(DirectorResponseSchema) },
       });
       if (message.stop_reason === "refusal" || !message.parsed_output) {
-        return { response: sanitise(world, req, understudy(world, req)), source: "understudy", note: `Model returned ${message.stop_reason}; the understudy took the turn.` };
+        return { response: sanitise(world, req, understudy(world, req, opts.runtime)), source: "understudy", note: `Model returned ${message.stop_reason}; the understudy took the turn.` };
       }
       return { response: sanitise(world, req, message.parsed_output), source: "claude" };
     } catch (error) {
       if (error instanceof Anthropic.RateLimitError) {
-        return { response: sanitise(world, req, understudy(world, req)), source: "understudy", note: "Rate limited; the understudy took the turn." };
+        return { response: sanitise(world, req, understudy(world, req, opts.runtime)), source: "understudy", note: "Rate limited; the understudy took the turn." };
       }
       if (error instanceof Anthropic.APIError) {
-        return { response: sanitise(world, req, understudy(world, req)), source: "understudy", note: `API error ${error.status}: ${error.message}. The understudy took the turn.` };
+        return { response: sanitise(world, req, understudy(world, req, opts.runtime)), source: "understudy", note: `API error ${error.status}: ${error.message}. The understudy took the turn.` };
       }
       throw error;
     }

@@ -88,7 +88,7 @@ Epilogue the film already fixed: Soraya opens a letter at her desk and smiles: f
 
 ## Regression traps
 
-Varya, never Veyra, Verya or Varia. Piss and Moan, never Piss and Vinegar. Serena is not Lord Marshal. Ogma, not Oghma. Concurrence, not Weave. Morrighad, not Moradin. The Cadence, not Harpers. Tharcia and the Rubrican Magisterium, never Thay or Red Wizards. AKA In is the spelling. Omahnd is the state; Omahd was the elder prince.
+Varya, never Veyra, Verya or Varia. Piss and Moan, never Piss and Vinegar. Serena is not Lord Marshal. Ogma, not Oghma. Concurrence, not Weave. Morrighad, not Moradin. Tor-Morrighad is the dwarven homeland, never Thorbardin. The Cadence, not Harpers. Tharcia and the Rubrican Magisterium, never Thay or Red Wizards. AKA In is the spelling. Omahnd is the state; Omahd was the elder prince.
 
 ## SEALED, hard prohibitions
 

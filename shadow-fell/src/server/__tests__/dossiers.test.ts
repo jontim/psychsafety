@@ -14,7 +14,7 @@ const DEAD_NAMES: RegExp[] = [
   /Faer[uû]n/i, /\bToril\b/, /Mystra/i, /\bthe Weave\b/, /\bMoradin\b/, /\bOghma\b/, /\bHarpers?\b/, /Red Wizards?/i,
   /\bThay(an)?\b/, /Sespech/i, /Moonshae/i, /Silverymoon/i, /Berdusk/i, /Waterdeep/i, /Waterdhavian/i, /Myth Drannor/i,
   /\bLolth\b/, /Szass/i, /Sel[uû]ne/i, /Underdark/i, /Cormyr/i, /Dalelands/i, /\bSembia\b/i, /Mielikki/i,
-  /Piss and Vinegar/i, /\bVeyra\b/, /\bVerya\b/, /Lord Marshal Serena/i,
+  /Piss and Vinegar/i, /\bVeyra\b/, /\bVerya\b/, /Lord Marshal Serena/i, /Thorbardin/i,
 ];
 
 describe("dossiers", () => {

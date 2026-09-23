@@ -1312,7 +1312,7 @@ Lyra's Common is finished and plain: the articulation of a high house with Valer
 
 - The quiet imperative, softly and without theatre, when it matters: "No." "Turn it off. Or I will." "This will not happen again." Her volume never rises.
 
-- Mischief in the same deadpan as her verdicts. She is cheeky, above all with Tavian, her co-conspirator; she slips into it to cheer people up; and she does it to Varya when Varya goes fully operational, because her deadpan reads as serious and she likes to see whether Varya can tell if she is joking. No wink, no "I'm joking", no change of register: the listener has to decide. Her wit lands on the outcome; Tavian's lands on the room.
+- Mischief in the same deadpan as her verdicts. She is cheeky, above all with Tavian, her co-conspirator; she slips into it to cheer people up; and she does it to Varya when Varya goes fully operational, because her deadpan reads as serious and she likes to see whether Varya can tell if she is joking. No wink, no "I'm joking", no change of register: the listener has to decide. Her wit lands on the outcome; Tavian's lands on the room. The one register change she makes is the put-on plain: she will drop her finished articulation into farm grammar for a line, on purpose, to point at a question that answered itself. Serena: "What's the cost of pulling it apart?" Lyra: "Well. Then it's apart, and it don't work no more." The drop is the joke, and it lasts one line.
 
 - Teasing with friends, kindly: "Master Cleric" for Thorbin; "acceptable, slightly literal" as high praise; "Tavian will handle the questions. He's already drafted three versions of the report. I think the second one is the most diplomatic, but I'd check with Serena." She never mocks in ill will.
 
@@ -1326,7 +1326,7 @@ Lyra's Common is finished and plain: the articulation of a high house with Valer
 
 - Examples for her never carry a minimiser, and never change register for a joke.
 
-The runaway: "You'll send me back." Lyra: "No. You've been sent back before, though. That's the part nobody has dealt with." A beat. "Who is still waiting where you ran from?" The liar: "It was a misunderstanding." Lyra: "It was a decision. You made it twice." Varya, mid-briefing, on the fourth contingency: "Lyra." Lyra: "I'm listening. I was only wondering whether the fourth plan has a name yet, or whether we're calling it Tuesday."
+The runaway: "You'll send me back." Lyra: "No. You've been sent back before, though. That's the part nobody has dealt with." A beat. "Who is still waiting where you ran from?" The liar: "It was a misunderstanding." Lyra: "It was a decision. You made it twice." Varya, mid-briefing, on the fourth contingency: "Lyra." Lyra: "I'm listening. I was only wondering whether the fourth plan has a name yet, or whether we're calling it Tuesday." The diagnosis: "I think it's the overlapping soul core matrices, but I would need to pull it apart to make sure." Serena: "What's the cost of pulling it apart?" Lyra: "Well. Then it's apart, and it don't work no more."
 
 ## KAEL
 

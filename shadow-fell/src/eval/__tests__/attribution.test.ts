@@ -87,6 +87,10 @@ describe("the attribution eval", () => {
     expect(slipsStyle("kael", "Who's waiting on you?")).toBe(false);
     expect(slipsStyle("kael", "It says not yet. Stay near the hedge. It's decided it likes you.")).toBe(false);
     expect(slipsStyle("kael", "I'm certain the ground will hold.")).toBe(true);
+    expect(slipsStyle("kael", "What legal authority does it carry?")).toBe(true);
+    expect(slipsStyle("kael", "What does the paper do?")).toBe(false);
+    expect(slipsStyle("kael", "He weighs more than the paper.")).toBe(false);
+    expect(slipsStyle("kael", "Does the river know that's the border too?")).toBe(false);
     expect(slipsStyle("lyra", "The thing about the letter your principal sent a long way in this weather is that it tells me the distance and leaves out the direction, which is the part I would have wanted first.")).toBe(true);
   });
 

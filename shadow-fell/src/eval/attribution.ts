@@ -437,6 +437,8 @@ export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
     /\b(who sent you|what's your name|papers|prove it|evidence|where were you|state your)\b/i,
     // certainty about what he only perceived
     /\b(definitely|certainly|without (a )?doubt|I'm certain|no doubt)\b/i,
+    // a lawyer, a strategist or a moral philosopher
+    /\b(jurisdiction|legal|lawful|liab(le|ility)|statute|leverage|incentives?|strateg(y|ic|ically)|tactic(s|al)?|moral(ly|ity)?|ethic(s|al)|philosoph(y|ical))\b/i,
   ],
   brask: [
     // do-support and auxiliary negatives

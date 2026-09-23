@@ -6,6 +6,10 @@ Every speaking character has a voice in Jon's Hume library as of 2026-09-20, wit
 - **New faces**, designed from the descriptions below and saved under the **label** in the table: Shadow Fell Scribe, Shadow Fell Indigo, Shadow Fell Heckler, Shadow Fell Watch Captain, Shadow Fell Sleeper, Shadow Fell Visitor.
 - **Sahir has no voice.** He never says anything in the film. The pack names no voice for him; if a scene ever needs him to speak, Octave designs one on the fly from his description.
 
+## Heard in play
+
+Jon has played against Soraya and Varya with the cloned voices and calls both flawless (23 September 2026). The Indigo and Sahir are still designed on the fly from their descriptions; a clone named "Shadow Fell Indigo" in the library would be picked up at the next server start.
+
 ## How the server finds them
 
 The pack names a preferred voice per character, but it does not have to match the library letter for letter. At startup the server loads the custom voices from Hume and, for each character, tries the pack's name, then the character's first name (or the bare label for "The Heckler"), then the same with a "Shadow Fell" prefix. Case, spacing and punctuation are ignored. It prints the result:

@@ -5,7 +5,7 @@ import { StorySession } from "../session.js";
 import { toneVector } from "../mock-ear.js";
 import type { DirectorResponse } from "../director-contract.js";
 
-const SLATE: DirectorResponse["slate"] = { owner: "none", coverage: "containment", outsiderMode: "mixed", intentions: [{ intention: "hold the line", score: 1, distinct: false }, { intention: "narrate the feeling", score: -2, distinct: false }] };
+const SLATE: DirectorResponse["slate"] = { owner: "none", coverage: "containment", outsiderMode: "mixed", intentions: [{ intention: "hold the line", score: 1, distinct: false, wayOfKnowing: false }, { intention: "narrate the feeling", score: -2, distinct: false, wayOfKnowing: false }] };
 
 function world(present: string[]): World {
   return defineWorld({

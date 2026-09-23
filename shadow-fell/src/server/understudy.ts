@@ -115,8 +115,8 @@ export function understudy(world: World, req: DirectorRequest, runtime?: CanonRu
     coverage: present.length ? "owner" : "containment",
     outsiderMode: beat.outsider?.mode ?? "mixed",
     intentions: [
-      { intention: `answer the tone the listener reported: ${debrief.toLowerCase()}`, score: 1, distinct: false, note: "reacts to how it sounded, not what was meant" },
-      { intention: "explain the tell out loud", score: -2, distinct: false, note: "narrates inner state" },
+      { intention: `answer the tone the listener reported: ${debrief.toLowerCase()}`, score: 1, distinct: false, wayOfKnowing: false, note: "reacts to how it sounded, not what was meant" },
+      { intention: "explain the tell out loud", score: -2, distinct: false, wayOfKnowing: false, note: "narrates inner state" },
     ],
   };
 

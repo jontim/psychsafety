@@ -6,7 +6,8 @@
  *                               [--dry] [--resume eval/attribution-<stamp>] [--rejudge]
  *
  * --resume re-judges the samples.json a previous run saved (every director turn is written as it lands),
- * so a judge failure never costs the generation.
+ * so a judge failure never costs the generation. The judge streams its answer, so its output budget is not
+ * held under the SDK's ten-minute rule for non-streaming calls.
  *
  * Every Warden meets each outsider alone, under each condition; the lines come back, lose their
  * names, and an independent judge says who said it (voice), who would do it (behaviour), whether
@@ -49,8 +50,8 @@ const resume = flag("resume", "");
 const rejudge = has("rejudge");
 const outDir = path.resolve(root, resume || flag("out", path.join("eval", `attribution-${stamp}`)));
 const JUDGE_BATCH = 6;
-/** Output budget for one judge call; thinking counts against it, so a batch that still runs out is split in half and judged again. */
-const JUDGE_MAX_TOKENS = 32000;
+/** Output budget for one judge call; thinking counts against it, so a batch that still runs out is split in half and judged again. The judge streams, because the SDK refuses a non-streaming call whose budget could run past ten minutes. */
+const JUDGE_MAX_TOKENS = 64000;
 
 const scenarios = SCENARIOS.filter((s) => scenarioIds.includes(s.id)).map((s) => ({ ...s, stimuli: s.stimuli.slice(0, stimuliPer) }));
 const world = evalWorld(shadowFell, wardens, scenarios);
@@ -63,27 +64,40 @@ const client = dry ? null : new Anthropic({ apiKey: process.env.ANTHROPIC_API_KE
 /** One judge call with the strict format; when the answer does not fit it (a name outside the seven, a stop before the JSON), one retry with the names left open, checked at matching. A stop on max_tokens is reported so the caller can split the batch. */
 type JudgeOutcome = { kind: "ok"; parsed: unknown } | { kind: "max_tokens" } | { kind: "failed" };
 async function askJudge<S, L>(label: string, user: string, strict: S, loose: L): Promise<JudgeOutcome> {
-  const call = (format: unknown) => client!.messages.parse({
-    model: judgeModel,
-    max_tokens: JUDGE_MAX_TOKENS,
-    thinking: { type: "adaptive" },
-    system: [{ type: "text", text: judgeSystem(runtime), cache_control: { type: "ephemeral" } }],
-    messages: [{ role: "user", content: user }],
-    output_config: { format: format as never },
-  });
+  // Streamed, so the budget is not capped by the SDK's ten-minute rule for non-streaming calls; finalMessage() carries the parsed output.
+  // The stop reason is also read off the wire, so a truncated answer that fails to parse still reports max_tokens and gets split.
+  const call = async (format: unknown): Promise<{ parsed: unknown; stop: string | null }> => {
+    const stream = client!.messages.stream({
+      model: judgeModel,
+      max_tokens: JUDGE_MAX_TOKENS,
+      thinking: { type: "adaptive" },
+      system: [{ type: "text", text: judgeSystem(runtime), cache_control: { type: "ephemeral" } }],
+      messages: [{ role: "user", content: user }],
+      output_config: { format: format as never },
+    });
+    const seen: { stop: string | null } = { stop: null };
+    stream.on("streamEvent", (event) => { if (event.type === "message_delta" && event.delta.stop_reason) seen.stop = event.delta.stop_reason; });
+    try {
+      const m = await stream.finalMessage();
+      return { parsed: m.parsed_output ?? null, stop: m.stop_reason };
+    } catch (e) {
+      if (seen.stop === "max_tokens") return { parsed: null, stop: seen.stop };
+      throw e;
+    }
+  };
   try {
     const m = await call(strict);
-    if (m.parsed_output) return { kind: "ok", parsed: m.parsed_output };
-    if (m.stop_reason === "max_tokens") return { kind: "max_tokens" };
-    console.log(`judge returned ${m.stop_reason} for ${label}; retrying once with the names left open`);
+    if (m.parsed) return { kind: "ok", parsed: m.parsed };
+    if (m.stop === "max_tokens") return { kind: "max_tokens" };
+    console.log(`judge returned ${m.stop} for ${label}; retrying once with the names left open`);
   } catch (e) {
     console.log(`judge answer for ${label} did not fit the format (${String((e as Error).message).split("\n")[0].slice(0, 120)}); retrying once with the names left open`);
   }
   try {
     const m = await call(loose);
-    if (m.parsed_output) return { kind: "ok", parsed: m.parsed_output };
-    if (m.stop_reason === "max_tokens") return { kind: "max_tokens" };
-    console.log(`judge returned ${m.stop_reason} for ${label} on the retry; those items stay unjudged`);
+    if (m.parsed) return { kind: "ok", parsed: m.parsed };
+    if (m.stop === "max_tokens") return { kind: "max_tokens" };
+    console.log(`judge returned ${m.stop} for ${label} on the retry; those items stay unjudged`);
   } catch (e) {
     console.log(`judge retry for ${label} failed (${String((e as Error).message).split("\n")[0].slice(0, 120)}); those items stay unjudged`);
   }

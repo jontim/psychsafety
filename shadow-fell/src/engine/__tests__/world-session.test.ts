@@ -5,7 +5,7 @@ import { toneVector } from "../mock-ear.js";
 import { DirectorResponseSchema, type DirectorResponse } from "../director-contract.js";
 import { affectTagFromAxes, selectClip } from "../clips.js";
 
-const SLATE: DirectorResponse["slate"] = { owner: "none", coverage: "containment", outsiderMode: "mixed", intentions: [{ intention: "hold the line", score: 1, distinct: false }, { intention: "narrate the feeling", score: -2, distinct: false }] };
+const SLATE: DirectorResponse["slate"] = { owner: "none", coverage: "containment", outsiderMode: "mixed", intentions: [{ intention: "hold the line", score: 1, distinct: false, wayOfKnowing: false }, { intention: "narrate the feeling", score: -2, distinct: false, wayOfKnowing: false }] };
 
 function tinyWorld(): World {
   return defineWorld({

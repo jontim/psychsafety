@@ -91,7 +91,11 @@ describe("the compiled canon", () => {
     expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Asks, never tells.");
     expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Relationship, not inventory");
     expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("What does the paper do?");
-    expect(runtime.wardens.kael!.runtime.attention).toContain("human abstraction has replaced the living or material reality beneath it");
+    expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Tell me about the paper you treat like an elder.");
+    expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("forces that exist independently and forces humans create");
+    expect(runtime.wardens.kael!.runtime.speech).toContain("fluent, grammatically ordinary Common");
+    expect(runtime.wardens.kael!.runtime.attention).toContain("the living or material reality first");
+    expect(runtime.wardens.kael!.runtime.attention).toContain("keeps its force only because people keep behaving as though it has it");
     expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("Kael looks underneath the abstraction; Lyra looks beyond the apparent ending.");
     expect(runtime.pairs["serena->tav"]!.risk).toMatch(/^The fault line remains canon/);
     expect(runtime.wardens.thorbin!.wrongLines[0]!.line).toMatch(/^Morrighad commands it/);

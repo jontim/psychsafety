@@ -46,8 +46,10 @@ export const IntentionSchema = z.object({
   intention: z.string(),
   /** +2 canon-positive, +1 compatible, 0 neutral, -1 drift risk, -2 canon violation. */
   score: z.number().int().min(-2).max(2),
-  /** True when no other Warden present could make this move essentially unchanged; among equal scores the distinct move renders. */
+  /** True when no other Warden present could make this move essentially unchanged; among equal scores the distinct move renders after the way of knowing. */
   distinct: z.boolean(),
+  /** True when the move arises from this Warden's way of knowing, the thing their attention line says they notice first, rather than from a competence any adult in the room would show; among equal scores it renders first. */
+  wayOfKnowing: z.boolean(),
   /** A few words on why it scores so. */
   note: z.string().optional(),
 });
@@ -64,6 +66,15 @@ export const SlateSchema = z.object({
   intentions: z.array(IntentionSchema).min(2).max(4),
 });
 export type Slate = z.infer<typeof SlateSchema>;
+
+/** The move the line renders: the best score; among equals the move from the Warden's way of knowing, then the distinct one, then the first listed. Never a −2. */
+export function chooseRendered<I extends z.infer<typeof IntentionSchema>>(intentions: I[]): I | undefined {
+  const live = intentions.filter((i) => i.score > -2);
+  if (!live.length) return undefined;
+  const best = Math.max(...live.map((i) => i.score));
+  const tops = live.filter((i) => i.score === best);
+  return tops.find((i) => i.wayOfKnowing && i.distinct) ?? tops.find((i) => i.wayOfKnowing) ?? tops.find((i) => i.distinct) ?? tops[0];
+}
 
 export const DirectorResponseSchema = z.object({
   /** Cast id of who speaks next. */

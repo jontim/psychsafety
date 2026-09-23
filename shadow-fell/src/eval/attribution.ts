@@ -439,9 +439,9 @@ export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
     // surfer and modern slang he never uses
     /\b(gnarly|rad|dude|bro|awesome|epic|vibes?|chill|totally|stoked|legit)\b/i,
     // smugness
-    /\b(obviously|of course|as I said|told you|clearly|naturally)\b/i,
+    /\b(obviously|of course|as I said|I told you|told you so|clearly|naturally)\b/i,
     // an order to a person
-    /\b(you will|you must|do as I say|you need to|you have to)\b/i,
+    /\b(you will|you must|do as I say|you have to)\b|\byou need to\b(?! know)/i,
     // an investigator's question
     /\b(who sent you|what's your name|papers|prove it|evidence|where were you|state your)\b/i,
     // certainty about what he only perceived
@@ -671,6 +671,7 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     "",
     "Columns: voice and behaviour are the judge's attribution of the line by register and by choice; move is whether the chosen move, read on its own with names stripped, is attributed to the right Warden, not whether the line enacted it; swap resistance is the share of lines the judge could not reassign by changing only the name; style slips are the regex lint on the line as the director rendered it, each rail keyed to its own speaker and listed below with what it matched, rail guard is how many of those lines the guard then repaired before anyone heard them, and judge slips are rail breaks the judge named on the final line, none of them violations; understudy counts turns the live director did not take, not the runtime's fallback coverage, which this eval does not yet test.",
     ...(scores.reduce((k, s) => k + s.judged, 0) >= 20 && scores.every((s) => s.voiceActionSplit === 0) ? ["", "The judge named the same Warden for voice and for behaviour on every judged line, so the behaviour column is not an independent measurement in this run."] : []),
+    ...scores.filter((s) => s.judged > 0 && s.unjudged > 0).map((s) => `\n${s.condition}: ${s.unjudged} of ${s.judged + s.unjudged} lines came back unjudged; every rate is over the ${s.judged} judged lines, and no conclusion should rest on a cell they thin.`),
     "",
     `Verdict: ${verdict(Object.fromEntries(scores.map((s) => [s.condition, s])))}`,
     "",

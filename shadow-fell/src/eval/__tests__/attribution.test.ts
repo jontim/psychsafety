@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { chooseRendered } from "../../engine/director-contract.js";
 import { shadowFell } from "../../worlds/shadow-fell/world.js";
 import { validateWorld, findBeat } from "../../engine/world.js";
 import { loadCanonRuntime } from "../../server/runtime.js";
@@ -88,6 +89,11 @@ describe("the attribution eval", () => {
     expect(slipsStyle("kael", "It says not yet. Stay near the hedge. It's decided it likes you.")).toBe(false);
     expect(slipsStyle("kael", "I'm certain the ground will hold.")).toBe(true);
     expect(slipsStyle("kael", "What legal authority does it carry?")).toBe(true);
+    expect(slipsStyle("kael", "When the red-robes came through, nobody told you what to do then.")).toBe(false);
+    expect(slipsStyle("kael", "Ask me anything you need to know.")).toBe(false);
+    expect(slipsStyle("kael", "I told you the river moved.")).toBe(true);
+    expect(slipsStyle("kael", "You need to move the horses.")).toBe(true);
+    expect(slipsStyle("kael", "Tell me about the paper you treat like an elder.")).toBe(false);
     expect(slipsStyle("kael", "What does the paper do?")).toBe(false);
     expect(slipsStyle("kael", "He weighs more than the paper.")).toBe(false);
     expect(slipsStyle("kael", "Does the river know that's the border too?")).toBe(false);
@@ -248,7 +254,8 @@ describe("the attribution eval", () => {
     expect(ungated).not.toContain("Generation loop:");
     expect(ungated).not.toContain("Fill slate as the scene's paperwork");
     expect(gated).toContain("Fill slate as the scene's paperwork");
-    expect(gated).toContain("break a tie toward the distinct move");
+    expect(gated).toContain("break a tie toward the move from the way of knowing, then toward the distinct move");
+    expect(gated).toContain("derive the first candidate from that attention line");
     expect(gated).toContain("The slate never replaces the character.");
     expect(ungated).toContain("### Directed pairs");
     const { beat } = findBeat(world, evalBeatId("captain", "lyra"));
@@ -277,10 +284,27 @@ describe("the attribution eval", () => {
   });
 });
 
+describe("the rendered move", () => {
+  it("renders the move from the way of knowing before the distinct one, and never a −2", () => {
+    const mk = (intention: string, score: number, distinct: boolean, wayOfKnowing: boolean) => ({ intention, score, distinct, wayOfKnowing });
+    expect(chooseRendered([mk("competent adult", 1, false, false), mk("her consequence", 1, false, true), mk("only she could", 1, true, false)])?.intention).toBe("her consequence");
+    expect(chooseRendered([mk("competent adult", 1, false, false), mk("only she could", 1, true, false)])?.intention).toBe("only she could");
+    expect(chooseRendered([mk("both", 1, true, true), mk("her consequence", 1, false, true)])?.intention).toBe("both");
+    expect(chooseRendered([mk("stronger", 2, false, false), mk("her consequence", 1, true, true)])?.intention).toBe("stronger");
+    expect(chooseRendered([mk("narrate the feeling", -2, true, true)])).toBeUndefined();
+  });
+
+  it("marks a partial run as partial in the report", () => {
+    const base: ConditionScore = { condition: "B", label: CONDITIONS.B.label, n: 45, judged: 37, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 8, styleSlips: 0, careOpeners: 0, voice: 0.5, action: 0.5, voiceActionSplit: 3, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusionPairs: [], confusions: [], violationsNamed: [], guardRepairs: 0, judgeSlips: 0, slipsNamed: [], styleSlipsNamed: [], misattributions: [] };
+    expect(formatReport([base], { run: "t" }, [], [])).toContain("B: 8 of 45 lines came back unjudged; every rate is over the 37 judged lines, and no conclusion should rest on a cell they thin.");
+    expect(formatReport([{ ...base, unjudged: 0, judged: 45 }], { run: "t" }, [], [])).not.toContain("came back unjudged");
+  });
+});
+
 describe("the steering test", () => {
   it("chooses two distinct moves at +1 or better", () => {
-    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold the boundary", score: 2, distinct: false }, { intention: "Hold the boundary", score: 1, distinct: false }, { intention: "grant limited access", score: 1, distinct: false }, { intention: "accuse him", score: -2, distinct: false }] })).toEqual(["hold the boundary", "grant limited access"]);
-    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold", score: 1, distinct: false }, { intention: "narrate", score: -2, distinct: false }] })).toBeNull();
+    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold the boundary", score: 2, distinct: false, wayOfKnowing: false }, { intention: "Hold the boundary", score: 1, distinct: false, wayOfKnowing: false }, { intention: "grant limited access", score: 1, distinct: false, wayOfKnowing: false }, { intention: "accuse him", score: -2, distinct: false, wayOfKnowing: false }] })).toEqual(["hold the boundary", "grant limited access"]);
+    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold", score: 1, distinct: false, wayOfKnowing: false }, { intention: "narrate", score: -2, distinct: false, wayOfKnowing: false }] })).toBeNull();
     expect(chooseMoves(undefined)).toBeNull();
   });
 

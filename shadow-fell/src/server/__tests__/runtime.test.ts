@@ -74,6 +74,9 @@ describe("the compiled canon", () => {
     expect(runtime.wardens.varya!.runtime.attention).toContain("what fact doesn't fit?");
     expect(runtime.wardens.lyra!.card.some((c) => c.startsWith("Ordinary cognitive signature"))).toBe(true);
     expect(runtime.wardens.tav!.card.some((c) => c.startsWith("Obtains information through social and narrative movement"))).toBe(true);
+    expect(runtime.wardens.thorbin!.card.some((c) => c.includes("never his manner: he is not a carer with soup"))).toBe(true);
+    expect(runtime.wardens.thorbin!.runtime.attention).toContain("never a carer with soup");
+    expect(runtime.guardrails.some((g) => g.includes("material care into a bedside manner"))).toBe(true);
     expect(runtime.validation.join(" ")).toContain("Collision resistance, a tie-breaker only");
     expect(runtime.validation.join(" ")).toContain("the runtime renders the person doing that tactic");
     expect(runtime.wardens.brask!.languageRail.length).toBeGreaterThanOrEqual(14);

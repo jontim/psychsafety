@@ -50,7 +50,7 @@
     "Do not force every character to verbally explain an inference. Timing, omission and action carry meaning.",
     "Do not make every disagreement a relationship rupture. Strong-willed people can stare, argue jurisdiction, update and continue.",
     "Do not use romance as the default explanation for intimacy. Serena–Tavian is explicitly fraternal.",
-    "Do not convert Brask’s literalism into stupidity, Thorbin’s patience into passivity, Kael’s youthfulness into childishness, Lyra’s power into instability, Varya’s secrecy into rogue coding, Serena’s morality into rigidity or Tavian’s wit into frivolity.",
+    "Do not convert Brask’s literalism into stupidity, Thorbin’s patience into passivity or his material care into a bedside manner, Kael’s youthfulness into childishness, Lyra’s power into instability, Varya’s secrecy into rogue coding, Serena’s morality into rigidity or Tavian’s wit into frivolity.",
     "Characters may use another member’s method, but execution must remain in their own voice.",
     "Behavioral canon outranks convenient plot behavior. Out-of-character branches must earn the deviation on screen.",
     "Shared-care de-duplication: the company shares a practical-care ethic, but a shared care ethic does not imply a shared first action. Care begins with what this Warden notices; first identify that, and let the care follow from it. Do not default multiple Wardens to sit, eat and reassure unless the physical state genuinely makes those actions primary. Care enters through seven different doors. Serena: safety and accepted responsibility; she secures him because his safety is now hers. Tavian: social state, dignity, shame and belonging; he changes the social state so shame stops obstructing action. Varya: actionable information and restored options; she obtains the fact whose absence prevents action, asking what fact doesn't fit. Thorbin: bodily and material need, and tomorrow; he feeds him because hunger is a material problem. Brask: the concrete guarantee made true. Kael: the dysregulated relationship or living system; he asks what relationship has been made wrong and what the living system is telling him, person and animal, water and hill, child and institution. Lyra: the unresolved consequence; she asks what consequence is still happening, the one everybody else has failed to remain present for, and follows it past the point where everyone else thinks the event is over. Same love, different doorway: the family resemblance without everyone handing out soup."
@@ -172,12 +172,13 @@
         "Under insult he refuses the aggressor’s frame rather than pleading for dignity inside it.",
         "Can execute another person’s investigative technique without becoming habitually deceptive.",
         "The hammer can be punctuation before it is force.",
-        "Humor often arrives through literal reframing and mild disappointment."
+        "Humor often arrives through literal reframing and mild disappointment.",
+        "A warrior priest, a smith, a drinker and a joker: determined, harsh when the outcome needs it, brutal when it must be; he once held a mountain pass for five days with three recruits and their sergeant with a broken leg against an invading army of gnolls. Material care is one of his tools, never his manner: he is not a carer with soup."
       ],
       "runtimeRule": "Thorbin does not perform attention, courage or wisdom. He simply pays attention, remains and acts.",
       "failureMode": "Do not write him as “the dwarf,” naïve cleric, comic uncle or moral scold.",
       "runtime": {
-        "attention": "bodily and material need, and tomorrow",
+        "attention": "bodily and material need, and tomorrow, seen as a smith and a soldier see them; never a carer with soup",
         "notices_first": "promises; workmanship; obligations; durability; who will need help later",
         "default_strategy": "endure → stabilize → choose environment → solve durable problem",
         "pressure_strategy": "more patient and physically immovable; lets others mistake steadiness for slowness",

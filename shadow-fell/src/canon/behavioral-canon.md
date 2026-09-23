@@ -1,4 +1,4 @@
-<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. Jon's amendments of 2026-09-22, dictated in chat and applied here in his words, still need folding into the docx: the section 17 stand-and-hold limit, the section 19 visitor test, section 20, Validation Status, the section 12.1 sentences on Lyra's formation (finished at sixteen, when she left for Valerith) and the shape of the troupe years, the section 20 paragraphs on sampling, collision pairs and the steering test, section 21, Language Rails, with Brask's rail, the section 20 status change to VALIDATED PRELIMINARILY with the plurality rule, the section 7 shared-care de-duplication guardrail, the section 20 collision-resistance tie-breaker with the runtime-then-gate-then-runtime rendering rule and the full attribution run's results, the section 7 sharpening of Lyra's and Kael's doors, the section 7 rewrite around "care begins with what this Warden notices" with the seven doorways, the section 3 attentional-signature bullets for Lyra, Kael and Tavian, and the section 9 attention field for all seven (2026-09-23). -->
+<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. Jon's amendments of 2026-09-22, dictated in chat and applied here in his words, still need folding into the docx: the section 17 stand-and-hold limit, the section 19 visitor test, section 20, Validation Status, the section 12.1 sentences on Lyra's formation (finished at sixteen, when she left for Valerith) and the shape of the troupe years, the section 20 paragraphs on sampling, collision pairs and the steering test, section 21, Language Rails, with Brask's rail, the section 20 status change to VALIDATED PRELIMINARILY with the plurality rule, the section 7 shared-care de-duplication guardrail, the section 20 collision-resistance tie-breaker with the runtime-then-gate-then-runtime rendering rule and the full attribution run's results, the section 7 sharpening of Lyra's and Kael's doors, the section 7 rewrite around "care begins with what this Warden notices" with the seven doorways, the section 3 attentional-signature bullets for Lyra, Kael and Tavian, the section 9 attention field for all seven, and Thorbin's card, door and guardrail clause (a warrior priest and smith, never a carer with soup) (2026-09-23). -->
 
 STORMWARDENS
 
@@ -109,6 +109,8 @@ Thorbin’s apparent simplicity is often camouflage created by sincerity and pat
 - The hammer can be punctuation before it is force.
 
 - Humor often arrives through literal reframing and mild disappointment.
+
+- A warrior priest, a smith, a drinker and a joker: determined, harsh when the outcome needs it, brutal when it must be; he once held a mountain pass for five days with three recruits and their sergeant with a broken leg against an invading army of gnolls. Material care is one of his tools, never his manner: he is not a carer with soup.
 
 RUNTIME RULE  •  Thorbin does not perform attention, courage or wisdom. He simply pays attention, remains and acts.
 
@@ -516,7 +518,7 @@ Expected: Success usually becomes logistics, teasing, aftercare, investigation o
 
 - Do not use romance as the default explanation for intimacy. Serena–Tavian is explicitly fraternal.
 
-- Do not convert Brask’s literalism into stupidity, Thorbin’s patience into passivity, Kael’s youthfulness into childishness, Lyra’s power into instability, Varya’s secrecy into rogue coding, Serena’s morality into rigidity or Tavian’s wit into frivolity.
+- Do not convert Brask’s literalism into stupidity, Thorbin’s patience into passivity or his material care into a bedside manner, Kael’s youthfulness into childishness, Lyra’s power into instability, Varya’s secrecy into rogue coding, Serena’s morality into rigidity or Tavian’s wit into frivolity.
 
 - Characters may use another member’s method, but execution must remain in their own voice.
 
@@ -600,7 +602,7 @@ leadership_claim: intelligence; undercover operations; profiling; operational de
 
 ## THORBIN
 
-attention: bodily and material need, and tomorrow
+attention: bodily and material need, and tomorrow, seen as a smith and a soldier see them; never a carer with soup
 
 notices_first: promises; workmanship; obligations; durability; who will need help later
 

@@ -387,6 +387,14 @@ function jaccard(a: Set<string>, b: Set<string>): number {
 
 /** Voice rules a line can break by grammar alone; today only Brask's broken Common, by canon. */
 export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
+  lyra: [
+    // qualifiers and softeners she never uses
+    /\b(I think|I suppose|I guess|maybe|perhaps|sort of|kind of|a bit|a little|I feel like|possibly|probably|it seems|seems like|might be|may be|I'd say)\b/i,
+    // she never exclaims
+    /!/,
+    // her magic is never method
+    /\b(incantation|cast(s|ing)? (a|the) spell|spellcraft)\b/i,
+  ],
   brask: [
     // do-support and auxiliary negatives
     /\b(did not|does not|do not|didn't|doesn't|don't|isn't|wasn't|weren't|aren't|won't|will not|would not|wouldn't|couldn't|shouldn't)\b/i,
@@ -418,7 +426,10 @@ export function opensOnCare(line: string): boolean {
 /** True when a line breaks its Warden's grammar rules (Brask conjugating, for instance). */
 export function slipsStyle(warden: WardenId, line: string): boolean {
   const rules = STYLE_SLIPS[warden];
-  return !!rules && rules.some((re) => re.test(line));
+  if (rules && rules.some((re) => re.test(line))) return true;
+  // Lyra's economy: a sentence over thirty words is a lecture.
+  if (warden === "lyra" && line.split(/(?<=[.!?])\s+/).some((s) => s.trim().split(/\s+/).length > 30)) return true;
+  return false;
 }
 
 /** True when a rendered line is, near enough, one of the document's wrong lines. */

@@ -77,11 +77,14 @@ describe("the compiled canon", () => {
     expect(runtime.wardens.thorbin!.card.some((c) => c.includes("never his manner: he is not a carer with soup"))).toBe(true);
     expect(runtime.wardens.thorbin!.runtime.attention).toContain("never a carer with soup");
     expect(runtime.guardrails.some((g) => g.includes("material care into a bedside manner"))).toBe(true);
+    expect(runtime.wardens.lyra!.languageRail.length).toBeGreaterThanOrEqual(12);
+    expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("Verdict first, framework withheld");
+    expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("Mischief in the same deadpan as her verdicts");
     expect(runtime.validation.join(" ")).toContain("Collision resistance, a tie-breaker only");
     expect(runtime.validation.join(" ")).toContain("the runtime renders the person doing that tactic");
     expect(runtime.wardens.brask!.languageRail.length).toBeGreaterThanOrEqual(14);
     expect(runtime.wardens.brask!.languageRail.join(" ")).toContain("Then we not know.");
-    for (const id of ["tav", "serena", "thorbin", "varya", "lyra", "kael"]) expect(runtime.wardens[id]!.languageRail).toEqual([]);
+    for (const id of ["tav", "serena", "thorbin", "varya", "kael"]) expect(runtime.wardens[id]!.languageRail).toEqual([]);
     expect(runtime.pairs["serena->tav"]!.risk).toMatch(/^The fault line remains canon/);
     expect(runtime.wardens.thorbin!.wrongLines[0]!.line).toMatch(/^Morrighad commands it/);
     expect(runtime.torMorrighad.join(" ")).not.toContain("LEGACY PLACEHOLDER");

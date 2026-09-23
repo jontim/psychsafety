@@ -67,6 +67,14 @@ describe("the attribution eval", () => {
     expect(slipsStyle("brask", "Give him the benefit of the doubt.")).toBe(true);
     expect(slipsStyle("brask", "That's not the hill I want to die on.")).toBe(true);
     expect(slipsStyle("serena", "That was decided, not promised.")).toBe(false);
+    expect(slipsStyle("lyra", "I think he may have been unkind.")).toBe(true);
+    expect(slipsStyle("lyra", "He was cruel to you. This is undeniable.")).toBe(false);
+    expect(slipsStyle("lyra", "Perhaps we should wait.")).toBe(true);
+    expect(slipsStyle("lyra", "Wonderful!")).toBe(true);
+    expect(slipsStyle("lyra", "It was a decision. You made it twice.")).toBe(false);
+    expect(slipsStyle("lyra", "Some.")).toBe(false);
+    expect(slipsStyle("lyra", "I'd check with Serena.")).toBe(false);
+    expect(slipsStyle("lyra", "The thing about the letter your principal sent a long way in this weather is that it tells me the distance and leaves out the direction, which is the part I would have wanted first.")).toBe(true);
   });
 
   it("repairs prose into speech and matches numbered judgements", () => {

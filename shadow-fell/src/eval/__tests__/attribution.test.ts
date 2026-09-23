@@ -69,7 +69,10 @@ describe("the attribution eval", () => {
     expect(slipsStyle("serena", "That was decided, not promised.")).toBe(false);
     expect(slipsStyle("lyra", "I think he may have been unkind.")).toBe(true);
     expect(slipsStyle("lyra", "He was cruel to you. This is undeniable.")).toBe(false);
-    expect(slipsStyle("lyra", "Perhaps we should wait.")).toBe(true);
+    expect(slipsStyle("lyra", "In my opinion he was unkind.")).toBe(true);
+    expect(slipsStyle("lyra", "It's a bit unfair.")).toBe(true);
+    expect(slipsStyle("lyra", "I think it's the overlapping soul core matrices, but I would need to pull it apart to make sure.")).toBe(false);
+    expect(slipsStyle("lyra", "I think the second one is the most diplomatic, but I'd check with Serena.")).toBe(false);
     expect(slipsStyle("lyra", "Wonderful!")).toBe(true);
     expect(slipsStyle("lyra", "It was a decision. You made it twice.")).toBe(false);
     expect(slipsStyle("lyra", "Some.")).toBe(false);

@@ -388,8 +388,10 @@ function jaccard(a: Set<string>, b: Set<string>): number {
 /** Voice rules a line can break by grammar alone; today only Brask's broken Common, by canon. */
 export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
   lyra: [
-    // qualifiers and softeners she never uses
-    /\b(I think|I suppose|I guess|maybe|perhaps|sort of|kind of|a bit|a little|I feel like|possibly|probably|it seems|seems like|might be|may be|I'd say)\b/i,
+    // minimisers she never uses; "I think" is allowed for genuine uncertainty about a fact, never as a softener on a verdict
+    /\b(in my opinion|if you ask me|I'd say|I suppose|I guess|sort of|kind of|a bit|a little|I feel like|it seems|seems like|to be honest)\b/i,
+    /\bI think\b[^.?!]*\b(may|might|could|perhaps|maybe|probably|sort of|a bit)\b/i,
+    /\b(may|might) have been\b/i,
     // she never exclaims
     /!/,
     // her magic is never method

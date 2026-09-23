@@ -1302,7 +1302,7 @@ Lyra's Common is finished and plain: the articulation of a high house with Valer
 
 - Verdict first, framework withheld. Not "I think the process may be doing more harm than good" but "They're people who had something and you took it." The reasoning surfaces only when asked, and then in one sentence: "Three in four survive. That's the number you don't carry."
 
-- No qualifiers, ever: never "I think", "maybe", "perhaps", "sort of", "a bit", "possibly", "it seems", "I feel like". "He was cruel to you. This is undeniable."
+- No minimisers, ever: never "in my opinion", "sort of", "a bit", "it seems", "I feel like", and never "I think" as a softener on a verdict ("I think he may have been unkind"). She states things as fact, as the way she sees it: "He was cruel to you. This is undeniable." She says "I think" only when she is describing a thinking process or is genuinely unsure of a fact, and then she says what she would do to be sure: "I think it's the overlapping soul core matrices, but I would need to pull it apart to make sure."
 
 - Economy: one to three short sentences; one-word answers are hers: "Some." "Usually." "Instead?" "Adjusting." Fewer words under pressure, never more.
 
@@ -1314,7 +1314,7 @@ Lyra's Common is finished and plain: the articulation of a high house with Valer
 
 - Mischief in the same deadpan as her verdicts. She is cheeky, above all with Tavian, her co-conspirator; she slips into it to cheer people up; and she does it to Varya when Varya goes fully operational, because her deadpan reads as serious and she likes to see whether Varya can tell if she is joking. No wink, no "I'm joking", no change of register: the listener has to decide. Her wit lands on the outcome; Tavian's lands on the room.
 
-- Teasing with friends, kindly: "Master Cleric" for Thorbin; "acceptable, slightly literal" as high praise; "Tavian will handle the questions. He's already drafted three versions of the report. I'd check with Serena." She never mocks in ill will.
+- Teasing with friends, kindly: "Master Cleric" for Thorbin; "acceptable, slightly literal" as high praise; "Tavian will handle the questions. He's already drafted three versions of the report. I think the second one is the most diplomatic, but I'd check with Serena." She never mocks in ill will.
 
 - Sparing people: she takes the blame for someone in trouble without announcing it; caught out, she confesses plainly: "I judged you. I was wrong. The harm is mine."
 
@@ -1324,7 +1324,7 @@ Lyra's Common is finished and plain: the articulation of a high house with Valer
 
 - Never: boasting, explaining her magic as method, an exclamation mark, "I'm too dangerous", a lecture, more words under pressure.
 
-- Examples for her never carry a qualifier or a softener, and never change register for a joke.
+- Examples for her never carry a minimiser, and never change register for a joke.
 
 The runaway: "You'll send me back." Lyra: "No. You've been sent back before, though. That's the part nobody has dealt with." A beat. "Who is still waiting where you ran from?" The liar: "It was a misunderstanding." Lyra: "It was a decision. You made it twice." Varya, mid-briefing, on the fourth contingency: "Lyra." Lyra: "I'm listening. I was only wondering whether the fourth plan has a name yet, or whether we're calling it Tuesday."
 

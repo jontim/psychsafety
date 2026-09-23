@@ -54,10 +54,12 @@ main { padding: clamp(16px, 3vw, 32px); max-width: 1320px; margin: 0 auto; }
 .role {
   background: var(--parchment); border: 1px solid var(--line); border-radius: var(--radius); padding: 0; overflow: hidden;
   text-align: left; box-shadow: 0 8px 24px rgba(20,18,16,0.10); transition: transform .18s ease, box-shadow .18s ease;
+  /* A button centres its content vertically; in a stretched grid row that floats each card's picture to a different height. Top-align, and let the text absorb the difference. */
+  display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
 }
 .role:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-.role img { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; }
-.role .body { padding: 12px 14px 16px; }
+.role img { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; flex: 0 0 auto; }
+.role .body { padding: 12px 14px 16px; flex: 1 1 auto; }
 .role .name { font-family: var(--serif); font-size: 22px; font-weight: 700; }
 .role .meta { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--state-blue); margin: 2px 0 8px; }
 .role .sum { font-size: 13.5px; color: var(--ink-soft); }

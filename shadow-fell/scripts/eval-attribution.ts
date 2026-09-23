@@ -75,13 +75,20 @@ async function askJudge<S, L>(label: string, user: string, strict: S, loose: L):
       messages: [{ role: "user", content: user }],
       output_config: { format: format as never },
     });
-    const seen: { stop: string | null } = { stop: null };
+    const seen: { stop: string | null; text: string } = { stop: null, text: "" };
     stream.on("streamEvent", (event) => { if (event.type === "message_delta" && event.delta.stop_reason) seen.stop = event.delta.stop_reason; });
+    stream.on("text", (delta) => { seen.text += delta; });
     try {
       const m = await stream.finalMessage();
       return { parsed: m.parsed_output ?? null, stop: m.stop_reason };
     } catch (e) {
       if (seen.stop === "max_tokens") return { parsed: null, stop: seen.stop };
+      // The judge sometimes answers with a bare array where the format asks for an object; wrap it and parse it with the same format.
+      const body = seen.text.trim();
+      const parser = (format as { parse?: (text: string) => unknown }).parse;
+      if (body.startsWith("[") && typeof parser === "function") {
+        try { return { parsed: parser(`{"items":${body}}`), stop: seen.stop }; } catch { /* the original error stands */ }
+      }
       throw e;
     }
   };

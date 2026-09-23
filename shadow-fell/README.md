@@ -87,7 +87,7 @@ The consent gate before the microphone opens states that an AI system infers exp
 ## Roadmap
 
 - Live faces: a single canonical image per counterpart turned into a live character driven by Octave's audio.
-- Bespoke shots: fal's H3 Max for the verdict, the capture and the reveal, pre-rendered speculatively while the player is still speaking.
+- Bespoke shots, Jon's ruling of 23 September: the game asks the player whether they want video action shots of their play, generated close to real time as a summary of or reaction to how they played. The feature is priced per batch of shots, paid on a tab or with the player's own fal key entered in the app, and every shot generated is kept and grows the library. fal's H3 Max renders them; the verdict, the capture and the reveal are the first shot moments.
 - The complex force engine: stat blocks and predefined specialty attacks with a resolution table, replacing the coverage-and-voice resolver.
 - More worlds: the courtroom pack as the broad market front door, the spy safehouse third.
 - Custom language model endpoint instead of `assistant` pause, once a public tunnel is acceptable.

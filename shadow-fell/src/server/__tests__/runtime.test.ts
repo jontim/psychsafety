@@ -88,7 +88,12 @@ describe("the compiled canon", () => {
     expect(runtime.wardens.brask!.languageRail.join(" ")).toContain("TO BE never links two things");
     for (const id of ["tav", "serena", "thorbin", "varya"]) expect(runtime.wardens[id]!.languageRail).toEqual([]);
     expect(runtime.wardens.kael!.languageRail.length).toBeGreaterThanOrEqual(12);
-    expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Asks, never tells.");
+    expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Agency, not sentence mood.");
+    expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Not Varya with nature clues.");
+    expect(runtime.wardens.kael!.languageRail.join(" ")).not.toContain("He does not feed, tuck in or reassure.");
+    expect(runtime.wardens.thorbin!.card.some((c) => c.includes("\"Can ye stand?\" \"Yes.\" \"Good. Hold this.\""))).toBe(true);
+    expect(runtime.wardens.thorbin!.runtime.attention).toContain("where he must stand so somebody else survives");
+    expect(runtime.wardens.thorbin!.runtime.will_not_do).toContain("become the team cook");
     expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Relationship, not inventory");
     expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("What does the paper do?");
     expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Tell me about the paper you treat like an elder.");

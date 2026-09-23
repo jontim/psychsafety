@@ -440,8 +440,8 @@ export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
     /\b(gnarly|rad|dude|bro|awesome|epic|vibes?|chill|totally|stoked|legit)\b/i,
     // smugness
     /\b(obviously|of course|as I said|I told you|told you so|clearly|naturally)\b/i,
-    // an order to a person
-    /\b(you will|you must|do as I say|you have to)\b|\byou need to\b(?! know)/i,
+    // a prescription of someone else's moral decision; agency, not sentence mood, so an instruction for a living need is his
+    /\b(you should|you ought to|do as I say|the (right|decent) thing (to do )?is)\b/i,
     // an investigator's question
     /\b(who sent you|what's your name|papers|prove it|evidence|where were you|state your)\b/i,
     // certainty about what he only perceived
@@ -471,6 +471,9 @@ export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
   ],
 };
 
+/** The vocabulary of domestic tending; three or more distinct words in one of Kael's lines is a drift toward Thorbin. */
+const DOMESTIC_TENDING = /\b(soup|stew|broth|porridge|barley|blanket|bread|loaf|cheese|pears?|apples?|milk|eat|chair|sit down|by the door|watch the door)\b/gi;
+
 /** True when a line opens on the shared practical-care reflex: sit, eat, you have walked, you are shaking. */
 export function opensOnCare(line: string): boolean {
   const opening = line.split(/\s+/).slice(0, 14).join(" ");
@@ -487,6 +490,11 @@ export function styleSlipReasons(warden: WardenId, line: string): string[] {
   for (const re of STYLE_SLIPS[warden] ?? []) {
     const m = line.match(re);
     if (m) reasons.push(m[0].replace(/^[.!?\s]+/, "").trim() || re.source);
+  }
+  // Kael can feed or water someone; a line that has become mainly domestic tending has drifted into Thorbin.
+  if (warden === "kael") {
+    const found = new Set((line.match(DOMESTIC_TENDING) ?? []).map((m) => m.toLowerCase()));
+    if (found.size >= 3) reasons.push(`domestic tending: ${[...found].join(", ")}`);
   }
   // Lyra's economy: a sentence over thirty words is a lecture.
   if (warden === "lyra") {

@@ -27,7 +27,7 @@ import { StorySession } from "../src/engine/session.js";
 import { toneVector } from "../src/engine/mock-ear.js";
 import {
   CONDITIONS, SCENARIOS, WARDENS, evalWorld, evalBeatId, identityTerms, stripIdentity, judgeSystem, judgeUser, JudgementSchema,
-  matchJudgements, matchPairJudgements, pairJudgeUser, PairJudgementSchema, JudgementLooseSchema, PairJudgementLooseSchema, type Judgement, type LooseJudgement, type PairJudgement, type LoosePairJudgement, sampleLine, scoreCondition, formatReport, type Condition, type Sample, type WardenId, type JudgedItem, type JudgeItem,
+  matchJudgements, matchPairJudgements, pairJudgeUser, PairJudgementSchema, JudgementLooseSchema, PairJudgementLooseSchema, type Judgement, type LooseJudgement, type PairJudgement, type LoosePairJudgement, type PairChoice, pairKey, sampleLine, scoreCondition, formatReport, type Condition, type Sample, type WardenId, type JudgedItem, type JudgeItem,
 } from "../src/eval/attribution.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -48,7 +48,9 @@ const resume = flag("resume", "");
 // --rejudge: with --resume, ignore the saved judgements and judge every saved line again (a judge-side change measured on the same lines).
 const rejudge = has("rejudge");
 const outDir = path.resolve(root, resume || flag("out", path.join("eval", `attribution-${stamp}`)));
-const JUDGE_BATCH = 8;
+const JUDGE_BATCH = 6;
+/** Output budget for one judge call; thinking counts against it, so a batch that still runs out is split in half and judged again. */
+const JUDGE_MAX_TOKENS = 32000;
 
 const scenarios = SCENARIOS.filter((s) => scenarioIds.includes(s.id)).map((s) => ({ ...s, stimuli: s.stimuli.slice(0, stimuliPer) }));
 const world = evalWorld(shadowFell, wardens, scenarios);
@@ -58,11 +60,12 @@ const runtime = loadCanonRuntime();
 const terms = identityTerms(world, wardens);
 const client = dry ? null : new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-/** One judge call with the strict format; when the answer does not fit it (a name outside the seven, a stop before the JSON), one retry with the names left open, checked at matching. Null means those items stay unjudged. */
-async function askJudge<S, L>(label: string, user: string, strict: S, loose: L): Promise<unknown | null> {
+/** One judge call with the strict format; when the answer does not fit it (a name outside the seven, a stop before the JSON), one retry with the names left open, checked at matching. A stop on max_tokens is reported so the caller can split the batch. */
+type JudgeOutcome = { kind: "ok"; parsed: unknown } | { kind: "max_tokens" } | { kind: "failed" };
+async function askJudge<S, L>(label: string, user: string, strict: S, loose: L): Promise<JudgeOutcome> {
   const call = (format: unknown) => client!.messages.parse({
     model: judgeModel,
-    max_tokens: 16000,
+    max_tokens: JUDGE_MAX_TOKENS,
     thinking: { type: "adaptive" },
     system: [{ type: "text", text: judgeSystem(runtime), cache_control: { type: "ephemeral" } }],
     messages: [{ role: "user", content: user }],
@@ -70,19 +73,34 @@ async function askJudge<S, L>(label: string, user: string, strict: S, loose: L):
   });
   try {
     const m = await call(strict);
-    if (m.parsed_output) return m.parsed_output;
+    if (m.parsed_output) return { kind: "ok", parsed: m.parsed_output };
+    if (m.stop_reason === "max_tokens") return { kind: "max_tokens" };
     console.log(`judge returned ${m.stop_reason} for ${label}; retrying once with the names left open`);
   } catch (e) {
     console.log(`judge answer for ${label} did not fit the format (${String((e as Error).message).split("\n")[0].slice(0, 120)}); retrying once with the names left open`);
   }
   try {
     const m = await call(loose);
-    if (m.parsed_output) return m.parsed_output;
+    if (m.parsed_output) return { kind: "ok", parsed: m.parsed_output };
+    if (m.stop_reason === "max_tokens") return { kind: "max_tokens" };
     console.log(`judge returned ${m.stop_reason} for ${label} on the retry; those items stay unjudged`);
   } catch (e) {
     console.log(`judge retry for ${label} failed (${String((e as Error).message).split("\n")[0].slice(0, 120)}); those items stay unjudged`);
   }
-  return null;
+  return { kind: "failed" };
+}
+
+/** Judge a batch; when the judge runs out of output tokens, split the batch in half and judge each half, down to single items. Returns how many items were matched. */
+async function judgeWithSplit<S, L>(items: JudgeItem[], label: string, mkUser: (b: JudgeItem[]) => string, strict: S, loose: L, apply: (batch: JudgeItem[], parsed: unknown) => number): Promise<number> {
+  const out = await askJudge(label, mkUser(items), strict, loose);
+  if (out.kind === "ok") return apply(items, out.parsed);
+  if (out.kind === "max_tokens" && items.length > 1) {
+    const mid = Math.ceil(items.length / 2);
+    console.log(`judge ran out of output tokens on ${label}; splitting ${items.length} items into ${mid} and ${items.length - mid}`);
+    return (await judgeWithSplit(items.slice(0, mid), `${label}, first half`, mkUser, strict, loose, apply)) + (await judgeWithSplit(items.slice(mid), `${label}, second half`, mkUser, strict, loose, apply));
+  }
+  if (out.kind === "max_tokens") console.log(`judge ran out of output tokens on a single item (${label}); it stays unjudged`);
+  return 0;
 }
 
 if (dry && !has("dry")) console.log("No ANTHROPIC_API_KEY: running dry with the understudy and a stand-in judge.");
@@ -139,13 +157,13 @@ for (const condition of conditions) {
     let matchedTotal = 0, unmatchedTotal = 0;
     for (let start = 0; start < items.length; start += JUDGE_BATCH) {
       const batch = items.slice(start, start + JUDGE_BATCH);
-      const answer = await askJudge(`${condition}/${s.id} items ${start + 1} to ${start + batch.length}`, judgeUser(batch), zodOutputFormat(JudgementSchema), zodOutputFormat(JudgementLooseSchema));
-      if (!answer) continue;
-      const { matched, unmatched } = matchJudgements(batch, answer as Judgement | LooseJudgement);
-      for (const [id, it] of matched) judged.set(id, it);
-      fs.writeFileSync(judgementsFile, `${JSON.stringify([...judged.entries()], null, 2)}\n`);
-      matchedTotal += matched.size;
-      unmatchedTotal += unmatched;
+      matchedTotal += await judgeWithSplit(batch, `${condition}/${s.id} items ${start + 1} to ${start + batch.length}`, (b) => judgeUser(b), zodOutputFormat(JudgementSchema), zodOutputFormat(JudgementLooseSchema), (b, parsed) => {
+        const { matched, unmatched } = matchJudgements(b, parsed as Judgement | LooseJudgement);
+        for (const [id, it] of matched) judged.set(id, it);
+        fs.writeFileSync(judgementsFile, `${JSON.stringify([...judged.entries()], null, 2)}\n`);
+        unmatchedTotal += unmatched;
+        return matched.size;
+      });
     }
     console.log(`judged ${matchedTotal} of ${items.length} items for ${condition}/${s.id}${unmatchedTotal ? ` (${unmatchedTotal} answers matched nothing)` : ""}`);
   }
@@ -153,31 +171,58 @@ for (const condition of conditions) {
 fs.writeFileSync(judgementsFile, `${JSON.stringify([...judged.entries()], null, 2)}\n`);
 
 
-// The forced pair: for each collision scenario, the pair's own lines are judged again as a binary choice between the two.
+// The forced pair. First for each collision scenario, the designed pair's own lines judged as a binary choice between the two;
+// then for every confusion the open set produced twice or more, the misattributed Warden's own lines in that scenario judged as a
+// choice between them and the Warden they were taken for. Saved by sample id and pair, so a resume adds only what is missing.
 const pairFile = path.join(outDir, "pair-judgements.json");
-const pairJudged = new Map<string, WardenId>(resume && !rejudge && fs.existsSync(pairFile) ? (JSON.parse(fs.readFileSync(pairFile, "utf8")) as Array<[string, WardenId]>) : []);
-for (const condition of conditions) {
-  for (const s of scenarios) {
-    if (!s.pair) continue;
-    const own = samples.filter((x) => x.condition === condition && x.scenario === s.id && x.speaker === x.warden && (s.pair as readonly string[]).includes(x.warden) && (dry || x.source === "claude") && !pairJudged.has(`${x.id}:pair`));
-    const items: JudgeItem[] = own.map((x) => ({ id: `${x.id}:pair`, kind: "line", text: stripIdentity(x.line, terms), situation: `${s.title.split(",")[0]} says, ${x.tone}: "${x.stimulusLine}"` }));
-    for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [items[i], items[j]] = [items[j]!, items[i]!]; }
-    if (!items.length) continue;
-    if (!client) { for (const it of items) pairJudged.set(it.id, s.pair[Math.floor(rand() * 2)]!); continue; }
-    let done = 0;
-    for (let start = 0; start < items.length; start += JUDGE_BATCH) {
-      const batch = items.slice(start, start + JUDGE_BATCH);
-      const answer = await askJudge(`forced pair ${condition}/${s.id} items ${start + 1} to ${start + batch.length}`, pairJudgeUser(batch, s.pair, runtime), zodOutputFormat(PairJudgementSchema), zodOutputFormat(PairJudgementLooseSchema));
-      if (!answer) continue;
-      const { matched } = matchPairJudgements(batch, s.pair, answer as PairJudgement | LoosePairJudgement);
-      for (const [id, w] of matched) pairJudged.set(id, w);
-      fs.writeFileSync(pairFile, `${JSON.stringify([...pairJudged.entries()], null, 2)}\n`);
-      done += matched.size;
-    }
-    console.log(`forced pair ${s.pair.join(" or ")}: judged ${done} of ${items.length} lines for ${condition}/${s.id}`);
+const pairJudged = new Map<string, PairChoice>();
+if (resume && !rejudge && fs.existsSync(pairFile)) {
+  for (const [key, value] of JSON.parse(fs.readFileSync(pairFile, "utf8")) as Array<[string, PairChoice | string]>) {
+    if (typeof value === "string") {
+      // an older file saved only the choice under `${id}:pair`; it belongs to the scenario's designed pair
+      const sample = samples.find((x) => key === `${x.id}:pair`);
+      const designed = sample ? scenarios.find((x) => x.id === sample.scenario)?.pair : undefined;
+      if (sample && designed) pairJudged.set(pairKey(sample.id, designed), { pair: designed, choice: value as WardenId });
+    } else pairJudged.set(key, value);
   }
 }
-fs.writeFileSync(pairFile, `${JSON.stringify([...pairJudged.entries()], null, 2)}\n`);
+const savePairs = () => fs.writeFileSync(pairFile, `${JSON.stringify([...pairJudged.entries()], null, 2)}\n`);
+async function forcedPair(condition: string, scenarioId: string, title: string, pair: readonly [WardenId, WardenId], speakers: readonly WardenId[], why: string) {
+  const own = samples.filter((x) => x.condition === condition && x.scenario === scenarioId && x.speaker === x.warden && speakers.includes(x.warden) && (dry || x.source === "claude") && !pairJudged.has(pairKey(x.id, pair)));
+  const items: JudgeItem[] = own.map((x) => ({ id: pairKey(x.id, pair), kind: "line", text: stripIdentity(x.line, terms), situation: `${title.split(",")[0]} says, ${x.tone}: "${x.stimulusLine}"` }));
+  for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [items[i], items[j]] = [items[j]!, items[i]!]; }
+  if (!items.length) return;
+  if (!client) { for (const it of items) pairJudged.set(it.id, { pair: [pair[0], pair[1]], choice: pair[Math.floor(rand() * 2)]! }); savePairs(); return; }
+  let done = 0;
+  for (let start = 0; start < items.length; start += JUDGE_BATCH) {
+    const batch = items.slice(start, start + JUDGE_BATCH);
+    done += await judgeWithSplit(batch, `forced pair ${condition}/${scenarioId} ${pair.join(" or ")} items ${start + 1} to ${start + batch.length}`, (b) => pairJudgeUser(b, pair, runtime), zodOutputFormat(PairJudgementSchema), zodOutputFormat(PairJudgementLooseSchema), (b, parsed) => {
+      const { matched } = matchPairJudgements(b, pair, parsed as PairJudgement | LoosePairJudgement);
+      for (const [id, w] of matched) pairJudged.set(id, { pair: [pair[0], pair[1]], choice: w });
+      savePairs();
+      return matched.size;
+    });
+  }
+  console.log(`forced pair ${pair.join(" or ")} (${why}): judged ${done} of ${items.length} lines for ${condition}/${scenarioId}`);
+}
+for (const condition of conditions) {
+  for (const s of scenarios) {
+    if (s.pair) await forcedPair(condition, s.id, s.title, s.pair, s.pair, "designed collision");
+    // confusions seen twice or more in this scenario under this condition
+    const tally = new Map<string, number>();
+    for (const x of samples.filter((x) => x.condition === condition && x.scenario === s.id && x.speaker === x.warden)) {
+      const j = judged.get(`${x.id}:line`);
+      if (j && j.voice !== x.warden) tally.set(`${x.warden}|${j.voice}`, (tally.get(`${x.warden}|${j.voice}`) ?? 0) + 1);
+    }
+    for (const [k, count] of tally) {
+      if (count < 2) continue;
+      const [truth, guess] = k.split("|") as [WardenId, WardenId];
+      if (s.pair && (s.pair as readonly string[]).includes(truth) && (s.pair as readonly string[]).includes(guess)) continue;
+      await forcedPair(condition, s.id, s.title, [truth, guess], [truth], `taken for ${guess} ×${count}`);
+    }
+  }
+}
+savePairs();
 
 const scores = conditions.map((c) => scoreCondition(c, samples, judged, runtime, dry, scenarios, pairJudged));
 const report = formatReport(scores, {

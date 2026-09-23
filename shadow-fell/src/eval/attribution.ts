@@ -254,6 +254,10 @@ export const PairJudgementSchema = z.object({
   })),
 });
 export type PairJudgement = z.infer<typeof PairJudgementSchema>;
+/** One forced-pair answer as saved: which two Wardens the line was judged between, and the choice. Keys are `${sampleId}:pair:${a}:${b}`. */
+export interface PairChoice { pair: [WardenId, WardenId]; choice: WardenId }
+export const pairKey = (sampleId: string, pair: readonly [WardenId, WardenId]) => `${sampleId}:pair:${pair[0]}:${pair[1]}`;
+
 /** The forced pair with the name left open: the retry format; answers outside the pair are dropped when matched. */
 export const PairJudgementLooseSchema = z.object({ items: z.array(z.object({ index: z.number().int(), choice: z.string() })) });
 export type LoosePairJudgement = z.infer<typeof PairJudgementLooseSchema>;
@@ -394,6 +398,8 @@ export interface ConditionScore {
   wrongLineHits: number;
   /** Accuracy within each Warden's own judged lines. */
   perWarden: Record<string, { n: number; voice: number; action: number }>;
+  /** Forced pairs driven by the observed confusions: the misattributed Warden's own lines in that scenario, judged as a choice between them and the Warden they were taken for. */
+  confusionPairs: Array<{ scenario: string; pair: [WardenId, WardenId]; n: number; right: number }>;
   /** For scenarios built to collide a pair: voice accuracy on the pair's own lines, and how often each was taken for the other. */
   pairs: Array<{ scenario: string; pair: [WardenId, WardenId]; n: number; voice: number; crossed: number; /** The forced binary choice on the pair's own lines, when it ran. */ forced?: { n: number; right: number } }>;
   /** Judge's wrong voice guesses, counted: who was taken for whom. */
@@ -475,7 +481,7 @@ export function hitsWrongLine(line: string, runtime: CanonRuntime, threshold = 0
   return Object.values(runtime.wardens).some((w) => w.wrongLines.some((wl) => jaccard(t, tokens(wl.line)) >= threshold));
 }
 
-export function scoreCondition(condition: Condition, samples: Sample[], judged: Map<string, JudgedItem>, runtime: CanonRuntime, dry = false, scenarios: readonly Scenario[] = SCENARIOS, pairJudged?: Map<string, WardenId>): ConditionScore {
+export function scoreCondition(condition: Condition, samples: Sample[], judged: Map<string, JudgedItem>, runtime: CanonRuntime, dry = false, scenarios: readonly Scenario[] = SCENARIOS, pairJudged?: Map<string, PairChoice>): ConditionScore {
   const mine = samples.filter((s) => s.condition === condition);
   const live = dry ? mine : mine.filter((s) => s.source === "claude");
   const onSpeaker = live.filter((s) => s.speaker === s.warden);
@@ -504,23 +510,41 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
       if (j.action === s.warden) { action++; pw.action++; }
       if (j.action !== j.voice) voiceActionSplit++;
       if (!j.swappable) swapResistant++;
-      if (j.violation) { violations++; violationsNamed.push({ warden: s.warden, scenario: s.scenario, violation: j.violation, line: s.line }); }
-      if (j.slip) slipsNamed.push({ warden: s.warden, scenario: s.scenario, slip: j.slip, line: s.line });
+      // A violation or a slip is named against the card of whoever the judge thinks spoke; it means something only when that is the speaker.
+      if (j.violation && j.voice === s.warden) { violations++; violationsNamed.push({ warden: s.warden, scenario: s.scenario, violation: j.violation, line: s.line }); }
+      if (j.slip && j.voice === s.warden) slipsNamed.push({ warden: s.warden, scenario: s.scenario, slip: j.slip, line: s.line });
     }
     const ji = judged.get(`${s.id}:intention`);
     if (ji) { intentionJudged++; if (ji.action === s.warden) intentionRight++; }
   }
   const rate = (k: number, n: number) => (n ? k / n : 0);
   for (const pw of Object.values(perWarden)) { pw.voice = rate(pw.voice, pw.n); pw.action = rate(pw.action, pw.n); }
+  // Forced pairs the confusions asked for: any saved pair that is not the scenario's designed pair.
+  const confusionTally = new Map<string, { scenario: string; pair: [WardenId, WardenId]; n: number; right: number }>();
+  if (pairJudged) {
+    for (const s of onSpeaker) {
+      const designed = scenarios.find((x) => x.id === s.scenario)?.pair;
+      for (const [key, pc] of pairJudged) {
+        if (!key.startsWith(`${s.id}:pair:`)) continue;
+        if (designed && pc.pair[0] === designed[0] && pc.pair[1] === designed[1]) continue;
+        const k = `${s.scenario}|${pc.pair[0]}|${pc.pair[1]}`;
+        const t = confusionTally.get(k) ?? { scenario: s.scenario, pair: pc.pair, n: 0, right: 0 };
+        t.n++;
+        if (pc.choice === s.warden) t.right++;
+        confusionTally.set(k, t);
+      }
+    }
+  }
+  const confusionPairs = [...confusionTally.values()].map((t) => ({ ...t, right: rate(t.right, t.n) }));
   const pairs: ConditionScore["pairs"] = [];
   for (const sc of scenarios) {
     if (!sc.pair) continue;
     const own = onSpeaker.filter((s) => s.scenario === sc.id && (sc.pair as readonly string[]).includes(s.warden) && judged.has(`${s.id}:line`));
-    const forcedOwn = pairJudged ? onSpeaker.filter((s) => s.scenario === sc.id && (sc.pair as readonly string[]).includes(s.warden) && pairJudged.has(`${s.id}:pair`)) : [];
+    const forcedOwn = pairJudged ? onSpeaker.filter((s) => s.scenario === sc.id && (sc.pair as readonly string[]).includes(s.warden) && pairJudged.has(pairKey(s.id, sc.pair!))) : [];
     if (!own.length && !forcedOwn.length) continue;
     const right = own.filter((s) => judged.get(`${s.id}:line`)!.voice === s.warden).length;
     const crossed = own.filter((s) => { const g = judged.get(`${s.id}:line`)!.voice; return g !== s.warden && (sc.pair as readonly string[]).includes(g); }).length;
-    const forced = forcedOwn.length ? { n: forcedOwn.length, right: rate(forcedOwn.filter((s) => pairJudged!.get(`${s.id}:pair`) === s.warden).length, forcedOwn.length) } : undefined;
+    const forced = forcedOwn.length ? { n: forcedOwn.length, right: rate(forcedOwn.filter((s) => pairJudged!.get(pairKey(s.id, sc.pair!))!.choice === s.warden).length, forcedOwn.length) } : undefined;
     pairs.push({ scenario: sc.id, pair: sc.pair, n: own.length, voice: rate(right, own.length), crossed, ...(forced ? { forced } : {}) });
   }
   return {
@@ -547,6 +571,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
     wrongLineHits,
     perWarden,
     pairs,
+    confusionPairs,
     confusions: [...confusionCounts.values()].sort((a, b) => b.count - a.count),
   };
 }
@@ -594,6 +619,7 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
   const byWarden = WARDENS.map((w) => `| ${w} | ${scores.map((s) => (s.perWarden[w] ? `${pct(s.perWarden[w]!.voice)} / ${pct(s.perWarden[w]!.action)} (${s.perWarden[w]!.n})` : "")).join(" | ")} |`);
   const pairRows = scores.flatMap((s) => s.pairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair.join(" and ")} | ${p.n} | ${pct(p.voice)} | ${p.crossed} | ${p.forced ? `${pct(p.forced.right)} (${p.forced.n})` : ""} |`));
   const confusionRows = scores.flatMap((s) => s.confusions.map((c) => `- ${s.condition}, ${c.scenario}: ${c.truth} taken for ${c.guess} ×${c.count}`));
+  const confusionPairRows = scores.flatMap((s) => s.confusionPairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair[0]} | ${p.pair[1]} | ${p.n} | ${pct(p.right)} |`));
   const notes = samples.filter((x) => x.note).map((x) => `- ${x.condition}, ${x.warden} to the ${x.scenario}: ${x.note}`);
   const violationRows = scores.flatMap((s) => s.violationsNamed.map((v) => `- ${s.condition}, ${v.warden} to the ${v.scenario}: ${v.violation}. "${stripIdentity(v.line, terms)}"`));
   const slipRows = scores.flatMap((s) => s.slipsNamed.map((v) => `- ${s.condition}, ${v.warden} to the ${v.scenario}: ${v.slip}. "${stripIdentity(v.line, terms)}"`));
@@ -619,6 +645,7 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     ...byWarden,
     ...(pairRows.length ? ["", "## Collision pairs: open-set voice accuracy on the pair's own lines, how often one was taken for the other, and the forced binary choice between the two", "", "| Condition | scenario | pair | n | open-set voice | crossed | forced pair (n) |", "|---|---|---|---|---|---|---|", ...pairRows] : []),
     ...(confusionRows.length ? ["", "## Confusions: who was taken for whom", "", ...confusionRows] : []),
+    ...(confusionPairRows.length ? ["", "## Confusion pairs, forced: the misattributed Warden's own lines, judged as a choice between them and the Warden they were taken for", "", "| Condition | scenario | speaker | taken for | n | forced accuracy |", "|---|---|---|---|---|---|", ...confusionPairRows] : []),
     ...(violationRows.length ? ["", "## Violations the judge named, with the line", "", ...violationRows] : []),
     ...(slipRows.length ? ["", "## Rail breaks the judge named, with the line", "", ...slipRows] : []),
     "",

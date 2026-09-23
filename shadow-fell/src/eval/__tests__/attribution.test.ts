@@ -75,7 +75,8 @@ describe("the attribution eval", () => {
     expect(slipsStyle("lyra", "It's a bit unfair.")).toBe(true);
     expect(slipsStyle("lyra", "I think it's the overlapping soul core matrices, but I would need to pull it apart to make sure.")).toBe(false);
     expect(slipsStyle("lyra", "I think the second one is the most diplomatic, but I'd check with Serena.")).toBe(false);
-    expect(slipsStyle("lyra", "Wonderful!")).toBe(true);
+    expect(slipsStyle("lyra", "Wonderful!")).toBe(false);
+    expect(slipsStyle("lyra", "Oh, lovely. Which one's mine?")).toBe(false);
     expect(slipsStyle("lyra", "It was a decision. You made it twice.")).toBe(false);
     expect(slipsStyle("lyra", "Some.")).toBe(false);
     expect(slipsStyle("lyra", "I'd check with Serena.")).toBe(false);
@@ -274,7 +275,7 @@ describe("the attribution eval", () => {
     expect(CONDITIONS.C.gate).toBe(true);
     expect(judgeSystem(runtime)).toContain("### Brask Runebearer (id: brask)");
     expect(judgeSystem(runtime)).toContain("never copy one into the other");
-    expect(judgeSystem(runtime)).toContain("Attention: the unresolved consequence");
+    expect(judgeSystem(runtime)).toContain("Attention: what is happening that she can get into");
     expect(judgeSystem(runtime)).toContain("Language rail (binding on every line):");
     expect(judgeSystem(runtime)).toContain("TO BE and TO DO are his two weak points");
     expect(judgeSystem(runtime)).toContain("a rail is never stupidity");
@@ -283,7 +284,7 @@ describe("the attribution eval", () => {
     expect(judgeSystem(runtime)).toContain("never attribute on [name] alone");
     expect(judgeSystem(runtime)).toContain("why, the tell in the wording that decided voice");
     expect(judgeSystem(runtime)).toContain("## Telling the seven apart");
-    expect(judgeSystem(runtime)).toContain("Kael looks underneath the abstraction; Lyra looks beyond the apparent ending.");
+    expect(judgeSystem(runtime)).toContain("Kael looks underneath the premise; Lyra accepts the premise long enough to get into it, then follows what happens past where everyone else thinks it ended.");
     expect(judgeSystem(runtime)).not.toContain("Shared-care de-duplication:");
   });
 });

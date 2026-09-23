@@ -69,7 +69,7 @@ describe("the compiled canon", () => {
     expect(runtime.validation.join(" ")).toContain("Plurality is optional. Specificity is mandatory.");
     expect(runtime.guardrails.some((g) => g.startsWith("Shared-care de-duplication"))).toBe(true);
     expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("what the living system is telling him");
-    expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("failed to remain present for");
+    expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("Lyra: entry; she asks what we are doing and steps into it");
     expect(runtime.wardens.lyra!.runtime.attention).toContain("what consequence is still happening?");
     expect(runtime.wardens.kael!.runtime.attention).toContain("what relationship has been made wrong?");
     expect(runtime.wardens.varya!.runtime.attention).toContain("what fact doesn't fit?");
@@ -80,7 +80,10 @@ describe("the compiled canon", () => {
     expect(runtime.guardrails.some((g) => g.includes("material care into a bedside manner"))).toBe(true);
     expect(runtime.wardens.lyra!.languageRail.length).toBeGreaterThanOrEqual(12);
     expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("Verdict first, framework withheld");
-    expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("Mischief in the same deadpan as her verdicts");
+    expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("No Takesies Backsies");
+    expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("Her basic action verb is join.");
+    expect(runtime.wardens.lyra!.card.some((c) => c.startsWith("Basic action verb: join."))).toBe(true);
+    expect(runtime.wardens.lyra!.thesis).toBe("Lyra does not watch life from the edge when she can get into it.");
     expect(runtime.validation.join(" ")).toContain("Collision resistance, a tie-breaker only");
     expect(runtime.validation.join(" ")).toContain("the runtime renders the person doing that tactic");
     expect(runtime.wardens.brask!.languageRail.length).toBeGreaterThanOrEqual(14);
@@ -101,7 +104,7 @@ describe("the compiled canon", () => {
     expect(runtime.wardens.kael!.runtime.speech).toContain("fluent, grammatically ordinary Common");
     expect(runtime.wardens.kael!.runtime.attention).toContain("the living or material reality first");
     expect(runtime.wardens.kael!.runtime.attention).toContain("keeps its force only because people keep behaving as though it has it");
-    expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("Kael looks underneath the abstraction; Lyra looks beyond the apparent ending.");
+    expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("Kael looks underneath the premise; Lyra accepts the premise long enough to get into it, then follows what happens past where everyone else thinks it ended.");
     expect(runtime.pairs["serena->tav"]!.risk).toMatch(/^The fault line remains canon/);
     expect(runtime.wardens.thorbin!.wrongLines[0]!.line).toMatch(/^Morrighad commands it/);
     expect(runtime.torMorrighad.join(" ")).not.toContain("LEGACY PLACEHOLDER");

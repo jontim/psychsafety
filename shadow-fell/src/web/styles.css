@@ -181,3 +181,20 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .slate .intention.chosen { border-color: var(--old-gold); box-shadow: inset 0 0 0 1px rgba(200,162,74,0.35); background: rgba(245,230,184,0.45); }
 .slate .intention .why { font-style: italic; color: var(--ink-soft); font-family: var(--serif); font-size: 13.5px; }
 .slate .empty { color: var(--ink-soft); font-style: italic; font-family: var(--serif); }
+
+/* The pilot's T: turn state, the rule that ends the turn, and the reading, above the stage where they are seen. */
+.turn-strip { display: grid; grid-template-columns: auto 1fr auto; gap: 6px 16px; align-items: center; padding: 10px 14px; margin-bottom: 10px; background: var(--parchment); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 24px rgba(20,18,16,0.08); }
+.turn-strip .turn-state { font-family: var(--serif); font-size: 18px; font-weight: 700; letter-spacing: 0.02em; }
+.turn-strip.yours .turn-state { color: var(--old-gold); }
+.turn-strip.busy .turn-state { color: var(--ink-soft); }
+.turn-strip .turn-rule { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.turn-strip .turn-rule .hint { font-size: 12.5px; color: var(--ink-soft); }
+.turn-strip .turn-read { font-family: var(--serif); font-style: italic; color: var(--storm-violet); font-size: 15px; text-align: right; }
+.turn-strip .turn-status, .turn-strip .speech-so-far { grid-column: 1 / -1; }
+.turn-strip .turn-status:empty, .turn-strip .speech-so-far:empty { display: none; }
+.panel .note { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+.brief .when { font-family: var(--serif); font-style: italic; color: var(--ink-soft); margin-bottom: 8px; }
+.brief .brief-row { display: grid; grid-template-columns: 84px 1fr; gap: 8px; font-size: 13.5px; margin-top: 6px; }
+.brief .brief-row .label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--state-blue); padding-top: 2px; }
+.role .when { font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--ink-soft); margin: -4px 0 8px; }
+@media (max-width: 600px) { .turn-strip { grid-template-columns: 1fr; } .turn-strip .turn-read { text-align: left; } }

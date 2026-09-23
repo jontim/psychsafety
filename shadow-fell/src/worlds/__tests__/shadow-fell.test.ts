@@ -21,6 +21,20 @@ describe("The Shadow Fell world pack", () => {
     expect(muster(shadowFell, findBeat(shadowFell, "morning").beat).cleanWin).toBe(true);
   });
 
+  it("tells the player when each scene sits and gives every role a brief", () => {
+    const beats = shadowFell.acts.flatMap((a) => a.beats);
+    for (const b of beats) expect(b.when, b.id).toBeTruthy();
+    for (const role of shadowFell.roles) {
+      const beat = beats.find((b) => b.playerRole === role.id)!;
+      expect(beat.brief, role.id).toBeDefined();
+      for (const k of ["you", "win", "room", "lean", "never"] as const) expect(beat.brief![k], `${role.id} ${k}`).toBeTruthy();
+    }
+    const pub = publicWorld(shadowFell);
+    const room = pub.acts[0]!.beats[0]!;
+    expect(room.brief?.win).toContain("Navid");
+    expect(room.notes).toBe("");
+  });
+
   it("strips director-only material from the public copy", () => {
     const pub = publicWorld(shadowFell);
     expect(pub.cast.every((c) => c.knows.length === 0)).toBe(true);

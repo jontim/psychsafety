@@ -96,6 +96,10 @@ export const BeatSchema = z.object({
   location: z.string(),
   /** The player's goal, in one sentence they can hold in their head. */
   goal: z.string(),
+  /** Where this scene sits against the film, for the player. */
+  when: z.string().optional(),
+  /** The player's brief, shown before and during the scene: who you are, what wins, what the room can see, what tends to work, what is forbidden. Director-only material stays in notes. */
+  brief: z.object({ you: z.string(), win: z.string(), room: z.string(), lean: z.string(), never: z.string() }).partial().optional(),
   /** Director notes: what the scene is really about, what must not happen. */
   notes: z.string(),
   /** The counterpart's opening line if the director has nothing better. */

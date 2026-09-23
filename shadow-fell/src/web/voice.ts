@@ -44,8 +44,10 @@ export class Voice {
       if (!("speechSynthesis" in window)) return resolve();
       const u = new SpeechSynthesisUtterance(text);
       u.rate = 0.95;
-      u.onend = () => resolve();
-      u.onerror = () => resolve();
+      // A synthesiser with no voices never fires onend; do not let it hold the turn.
+      const guard = setTimeout(resolve, 1500 + text.length * 80);
+      u.onend = () => { clearTimeout(guard); resolve(); };
+      u.onerror = () => { clearTimeout(guard); resolve(); };
       window.speechSynthesis.speak(u);
     });
   }

@@ -1,5 +1,5 @@
 import { StorySession, type SessionSnapshot } from "../engine/session.js";
-import { findCast, type World } from "../engine/world.js";
+import { findCast, type World, type Beat } from "../engine/world.js";
 import { affectTagFromAxes } from "../engine/clips.js";
 import type { DirectorResponse } from "../engine/director-contract.js";
 import { api, type Health } from "./backend.js";
@@ -74,7 +74,7 @@ function renderSpeechSoFar(): void {
 
 function setStatus(s: string): void {
   app.status = s;
-  const el = document.querySelector<HTMLElement>(".status");
+  const el = document.querySelector<HTMLElement>(".turn-status") ?? document.querySelector<HTMLElement>(".status");
   if (el) el.textContent = s;
 }
 
@@ -122,6 +122,7 @@ function rolesScreen(): HTMLElement {
       h("div", { class: "body" },
         h("div", { class: "name" }, role.label, h("span", { class: `stance ${beat.beat.stance}` }, beat.beat.stance === "reading" ? "reading" : "being read")),
         h("div", { class: "meta" }, `${beat.act.title} · ${beat.beat.title}`),
+        beat.beat.when ? h("div", { class: "when" }, beat.beat.when) : null,
         h("div", { class: "sum" }, role.summary),
       ),
     );
@@ -167,19 +168,96 @@ function stageScreen(): HTMLElement {
   );
 
   const side = h("div", {});
-  side.append(renderMeters(app.world, snap), renderRibbon(snap.affect), renderTranscript(app.world, snap.transcript, snap.playerRole));
+  const brief = renderBrief(snap.beat);
+  if (brief) side.append(brief);
+  side.append(renderMeters(app.world, snap), renderRibbon(snap.affect));
   const debrief = h("div", { class: "panel" }, h("h3", {}, "The listener's note"),
     h("div", { class: "debrief" }, app.lastResponse?.debrief ?? "Say your first line."),
     app.lastResponse?.tell ? h("div", { class: "tell" }, `You might have noticed: ${app.lastResponse.tell}`) : null,
-    app.lastSource === "understudy" ? h("div", { class: "status" }, "The understudy is directing (no Anthropic key).") : null,
+    app.lastSource === "understudy" ? h("div", { class: "note" }, "The understudy is directing (no Anthropic key).") : null,
   );
-  side.append(debrief);
+  side.append(debrief, renderTranscript(app.world, snap.transcript, snap.playerRole));
   if (app.slateOpen) side.append(renderSlate(app.world, app.lastResponse, app.lastSource));
 
   const main = h("main", {},
-    h("div", { class: "stage-grid" }, h("div", {}, stage, h("div", { class: "goal-line" }, snap.beat.goal), controls(snap)), side),
+    h("div", { class: "stage-grid" }, h("div", {}, turnStrip(snap, counterpart.name), stage, h("div", { class: "goal-line" }, snap.beat.goal), controls(snap)), side),
   );
   return main;
+}
+
+/** The pilot's T: what is happening now, the rule that ends your turn, and how they read you, above the stage where it is seen. */
+function turnState(snap: SessionSnapshot, counterpartName: string): { state: string; cls: string } {
+  const thinking = app.status === "The director is thinking...";
+  const state = app.busy ? (thinking ? "The director is thinking" : `${counterpartName} is speaking`) : snap.status === "force" ? "It tips. Call it." : "Your turn";
+  return { state, cls: `turn-strip ${app.busy ? "busy" : "yours"}` };
+}
+
+function turnRead(counterpartName: string): string {
+  return app.reaction ? (app.reaction.startsWith("reads") ? `${counterpartName} ${app.reaction}.` : app.reaction) : "Not read yet.";
+}
+
+/** Patch the strip in place at the end of a turn, so a line the player has started typing survives. */
+function refreshTurnStrip(): void {
+  const strip = document.querySelector<HTMLElement>(".turn-strip");
+  const session = app.session;
+  if (!strip || !session) return;
+  const snap = session.snapshot();
+  const name = castName(app.world, snap.beat.counterpart);
+  const { state, cls } = turnState(snap, name);
+  strip.className = cls;
+  const stateEl = strip.querySelector<HTMLElement>(".turn-state");
+  if (stateEl) stateEl.textContent = state;
+  const readEl = strip.querySelector<HTMLElement>(".turn-read");
+  if (readEl) readEl.textContent = turnRead(name);
+}
+
+function turnStrip(snap: SessionSnapshot, counterpartName: string): HTMLElement {
+  const { state, cls } = turnState(snap, counterpartName);
+  const strip = h("div", { class: cls });
+  const rule = h("div", { class: "turn-rule" });
+  if (app.ear.kind === "hume") {
+    const select = h("select", { class: "floor-mode" }) as HTMLSelectElement;
+    const floorRules: Array<[string, string]> = [["silence:2000", "2 s of silence hands it over"], ["silence:3000", "3 s of silence hands it over"], ["silence:5000", "5 s of silence hands it over"], ["manual:0", "Only Done hands it over"]];
+    for (const [value, label] of floorRules) {
+      const o = h("option", { value }, label) as HTMLOptionElement;
+      if ((app.floor.mode === "manual" && value.startsWith("manual")) || (app.floor.mode === "silence" && value === `silence:${app.floor.silenceMs}`)) o.selected = true;
+      select.append(o);
+    }
+    select.addEventListener("change", () => {
+      const [mode, ms] = select.value.split(":") as [FloorMode, string];
+      app.floor.mode = mode;
+      if (mode === "silence") app.floor.silenceMs = Number(ms);
+      safeSet("floorMode", mode);
+      safeSet("floorSilenceMs", String(app.floor.silenceMs));
+      app.floor.touch();
+    });
+    const done = h("button", { class: "btn gold btn-done" }, "Done, over to them") as HTMLButtonElement;
+    done.disabled = !app.speechSoFar.length;
+    done.addEventListener("click", () => app.floor.commit());
+    rule.append(select, done);
+  } else {
+    rule.append(h("span", { class: "hint" }, "Type a line below and choose how you said it, or open the microphone."));
+  }
+  const read = turnRead(counterpartName);
+  strip.append(
+    h("div", { class: "turn-state" }, state),
+    rule,
+    h("div", { class: "turn-read" }, read),
+    h("div", { class: "turn-status status" }, app.status),
+    h("div", { class: "speech-so-far" }, app.speechSoFar.length ? `Your speech so far: "${app.speechSoFar.map((f) => f.text).join(" ")}"` : ""),
+  );
+  return strip;
+}
+
+/** The player's brief: where this sits, who you are, what wins, what the room can see, what tends to work, what is forbidden. */
+function renderBrief(beat: Beat): HTMLElement | null {
+  const b = beat.brief;
+  if (!b && !beat.when) return null;
+  const box = h("div", { class: "panel brief" }, h("h3", {}, "The brief"));
+  if (beat.when) box.append(h("div", { class: "when" }, beat.when));
+  const rows: Array<[string, string | undefined]> = [["You", b?.you], ["Win", b?.win], ["Who hears", b?.room], ["Lean", b?.lean], ["Never", b?.never]];
+  for (const [label, text] of rows) if (text) box.append(h("div", { class: "brief-row" }, h("span", { class: "label" }, label), h("span", { class: "text" }, text)));
+  return box;
 }
 
 function controls(snap: SessionSnapshot): HTMLElement {
@@ -202,30 +280,6 @@ function controls(snap: SessionSnapshot): HTMLElement {
     box.append(panel);
   }
 
-  const status = h("div", { class: "status" }, app.status);
-  if (app.ear.kind === "hume") {
-    const select = h("select", { class: "floor-mode" }) as HTMLSelectElement;
-    for (const [value, label] of [["silence:2000", "End my turn after 2 s of silence"], ["silence:3000", "End my turn after 3 s of silence"], ["silence:5000", "End my turn after 5 s of silence"], ["manual:0", "Only when I press Done"]] as const) {
-      const o = h("option", { value }, label) as HTMLOptionElement;
-      if ((app.floor.mode === "manual" && value.startsWith("manual")) || (app.floor.mode === "silence" && value === `silence:${app.floor.silenceMs}`)) o.selected = true;
-      select.append(o);
-    }
-    select.addEventListener("change", () => {
-      const [mode, ms] = select.value.split(":") as [FloorMode, string];
-      app.floor.mode = mode;
-      if (mode === "silence") app.floor.silenceMs = Number(ms);
-      safeSet("floorMode", mode);
-      safeSet("floorSilenceMs", String(app.floor.silenceMs));
-      app.floor.touch();
-    });
-    const done = h("button", { class: "btn gold btn-done" }, "Done, over to them") as HTMLButtonElement;
-    done.disabled = !app.speechSoFar.length;
-    done.addEventListener("click", () => app.floor.commit());
-    box.append(
-      h("div", { class: "row" }, select, done),
-      h("div", { class: "speech-so-far" }, app.speechSoFar.length ? `Your speech so far: "${app.speechSoFar.map((f) => f.text).join(" ")}"` : ""),
-    );
-  }
   const row = h("div", { class: "row" });
   const micBtn = h("button", { class: `btn ${app.ear.kind === "hume" ? "live" : "gold"}` }, app.ear.kind === "hume" ? "Listening (stop)" : "Use the microphone");
   micBtn.addEventListener("click", () => (app.ear.kind === "hume" ? stopHume() : askConsent()));
@@ -247,7 +301,7 @@ function controls(snap: SessionSnapshot): HTMLElement {
   const submit = () => { const text = say.value.trim(); if (!text || app.busy) return; say.value = ""; app.mock.say(text); };
   send.addEventListener("click", submit);
   say.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } });
-  box.append(say, h("div", { class: "row" }, tones, send), status);
+  box.append(say, h("div", { class: "row" }, tones, send));
   return box;
 }
 
@@ -343,6 +397,7 @@ async function processUtterance(u: Utterance): Promise<void> {
     setStatus(`Turn failed: ${(e as Error).message}`);
   } finally {
     app.busy = false;
+    refreshTurnStrip();
   }
 }
 

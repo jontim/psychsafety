@@ -32,7 +32,7 @@ Beats with no Warden present (Soraya's room) get an idle slate: the runtime does
 
 ## Language rails
 
-Section 21 of the document holds voice rules that bind the rendered line for a particular Warden, compiled onto that Warden's runtime and placed under their cast card as a language rail. A rail describes production, not cognition: Brask's is the first, and its governing sentence is that his intelligence is judged from the sequence and quality of his questions, never from the sophistication of his Common. The attribution eval counts lines that break a rail as style slips.
+Section 21 of the document holds voice rules that bind the rendered line for a particular Warden, compiled onto that Warden's runtime and placed under their cast card as a language rail. A rail describes production, not cognition: Brask's was the first, and its governing sentence is that his intelligence is judged from the sequence and quality of his questions, never from the sophistication of his Common. Lyra's (verdict first, framework withheld, mischief in the same deadpan) and Kael's (asks, never tells; relationship, not inventory; talks to the land aloud) followed on Jon's rulings of 23 September, after the blind run showed the two of them as the weak seam. The attribution eval counts lines that break a rail as style slips.
 
 ## Speech, not prose
 

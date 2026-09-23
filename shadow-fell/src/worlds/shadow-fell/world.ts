@@ -156,7 +156,7 @@ const pack: WorldInput = {
     {
       id: "kael", name: "Kael Thornmere", title: "Druid", faction: "the Stormwardens",
       summary: "19, druidic prodigy, ecological listener, the conscience who volunteers. Receives nature rather than commanding it. Gentle, exact.",
-      register: "Soft, exact, young; a kindness that does not bargain. Asks, never tells ('They're mine to ask.').", voice: { name: "Kael", description: "A young man of 19, soft, exact, gentle, unhurried" },
+      register: "Soft, exact, young, casual and sincere; a kindness that does not bargain. Asks, never tells ('They're mine to ask.'); relationship, not inventory; data, not doom; wonder, never smugness. Talks to the land aloud, turning to look at it. Never slang, never an order to a person, never an investigator's question.", voice: { name: "Kael", description: "A young man of 19, soft, exact, gentle, unhurried" },
       capabilities: ["concurrence", "healing"],
       moves: [{ id: "vine", label: "Kael says one sentence to the vine", capability: "concurrence", bonus: 0.15, line: "A length of vine, a single sentence, and the hands are no longer his to use." }],
       lines: ["Morning.", "Then you haven't missed anything."],

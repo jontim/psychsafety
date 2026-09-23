@@ -84,7 +84,10 @@ describe("the compiled canon", () => {
     expect(runtime.validation.join(" ")).toContain("the runtime renders the person doing that tactic");
     expect(runtime.wardens.brask!.languageRail.length).toBeGreaterThanOrEqual(14);
     expect(runtime.wardens.brask!.languageRail.join(" ")).toContain("Then we not know.");
-    for (const id of ["tav", "serena", "thorbin", "varya", "kael"]) expect(runtime.wardens[id]!.languageRail).toEqual([]);
+    for (const id of ["tav", "serena", "thorbin", "varya"]) expect(runtime.wardens[id]!.languageRail).toEqual([]);
+    expect(runtime.wardens.kael!.languageRail.length).toBeGreaterThanOrEqual(12);
+    expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Asks, never tells.");
+    expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Relationship, not inventory");
     expect(runtime.pairs["serena->tav"]!.risk).toMatch(/^The fault line remains canon/);
     expect(runtime.wardens.thorbin!.wrongLines[0]!.line).toMatch(/^Morrighad commands it/);
     expect(runtime.torMorrighad.join(" ")).not.toContain("LEGACY PLACEHOLDER");

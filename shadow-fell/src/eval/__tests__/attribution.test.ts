@@ -74,6 +74,15 @@ describe("the attribution eval", () => {
     expect(slipsStyle("lyra", "It was a decision. You made it twice.")).toBe(false);
     expect(slipsStyle("lyra", "Some.")).toBe(false);
     expect(slipsStyle("lyra", "I'd check with Serena.")).toBe(false);
+    expect(slipsStyle("kael", "That's gnarly, dude.")).toBe(true);
+    expect(slipsStyle("kael", "Obviously the river moved.")).toBe(true);
+    expect(slipsStyle("kael", "Look at that. The river moved.")).toBe(false);
+    expect(slipsStyle("kael", "You need to move the horses.")).toBe(true);
+    expect(slipsStyle("kael", "Can the horses go somewhere the wind isn't?")).toBe(false);
+    expect(slipsStyle("kael", "Who sent you?")).toBe(true);
+    expect(slipsStyle("kael", "Who's waiting on you?")).toBe(false);
+    expect(slipsStyle("kael", "It says not yet. Stay near the hedge. It's decided it likes you.")).toBe(false);
+    expect(slipsStyle("kael", "I'm certain the ground will hold.")).toBe(true);
     expect(slipsStyle("lyra", "The thing about the letter your principal sent a long way in this weather is that it tells me the distance and leaves out the direction, which is the part I would have wanted first.")).toBe(true);
   });
 

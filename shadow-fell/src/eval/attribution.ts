@@ -395,6 +395,18 @@ export const STYLE_SLIPS: Partial<Record<WardenId, RegExp[]>> = {
     // her magic is never method
     /\b(incantation|cast(s|ing)? (a|the) spell|spellcraft)\b/i,
   ],
+  kael: [
+    // surfer and modern slang he never uses
+    /\b(gnarly|rad|dude|bro|awesome|epic|vibes?|chill|totally|stoked|legit)\b/i,
+    // smugness
+    /\b(obviously|of course|as I said|told you|clearly|naturally)\b/i,
+    // an order to a person
+    /\b(you will|you must|do as I say|you need to|you have to)\b/i,
+    // an investigator's question
+    /\b(who sent you|what's your name|papers|prove it|evidence|where were you|state your)\b/i,
+    // certainty about what he only perceived
+    /\b(definitely|certainly|without (a )?doubt|I'm certain|no doubt)\b/i,
+  ],
   brask: [
     // do-support and auxiliary negatives
     /\b(did not|does not|do not|didn't|doesn't|don't|isn't|wasn't|weren't|aren't|won't|will not|would not|wouldn't|couldn't|shouldn't)\b/i,

@@ -27,7 +27,7 @@ import { StorySession } from "../src/engine/session.js";
 import { toneVector } from "../src/engine/mock-ear.js";
 import {
   CONDITIONS, SCENARIOS, WARDENS, evalWorld, evalBeatId, identityTerms, stripIdentity, judgeSystem, judgeUser, JudgementSchema,
-  matchJudgements, matchPairJudgements, pairJudgeUser, PairJudgementSchema, sampleLine, scoreCondition, formatReport, type Condition, type Sample, type WardenId, type JudgedItem, type JudgeItem,
+  matchJudgements, matchPairJudgements, pairJudgeUser, PairJudgementSchema, JudgementLooseSchema, PairJudgementLooseSchema, type Judgement, type LooseJudgement, type PairJudgement, type LoosePairJudgement, sampleLine, scoreCondition, formatReport, type Condition, type Sample, type WardenId, type JudgedItem, type JudgeItem,
 } from "../src/eval/attribution.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -57,6 +57,33 @@ const dossiers = loadDossiers(root, shadowFell.id);
 const runtime = loadCanonRuntime();
 const terms = identityTerms(world, wardens);
 const client = dry ? null : new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+/** One judge call with the strict format; when the answer does not fit it (a name outside the seven, a stop before the JSON), one retry with the names left open, checked at matching. Null means those items stay unjudged. */
+async function askJudge<S, L>(label: string, user: string, strict: S, loose: L): Promise<unknown | null> {
+  const call = (format: unknown) => client!.messages.parse({
+    model: judgeModel,
+    max_tokens: 16000,
+    thinking: { type: "adaptive" },
+    system: [{ type: "text", text: judgeSystem(runtime), cache_control: { type: "ephemeral" } }],
+    messages: [{ role: "user", content: user }],
+    output_config: { format: format as never },
+  });
+  try {
+    const m = await call(strict);
+    if (m.parsed_output) return m.parsed_output;
+    console.log(`judge returned ${m.stop_reason} for ${label}; retrying once with the names left open`);
+  } catch (e) {
+    console.log(`judge answer for ${label} did not fit the format (${String((e as Error).message).split("\n")[0].slice(0, 120)}); retrying once with the names left open`);
+  }
+  try {
+    const m = await call(loose);
+    if (m.parsed_output) return m.parsed_output;
+    console.log(`judge returned ${m.stop_reason} for ${label} on the retry; those items stay unjudged`);
+  } catch (e) {
+    console.log(`judge retry for ${label} failed (${String((e as Error).message).split("\n")[0].slice(0, 120)}); those items stay unjudged`);
+  }
+  return null;
+}
 
 if (dry && !has("dry")) console.log("No ANTHROPIC_API_KEY: running dry with the understudy and a stand-in judge.");
 fs.mkdirSync(outDir, { recursive: true });
@@ -112,16 +139,9 @@ for (const condition of conditions) {
     let matchedTotal = 0, unmatchedTotal = 0;
     for (let start = 0; start < items.length; start += JUDGE_BATCH) {
       const batch = items.slice(start, start + JUDGE_BATCH);
-      const message = await client.messages.parse({
-        model: judgeModel,
-        max_tokens: 16000,
-        thinking: { type: "adaptive" },
-        system: [{ type: "text", text: judgeSystem(runtime), cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: judgeUser(batch) }],
-        output_config: { format: zodOutputFormat(JudgementSchema) },
-      });
-      if (!message.parsed_output) { console.log(`judge returned ${message.stop_reason} for ${condition}/${s.id} items ${start + 1} to ${start + batch.length}; those stay unjudged`); continue; }
-      const { matched, unmatched } = matchJudgements(batch, message.parsed_output);
+      const answer = await askJudge(`${condition}/${s.id} items ${start + 1} to ${start + batch.length}`, judgeUser(batch), zodOutputFormat(JudgementSchema), zodOutputFormat(JudgementLooseSchema));
+      if (!answer) continue;
+      const { matched, unmatched } = matchJudgements(batch, answer as Judgement | LooseJudgement);
       for (const [id, it] of matched) judged.set(id, it);
       fs.writeFileSync(judgementsFile, `${JSON.stringify([...judged.entries()], null, 2)}\n`);
       matchedTotal += matched.size;
@@ -147,16 +167,9 @@ for (const condition of conditions) {
     let done = 0;
     for (let start = 0; start < items.length; start += JUDGE_BATCH) {
       const batch = items.slice(start, start + JUDGE_BATCH);
-      const message = await client.messages.parse({
-        model: judgeModel,
-        max_tokens: 16000,
-        thinking: { type: "adaptive" },
-        system: [{ type: "text", text: judgeSystem(runtime), cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: pairJudgeUser(batch, s.pair, runtime) }],
-        output_config: { format: zodOutputFormat(PairJudgementSchema) },
-      });
-      if (!message.parsed_output) { console.log(`pair judge returned ${message.stop_reason} for ${condition}/${s.id} items ${start + 1} to ${start + batch.length}; those stay unjudged`); continue; }
-      const { matched } = matchPairJudgements(batch, s.pair, message.parsed_output);
+      const answer = await askJudge(`forced pair ${condition}/${s.id} items ${start + 1} to ${start + batch.length}`, pairJudgeUser(batch, s.pair, runtime), zodOutputFormat(PairJudgementSchema), zodOutputFormat(PairJudgementLooseSchema));
+      if (!answer) continue;
+      const { matched } = matchPairJudgements(batch, s.pair, answer as PairJudgement | LoosePairJudgement);
       for (const [id, w] of matched) pairJudged.set(id, w);
       fs.writeFileSync(pairFile, `${JSON.stringify([...pairJudged.entries()], null, 2)}\n`);
       done += matched.size;

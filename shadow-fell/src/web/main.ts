@@ -10,6 +10,8 @@ import { Voice } from "./voice.js";
 import { Floor, type Fragment, type FloorMode } from "./floor.js";
 import { h, castName, renderMeters, renderRibbon, renderTranscript, renderSlate, portraitFor } from "./ui/render.js";
 import type { TonePreset } from "../engine/mock-ear.js";
+import { computeAxes, createAffectState, updateAffect, type AffectState } from "../engine/affect.js";
+import { MIRROR_ASKS, readAsk, baselineFrom, calibrateAxes, describeBaseline, type Baseline, type MirrorReading } from "../engine/mirror.js";
 
 const WORLD_ID = "shadow-fell";
 
@@ -26,11 +28,22 @@ interface App {
   lastResponse: DirectorResponse | null;
   lastSource: string;
   reaction: string;
-  screen: "roles" | "stage" | "debrief";
+  screen: "roles" | "stage" | "debrief" | "mirror";
+  /** The warm-up in progress, when the Mirror screen is up. */
+  mirror: MirrorState | null;
+  /** The player's plain voice from the Mirror, remembered per browser; the tour is read against it. */
+  baseline: Baseline | null;
   floor: Floor;
   speechSoFar: Fragment[];
   /** The director's slate panel: an authoring view, remembered per browser. */
   slateOpen: boolean;
+}
+
+interface MirrorState {
+  step: number;
+  results: MirrorReading[];
+  baseline: Baseline | null;
+  lastAffect: AffectState | null;
 }
 
 const root = document.getElementById("app")!;
@@ -49,10 +62,19 @@ async function boot(): Promise<void> {
     onChange: (fragments) => { app.speechSoFar = fragments; renderSpeechSoFar(); },
     onCommit: (merged) => { void processUtterance(merged); },
   });
-  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "roles", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1" };
+  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "roles", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1", mirror: null, baseline: loadBaseline() };
   mock.onUtterance((u) => { void processUtterance(u); });
   mock.onStatus(setStatus);
   render();
+}
+
+function loadBaseline(): Baseline | null {
+  try {
+    const raw = safeGet("mirrorBaseline");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Baseline;
+    return parsed && typeof parsed === "object" && parsed.axes ? parsed : null;
+  } catch { return null; }
 }
 
 function safeGet(key: string): string | null {
@@ -83,6 +105,7 @@ function band(): HTMLElement {
     h("span", { class: `pill ${app.ear.kind === "hume" ? "on" : "off"}` }, app.ear.kind === "hume" ? "Ear: Hume EVI" : app.health.hume ? "Ear: mock (Hume ready)" : "Ear: mock"),
     h("span", { class: `pill ${app.health.octave ? "on" : "off"}` }, app.health.octave ? "Voice: Octave" : "Voice: browser"),
     h("span", { class: `pill ${app.health.director !== "understudy" ? "on" : "off"}` }, `Director: ${app.health.director}`),
+    h("span", { class: `pill ${app.baseline ? "on" : "off"}`, title: app.baseline ? describeBaseline(app.baseline) : "Warm up in the Mirror to calibrate the ear to your plain voice" }, app.baseline ? "Mirror: calibrated" : "Mirror: not yet"),
     slatePill(),
   );
   return h("header", { class: "band" },
@@ -104,7 +127,7 @@ function slatePill(): HTMLElement {
 }
 
 function render(): void {
-  root.replaceChildren(band(), app.screen === "roles" ? rolesScreen() : app.screen === "stage" ? stageScreen() : debriefScreen());
+  root.replaceChildren(band(), app.screen === "roles" ? rolesScreen() : app.screen === "stage" ? stageScreen() : app.screen === "mirror" ? mirrorScreen() : debriefScreen());
 }
 
 function rolesScreen(): HTMLElement {
@@ -112,6 +135,7 @@ function rolesScreen(): HTMLElement {
     h("h2", { class: "screen-title" }, "Choose who you are"),
     h("p", { class: "screen-sub" }, app.world.premise),
   );
+  main.append(mirrorCard());
   const grid = h("div", { class: "roles" });
   for (const role of app.world.roles) {
     const member = findCast(app.world, role.id);
@@ -134,7 +158,7 @@ function rolesScreen(): HTMLElement {
 }
 
 function startBeat(beatId: string): void {
-  app.session = new StorySession(app.world, beatId);
+  app.session = new StorySession(app.world, beatId, { baseline: app.baseline });
   app.lastResponse = null;
   app.reaction = "";
   const opening = app.session.opening();
@@ -185,6 +209,35 @@ function stageScreen(): HTMLElement {
   return main;
 }
 
+/** The rule that ends the player's turn: the floor select and Done with the microphone, a hint without it. */
+function floorRule(): HTMLElement {
+  const rule = h("div", { class: "turn-rule" });
+  if (app.ear.kind === "hume") {
+    const select = h("select", { class: "floor-mode" }) as HTMLSelectElement;
+    const floorRules: Array<[string, string]> = [["silence:2000", "2 s of silence hands it over"], ["silence:3000", "3 s of silence hands it over"], ["silence:5000", "5 s of silence hands it over"], ["manual:0", "Only Done hands it over"]];
+    for (const [value, label] of floorRules) {
+      const o = h("option", { value }, label) as HTMLOptionElement;
+      if ((app.floor.mode === "manual" && value.startsWith("manual")) || (app.floor.mode === "silence" && value === `silence:${app.floor.silenceMs}`)) o.selected = true;
+      select.append(o);
+    }
+    select.addEventListener("change", () => {
+      const [mode, ms] = select.value.split(":") as [FloorMode, string];
+      app.floor.mode = mode;
+      if (mode === "silence") app.floor.silenceMs = Number(ms);
+      safeSet("floorMode", mode);
+      safeSet("floorSilenceMs", String(app.floor.silenceMs));
+      app.floor.touch();
+    });
+    const done = h("button", { class: "btn gold btn-done" }, "Done, over to them") as HTMLButtonElement;
+    done.disabled = !app.speechSoFar.length;
+    done.addEventListener("click", () => app.floor.commit());
+    rule.append(select, done);
+  } else {
+    rule.append(h("span", { class: "hint" }, "Type a line below and choose how you said it, or open the microphone."));
+  }
+  return rule;
+}
+
 /** The pilot's T: what is happening now, the rule that ends your turn, and how they read you, above the stage where it is seen. */
 function turnState(snap: SessionSnapshot, counterpartName: string): { state: string; cls: string } {
   const thinking = app.status === "The director is thinking...";
@@ -214,30 +267,7 @@ function refreshTurnStrip(): void {
 function turnStrip(snap: SessionSnapshot, counterpartName: string): HTMLElement {
   const { state, cls } = turnState(snap, counterpartName);
   const strip = h("div", { class: cls });
-  const rule = h("div", { class: "turn-rule" });
-  if (app.ear.kind === "hume") {
-    const select = h("select", { class: "floor-mode" }) as HTMLSelectElement;
-    const floorRules: Array<[string, string]> = [["silence:2000", "2 s of silence hands it over"], ["silence:3000", "3 s of silence hands it over"], ["silence:5000", "5 s of silence hands it over"], ["manual:0", "Only Done hands it over"]];
-    for (const [value, label] of floorRules) {
-      const o = h("option", { value }, label) as HTMLOptionElement;
-      if ((app.floor.mode === "manual" && value.startsWith("manual")) || (app.floor.mode === "silence" && value === `silence:${app.floor.silenceMs}`)) o.selected = true;
-      select.append(o);
-    }
-    select.addEventListener("change", () => {
-      const [mode, ms] = select.value.split(":") as [FloorMode, string];
-      app.floor.mode = mode;
-      if (mode === "silence") app.floor.silenceMs = Number(ms);
-      safeSet("floorMode", mode);
-      safeSet("floorSilenceMs", String(app.floor.silenceMs));
-      app.floor.touch();
-    });
-    const done = h("button", { class: "btn gold btn-done" }, "Done, over to them") as HTMLButtonElement;
-    done.disabled = !app.speechSoFar.length;
-    done.addEventListener("click", () => app.floor.commit());
-    rule.append(select, done);
-  } else {
-    rule.append(h("span", { class: "hint" }, "Type a line below and choose how you said it, or open the microphone."));
-  }
+  const rule = floorRule();
   const read = turnRead(counterpartName);
   strip.append(
     h("div", { class: "turn-state" }, state),
@@ -260,6 +290,34 @@ function renderBrief(beat: Beat): HTMLElement | null {
   return box;
 }
 
+/** Microphone, leave, the typed line and its tones, and Say it. */
+function inputBox(leaveLabel: string, onLeave: () => void): HTMLElement {
+  const wrap = h("div", { class: "input-box" });
+  const row = h("div", { class: "row" });
+  const micBtn = h("button", { class: `btn ${app.ear.kind === "hume" ? "live" : "gold"}` }, app.ear.kind === "hume" ? "Listening (stop)" : "Use the microphone");
+  micBtn.addEventListener("click", () => (app.ear.kind === "hume" ? stopHume() : askConsent()));
+  if (!app.health.hume) { micBtn.setAttribute("disabled", ""); micBtn.title = "Set HUME_API_KEY and HUME_SECRET_KEY in .env to use the microphone."; }
+  const leave = h("button", { class: "btn ghost" }, leaveLabel);
+  leave.addEventListener("click", onLeave);
+  row.append(micBtn, leave);
+  wrap.append(row);
+
+  const say = h("textarea", { class: "say", placeholder: app.ear.kind === "hume" ? "Or type a line; the mock tone applies to typed lines." : "Type your line here, then choose how you said it." }) as HTMLTextAreaElement;
+  const tones = h("div", { class: "tones" });
+  const current = app.mock.tones[0]?.preset ?? "calm";
+  for (const t of MockEar.presets()) {
+    const b = h("button", { class: `tone ${t === current ? "on" : ""}` }, t);
+    b.addEventListener("click", () => { app.mock.setTone(t as TonePreset); tones.querySelectorAll(".tone").forEach((x) => x.classList.toggle("on", x.textContent === t)); });
+    tones.append(b);
+  }
+  const send = h("button", { class: "btn" }, "Say it");
+  const submit = () => { const text = say.value.trim(); if (!text || app.busy) return; say.value = ""; app.mock.say(text); };
+  send.addEventListener("click", submit);
+  say.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } });
+  wrap.append(say, h("div", { class: "row" }, tones, send));
+  return wrap;
+}
+
 function controls(snap: SessionSnapshot): HTMLElement {
   const box = h("div", { class: "controls" });
   if (snap.status === "force" && snap.force) {
@@ -280,28 +338,7 @@ function controls(snap: SessionSnapshot): HTMLElement {
     box.append(panel);
   }
 
-  const row = h("div", { class: "row" });
-  const micBtn = h("button", { class: `btn ${app.ear.kind === "hume" ? "live" : "gold"}` }, app.ear.kind === "hume" ? "Listening (stop)" : "Use the microphone");
-  micBtn.addEventListener("click", () => (app.ear.kind === "hume" ? stopHume() : askConsent()));
-  if (!app.health.hume) { micBtn.setAttribute("disabled", ""); micBtn.title = "Set HUME_API_KEY and HUME_SECRET_KEY in .env to use the microphone."; }
-  const leave = h("button", { class: "btn ghost" }, "Leave the scene");
-  leave.addEventListener("click", () => { stopHume(); app.voice.stop(); app.screen = "roles"; app.session = null; render(); });
-  row.append(micBtn, leave);
-  box.append(row);
-
-  const say = h("textarea", { class: "say", placeholder: app.ear.kind === "hume" ? "Or type a line; the mock tone applies to typed lines." : "Type your line here, then choose how you said it." }) as HTMLTextAreaElement;
-  const tones = h("div", { class: "tones" });
-  const current = app.mock.tones[0]?.preset ?? "calm";
-  for (const t of MockEar.presets()) {
-    const b = h("button", { class: `tone ${t === current ? "on" : ""}` }, t);
-    b.addEventListener("click", () => { app.mock.setTone(t as TonePreset); tones.querySelectorAll(".tone").forEach((x) => x.classList.toggle("on", x.textContent === t)); });
-    tones.append(b);
-  }
-  const send = h("button", { class: "btn" }, "Say it");
-  const submit = () => { const text = say.value.trim(); if (!text || app.busy) return; say.value = ""; app.mock.say(text); };
-  send.addEventListener("click", submit);
-  say.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } });
-  box.append(say, h("div", { class: "row" }, tones, send));
+  box.append(inputBox("Leave the scene", () => { stopHume(); app.voice.stop(); app.screen = "roles"; app.session = null; render(); }));
   return box;
 }
 
@@ -359,6 +396,7 @@ async function speakMuted(speaker: string, text: string, acting?: string): Promi
 }
 
 async function processUtterance(u: Utterance): Promise<void> {
+  if (app.screen === "mirror") { await processMirrorUtterance(u); return; }
   const session = app.session;
   if (!session) return;
   if (app.busy) {
@@ -388,7 +426,7 @@ async function processUtterance(u: Utterance): Promise<void> {
     if (after.status === "advanced" || after.status === "failed") {
       app.screen = "debrief";
       render();
-    } else if (after.status === "playing" && after.transcript.at(-1)?.speaker === app.world.narrator) {
+    } else if (after.status === "playing" && after.transcript.at(-1)?.speaker === narratorId()) {
       // a clean force win narrated itself
       const last = after.transcript.at(-1)!;
       await speakMuted(last.speaker, last.text);
@@ -398,6 +436,158 @@ async function processUtterance(u: Utterance): Promise<void> {
   } finally {
     app.busy = false;
     refreshTurnStrip();
+  }
+}
+
+// ---------- The Mirror ----------
+
+/** The Scribe, or whoever the pack names as narrator. */
+function narratorId(): string {
+  return app.world.narrator ?? "scribe";
+}
+
+function saveBaseline(b: Baseline | null): void {
+  app.baseline = b;
+  if (b) safeSet("mirrorBaseline", JSON.stringify(b));
+  else { try { localStorage.removeItem("mirrorBaseline"); } catch { /* private mode */ } }
+}
+
+function mirrorCard(): HTMLElement {
+  const card = h("div", { class: "mirror-card" });
+  const text = h("div", { class: "text" },
+    h("div", { class: "eyebrow" }, "Before the tour"),
+    h("h3", {}, "Warm up in the Mirror"),
+    h("p", {}, "Five minutes with the Scribe. He asks for your plain voice, then your best lie, your best support, your best command and your best showman, and tells you in plain words what the world hears. Your plain voice becomes the mark the whole tour is read against."),
+    h("p", { class: "state" }, app.baseline ? `Calibrated to your plain voice, taken ${new Date(app.baseline.takenAt).toLocaleString()}. ${describeBaseline(app.baseline)} Retake it any time.` : "Not yet taken. Until then the ear reads you against a stranger's idea of neutral."),
+  );
+  const go = h("button", { class: "btn gold" }, app.baseline ? "Enter the Mirror again" : "Enter the Mirror");
+  go.addEventListener("click", startMirror);
+  const actions = h("div", { class: "actions" }, go);
+  if (app.baseline) {
+    const clear = h("button", { class: "btn ghost" }, "Forget my baseline");
+    clear.addEventListener("click", () => { saveBaseline(null); render(); });
+    actions.append(clear);
+  }
+  card.append(text, actions);
+  return card;
+}
+
+function startMirror(): void {
+  app.session = null;
+  app.mirror = { step: 0, results: [], baseline: null, lastAffect: null };
+  app.reaction = "";
+  app.status = "";
+  app.screen = "mirror";
+  render();
+  void speakMuted(narratorId(), MIRROR_ASKS[0]!.line);
+}
+
+function mirrorStrip(): HTMLElement {
+  const m = app.mirror!;
+  const done = m.step >= MIRROR_ASKS.length;
+  const state = app.busy ? "The Scribe is speaking" : done ? "The Mirror is done" : "Your turn";
+  const last = m.results.at(-1);
+  const read = last ? (last.heard.length ? `The Scribe hears you as ${last.heard.join(" and ")}.` : "The Scribe hears nothing leaning either way.") : "Not read yet.";
+  const strip = h("div", { class: `turn-strip ${app.busy ? "busy" : "yours"}` });
+  strip.append(
+    h("div", { class: "turn-state" }, state),
+    done ? h("div", { class: "turn-rule" }, h("span", { class: "hint" }, "Begin the tour, or take it again.")) : floorRule(),
+    h("div", { class: "turn-read" }, read),
+    h("div", { class: "turn-status status" }, app.status),
+    h("div", { class: "speech-so-far" }, app.speechSoFar.length ? `Your speech so far: "${app.speechSoFar.map((f) => f.text).join(" ")}"` : ""),
+  );
+  return strip;
+}
+
+function refreshMirrorStrip(): void {
+  const strip = document.querySelector<HTMLElement>(".turn-strip");
+  if (!strip || !app.mirror) return;
+  strip.replaceWith(mirrorStrip());
+}
+
+function mirrorScreen(): HTMLElement {
+  const m = app.mirror!;
+  const done = m.step >= MIRROR_ASKS.length;
+  const ask = MIRROR_ASKS[Math.min(m.step, MIRROR_ASKS.length - 1)]!;
+  const stage = h("div", { class: "stage mirror-stage" },
+    h("div", { class: "vignette" }),
+    h("div", { class: "top" }, h("div", { class: "scene" }, done ? "The Mirror · done" : `The Mirror · ${m.step + 1} of ${MIRROR_ASKS.length} · ${ask.title}`)),
+    h("div", { class: "ask" }, done ? "That is the whole of it. Your plain voice is the mark now; the tour is read against it." : ask.line),
+    h("div", { class: "card" },
+      h("div", { class: "who" }, castName(app.world, narratorId())),
+      h("div", { class: "where" }, "A quiet room before the tour. Nothing here counts against you."),
+      h("div", { class: "react" }, done ? "" : ask.measure),
+    ),
+  );
+  const leave = () => { stopHume(); app.voice.stop(); app.mirror = null; app.screen = "roles"; render(); };
+  const main = h("div", {}, mirrorStrip(), stage);
+  if (!done) main.append(h("div", { class: "controls" }, inputBox("Leave the Mirror", leave)));
+  else {
+    const begin = h("button", { class: "btn gold" }, "Begin the tour with this voice");
+    begin.addEventListener("click", () => { saveBaseline(m.baseline); app.mirror = null; app.screen = "roles"; render(); });
+    const again = h("button", { class: "btn ghost" }, "Take it again");
+    again.addEventListener("click", startMirror);
+    const skip = h("button", { class: "btn ghost" }, "Leave without it");
+    skip.addEventListener("click", leave);
+    main.append(h("div", { class: "controls" }, h("div", { class: "row" }, begin, again, skip)));
+  }
+  const side = h("div", {});
+  side.append(renderMirrorProgress(m));
+  if (m.lastAffect) side.append(renderRibbon(m.lastAffect));
+  side.append(renderHears(m));
+  if (done && m.baseline) side.append(renderBaselinePanel(m.baseline));
+  return h("main", {}, h("div", { class: "stage-grid" }, main, side));
+}
+
+function renderMirrorProgress(m: MirrorState): HTMLElement {
+  const box = h("div", { class: "panel mirror-progress" }, h("h3", {}, "The Mirror"));
+  MIRROR_ASKS.forEach((ask, i) => {
+    const r = m.results[i];
+    const state = r ? "done" : i === m.step ? "now" : "next";
+    const word = r ? (r.band === "plain" ? "taken" : r.band === "high" ? "held" : r.band === "middle" ? "half" : "missed") : state === "now" ? "now" : "";
+    box.append(h("div", { class: `ask ${state} ${r?.band ?? ""}` }, h("span", { class: "n" }, String(i + 1)), h("span", { class: "t" }, ask.title), h("span", { class: "w" }, word)));
+  });
+  return box;
+}
+
+function renderHears(m: MirrorState): HTMLElement {
+  const box = h("div", { class: "panel mirror-hears" }, h("h3", {}, "What the world hears"));
+  const last = m.results.at(-1);
+  if (!last) { box.append(h("div", { class: "empty" }, "Say the plain line and the Scribe will tell you what he heard.")); return box; }
+  box.append(h("div", { class: "verdict" }, last.verdict));
+  if (last.heard.length) box.append(h("div", { class: "heard" }, `Heard as ${last.heard.join(" and ")}.`));
+  return box;
+}
+
+function renderBaselinePanel(b: Baseline): HTMLElement {
+  const box = h("div", { class: "panel baseline" }, h("h3", {}, "Your plain voice"), h("div", { class: "words" }, describeBaseline(b)));
+  box.append(h("div", { class: "note" }, "Every reading on the tour is shifted away from this, so the room hears what you did on purpose, not what you always sound like."));
+  return box;
+}
+
+async function processMirrorUtterance(u: Utterance): Promise<void> {
+  const m = app.mirror;
+  if (!m || m.step >= MIRROR_ASKS.length) return;
+  if (app.busy) { setTimeout(() => { void processMirrorUtterance(u); }, 400); return; }
+  app.busy = true;
+  try {
+    const ask = MIRROR_ASKS[m.step]!;
+    const raw = computeAxes(u.scores);
+    if (ask.id === "plain") m.baseline = baselineFrom(u.scores);
+    const reading = readAsk(ask, ask.id === "plain" ? raw : calibrateAxes(raw, m.baseline));
+    m.results.push(reading);
+    m.lastAffect = updateAffect(createAffectState(), u.scores);
+    m.step += 1;
+    setStatus("");
+    render();
+    await speakMuted(narratorId(), reading.verdict);
+    const next = MIRROR_ASKS[m.step];
+    if (next) await speakMuted(narratorId(), next.line);
+  } catch (e) {
+    setStatus(`The Mirror slipped: ${(e as Error).message}`);
+  } finally {
+    app.busy = false;
+    refreshMirrorStrip();
   }
 }
 
@@ -412,7 +602,7 @@ function callStrategy(idOrSpeech: string, abandon = false): void {
   }
   app.reaction = res.outcome === "lost" ? "they slip the net" : res.outcome === "costly" ? "it works, at a price" : "settled";
   render();
-  void speakMuted(app.world.narrator ?? session.snapshot().playerRole, res.narration).then(() => {
+  void speakMuted(narratorId() ?? session.snapshot().playerRole, res.narration).then(() => {
     const after = session.snapshot();
     if (after.status === "failed") { app.screen = "debrief"; render(); }
   });

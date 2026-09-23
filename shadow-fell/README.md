@@ -40,6 +40,10 @@ Keys never reach the browser. The server mints a short-lived Hume access token p
 
 EVI commits a transcript at every natural pause. The app gathers those fragments on "the floor" and only hands the whole speech to the director when your turn ends: after 2, 3 or 5 seconds of silence (your choice, remembered), or only when you press "Done, over to them" or hit Return. A dramatic pause never ends a turn. The merged speech carries a word-weighted blend of how each fragment sounded.
 
+## The Mirror
+
+Before the tour, the roles screen offers the Mirror: a warm-up with the Scribe. He asks for your plain voice, then your best lie, your best support, your best command and your best showman, and says in plain words what a listener hears, with the ribbon live beside each attempt. The plain line becomes a baseline, remembered per browser, and every reading on the tour is shifted away from it (`calibrateAxes` in `src/engine/mirror.ts`), so the room hears what you did on purpose rather than what you always sound like. The band shows `Mirror: calibrated` once a baseline is held; the roles screen lets you retake or forget it.
+
 ## How a turn works
 
 1. The ear reports a final utterance: transcript plus 48 prosody scores (`user_message.models.prosody.scores`).

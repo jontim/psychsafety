@@ -198,3 +198,26 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .brief .brief-row .label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--state-blue); padding-top: 2px; }
 .role .when { font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--ink-soft); margin: -4px 0 8px; }
 @media (max-width: 600px) { .turn-strip { grid-template-columns: 1fr; } .turn-strip .turn-read { text-align: left; } }
+
+/* The Mirror: the warm-up before the tour. */
+.mirror-card { display: flex; gap: 20px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin: 6px 0 22px; padding: 18px 22px; background: linear-gradient(135deg, rgba(200,162,74,0.16), rgba(91,62,140,0.10)); border: 1px solid var(--old-gold); border-radius: var(--radius); box-shadow: 0 10px 30px rgba(20,18,16,0.10); }
+.mirror-card .text { flex: 1 1 420px; }
+.mirror-card .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--old-gold); }
+.mirror-card h3 { font-family: var(--serif); font-size: 24px; margin: 2px 0 6px; }
+.mirror-card p { margin: 0 0 6px; font-size: 14px; color: var(--ink-soft); max-width: 70ch; }
+.mirror-card p.state { font-style: italic; }
+.mirror-card .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.mirror-stage { background: radial-gradient(60% 60% at 50% 35%, rgba(91,62,140,0.35), rgba(20,18,16,1) 100%); }
+.mirror-stage .ask { position: absolute; inset: 0; display: grid; place-items: center; padding: 64px 40px 120px; text-align: center; font-family: var(--serif); font-size: clamp(20px, 2.4vw, 30px); line-height: 1.35; color: var(--parchment); text-shadow: 0 2px 18px rgba(0,0,0,0.6); }
+.mirror-progress .ask { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+.mirror-progress .ask:last-child { border-bottom: 0; }
+.mirror-progress .ask .n { font-family: var(--serif); color: var(--ink-soft); }
+.mirror-progress .ask.now .t { color: var(--old-gold); font-weight: 700; }
+.mirror-progress .ask.next { color: var(--ink-soft); opacity: 0.7; }
+.mirror-progress .ask .w { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--state-blue); }
+.mirror-progress .ask.high .w { color: var(--old-gold); }
+.mirror-progress .ask.low .w { color: var(--storm-violet); }
+.mirror-hears .verdict { font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.4; border-left: 3px solid var(--old-gold); padding-left: 10px; }
+.mirror-hears .heard { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+.baseline .words { font-family: var(--serif); font-size: 17px; }
+@media (max-width: 600px) { .mirror-stage .ask { font-size: 18px; padding: 56px 20px 110px; } }

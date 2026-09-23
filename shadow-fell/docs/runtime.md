@@ -65,3 +65,7 @@ Sections 14 and 15 (chosen risk, Tor-Morrighad) are compiled and available but n
 ## Next
 
 An offline eval, "which Warden said this?": generate lines per beat, strip the names, ask the model to attribute them, and score specificity. §9.6 step 8 says that if a scene could be reassigned to another Warden with only the name changed, specificity is too low; the eval makes that a number.
+
+## Calibration
+
+A session built with a baseline (`new StorySession(world, beatId, { baseline })`) shifts both the smoothed and the latest axes away from the player's plain voice by `CALIBRATION_STRENGTH` (0.6) before meters drift, clips are chosen or the director is briefed. The baseline comes from the Mirror's plain line; the snapshot reports `calibrated`. Without a baseline nothing changes.

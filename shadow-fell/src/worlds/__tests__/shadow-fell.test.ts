@@ -35,6 +35,22 @@ describe("The Shadow Fell world pack", () => {
     expect(room.notes).toBe("");
   });
 
+  it("runs the windowless room on Soraya's restraint, not the Congress", () => {
+    const { beat } = findBeat(shadowFell, "no-windows");
+    expect(beat.meters).toEqual(["standing", "restraint", "evidence"]);
+    expect(beat.brief?.room).toContain("yours to the bone");
+    expect(beat.brief?.lean).toContain("wants you to waste him");
+    expect(beat.notes).toContain("never the prisoner's shield");
+    expect(beat.notes).not.toContain("warmth, oddly");
+    const indigo = shadowFell.cast.find((c) => c.id === "indigo")!;
+    expect(indigo.knows.join(" ")).not.toContain("Congress would hear");
+    expect(indigo.summary).toContain("purple eyes first");
+    const soraya = shadowFell.cast.find((c) => c.id === "soraya")!;
+    expect(soraya.summary).toContain("nobody's shield");
+    const restraint = shadowFell.meters.find((m) => m.id === "restraint")!;
+    expect(restraint.axes.find((a) => a.axis === "pressure")?.weight).toBeLessThan(0);
+  });
+
   it("strips director-only material from the public copy", () => {
     const pub = publicWorld(shadowFell);
     expect(pub.cast.every((c) => c.knows.length === 0)).toBe(true);

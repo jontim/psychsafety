@@ -6,6 +6,7 @@ import { affectTagFromAxes, selectClip } from "./clips.js";
 import type { DirectorRequest, DirectorResponse, TranscriptLine } from "./director-contract.js";
 import type { Clip } from "./world.js";
 import { muster as musterScene, strategies as buildStrategies, matchStrategy, resolveForce, type Muster, type Strategy, type ForceResolution } from "./force.js";
+import { calibrateAxes, type Baseline } from "./mirror.js";
 
 export interface UtteranceRecord {
   text: string;
@@ -28,6 +29,8 @@ export interface SessionSnapshot {
   suggestedClip: Clip | null;
   /** Present while status is "force": who is here and what they make possible. */
   force: { threat: string; muster: Muster; strategies: Strategy[] } | null;
+  /** True when readings are shifted away from the player's plain voice, taken in the Mirror. */
+  calibrated: boolean;
 }
 
 /**
@@ -43,10 +46,12 @@ export class StorySession {
   private turn = 0;
   private status: SessionSnapshot["status"] = "playing";
   private force: SessionSnapshot["force"] = null;
+  private baseline: Baseline | null;
 
-  constructor(world: World, beatId: string) {
+  constructor(world: World, beatId: string, options: { baseline?: Baseline | null } = {}) {
     this.world = world;
     this.beatId = beatId;
+    this.baseline = options.baseline ?? null;
     findBeat(world, beatId);
     this.affect = createAffectState(CORE_AXES);
     this.meters = initMeters(world.meters);
@@ -60,6 +65,7 @@ export class StorySession {
   ingest(text: string, scores: EmotionVector): UtteranceRecord {
     if (this.status !== "playing") throw new Error(`Beat ${this.beatId} is ${this.status}`);
     this.affect = updateAffect(this.affect, scores, 0.5, CORE_AXES);
+    if (this.baseline) this.affect = { ...this.affect, axes: calibrateAxes(this.affect.axes, this.baseline), latestAxes: calibrateAxes(this.affect.latestAxes, this.baseline) };
     const beatMeters = this.world.meters.filter((m) => this.beat.meters.includes(m.id));
     const drift = applyDrift(this.meters, beatMeters, this.affect.latestAxes);
     const top = topDimensions(scores, 3).map((d) => d.label.toLowerCase()).join(", ");
@@ -181,6 +187,7 @@ export class StorySession {
       status: this.status,
       suggestedClip: this.suggestClip(),
       force: this.force,
+      calibrated: this.baseline !== null,
     };
   }
 }

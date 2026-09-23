@@ -8,3 +8,4 @@ export * from "./mock-ear.js";
 export * from "./force.js";
 export * from "./session.js";
 export * from "./runtime.js";
+export * from "./mirror.js";

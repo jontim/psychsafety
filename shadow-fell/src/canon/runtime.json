@@ -53,7 +53,7 @@
     "Do not convert Brask’s literalism into stupidity, Thorbin’s patience into passivity, Kael’s youthfulness into childishness, Lyra’s power into instability, Varya’s secrecy into rogue coding, Serena’s morality into rigidity or Tavian’s wit into frivolity.",
     "Characters may use another member’s method, but execution must remain in their own voice.",
     "Behavioral canon outranks convenient plot behavior. Out-of-character branches must earn the deviation on screen.",
-    "Shared-care de-duplication: the company shares a practical-care ethic, but each Warden expresses it through their own attentional priority. Do not express shared care identically: first identify what this Warden notices, and let the care follow from that. Do not default multiple Wardens to sit, eat and reassure unless the physical state genuinely makes those actions primary. Thorbin feeds him because hunger is a material problem. Serena secures him because his safety is now her responsibility. Kael notices horse, person and environment dysregulation: he asks what the living system is telling him, and his attention spreads outward into ecology and relationship. Lyra notices the uncontained consequence: she asks what consequence everybody else has failed to remain present for, and her attention follows it past the point where everyone else thinks the event is over. Tavian changes the social state so shame stops obstructing action. Varya obtains the fact whose absence prevents action. Brask makes the concrete guarantee true. Same family ethic, seven different doors."
+    "Shared-care de-duplication: the company shares a practical-care ethic, but a shared care ethic does not imply a shared first action. Care begins with what this Warden notices; first identify that, and let the care follow from it. Do not default multiple Wardens to sit, eat and reassure unless the physical state genuinely makes those actions primary. Care enters through seven different doors. Serena: safety and accepted responsibility; she secures him because his safety is now hers. Tavian: social state, dignity, shame and belonging; he changes the social state so shame stops obstructing action. Varya: actionable information and restored options; she obtains the fact whose absence prevents action, asking what fact doesn't fit. Thorbin: bodily and material need, and tomorrow; he feeds him because hunger is a material problem. Brask: the concrete guarantee made true. Kael: the dysregulated relationship or living system; he asks what relationship has been made wrong and what the living system is telling him, person and animal, water and hill, child and institution. Lyra: the unresolved consequence; she asks what consequence is still happening, the one everybody else has failed to remain present for, and follows it past the point where everyone else thinks the event is over. Same love, different doorway: the family resemblance without everyone handing out soup."
   ],
   "scoring": [
     "+2 Canon-positive: Directly expresses a core strategy, ethical anchor, leadership claim or relationship modifier.",
@@ -124,6 +124,7 @@
       "runtimeRule": "Give the wrong person credit. Ego often corrects the record.",
       "failureMode": "Never turn her into a rogue, generic assassin, omniscient spymaster or emotionless machine. Varya is a ranger.",
       "runtime": {
+        "attention": "the actionable fact and the restored option; what fact doesn't fit?",
         "notices_first": "pattern breaks; status hunger; exits/sightlines; who watches whom; reflexive corrections",
         "default_strategy": "engineer conditions in which the target reveals useful behavior voluntarily",
         "pressure_strategy": "fewer words, tighter positioning, stronger information control; preserve a face-saving exit when useful",
@@ -176,6 +177,7 @@
       "runtimeRule": "Thorbin does not perform attention, courage or wisdom. He simply pays attention, remains and acts.",
       "failureMode": "Do not write him as “the dwarf,” naïve cleric, comic uncle or moral scold.",
       "runtime": {
+        "attention": "bodily and material need, and tomorrow",
         "notices_first": "promises; workmanship; obligations; durability; who will need help later",
         "default_strategy": "endure → stabilize → choose environment → solve durable problem",
         "pressure_strategy": "more patient and physically immovable; lets others mistake steadiness for slowness",
@@ -227,6 +229,7 @@
       "runtimeRule": "Dawnseeker is not Serena’s argument. It is what remains available if the argument fails.",
       "failureMode": "Do not make her sanctimonious, lawful-stupid or the permanent operational commander.",
       "runtime": {
+        "attention": "safety and accepted responsibility; what she is now answerable for, and what the evidence supports",
         "notices_first": "duty; coercion; evidence; jurisdiction; who is under her protection",
         "default_strategy": "establish responsibility and boundary, then act decisively",
         "escalation_order": "clarify → warn → establish jurisdiction → offer last exit → judgment → force",
@@ -278,6 +281,7 @@
       "runtimeRule": "If Brask says someone promised the cleric could live, that promise remains an object in the room.",
       "failureMode": "INT 8 means unlearned and concrete, not foolish. WIS 15 matters.",
       "runtime": {
+        "attention": "the concrete guarantee not yet made true",
         "notices_first": "exact wording; broken promises; direct threats; physical facts",
         "default_strategy": "state concrete truth and act openly",
         "pressure_strategy": "more literal and physically decisive, not more verbally complex",
@@ -345,11 +349,13 @@
         "Protection can precede moral judgment: if someone is inside the danger, Kael may save them first.",
         "Magic should feel relational and responsive rather than wizard-procedural.",
         "Affection can disrupt strategic distance.",
-        "After an audacious solution works, delighted almost-adolescent satisfaction is authentic."
+        "After an audacious solution works, delighted almost-adolescent satisfaction is authentic.",
+        "Kael asks what relationship is being disturbed, not just what nature is doing: person and animal, water and hill, predator and prey, child and institution, community and land, a speaker and the thing they claim to own. That is his ordinary signature in a tavern, a watch house or an interrogation as much as in a wood."
       ],
       "runtimeRule": "Kael does not dominate nature. The ground knows him well enough to answer quickly.",
       "failureMode": "Do not make him a serene eco-sage, feral child or generic nature wizard.",
       "runtime": {
+        "attention": "the disturbed relationship or dysregulated living system; what relationship has been made wrong? person and animal, water and hill, predator and prey, child and institution, community and land, a speaker and the thing they claim to own",
         "notices_first": "wrong light; wrong wind; wrong silence; living-system disturbance; environmental possibility",
         "default_strategy": "ask the world for the smallest intervention that changes the whole situation",
         "pressure_strategy": "explosive action once anomaly resolves into danger",
@@ -396,11 +402,13 @@
         "One eyebrow may contain an entire performance review.",
         "Large capability does not require large theatricality.",
         "Her meddling comes from refusing to ignore a consequence she can see.",
-        "Her exasperation can be maternal without undermining friends’ competence."
+        "Her exasperation can be maternal without undermining friends’ competence.",
+        "Ordinary cognitive signature, in any scene and with no magic present: she follows the wake of an event. Where did everybody else decide this situation ended, and what is still happening beyond that boundary? The person still standing in the doorway; the promise the rescue created; the frightened child nobody has addressed because the villain is defeated; the magical side effect everyone treats as cleanup; the social cost somebody has volunteered to absorb."
       ],
       "runtimeRule": "Snap. Spell gone. Eyebrow: you all stopped thinking too early.",
       "failureMode": "Do not make her a generic chaos mage, exposition engine or permanently ominous superweapon.",
       "runtime": {
+        "attention": "the unresolved consequence; what consequence is still happening? where did everybody else decide this ended, and what is still happening beyond that boundary",
         "notices_first": "magical residue; unresolved causal chains; cruelty; second-order consequence; the problem everyone called finished",
         "default_strategy": "alter the magical condition producing the threat rather than contest the visible symptom",
         "pressure_strategy": "immense capability compressed into economical action",
@@ -447,11 +455,13 @@
         "Humor often changes status rather than merely relieving tension.",
         "Fame is operational infrastructure: tour, broadcast network, bait, cover and intelligence collection.",
         "Preserves human detail that makes history transmissible; myth and accuracy are not identical.",
-        "Threat language often foreshadows the consequence of the target’s next choice rather than issuing macho challenge."
+        "Threat language often foreshadows the consequence of the target’s next choice rather than issuing macho challenge.",
+        "Obtains information through social and narrative movement: he changes the state of the room and reads what moves, where Thorbin materially tends and Varya interrogates the field."
       ],
       "runtimeRule": "Tavian does not merely tell stories. He creates social realities people begin behaving inside.",
       "failureMode": "Do not make every line a quip. He reads rooms, changes tempo and can become lethal in language.",
       "runtime": {
+        "attention": "social state, dignity, shame and belonging; he obtains information through social and narrative movement, changing the state of the room and reading what moves",
         "notices_first": "room temperature; pride; shame; attention; status story; what people need permission to do",
         "default_strategy": "change the story people believe they are inside so behavior changes with it",
         "pressure_strategy": "layered meaning sharpens; humor can become warning, bait or social control",

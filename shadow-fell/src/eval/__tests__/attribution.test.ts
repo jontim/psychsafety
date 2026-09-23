@@ -4,7 +4,7 @@ import { validateWorld, findBeat } from "../../engine/world.js";
 import { loadCanonRuntime } from "../../server/runtime.js";
 import { systemPrompt, turnMessage } from "../../server/prompt.js";
 import { understudy } from "../../server/understudy.js";
-import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, formatReport, hitsWrongLine, judgeSystem, matchJudgements, sampleLine, slipsStyle, opensOnCare, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
+import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, formatReport, hitsWrongLine, pairJudgeUser, matchPairJudgements, judgeSystem, matchJudgements, sampleLine, slipsStyle, opensOnCare, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
 import { chooseMoves, scoreSteering, steeringVerdict, matchSteering, type SteeringPair } from "../steering.js";
 
 const runtime = loadCanonRuntime();
@@ -119,6 +119,28 @@ describe("the attribution eval", () => {
     expect(drop).not.toMatch(/Run the steering test; if the two forced moves render the same line, kill the gate/);
   });
 
+  it("judges a collision as a forced pair and reports it beside the open set", () => {
+    const items = [{ id: "a:pair", kind: "line" as const, text: "Sit. Eat first.", situation: "s" }, { id: "b:pair", kind: "line" as const, text: "You safe here. Door mine.", situation: "s" }];
+    const prompt = pairJudgeUser(items, ["thorbin", "brask"], runtime);
+    expect(prompt).toContain("either Thorbin Ironhart (id: thorbin) or Brask Runebearer (id: brask)");
+    expect(prompt).toContain("2. (situation: s)");
+    const { matched, unmatched } = matchPairJudgements(items, ["thorbin", "brask"], { items: [{ index: 1, choice: "thorbin" }, { index: 2, choice: "lyra" }, { index: 9, choice: "brask" }] });
+    expect(matched.get("a:pair")).toBe("thorbin");
+    expect(matched.has("b:pair")).toBe(false);
+    expect(unmatched).toBe(2);
+    const mk = (warden: Sample["warden"], i: number): Sample => ({ id: `B-victim-${warden}-${i}`, condition: "B", scenario: "victim", warden, stimulus: "s", stimulusLine: "x", tone: "warm", speaker: warden, line: `line ${i}`, acting: "", source: "claude" });
+    const samples = [mk("thorbin", 1), mk("brask", 2)];
+    const judged = new Map<string, JudgedItem>([["B-victim-thorbin-1:line", { index: 1, voice: "thorbin", action: "thorbin", swappable: false }], ["B-victim-brask-2:line", { index: 2, voice: "lyra", action: "lyra", swappable: true }]]);
+    const pairJudged = new Map<string, "thorbin" | "brask">([["B-victim-thorbin-1:pair", "thorbin"], ["B-victim-brask-2:pair", "thorbin"]]);
+    const B = scoreCondition("B", samples, judged, runtime, false, SCENARIOS, pairJudged);
+    expect(B.pairs).toEqual([{ scenario: "victim", pair: ["thorbin", "brask"], n: 2, voice: 0.5, crossed: 0, forced: { n: 2, right: 0.5 } }]);
+    const report = formatReport([B], { run: "t" }, samples, []);
+    expect(report).toContain("| forced pair (n) |");
+    expect(report).toContain("| B | victim | thorbin and brask | 2 | 50% | 0 | 50% (2) |");
+    expect(report).toContain("| understudy |");
+    expect(scoreCondition("B", samples, judged, runtime).pairs[0]).not.toHaveProperty("forced");
+  });
+
   it("explains its columns and says when the judge never separated voice from behaviour", () => {
     const base = (condition: "A" | "B", over: Partial<ConditionScore>): ConditionScore => ({
       condition, label: CONDITIONS[condition].label, n: 42, judged: 42, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 0.5, action: 0.5, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], ...over,
@@ -153,6 +175,8 @@ describe("the attribution eval", () => {
     expect(CONDITIONS.A.gate).toBe(false);
     expect(CONDITIONS.C.gate).toBe(true);
     expect(judgeSystem(runtime)).toContain("### Brask Runebearer (id: brask)");
+    expect(judgeSystem(runtime)).toContain("never copy one into the other");
+    expect(judgeSystem(runtime)).toContain("Attention: the unresolved consequence");
   });
 });
 

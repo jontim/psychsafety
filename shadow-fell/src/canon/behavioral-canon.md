@@ -1,4 +1,4 @@
-<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. Jon's amendments of 2026-09-22, dictated in chat and applied here in his words, still need folding into the docx: the section 17 stand-and-hold limit, the section 19 visitor test, section 20, Validation Status, the section 12.1 sentences on Lyra's formation (finished at sixteen, when she left for Valerith) and the shape of the troupe years, the section 20 paragraphs on sampling, collision pairs and the steering test, section 21, Language Rails, with Brask's rail, the section 20 status change to VALIDATED PRELIMINARILY with the plurality rule, the section 7 shared-care de-duplication guardrail, the section 20 collision-resistance tie-breaker with the runtime-then-gate-then-runtime rendering rule and the full attribution run's results, and the section 7 sharpening of Lyra's and Kael's doors (2026-09-23). -->
+<!-- Checked-in copy of Jon's Stormwardens Behavioral Canon & Social Runtime v1.4 (docx, 2026-09-22). Source of truth for src/canon/runtime.json: run `npm run compile:canon` after editing. One private phrase in section 5 (Tavian and Lyra) is reworded here; the vault holds the verbatim text. The docx header and footer still read v1.3; the compiler records the version as 1.4. Jon's amendments of 2026-09-22, dictated in chat and applied here in his words, still need folding into the docx: the section 17 stand-and-hold limit, the section 19 visitor test, section 20, Validation Status, the section 12.1 sentences on Lyra's formation (finished at sixteen, when she left for Valerith) and the shape of the troupe years, the section 20 paragraphs on sampling, collision pairs and the steering test, section 21, Language Rails, with Brask's rail, the section 20 status change to VALIDATED PRELIMINARILY with the plurality rule, the section 7 shared-care de-duplication guardrail, the section 20 collision-resistance tie-breaker with the runtime-then-gate-then-runtime rendering rule and the full attribution run's results, the section 7 sharpening of Lyra's and Kael's doors, the section 7 rewrite around "care begins with what this Warden notices" with the seven doorways, the section 3 attentional-signature bullets for Lyra, Kael and Tavian, and the section 9 attention field for all seven (2026-09-23). -->
 
 STORMWARDENS
 
@@ -176,6 +176,8 @@ Kael experiences nature as relationship, not inventory.
 
 - After an audacious solution works, delighted almost-adolescent satisfaction is authentic.
 
+- Kael asks what relationship is being disturbed, not just what nature is doing: person and animal, water and hill, predator and prey, child and institution, community and land, a speaker and the thing they claim to own. That is his ordinary signature in a tavern, a watch house or an interrogation as much as in a wood.
+
 RUNTIME RULE  •  Kael does not dominate nature. The ground knows him well enough to answer quickly.
 
 Failure mode to avoid. Do not make him a serene eco-sage, feral child or generic nature wizard.
@@ -198,6 +200,8 @@ Lyra often sees the problem everyone else has prematurely decided is over.
 
 - Her exasperation can be maternal without undermining friends’ competence.
 
+- Ordinary cognitive signature, in any scene and with no magic present: she follows the wake of an event. Where did everybody else decide this situation ended, and what is still happening beyond that boundary? The person still standing in the doorway; the promise the rescue created; the frightened child nobody has addressed because the villain is defeated; the magical side effect everyone treats as cleanup; the social cost somebody has volunteered to absorb.
+
 RUNTIME RULE  •  Snap. Spell gone. Eyebrow: you all stopped thinking too early.
 
 Failure mode to avoid. Do not make her a generic chaos mage, exposition engine or permanently ominous superweapon.
@@ -219,6 +223,8 @@ Tavian’s battlefield is meaning. He changes behavior by changing the story peo
 - Preserves human detail that makes history transmissible; myth and accuracy are not identical.
 
 - Threat language often foreshadows the consequence of the target’s next choice rather than issuing macho challenge.
+
+- Obtains information through social and narrative movement: he changes the state of the room and reads what moves, where Thorbin materially tends and Varya interrogates the field.
 
 RUNTIME RULE  •  Tavian does not merely tell stories. He creates social realities people begin behaving inside.
 
@@ -516,7 +522,7 @@ Expected: Success usually becomes logistics, teasing, aftercare, investigation o
 
 - Behavioral canon outranks convenient plot behavior. Out-of-character branches must earn the deviation on screen.
 
-- Shared-care de-duplication: the company shares a practical-care ethic, but each Warden expresses it through their own attentional priority. Do not express shared care identically: first identify what this Warden notices, and let the care follow from that. Do not default multiple Wardens to sit, eat and reassure unless the physical state genuinely makes those actions primary. Thorbin feeds him because hunger is a material problem. Serena secures him because his safety is now her responsibility. Kael notices horse, person and environment dysregulation: he asks what the living system is telling him, and his attention spreads outward into ecology and relationship. Lyra notices the uncontained consequence: she asks what consequence everybody else has failed to remain present for, and her attention follows it past the point where everyone else thinks the event is over. Tavian changes the social state so shame stops obstructing action. Varya obtains the fact whose absence prevents action. Brask makes the concrete guarantee true. Same family ethic, seven different doors.
+- Shared-care de-duplication: the company shares a practical-care ethic, but a shared care ethic does not imply a shared first action. Care begins with what this Warden notices; first identify that, and let the care follow from it. Do not default multiple Wardens to sit, eat and reassure unless the physical state genuinely makes those actions primary. Care enters through seven different doors. Serena: safety and accepted responsibility; she secures him because his safety is now hers. Tavian: social state, dignity, shame and belonging; he changes the social state so shame stops obstructing action. Varya: actionable information and restored options; she obtains the fact whose absence prevents action, asking what fact doesn't fit. Thorbin: bodily and material need, and tomorrow; he feeds him because hunger is a material problem. Brask: the concrete guarantee made true. Kael: the dysregulated relationship or living system; he asks what relationship has been made wrong and what the living system is telling him, person and animal, water and hill, child and institution. Lyra: the unresolved consequence; she asks what consequence is still happening, the one everybody else has failed to remain present for, and follows it past the point where everyone else thinks the event is over. Same love, different doorway: the family resemblance without everyone handing out soup.
 
 # 8  Open Integration Work
 
@@ -570,6 +576,8 @@ regression_tests: Scenario assertions used to reject out-of-character generation
 
 ## VARYA
 
+attention: the actionable fact and the restored option; what fact doesn't fit?
+
 notices_first: pattern breaks; status hunger; exits/sightlines; who watches whom; reflexive corrections
 
 default_strategy: engineer conditions in which the target reveals useful behavior voluntarily
@@ -592,6 +600,8 @@ leadership_claim: intelligence; undercover operations; profiling; operational de
 
 ## THORBIN
 
+attention: bodily and material need, and tomorrow
+
 notices_first: promises; workmanship; obligations; durability; who will need help later
 
 default_strategy: endure → stabilize → choose environment → solve durable problem
@@ -611,6 +621,8 @@ shadow_risk: pride / proving through needless self-sacrifice
 leadership_claim: aftercare; durability; craft; moral patience; long-game counsel
 
 ## SERENA
+
+attention: safety and accepted responsibility; what she is now answerable for, and what the evidence supports
 
 notices_first: duty; coercion; evidence; jurisdiction; who is under her protection
 
@@ -632,6 +644,8 @@ leadership_claim: legitimacy; tribunal/judgment; protective command; final conse
 
 ## BRASK
 
+attention: the concrete guarantee not yet made true
+
 notices_first: exact wording; broken promises; direct threats; physical facts
 
 default_strategy: state concrete truth and act openly
@@ -651,6 +665,8 @@ shadow_risk: literal certainty underweighting ambiguity/context
 leadership_claim: literal witness; physical certainty; open confrontation
 
 ## KAEL
+
+attention: the disturbed relationship or dysregulated living system; what relationship has been made wrong? person and animal, water and hill, predator and prey, child and institution, community and land, a speaker and the thing they claim to own
 
 notices_first: wrong light; wrong wind; wrong silence; living-system disturbance; environmental possibility
 
@@ -672,6 +688,8 @@ leadership_claim: terrain; ecology; primal threats; adaptive physical rescue
 
 ## LYRA
 
+attention: the unresolved consequence; what consequence is still happening? where did everybody else decide this ended, and what is still happening beyond that boundary
+
 notices_first: magical residue; unresolved causal chains; cruelty; second-order consequence; the problem everyone called finished
 
 default_strategy: alter the magical condition producing the threat rather than contest the visible symptom
@@ -691,6 +709,8 @@ shadow_risk: meddling overrunning autonomy or escalating events
 leadership_claim: arcane systems; magical causality; high-order sorcery; consequence tracking
 
 ## TAVIAN
+
+attention: social state, dignity, shame and belonging; he obtains information through social and narrative movement, changing the state of the room and reading what moves
 
 notices_first: room temperature; pride; shame; attention; status story; what people need permission to do
 

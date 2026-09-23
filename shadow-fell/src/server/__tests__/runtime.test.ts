@@ -69,6 +69,11 @@ describe("the compiled canon", () => {
     expect(runtime.guardrails.some((g) => g.startsWith("Shared-care de-duplication"))).toBe(true);
     expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("what the living system is telling him");
     expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("failed to remain present for");
+    expect(runtime.wardens.lyra!.runtime.attention).toContain("what consequence is still happening?");
+    expect(runtime.wardens.kael!.runtime.attention).toContain("what relationship has been made wrong?");
+    expect(runtime.wardens.varya!.runtime.attention).toContain("what fact doesn't fit?");
+    expect(runtime.wardens.lyra!.card.some((c) => c.startsWith("Ordinary cognitive signature"))).toBe(true);
+    expect(runtime.wardens.tav!.card.some((c) => c.startsWith("Obtains information through social and narrative movement"))).toBe(true);
     expect(runtime.validation.join(" ")).toContain("Collision resistance, a tie-breaker only");
     expect(runtime.validation.join(" ")).toContain("the runtime renders the person doing that tactic");
     expect(runtime.wardens.brask!.languageRail.length).toBeGreaterThanOrEqual(14);

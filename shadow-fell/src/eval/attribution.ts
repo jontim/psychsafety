@@ -235,6 +235,40 @@ export type JudgedItem = Judgement["items"][number];
 
 export interface JudgeItem { id: string; kind: "line" | "intention"; text: string; situation: string }
 
+/** The forced pair: every item came from one of two named Wardens, and the judge must say which. */
+export const PairJudgementSchema = z.object({
+  items: z.array(z.object({
+    /** The item's number as listed, 1-based. */
+    index: z.number().int(),
+    /** Which of the two named Wardens produced it, as a cast id. */
+    choice: z.enum(WARDENS),
+  })),
+});
+export type PairJudgement = z.infer<typeof PairJudgementSchema>;
+
+export function pairJudgeUser(items: JudgeItem[], pair: readonly [WardenId, WardenId], runtime: CanonRuntime): string {
+  const [a, b] = pair;
+  return [
+    `## Forced pair: each item below was produced by either ${runtime.wardens[a]!.name} (id: ${a}) or ${runtime.wardens[b]!.name} (id: ${b}). No other Warden is possible.`,
+    "For each numbered item give its number as index and, as choice, which of the two produced it, judging the line as a whole, what it notices and does as much as how it sounds. Do not assume an even split and do not use the order of the items as a clue.",
+    "",
+    "## Items",
+    ...items.map((i, n) => `${n + 1}. (situation: ${i.situation})\n"${i.text}"`),
+  ].join("\n\n");
+}
+
+/** Map the forced-pair answers back to item ids; answers outside the pair or matching no item are dropped and counted. */
+export function matchPairJudgements(items: JudgeItem[], pair: readonly [WardenId, WardenId], judgement: PairJudgement): { matched: Map<string, WardenId>; unmatched: number } {
+  const matched = new Map<string, WardenId>();
+  let unmatched = 0;
+  for (const j of judgement.items) {
+    const item = items[j.index - 1];
+    if (item && (pair as readonly string[]).includes(j.choice)) matched.set(item.id, j.choice);
+    else unmatched++;
+  }
+  return { matched, unmatched };
+}
+
 /** Map the judge's numbered answers back to item ids; unmatched numbers are dropped and counted. */
 export function matchJudgements(items: JudgeItem[], judgement: Judgement): { matched: Map<string, JudgedItem>; unmatched: number } {
   const matched = new Map<string, JudgedItem>();
@@ -256,6 +290,7 @@ export function wardenCards(runtime: CanonRuntime): string {
       `${w.role}. ${w.thesis}`,
       ...w.card.map((c) => `- ${c}`),
       `Runtime rule: ${w.runtimeRule}`,
+      `Attention: ${w.runtime.attention ?? ""}`,
       `Speech: ${w.runtime.speech ?? ""}`,
       `Will not do: ${w.runtime.will_not_do ?? ""}`,
     ].join("\n");
@@ -265,7 +300,8 @@ export function wardenCards(runtime: CanonRuntime): string {
 export function judgeSystem(runtime: CanonRuntime): string {
   return [
     "You are an independent evaluator of character discriminability. Seven characters, the Stormwardens, each have an execution card below. You will be shown lines and moves generated for them with every name, dialogue tag and character-specific noun replaced by [name].",
-    "For each numbered item answer, giving its number as index: voice, who said it judging by language, cadence and register alone; action, who would choose to do what the item does, judging by behaviour alone; swappable, whether the item could be reassigned to a different Warden by changing only the name, and if so to whom; violation, if the item breaks a card's rule or will-not-do in a way worth a −2, named in a few words, otherwise omitted.",
+    "For each numbered item answer, giving its number as index: voice, the Warden whose wording and sentence construction this could plausibly be, judging by language, cadence and register alone and ignoring what is done; action, the Warden whose attention, action and decision this is, ignoring prose style entirely and judging by what the item chooses to notice and to do; swappable, whether the item could be reassigned to a different Warden by changing only the name, and if so to whom; violation, if the item breaks a card's rule or will-not-do in a way worth a −2, named in a few words, otherwise omitted.",
+    "Voice and action are two separate questions with separate evidence, and they often have different answers: a line can sound like one Warden and choose like another. Answer each on its own evidence and never copy one into the other.",
     "Judge each item on its own. Do not assume the items are evenly distributed across the seven, and do not use the order of the items as a clue.",
     "",
     "## The seven",
@@ -336,7 +372,7 @@ export interface ConditionScore {
   /** Accuracy within each Warden's own judged lines. */
   perWarden: Record<string, { n: number; voice: number; action: number }>;
   /** For scenarios built to collide a pair: voice accuracy on the pair's own lines, and how often each was taken for the other. */
-  pairs: Array<{ scenario: string; pair: [WardenId, WardenId]; n: number; voice: number; crossed: number }>;
+  pairs: Array<{ scenario: string; pair: [WardenId, WardenId]; n: number; voice: number; crossed: number; /** The forced binary choice on the pair's own lines, when it ran. */ forced?: { n: number; right: number } }>;
   /** Judge's wrong voice guesses, counted: who was taken for whom. */
   confusions: Array<{ scenario: string; truth: WardenId; guess: WardenId; count: number }>;
 }
@@ -391,7 +427,7 @@ export function hitsWrongLine(line: string, runtime: CanonRuntime, threshold = 0
   return Object.values(runtime.wardens).some((w) => w.wrongLines.some((wl) => jaccard(t, tokens(wl.line)) >= threshold));
 }
 
-export function scoreCondition(condition: Condition, samples: Sample[], judged: Map<string, JudgedItem>, runtime: CanonRuntime, dry = false, scenarios: readonly Scenario[] = SCENARIOS): ConditionScore {
+export function scoreCondition(condition: Condition, samples: Sample[], judged: Map<string, JudgedItem>, runtime: CanonRuntime, dry = false, scenarios: readonly Scenario[] = SCENARIOS, pairJudged?: Map<string, WardenId>): ConditionScore {
   const mine = samples.filter((s) => s.condition === condition);
   const live = dry ? mine : mine.filter((s) => s.source === "claude");
   const onSpeaker = live.filter((s) => s.speaker === s.warden);
@@ -429,10 +465,12 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
   for (const sc of scenarios) {
     if (!sc.pair) continue;
     const own = onSpeaker.filter((s) => s.scenario === sc.id && (sc.pair as readonly string[]).includes(s.warden) && judged.has(`${s.id}:line`));
-    if (!own.length) continue;
+    const forcedOwn = pairJudged ? onSpeaker.filter((s) => s.scenario === sc.id && (sc.pair as readonly string[]).includes(s.warden) && pairJudged.has(`${s.id}:pair`)) : [];
+    if (!own.length && !forcedOwn.length) continue;
     const right = own.filter((s) => judged.get(`${s.id}:line`)!.voice === s.warden).length;
     const crossed = own.filter((s) => { const g = judged.get(`${s.id}:line`)!.voice; return g !== s.warden && (sc.pair as readonly string[]).includes(g); }).length;
-    pairs.push({ scenario: sc.id, pair: sc.pair, n: own.length, voice: rate(right, own.length), crossed });
+    const forced = forcedOwn.length ? { n: forcedOwn.length, right: rate(forcedOwn.filter((s) => pairJudged!.get(`${s.id}:pair`) === s.warden).length, forcedOwn.length) } : undefined;
+    pairs.push({ scenario: sc.id, pair: sc.pair, n: own.length, voice: rate(right, own.length), crossed, ...(forced ? { forced } : {}) });
   }
   return {
     condition,
@@ -499,7 +537,7 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
   const pct = (x: number | undefined) => (x === undefined ? "" : `${Math.round(x * 100)}%`);
   const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${s.judged} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.styleSlips} | ${s.careOpeners} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
   const byWarden = WARDENS.map((w) => `| ${w} | ${scores.map((s) => (s.perWarden[w] ? `${pct(s.perWarden[w]!.voice)} / ${pct(s.perWarden[w]!.action)} (${s.perWarden[w]!.n})` : "")).join(" | ")} |`);
-  const pairRows = scores.flatMap((s) => s.pairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair.join(" and ")} | ${p.n} | ${pct(p.voice)} | ${p.crossed} |`));
+  const pairRows = scores.flatMap((s) => s.pairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair.join(" and ")} | ${p.n} | ${pct(p.voice)} | ${p.crossed} | ${p.forced ? `${pct(p.forced.right)} (${p.forced.n})` : ""} |`));
   const confusionRows = scores.flatMap((s) => s.confusions.slice(0, 12).map((c) => `- ${s.condition}, ${c.scenario}: ${c.truth} taken for ${c.guess} ×${c.count}`));
   const notes = samples.filter((x) => x.note).map((x) => `- ${x.condition}, ${x.warden} to the ${x.scenario}: ${x.note}`);
   const examples = scores.flatMap((s) => samples.filter((x) => x.condition === s.condition && x.source === "claude").slice(0, 2).map((x) => `- ${s.condition}, ${x.warden} to the ${x.scenario} (${x.tone}): "${stripIdentity(x.line, terms)}"${x.proseLeak ? ` [narration moved to the tell: ${stripIdentity(x.proseLeak, terms)}]` : ""}${x.intention ? ` [move: ${stripIdentity(x.intention, terms)}]` : ""}`));
@@ -508,11 +546,11 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     "",
     ...Object.entries(meta).map(([k, v]) => `- ${k}: ${v}`),
     "",
-    "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | style slips | care openers | fallbacks | unjudged | off-speaker |",
+    "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | style slips | care openers | understudy | unjudged | off-speaker |",
     "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ...rows,
     "",
-    "Columns: voice and behaviour are the judge's attribution of the line by register and by choice; move is whether the chosen move, read on its own with names stripped, is attributed to the right Warden, not whether the line enacted it; swap resistance is the share of lines the judge could not reassign by changing only the name.",
+    "Columns: voice and behaviour are the judge's attribution of the line by register and by choice; move is whether the chosen move, read on its own with names stripped, is attributed to the right Warden, not whether the line enacted it; swap resistance is the share of lines the judge could not reassign by changing only the name; understudy counts turns the live director did not take, not the runtime's fallback coverage, which this eval does not yet test.",
     ...(scores.reduce((k, s) => k + s.judged, 0) >= 20 && scores.every((s) => s.voiceActionSplit === 0) ? ["", "The judge named the same Warden for voice and for behaviour on every judged line, so the behaviour column is not an independent measurement in this run."] : []),
     "",
     `Verdict: ${verdict(Object.fromEntries(scores.map((s) => [s.condition, s])))}`,
@@ -522,7 +560,7 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     `| Warden | ${scores.map((s) => s.condition).join(" | ")} |`,
     `|---|${scores.map(() => "---").join("|")}|`,
     ...byWarden,
-    ...(pairRows.length ? ["", "## Collision pairs: voice accuracy on the pair's own lines, and how often one was taken for the other", "", "| Condition | scenario | pair | n | voice | crossed |", "|---|---|---|---|---|---|", ...pairRows] : []),
+    ...(pairRows.length ? ["", "## Collision pairs: open-set voice accuracy on the pair's own lines, how often one was taken for the other, and the forced binary choice between the two", "", "| Condition | scenario | pair | n | open-set voice | crossed | forced pair (n) |", "|---|---|---|---|---|---|---|", ...pairRows] : []),
     ...(confusionRows.length ? ["", "## Confusions: who was taken for whom", "", ...confusionRows] : []),
     "",
     "## Examples, as the judge saw them",

@@ -27,7 +27,7 @@ import { StorySession } from "../src/engine/session.js";
 import { toneVector } from "../src/engine/mock-ear.js";
 import {
   CONDITIONS, SCENARIOS, WARDENS, evalWorld, evalBeatId, identityTerms, stripIdentity, judgeSystem, judgeUser, JudgementSchema,
-  matchJudgements, sampleLine, scoreCondition, formatReport, type Condition, type Sample, type WardenId, type JudgedItem, type JudgeItem,
+  matchJudgements, matchPairJudgements, pairJudgeUser, PairJudgementSchema, sampleLine, scoreCondition, formatReport, type Condition, type Sample, type WardenId, type JudgedItem, type JudgeItem,
 } from "../src/eval/attribution.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -130,7 +130,41 @@ for (const condition of conditions) {
 }
 fs.writeFileSync(judgementsFile, `${JSON.stringify([...judged.entries()], null, 2)}\n`);
 
-const scores = conditions.map((c) => scoreCondition(c, samples, judged, runtime, dry));
+
+// The forced pair: for each collision scenario, the pair's own lines are judged again as a binary choice between the two.
+const pairFile = path.join(outDir, "pair-judgements.json");
+const pairJudged = new Map<string, WardenId>(resume && fs.existsSync(pairFile) ? (JSON.parse(fs.readFileSync(pairFile, "utf8")) as Array<[string, WardenId]>) : []);
+for (const condition of conditions) {
+  for (const s of scenarios) {
+    if (!s.pair) continue;
+    const own = samples.filter((x) => x.condition === condition && x.scenario === s.id && x.speaker === x.warden && (s.pair as readonly string[]).includes(x.warden) && (dry || x.source === "claude") && !pairJudged.has(`${x.id}:pair`));
+    const items: JudgeItem[] = own.map((x) => ({ id: `${x.id}:pair`, kind: "line", text: stripIdentity(x.line, terms), situation: `${s.title.split(",")[0]} says, ${x.tone}: "${x.stimulusLine}"` }));
+    for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [items[i], items[j]] = [items[j]!, items[i]!]; }
+    if (!items.length) continue;
+    if (!client) { for (const it of items) pairJudged.set(it.id, s.pair[Math.floor(rand() * 2)]!); continue; }
+    let done = 0;
+    for (let start = 0; start < items.length; start += JUDGE_BATCH) {
+      const batch = items.slice(start, start + JUDGE_BATCH);
+      const message = await client.messages.parse({
+        model: judgeModel,
+        max_tokens: 16000,
+        thinking: { type: "adaptive" },
+        system: [{ type: "text", text: judgeSystem(runtime), cache_control: { type: "ephemeral" } }],
+        messages: [{ role: "user", content: pairJudgeUser(batch, s.pair, runtime) }],
+        output_config: { format: zodOutputFormat(PairJudgementSchema) },
+      });
+      if (!message.parsed_output) { console.log(`pair judge returned ${message.stop_reason} for ${condition}/${s.id} items ${start + 1} to ${start + batch.length}; those stay unjudged`); continue; }
+      const { matched } = matchPairJudgements(batch, s.pair, message.parsed_output);
+      for (const [id, w] of matched) pairJudged.set(id, w);
+      fs.writeFileSync(pairFile, `${JSON.stringify([...pairJudged.entries()], null, 2)}\n`);
+      done += matched.size;
+    }
+    console.log(`forced pair ${s.pair.join(" or ")}: judged ${done} of ${items.length} lines for ${condition}/${s.id}`);
+  }
+}
+fs.writeFileSync(pairFile, `${JSON.stringify([...pairJudged.entries()], null, 2)}\n`);
+
+const scores = conditions.map((c) => scoreCondition(c, samples, judged, runtime, dry, scenarios, pairJudged));
 const report = formatReport(scores, {
   run: stamp, dry, director: dry ? "understudy" : model, judge: dry ? "stand-in (seeded random)" : judgeModel,
   conditions: conditions.map((c) => `${c} (${CONDITIONS[c].label})`).join("; "), wardens: wardens.join(", "), scenarios: scenarios.map((s) => s.id).join(", "), stimuliPerScenario: stimuliPer, resumed: Boolean(resume),

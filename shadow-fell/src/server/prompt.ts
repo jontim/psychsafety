@@ -6,7 +6,7 @@ import type { CanonRuntime, WardenRuntime } from "../engine/runtime.js";
 import { slateCard } from "../engine/runtime.js";
 
 const RUNTIME_FIELDS: Array<[string, string]> = [
-  ["notices_first", "notices first"], ["default_strategy", "default strategy"], ["pressure_strategy", "under pressure"],
+  ["attention", "attention"], ["notices_first", "notices first"], ["default_strategy", "default strategy"], ["pressure_strategy", "under pressure"],
   ["escalation_order", "escalation order"], ["speech", "speech"], ["trust_signals", "trust signals"], ["will_not_do", "will not do"],
   ["ethical_anchor", "ethical anchor"], ["shadow_risk", "shadow risk"], ["leadership_claim", "leadership claim"],
 ];

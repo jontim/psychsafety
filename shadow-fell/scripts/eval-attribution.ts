@@ -104,7 +104,7 @@ for (const condition of resume ? [] : conditions) {
         const best = r.slate.intentions.length ? [...r.slate.intentions].sort((a, b) => b.score - a.score)[0] : undefined;
         const sample: Sample = {
           id: `${condition}-${s.id}-${w}-${st.id}`, condition, scenario: s.id, warden: w, stimulus: st.id, stimulusLine: st.line, tone: st.tone,
-          speaker: r.speaker, ...sampleLine(r.line), acting: r.acting, source: turn.source, ...(turn.note ? { note: turn.note } : {}),
+          speaker: r.speaker, ...sampleLine(r.line), ...(turn.railRaw ? { railRaw: turn.railRaw } : {}), acting: r.acting, source: turn.source, ...(turn.note ? { note: turn.note } : {}),
           ...(best ? { intention: best.intention, intentionScore: best.score } : {}),
         };
         samples.push(sample);

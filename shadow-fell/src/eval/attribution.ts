@@ -342,6 +342,8 @@ export interface Sample {
   rawLine?: string;
   /** Narration the director put in the line instead of the tell. */
   proseLeak?: string;
+  /** Brask's line before the rail guard, when the guard changed it; style slips are counted on this. */
+  railRaw?: string;
   acting: string;
   /** The highest-scored move, when the gate was on. */
   intention?: string;
@@ -384,6 +386,8 @@ export interface ConditionScore {
   violations: number;
   /** The judge's named violations, with the line they were named on. */
   violationsNamed: Array<{ warden: WardenId; scenario: string; violation: string; line: string }>;
+  /** Lines the rail guard repaired after the director rendered them; style slips are counted before the guard. */
+  guardRepairs: number;
   /** Rail breaks the judge named, counted apart from the regex style slips. */
   judgeSlips: number;
   slipsNamed: Array<{ warden: WardenId; scenario: string; slip: string; line: string }>;
@@ -483,7 +487,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
   const slipsNamed: ConditionScore["slipsNamed"] = [];
   for (const s of onSpeaker) {
     if (hitsWrongLine(s.line, runtime)) wrongLineHits++;
-    if (slipsStyle(s.warden, s.line)) styleSlips++;
+    if (slipsStyle(s.warden, s.railRaw ?? s.line)) styleSlips++;
     const j = judged.get(`${s.id}:line`);
     if (!j) { unjudged++; }
     else {
@@ -537,6 +541,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
     swapResistance: rate(swapResistant, judgedLines),
     violations,
     violationsNamed,
+    guardRepairs: onSpeaker.filter((s) => s.railRaw).length,
     judgeSlips: slipsNamed.length,
     slipsNamed,
     wrongLineHits,
@@ -585,7 +590,7 @@ export function verdict(scores: Partial<Record<Condition, ConditionScore>>): str
 
 export function formatReport(scores: ConditionScore[], meta: Record<string, string | number | boolean>, samples: Sample[], terms: string[]): string {
   const pct = (x: number | undefined) => (x === undefined ? "" : `${Math.round(x * 100)}%`);
-  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${s.judged} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.styleSlips} | ${s.judgeSlips} | ${s.careOpeners} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
+  const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${s.judged} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.styleSlips} | ${s.guardRepairs} | ${s.judgeSlips} | ${s.careOpeners} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
   const byWarden = WARDENS.map((w) => `| ${w} | ${scores.map((s) => (s.perWarden[w] ? `${pct(s.perWarden[w]!.voice)} / ${pct(s.perWarden[w]!.action)} (${s.perWarden[w]!.n})` : "")).join(" | ")} |`);
   const pairRows = scores.flatMap((s) => s.pairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair.join(" and ")} | ${p.n} | ${pct(p.voice)} | ${p.crossed} | ${p.forced ? `${pct(p.forced.right)} (${p.forced.n})` : ""} |`));
   const confusionRows = scores.flatMap((s) => s.confusions.map((c) => `- ${s.condition}, ${c.scenario}: ${c.truth} taken for ${c.guess} ×${c.count}`));
@@ -598,11 +603,11 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     "",
     ...Object.entries(meta).map(([k, v]) => `- ${k}: ${v}`),
     "",
-    "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | style slips | judge slips | care openers | understudy | unjudged | off-speaker |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+    "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | style slips | rail guard | judge slips | care openers | understudy | unjudged | off-speaker |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ...rows,
     "",
-    "Columns: voice and behaviour are the judge's attribution of the line by register and by choice; move is whether the chosen move, read on its own with names stripped, is attributed to the right Warden, not whether the line enacted it; swap resistance is the share of lines the judge could not reassign by changing only the name; style slips are the regex lint and judge slips are rail breaks the judge named, neither of them violations; understudy counts turns the live director did not take, not the runtime's fallback coverage, which this eval does not yet test.",
+    "Columns: voice and behaviour are the judge's attribution of the line by register and by choice; move is whether the chosen move, read on its own with names stripped, is attributed to the right Warden, not whether the line enacted it; swap resistance is the share of lines the judge could not reassign by changing only the name; style slips are the regex lint on the line as the director rendered it, rail guard is how many of those lines the guard then repaired before anyone heard them, and judge slips are rail breaks the judge named on the final line, none of them violations; understudy counts turns the live director did not take, not the runtime's fallback coverage, which this eval does not yet test.",
     ...(scores.reduce((k, s) => k + s.judged, 0) >= 20 && scores.every((s) => s.voiceActionSplit === 0) ? ["", "The judge named the same Warden for voice and for behaviour on every judged line, so the behaviour column is not an independent measurement in this run."] : []),
     "",
     `Verdict: ${verdict(Object.fromEntries(scores.map((s) => [s.condition, s])))}`,

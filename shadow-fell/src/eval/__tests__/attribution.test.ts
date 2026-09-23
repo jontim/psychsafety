@@ -125,7 +125,7 @@ describe("the attribution eval", () => {
 
   it("says what the data says", () => {
     const base = (condition: "A" | "B" | "C", over: Partial<ConditionScore>): ConditionScore => ({
-      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 1, action: 1, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], violationsNamed: [], judgeSlips: 0, slipsNamed: [], ...over,
+      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 1, action: 1, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], violationsNamed: [], guardRepairs: 0, judgeSlips: 0, slipsNamed: [], ...over,
     });
     const A = base("A", {});
     const B = base("B", { swapResistance: 1 });
@@ -153,7 +153,7 @@ describe("the attribution eval", () => {
     expect(matched.has("b:pair")).toBe(false);
     expect(unmatched).toBe(2);
     const mk = (warden: Sample["warden"], i: number): Sample => ({ id: `B-victim-${warden}-${i}`, condition: "B", scenario: "victim", warden, stimulus: "s", stimulusLine: "x", tone: "warm", speaker: warden, line: `line ${i}`, acting: "", source: "claude" });
-    const samples = [mk("thorbin", 1), mk("brask", 2)];
+    const samples = [mk("thorbin", 1), { ...mk("brask", 2), railRaw: "Word is yours." }];
     const judged = new Map<string, JudgedItem>([["B-victim-thorbin-1:line", { index: 1, voice: "thorbin", action: "thorbin", swappable: false }], ["B-victim-brask-2:line", { index: 2, voice: "lyra", action: "lyra", swappable: true, violation: "stupidity-coded", slip: "conjugated TO BE" }]]);
     const pairJudged = new Map<string, "thorbin" | "brask">([["B-victim-thorbin-1:pair", "thorbin"], ["B-victim-brask-2:pair", "thorbin"]]);
     const B = scoreCondition("B", samples, judged, runtime, false, SCENARIOS, pairJudged);
@@ -166,6 +166,9 @@ describe("the attribution eval", () => {
     expect(report).toContain("## Violations the judge named, with the line");
     expect(report).toContain("- B, brask to the victim: stupidity-coded. \"line 2\"");
     expect(B.judgeSlips).toBe(1);
+    expect(B.guardRepairs).toBe(1);
+    expect(B.styleSlips).toBe(1);
+    expect(report).toContain("| rail guard |");
     expect(report).toContain("## Rail breaks the judge named, with the line");
     expect(report).toContain("- B, brask to the victim: conjugated TO BE. \"line 2\"");
     expect(report).toContain("| judge slips |");
@@ -174,7 +177,7 @@ describe("the attribution eval", () => {
 
   it("explains its columns and says when the judge never separated voice from behaviour", () => {
     const base = (condition: "A" | "B", over: Partial<ConditionScore>): ConditionScore => ({
-      condition, label: CONDITIONS[condition].label, n: 42, judged: 42, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 0.5, action: 0.5, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], violationsNamed: [], judgeSlips: 0, slipsNamed: [], ...over,
+      condition, label: CONDITIONS[condition].label, n: 42, judged: 42, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 0.5, action: 0.5, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], violationsNamed: [], guardRepairs: 0, judgeSlips: 0, slipsNamed: [], ...over,
     });
     const collapsed = formatReport([base("A", {}), base("B", {})], { run: "t" }, [], []);
     expect(collapsed).toContain("move is whether the chosen move, read on its own with names stripped");

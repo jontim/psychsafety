@@ -84,6 +84,7 @@ describe("the compiled canon", () => {
     expect(runtime.validation.join(" ")).toContain("the runtime renders the person doing that tactic");
     expect(runtime.wardens.brask!.languageRail.length).toBeGreaterThanOrEqual(14);
     expect(runtime.wardens.brask!.languageRail.join(" ")).toContain("Then we not know.");
+    expect(runtime.wardens.brask!.languageRail.join(" ")).toContain("TO BE never links two things");
     for (const id of ["tav", "serena", "thorbin", "varya"]) expect(runtime.wardens[id]!.languageRail).toEqual([]);
     expect(runtime.wardens.kael!.languageRail.length).toBeGreaterThanOrEqual(12);
     expect(runtime.wardens.kael!.languageRail.join(" ")).toContain("Asks, never tells.");

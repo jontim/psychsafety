@@ -3,7 +3,7 @@
  *
  *   npm run eval:attribution -- [--conditions A,B,C] [--wardens tav,serena,...] [--scenarios visitor,captain]
  *                               [--stimuli 3] [--model claude-opus-5] [--judge claude-sonnet-5] [--out eval/attribution]
- *                               [--dry] [--resume eval/attribution-<stamp>]
+ *                               [--dry] [--resume eval/attribution-<stamp>] [--rejudge]
  *
  * --resume re-judges the samples.json a previous run saved (every director turn is written as it lands),
  * so a judge failure never costs the generation.
@@ -45,6 +45,8 @@ const effort = (process.env.DIRECTOR_EFFORT ?? "medium") as "low" | "medium" | "
 const dry = has("dry") || !process.env.ANTHROPIC_API_KEY;
 const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 const resume = flag("resume", "");
+// --rejudge: with --resume, ignore the saved judgements and judge every saved line again (a judge-side change measured on the same lines).
+const rejudge = has("rejudge");
 const outDir = path.resolve(root, resume || flag("out", path.join("eval", `attribution-${stamp}`)));
 const JUDGE_BATCH = 8;
 
@@ -90,7 +92,7 @@ for (const condition of resume ? [] : conditions) {
 function seeded(seed: number): () => number { let x = seed || 1; return () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return ((x >>> 0) % 10000) / 10000; }; }
 const rand = seeded(20260922);
 const judgementsFile = path.join(outDir, "judgements.json");
-const judged = new Map<string, JudgedItem>(resume && fs.existsSync(judgementsFile) ? (JSON.parse(fs.readFileSync(judgementsFile, "utf8")) as Array<[string, JudgedItem]>) : []);
+const judged = new Map<string, JudgedItem>(resume && !rejudge && fs.existsSync(judgementsFile) ? (JSON.parse(fs.readFileSync(judgementsFile, "utf8")) as Array<[string, JudgedItem]>) : []);
 if (judged.size) console.log(`${judged.size} judgements already saved; judging only what is missing`);
 for (const condition of conditions) {
   for (const s of scenarios) {
@@ -133,7 +135,7 @@ fs.writeFileSync(judgementsFile, `${JSON.stringify([...judged.entries()], null, 
 
 // The forced pair: for each collision scenario, the pair's own lines are judged again as a binary choice between the two.
 const pairFile = path.join(outDir, "pair-judgements.json");
-const pairJudged = new Map<string, WardenId>(resume && fs.existsSync(pairFile) ? (JSON.parse(fs.readFileSync(pairFile, "utf8")) as Array<[string, WardenId]>) : []);
+const pairJudged = new Map<string, WardenId>(resume && !rejudge && fs.existsSync(pairFile) ? (JSON.parse(fs.readFileSync(pairFile, "utf8")) as Array<[string, WardenId]>) : []);
 for (const condition of conditions) {
   for (const s of scenarios) {
     if (!s.pair) continue;
@@ -167,7 +169,7 @@ fs.writeFileSync(pairFile, `${JSON.stringify([...pairJudged.entries()], null, 2)
 const scores = conditions.map((c) => scoreCondition(c, samples, judged, runtime, dry, scenarios, pairJudged));
 const report = formatReport(scores, {
   run: stamp, dry, director: dry ? "understudy" : model, judge: dry ? "stand-in (seeded random)" : judgeModel,
-  conditions: conditions.map((c) => `${c} (${CONDITIONS[c].label})`).join("; "), wardens: wardens.join(", "), scenarios: scenarios.map((s) => s.id).join(", "), stimuliPerScenario: stimuliPer, resumed: Boolean(resume),
+  conditions: conditions.map((c) => `${c} (${CONDITIONS[c].label})`).join("; "), wardens: wardens.join(", "), scenarios: scenarios.map((s) => s.id).join(", "), stimuliPerScenario: stimuliPer, resumed: Boolean(resume), rejudged: rejudge,
   identityTermsStripped: terms.length,
 }, samples, terms);
 fs.writeFileSync(path.join(outDir, "report.md"), `${report}\n`);

@@ -293,6 +293,7 @@ export function wardenCards(runtime: CanonRuntime): string {
       `Attention: ${w.runtime.attention ?? ""}`,
       `Speech: ${w.runtime.speech ?? ""}`,
       `Will not do: ${w.runtime.will_not_do ?? ""}`,
+      ...(w.languageRail.length ? ["Language rail (binding on every line):", ...w.languageRail.map((l) => `- ${l}`)] : []),
     ].join("\n");
   }).join("\n\n");
 }
@@ -302,6 +303,7 @@ export function judgeSystem(runtime: CanonRuntime): string {
     "You are an independent evaluator of character discriminability. Seven characters, the Stormwardens, each have an execution card below. You will be shown lines and moves generated for them with every name, dialogue tag and character-specific noun replaced by [name].",
     "For each numbered item answer, giving its number as index: voice, the Warden whose wording and sentence construction this could plausibly be, judging by language, cadence and register alone and ignoring what is done; action, the Warden whose attention, action and decision this is, ignoring prose style entirely and judging by what the item chooses to notice and to do; swappable, whether the item could be reassigned to a different Warden by changing only the name, and if so to whom; violation, if the item breaks a card's rule or will-not-do in a way worth a −2, named in a few words, otherwise omitted.",
     "Voice and action are two separate questions with separate evidence, and they often have different answers: a line can sound like one Warden and choose like another. Answer each on its own evidence and never copy one into the other.",
+    "A Warden's domain or leadership claim is not evidence of who spoke. Every one of the seven gives counsel and cares for a frightened person, each through the door their attention line names; attribute a counselling or caring line by how it notices and what it chooses, never by who owns counsel or care on paper. A line's grammar is evidence: a Warden with a language rail sounds like that rail, and a rail is never stupidity.",
     "Judge each item on its own. Do not assume the items are evenly distributed across the seven, and do not use the order of the items as a clue.",
     "",
     "## The seven",
@@ -368,6 +370,8 @@ export interface ConditionScore {
   intention?: number;
   swapResistance: number;
   violations: number;
+  /** The judge's named violations, with the line they were named on. */
+  violationsNamed: Array<{ warden: WardenId; scenario: string; violation: string; line: string }>;
   wrongLineHits: number;
   /** Accuracy within each Warden's own judged lines. */
   perWarden: Record<string, { n: number; voice: number; action: number }>;
@@ -460,6 +464,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
   const confusionCounts = new Map<string, { scenario: string; truth: WardenId; guess: WardenId; count: number }>();
   let voice = 0, action = 0, swapResistant = 0, violations = 0, wrongLineHits = 0, judgedLines = 0, unjudged = 0, styleSlips = 0, voiceActionSplit = 0;
   let intentionRight = 0, intentionJudged = 0;
+  const violationsNamed: ConditionScore["violationsNamed"] = [];
   for (const s of onSpeaker) {
     if (hitsWrongLine(s.line, runtime)) wrongLineHits++;
     if (slipsStyle(s.warden, s.line)) styleSlips++;
@@ -479,7 +484,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
       if (j.action === s.warden) { action++; pw.action++; }
       if (j.action !== j.voice) voiceActionSplit++;
       if (!j.swappable) swapResistant++;
-      if (j.violation) violations++;
+      if (j.violation) { violations++; violationsNamed.push({ warden: s.warden, scenario: s.scenario, violation: j.violation, line: s.line }); }
     }
     const ji = judged.get(`${s.id}:intention`);
     if (ji) { intentionJudged++; if (ji.action === s.warden) intentionRight++; }
@@ -514,6 +519,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
     ...(intentionJudged ? { intention: rate(intentionRight, intentionJudged) } : {}),
     swapResistance: rate(swapResistant, judgedLines),
     violations,
+    violationsNamed,
     wrongLineHits,
     perWarden,
     pairs,
@@ -565,6 +571,7 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
   const pairRows = scores.flatMap((s) => s.pairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair.join(" and ")} | ${p.n} | ${pct(p.voice)} | ${p.crossed} | ${p.forced ? `${pct(p.forced.right)} (${p.forced.n})` : ""} |`));
   const confusionRows = scores.flatMap((s) => s.confusions.map((c) => `- ${s.condition}, ${c.scenario}: ${c.truth} taken for ${c.guess} ×${c.count}`));
   const notes = samples.filter((x) => x.note).map((x) => `- ${x.condition}, ${x.warden} to the ${x.scenario}: ${x.note}`);
+  const violationRows = scores.flatMap((s) => s.violationsNamed.map((v) => `- ${s.condition}, ${v.warden} to the ${v.scenario}: ${v.violation}. "${stripIdentity(v.line, terms)}"`));
   const examples = scores.flatMap((s) => samples.filter((x) => x.condition === s.condition && x.source === "claude").slice(0, 2).map((x) => `- ${s.condition}, ${x.warden} to the ${x.scenario} (${x.tone}): "${stripIdentity(x.line, terms)}"${x.proseLeak ? ` [narration moved to the tell: ${stripIdentity(x.proseLeak, terms)}]` : ""}${x.intention ? ` [move: ${stripIdentity(x.intention, terms)}]` : ""}`));
   return [
     "# Blind Character Attribution",
@@ -587,6 +594,7 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     ...byWarden,
     ...(pairRows.length ? ["", "## Collision pairs: open-set voice accuracy on the pair's own lines, how often one was taken for the other, and the forced binary choice between the two", "", "| Condition | scenario | pair | n | open-set voice | crossed | forced pair (n) |", "|---|---|---|---|---|---|---|", ...pairRows] : []),
     ...(confusionRows.length ? ["", "## Confusions: who was taken for whom", "", ...confusionRows] : []),
+    ...(violationRows.length ? ["", "## Violations the judge named, with the line", "", ...violationRows] : []),
     "",
     "## Examples, as the judge saw them",
     "",

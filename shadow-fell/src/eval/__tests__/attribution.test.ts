@@ -4,7 +4,7 @@ import { validateWorld, findBeat } from "../../engine/world.js";
 import { loadCanonRuntime } from "../../server/runtime.js";
 import { systemPrompt, turnMessage } from "../../server/prompt.js";
 import { understudy } from "../../server/understudy.js";
-import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, formatReport, hitsWrongLine, pairJudgeUser, matchPairJudgements, judgeSystem, matchJudgements, sampleLine, slipsStyle, opensOnCare, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
+import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, formatReport, hitsWrongLine, pairJudgeUser, matchPairJudgements, judgeSystem, matchJudgements, sampleLine, slipsStyle, styleSlipReasons, opensOnCare, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
 import { chooseMoves, scoreSteering, steeringVerdict, matchSteering, type SteeringPair } from "../steering.js";
 import { pairKey, type PairChoice } from "../attribution.js";
 
@@ -128,9 +128,51 @@ describe("the attribution eval", () => {
     expect(C).toMatchObject({ n: 1, fallbacks: 1, judged: 0 });
   });
 
+  it("keys every rail to its own speaker: Kael's and Lyra's fluent Common is never Brask's slip", () => {
+    const fluent = "That's the whole of it. The horses in your stable are standing wrong. I'm not sure, and I don't know when it started.";
+    expect(slipsStyle("kael", fluent)).toBe(false);
+    expect(slipsStyle("lyra", fluent)).toBe(false);
+    expect(slipsStyle("tav", fluent)).toBe(false);
+    expect(slipsStyle("brask", fluent)).toBe(true);
+    expect(styleSlipReasons("kael", fluent)).toEqual([]);
+    expect(styleSlipReasons("brask", "Word is yours. Posters Tav work.")).toEqual(["is"]);
+    expect(styleSlipReasons("kael", "Obviously the ground will hold.")).toEqual(["Obviously"]);
+    const long = `${Array.from({ length: 32 }, (_, i) => `word${i}`).join(" ")}.`;
+    expect(styleSlipReasons("lyra", `I suppose the wards held. ${long}`)).toEqual(["I suppose", "a sentence of 32 words"]);
+  });
+
+  it("names each misattribution with the judge's tell and each lint slip with what it matched", () => {
+    const mk = (id: string, warden: Sample["warden"], line: string, railRaw?: string): Sample => ({ id, condition: "B", scenario: "captain", warden, stimulus: "s", stimulusLine: "l", tone: "flat", speaker: warden, line, acting: "", source: "claude", ...(railRaw ? { railRaw } : {}) });
+    const samples = [
+      mk("k1", "kael", "That's the whole of it. The horses in your stable are standing wrong. When did that start?"),
+      mk("l1", "lyra", "Read it properly. That's a careful word."),
+      mk("b1", "brask", "Word yours.", "Word is yours."),
+    ];
+    const judged = new Map<string, JudgedItem>([
+      ["k1:line", { index: 1, voice: "brask", action: "kael", swappable: false, slip: "conjugated TO BE in Brask's line", why: "two bare names and short units" }],
+      ["l1:line", { index: 2, voice: "thorbin", action: "lyra", swappable: false, why: "plain, steady, a quiet instruction" }],
+      ["b1:line", { index: 3, voice: "brask", action: "brask", swappable: false }],
+    ]);
+    const B = scoreCondition("B", samples, judged, runtime, true);
+    expect(B.misattributions).toEqual([
+      { warden: "kael", scenario: "captain", guess: "brask", why: "two bare names and short units", line: samples[0]!.line },
+      { warden: "lyra", scenario: "captain", guess: "thorbin", why: "plain, steady, a quiet instruction", line: samples[1]!.line },
+    ]);
+    // a slip the judge named on a line it gave to the wrong Warden is not counted, and the lint never measures Kael against Brask's rail
+    expect(B.judgeSlips).toBe(0);
+    expect(B.styleSlips).toBe(1);
+    expect(B.styleSlipsNamed).toEqual([{ warden: "brask", scenario: "captain", reasons: ["is"], line: "Word is yours." }]);
+    expect(B.guardRepairs).toBe(1);
+    const report = formatReport([B], { run: "t" }, samples, []);
+    expect(report).toContain("## Misattributions, with the line and the tell the judge named");
+    expect(report).toContain('- B, lyra to the captain, taken for thorbin (the tell: plain, steady, a quiet instruction): "Read it properly. That\'s a careful word."');
+    expect(report).toContain("## Style slips the lint flagged, with what it matched");
+    expect(report).toContain('- B, brask to the captain: "is". "Word is yours."');
+  });
+
   it("says what the data says", () => {
     const base = (condition: "A" | "B" | "C", over: Partial<ConditionScore>): ConditionScore => ({
-      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 1, action: 1, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusionPairs: [], confusions: [], violationsNamed: [], guardRepairs: 0, judgeSlips: 0, slipsNamed: [], ...over,
+      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 1, action: 1, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusionPairs: [], confusions: [], violationsNamed: [], guardRepairs: 0, judgeSlips: 0, slipsNamed: [], styleSlipsNamed: [], misattributions: [], ...over,
     });
     const A = base("A", {});
     const B = base("B", { swapResistance: 1 });
@@ -188,7 +230,7 @@ describe("the attribution eval", () => {
 
   it("explains its columns and says when the judge never separated voice from behaviour", () => {
     const base = (condition: "A" | "B", over: Partial<ConditionScore>): ConditionScore => ({
-      condition, label: CONDITIONS[condition].label, n: 42, judged: 42, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 0.5, action: 0.5, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusionPairs: [], confusions: [], violationsNamed: [], guardRepairs: 0, judgeSlips: 0, slipsNamed: [], ...over,
+      condition, label: CONDITIONS[condition].label, n: 42, judged: 42, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 0.5, action: 0.5, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusionPairs: [], confusions: [], violationsNamed: [], guardRepairs: 0, judgeSlips: 0, slipsNamed: [], styleSlipsNamed: [], misattributions: [], ...over,
     });
     const collapsed = formatReport([base("A", {}), base("B", {})], { run: "t" }, [], []);
     expect(collapsed).toContain("move is whether the chosen move, read on its own with names stripped");
@@ -226,6 +268,12 @@ describe("the attribution eval", () => {
     expect(judgeSystem(runtime)).toContain("TO BE and TO DO are his two weak points");
     expect(judgeSystem(runtime)).toContain("a rail is never stupidity");
     expect(judgeSystem(runtime)).toContain("A slip is a style fault and never a violation");
+    expect(judgeSystem(runtime)).toContain("rules Brask out however short the sentences");
+    expect(judgeSystem(runtime)).toContain("never attribute on [name] alone");
+    expect(judgeSystem(runtime)).toContain("why, the tell in the wording that decided voice");
+    expect(judgeSystem(runtime)).toContain("## Telling the seven apart");
+    expect(judgeSystem(runtime)).toContain("Kael looks underneath the abstraction; Lyra looks beyond the apparent ending.");
+    expect(judgeSystem(runtime)).not.toContain("Shared-care de-duplication:");
   });
 });
 

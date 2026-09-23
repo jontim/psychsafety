@@ -230,6 +230,8 @@ export const JudgementSchema = z.object({
     violation: z.string().optional(),
     /** A break of the speaker's language rail, in a few words; a style fault, never a violation. Absent when the line keeps its rail. */
     slip: z.string().optional(),
+    /** The tell in the wording that decided voice, in at most a dozen words. */
+    why: z.string().optional(),
   })),
 });
 export type Judgement = z.infer<typeof JudgementSchema>;
@@ -237,7 +239,7 @@ export type JudgedItem = Judgement["items"][number];
 
 /** The same answer with the names left open: the retry format when the judge's answer did not fit the enum. Values are checked when matched. */
 export const JudgementLooseSchema = z.object({
-  items: z.array(z.object({ index: z.number().int(), voice: z.string(), action: z.string(), swappable: z.boolean(), swapTo: z.string().optional(), violation: z.string().optional(), slip: z.string().optional() })),
+  items: z.array(z.object({ index: z.number().int(), voice: z.string(), action: z.string(), swappable: z.boolean(), swapTo: z.string().optional(), violation: z.string().optional(), slip: z.string().optional(), why: z.string().optional() })),
 });
 export type LooseJudgement = z.infer<typeof JudgementLooseSchema>;
 export const isWarden = (x: string): x is WardenId => (WARDENS as readonly string[]).includes(x);
@@ -317,10 +319,13 @@ export function wardenCards(runtime: CanonRuntime): string {
 export function judgeSystem(runtime: CanonRuntime): string {
   return [
     "You are an independent evaluator of character discriminability. Seven characters, the Stormwardens, each have an execution card below. You will be shown lines and moves generated for them with every name, dialogue tag and character-specific noun replaced by [name].",
-    "For each numbered item answer, giving its number as index: voice, the Warden whose wording and sentence construction this could plausibly be, judging by language, cadence and register alone and ignoring what is done; action, the Warden whose attention, action and decision this is, ignoring prose style entirely and judging by what the item chooses to notice and to do; swappable, whether the item could be reassigned to a different Warden by changing only the name, and if so to whom; violation, if the item breaks a card's rule or will-not-do in a way worth a −2, named in a few words, otherwise omitted; slip, if the item breaks its speaker's language rail (a conjugated TO BE for Brask, a minimiser for Lyra, slang for Kael), named in a few words, otherwise omitted. A slip is a style fault and never a violation: never list a rail break under violation.",
+    "For each numbered item answer, giving its number as index: voice, the Warden whose wording and sentence construction this could plausibly be, judging by language, cadence and register alone and ignoring what is done; action, the Warden whose attention, action and decision this is, ignoring prose style entirely and judging by what the item chooses to notice and to do; swappable, whether the item could be reassigned to a different Warden by changing only the name, and if so to whom; violation, if the item breaks a card's rule or will-not-do in a way worth a −2, named in a few words, otherwise omitted; slip, if the item breaks its speaker's language rail (a conjugated TO BE for Brask, a minimiser for Lyra, slang for Kael), named in a few words, otherwise omitted; why, the tell in the wording that decided voice, in at most a dozen words. A slip is a style fault and never a violation: never list a rail break under violation.",
     "Voice and action are two separate questions with separate evidence, and they often have different answers: a line can sound like one Warden and choose like another. Answer each on its own evidence and never copy one into the other.",
-    "A Warden's domain or leadership claim is not evidence of who spoke. Every one of the seven gives counsel and cares for a frightened person, each through the door their attention line names; attribute a counselling or caring line by how it notices and what it chooses, never by who owns counsel or care on paper. A line's grammar is evidence: a Warden with a language rail sounds like that rail, and a rail is never stupidity.",
+    "A Warden's domain or leadership claim is not evidence of who spoke. Every one of the seven gives counsel and cares for a frightened person, each through the door their attention line names; attribute a counselling or caring line by how it notices and what it chooses, never by who owns counsel or care on paper. A line's grammar is evidence: a Warden with a language rail sounds like that rail, and a rail is never stupidity. A rail is also a fence, and the fence is the stronger evidence: a line that freely does what a rail forbids is not that Warden's. Brask never conjugates TO BE or TO DO and never contracts them, and the other six do both without noticing, so a fluent 'is', 'are', 'was', 'that's', 'I'm' or 'don't' rules Brask out however short the sentences. Never attribute a fluent line to Brask and then report its fluency as his slip: the fluency is the tell that someone else spoke. Name a slip only on a line that is otherwise unmistakably that Warden's. [name] stands for any stripped name, the speaker's own, a companion's, a place's or a nickname, and carries no register: Brask names himself in the third person and the others do not, but a stripped line cannot show the difference, so never attribute on [name] alone.",
     "Judge each item on its own. Do not assume the items are evenly distributed across the seven, and do not use the order of the items as a clue.",
+    "",
+    "## Telling the seven apart",
+    (runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication")) ?? "").replace(/^Shared-care de-duplication:\s*/, ""),
     "",
     "## The seven",
     wardenCards(runtime),
@@ -395,6 +400,10 @@ export interface ConditionScore {
   /** Rail breaks the judge named, counted apart from the regex style slips. */
   judgeSlips: number;
   slipsNamed: Array<{ warden: WardenId; scenario: string; slip: string; line: string }>;
+  /** The lint's style slips with what each rule matched, on the line as the director rendered it; counted in styleSlips. */
+  styleSlipsNamed: Array<{ warden: WardenId; scenario: string; reasons: string[]; line: string }>;
+  /** Judged lines the judge gave to another Warden by voice, with the tell it named when it did. */
+  misattributions: Array<{ warden: WardenId; scenario: string; guess: WardenId; why?: string; line: string }>;
   wrongLineHits: number;
   /** Accuracy within each Warden's own judged lines. */
   perWarden: Record<string, { n: number; voice: number; action: number }>;
@@ -468,13 +477,30 @@ export function opensOnCare(line: string): boolean {
   return /\b(sit|eat|walked since|you're shaking|you are shaking|shaking)\b/i.test(opening);
 }
 
+/**
+ * What in a line breaks its Warden's language rail: the words a rule matched, or the length of a sentence, one entry per
+ * rule broken; empty when the line keeps its rail. The rails are keyed by speaker, so Kael's and Lyra's fluent Common is
+ * never measured against Brask's.
+ */
+export function styleSlipReasons(warden: WardenId, line: string): string[] {
+  const reasons: string[] = [];
+  for (const re of STYLE_SLIPS[warden] ?? []) {
+    const m = line.match(re);
+    if (m) reasons.push(m[0].replace(/^[.!?\s]+/, "").trim() || re.source);
+  }
+  // Lyra's economy: a sentence over thirty words is a lecture.
+  if (warden === "lyra") {
+    for (const s of line.split(/(?<=[.!?])\s+/)) {
+      const words = s.trim().split(/\s+/).length;
+      if (words > 30) reasons.push(`a sentence of ${words} words`);
+    }
+  }
+  return reasons;
+}
+
 /** True when a line breaks its Warden's grammar rules (Brask conjugating, for instance). */
 export function slipsStyle(warden: WardenId, line: string): boolean {
-  const rules = STYLE_SLIPS[warden];
-  if (rules && rules.some((re) => re.test(line))) return true;
-  // Lyra's economy: a sentence over thirty words is a lecture.
-  if (warden === "lyra" && line.split(/(?<=[.!?])\s+/).some((s) => s.trim().split(/\s+/).length > 30)) return true;
-  return false;
+  return styleSlipReasons(warden, line).length > 0;
 }
 
 /** True when a rendered line is, near enough, one of the document's wrong lines. */
@@ -493,9 +519,12 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
   let intentionRight = 0, intentionJudged = 0;
   const violationsNamed: ConditionScore["violationsNamed"] = [];
   const slipsNamed: ConditionScore["slipsNamed"] = [];
+  const styleSlipsNamed: ConditionScore["styleSlipsNamed"] = [];
+  const misattributions: ConditionScore["misattributions"] = [];
   for (const s of onSpeaker) {
     if (hitsWrongLine(s.line, runtime)) wrongLineHits++;
-    if (slipsStyle(s.warden, s.railRaw ?? s.line)) styleSlips++;
+    const slipReasons = styleSlipReasons(s.warden, s.railRaw ?? s.line);
+    if (slipReasons.length) { styleSlips++; styleSlipsNamed.push({ warden: s.warden, scenario: s.scenario, reasons: slipReasons, line: s.railRaw ?? s.line }); }
     const j = judged.get(`${s.id}:line`);
     if (!j) { unjudged++; }
     else {
@@ -508,6 +537,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
         const c = confusionCounts.get(key) ?? { scenario: s.scenario, truth: s.warden, guess: j.voice, count: 0 };
         c.count++;
         confusionCounts.set(key, c);
+        misattributions.push({ warden: s.warden, scenario: s.scenario, guess: j.voice, ...(j.why ? { why: j.why } : {}), line: s.line });
       }
       if (j.action === s.warden) { action++; pw.action++; }
       if (j.action !== j.voice) voiceActionSplit++;
@@ -570,6 +600,8 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
     guardRepairs: onSpeaker.filter((s) => s.railRaw).length,
     judgeSlips: slipsNamed.length,
     slipsNamed,
+    styleSlipsNamed,
+    misattributions,
     wrongLineHits,
     perWarden,
     pairs,
@@ -625,6 +657,8 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
   const notes = samples.filter((x) => x.note).map((x) => `- ${x.condition}, ${x.warden} to the ${x.scenario}: ${x.note}`);
   const violationRows = scores.flatMap((s) => s.violationsNamed.map((v) => `- ${s.condition}, ${v.warden} to the ${v.scenario}: ${v.violation}. "${stripIdentity(v.line, terms)}"`));
   const slipRows = scores.flatMap((s) => s.slipsNamed.map((v) => `- ${s.condition}, ${v.warden} to the ${v.scenario}: ${v.slip}. "${stripIdentity(v.line, terms)}"`));
+  const lintRows = scores.flatMap((s) => s.styleSlipsNamed.map((v) => `- ${s.condition}, ${v.warden} to the ${v.scenario}: ${v.reasons.map((r) => `"${r}"`).join(", ")}. "${stripIdentity(v.line, terms)}"`));
+  const misRows = scores.flatMap((s) => s.misattributions.map((m) => `- ${s.condition}, ${m.warden} to the ${m.scenario}, taken for ${m.guess}${m.why ? ` (the tell: ${m.why})` : ""}: "${stripIdentity(m.line, terms)}"`));
   const examples = scores.flatMap((s) => samples.filter((x) => x.condition === s.condition && x.source === "claude").slice(0, 2).map((x) => `- ${s.condition}, ${x.warden} to the ${x.scenario} (${x.tone}): "${stripIdentity(x.line, terms)}"${x.proseLeak ? ` [narration moved to the tell: ${stripIdentity(x.proseLeak, terms)}]` : ""}${x.intention ? ` [move: ${stripIdentity(x.intention, terms)}]` : ""}`));
   return [
     "# Blind Character Attribution",
@@ -635,7 +669,7 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ...rows,
     "",
-    "Columns: voice and behaviour are the judge's attribution of the line by register and by choice; move is whether the chosen move, read on its own with names stripped, is attributed to the right Warden, not whether the line enacted it; swap resistance is the share of lines the judge could not reassign by changing only the name; style slips are the regex lint on the line as the director rendered it, rail guard is how many of those lines the guard then repaired before anyone heard them, and judge slips are rail breaks the judge named on the final line, none of them violations; understudy counts turns the live director did not take, not the runtime's fallback coverage, which this eval does not yet test.",
+    "Columns: voice and behaviour are the judge's attribution of the line by register and by choice; move is whether the chosen move, read on its own with names stripped, is attributed to the right Warden, not whether the line enacted it; swap resistance is the share of lines the judge could not reassign by changing only the name; style slips are the regex lint on the line as the director rendered it, each rail keyed to its own speaker and listed below with what it matched, rail guard is how many of those lines the guard then repaired before anyone heard them, and judge slips are rail breaks the judge named on the final line, none of them violations; understudy counts turns the live director did not take, not the runtime's fallback coverage, which this eval does not yet test.",
     ...(scores.reduce((k, s) => k + s.judged, 0) >= 20 && scores.every((s) => s.voiceActionSplit === 0) ? ["", "The judge named the same Warden for voice and for behaviour on every judged line, so the behaviour column is not an independent measurement in this run."] : []),
     "",
     `Verdict: ${verdict(Object.fromEntries(scores.map((s) => [s.condition, s])))}`,
@@ -647,9 +681,11 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     ...byWarden,
     ...(pairRows.length ? ["", "## Collision pairs: open-set voice accuracy on the pair's own lines, how often one was taken for the other, and the forced binary choice between the two", "", "| Condition | scenario | pair | n | open-set voice | crossed | forced pair (n) |", "|---|---|---|---|---|---|---|", ...pairRows] : []),
     ...(confusionRows.length ? ["", "## Confusions: who was taken for whom", "", ...confusionRows] : []),
+    ...(misRows.length ? ["", "## Misattributions, with the line and the tell the judge named", "", ...misRows] : []),
     ...(confusionPairRows.length ? ["", "## Confusion pairs, forced: the misattributed Warden's own lines, judged as a choice between them and the Warden they were taken for", "", "| Condition | scenario | speaker | taken for | n | forced accuracy |", "|---|---|---|---|---|---|", ...confusionPairRows] : []),
     ...(violationRows.length ? ["", "## Violations the judge named, with the line", "", ...violationRows] : []),
     ...(slipRows.length ? ["", "## Rail breaks the judge named, with the line", "", ...slipRows] : []),
+    ...(lintRows.length ? ["", "## Style slips the lint flagged, with what it matched, on the line as the director rendered it", "", ...lintRows] : []),
     "",
     "## Examples, as the judge saw them",
     "",

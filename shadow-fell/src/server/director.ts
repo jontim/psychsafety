@@ -32,8 +32,8 @@ export interface DirectorTurn {
   railRaw?: string;
 }
 
-/** Post-validation the schema cannot express: speaker and shot must belong to the beat. */
-function sanitise(world: World, req: DirectorRequest, r: DirectorResponseLoose, gate: boolean): { response: DirectorResponse; railRaw?: string } {
+/** Post-validation the schema cannot express: speaker and shot must belong to the beat. Exported for the tests that prove the rail guard reaches Brask alone. */
+export function sanitise(world: World, req: DirectorRequest, r: DirectorResponseLoose, gate: boolean): { response: DirectorResponse; railRaw?: string } {
   const { beat } = findBeat(world, req.beatId);
   const allowed = new Set([beat.counterpart, ...beat.present, world.narrator ?? ""]);
   const speaker = allowed.has(r.speaker) ? r.speaker : beat.counterpart;

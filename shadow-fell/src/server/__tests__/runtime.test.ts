@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { compileCanon } from "../compile-canon.js";
 import { loadCanonRuntime } from "../runtime.js";
 import { systemPrompt, turnMessage } from "../prompt.js";
+import { sanitise } from "../director.js";
 import { understudy } from "../understudy.js";
 import { shadowFell } from "../../worlds/shadow-fell/world.js";
 import { coverage, livePairs, slateCard, wardensInBeat } from "../../engine/runtime.js";
@@ -149,6 +150,27 @@ describe("the slate", () => {
     expect(msg).toContain("## The slate");
     expect(msg).toContain("mixed, confidence high");
     expect(msg.indexOf("## The slate")).toBeLessThan(msg.indexOf("## Transcript so far"));
+  });
+
+  it("keeps Brask's rail and its guard inside Brask's card: Kael's fluent Common is neither prompted nor repaired", () => {
+    const system = systemPrompt(shadowFell, "brief", {}, runtime);
+    const sections = system.split(/\n(?=### )/);
+    const section = (name: string) => sections.find((s) => s.startsWith(`### ${name}`)) ?? "";
+    expect(section("Brask Runebearer")).toMatch(/TO BE/);
+    expect(section("Kael")).toContain("Language rail (binding on every line):");
+    expect(section("Kael")).toContain("What does the paper do?");
+    expect(section("Kael")).not.toMatch(/TO BE/);
+    expect(section("Lyra")).not.toMatch(/TO BE/);
+    const req = request("morning");
+    const base = understudy(shadowFell, req, runtime);
+    const kaelLine = "That's the whole of it. The horses in your stable are standing wrong. When did that start?";
+    const kael = sanitise(shadowFell, req, { ...base, speaker: "kael", line: kaelLine }, true);
+    expect(kael.response.speaker).toBe("kael");
+    expect(kael.response.line).toBe(kaelLine);
+    expect(kael.railRaw).toBeUndefined();
+    const brask = sanitise(shadowFell, req, { ...base, speaker: "brask", line: "Word is yours." }, true);
+    expect(brask.response.line).toBe("Word yours.");
+    expect(brask.railRaw).toBe("Word is yours.");
   });
 
   it("is filled by the understudy for every beat, in the shape the schema requires", () => {

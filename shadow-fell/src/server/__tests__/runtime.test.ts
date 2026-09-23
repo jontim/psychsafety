@@ -82,6 +82,8 @@ describe("the compiled canon", () => {
     expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("Verdict first, framework withheld");
     expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("No Takesies Backsies");
     expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("Her basic action verb is join.");
+    expect(runtime.wardens.lyra!.languageRail.join(" ")).toContain("the language of we from the outset");
+    expect(runtime.wardens.lyra!.runtime.pressure_strategy).toContain("the language of we from the outset");
     expect(runtime.wardens.lyra!.card.some((c) => c.startsWith("Basic action verb: join."))).toBe(true);
     expect(runtime.wardens.lyra!.thesis).toBe("Lyra does not watch life from the edge when she can get into it.");
     expect(runtime.validation.join(" ")).toContain("Collision resistance, a tie-breaker only");

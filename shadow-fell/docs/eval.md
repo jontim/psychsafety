@@ -4,7 +4,7 @@ Behavioral Canon v1.4 §20 now marks the scored intention gate VALIDATED PRELIMI
 
 ## What the eval does
 
-Six outsiders meet every Warden alone, each with three scripted lines and a tone from the mock ear. Two are the §19 poles: the charming visitor with an unnamed employer (mixed, low confidence) and the brusque watch captain (authority, high confidence). Four exist only for the eval and are built to collide pairs the bare card cannot easily tell apart: a frightened farrier asking for moral counsel (Serena against Thorbin), a smooth factor with a partly false story (Tavian against Varya), a hill farmer reporting an anomaly (Lyra against Kael), and a frightened runaway (Thorbin against Brask); the captain collides Serena with Varya. Every Warden answers every line as a one-turn scene, under three conditions:
+Six outsiders meet every Warden alone, each with three scripted lines and a tone from the mock ear. Two are the §19 poles: the charming visitor with an unnamed employer (mixed, low confidence) and the brusque watch captain (authority, high confidence). Five exist only for the eval and are built to collide pairs the bare card cannot easily tell apart: a frightened farrier asking for moral counsel (Serena against Thorbin), a smooth factor with a partly false story (Tavian against Varya), a hill farmer reporting an anomaly (Lyra against Kael), a frightened runaway (Thorbin against Brask), and, since 23 September, a tavern regular with a wager, a bad alias and a plan involving the mayor's goose (Lyra against Tavian): the one ordinary scene, where nothing magical, traumatic or morally consequential is available and a Warden's everyday self is the only signal, built after Jon's Lyra brief made participation her signature; the captain collides Serena with Varya. Every Warden answers every line as a one-turn scene, under three conditions:
 
 - **A**: cast card and dossier, as the game ran before the runtime.
 - **B**: A plus the relationship, outsider and fallback runtime.
@@ -27,7 +27,7 @@ The verdict says what the data says and no more. A condition that did not run is
 ## Running it
 
 ```
-npm run eval:attribution                       # all three conditions, seven Wardens, two scenarios, three lines each
+npm run eval:attribution                       # all three conditions, seven Wardens, every scenario, three lines each
 npm run eval:attribution -- --conditions B,C --wardens serena,thorbin --stimuli 1   # a small run
 npm run eval:attribution -- --dry              # understudy and a stand-in judge; exercises the plumbing
 ```

@@ -57,6 +57,11 @@ export const EVAL_CAST: Array<Pick<CastMember, "id" | "name" | "title" | "factio
     register: "Plain, worried, precise about what he saw and vague about what it means.", voice: { description: "A weathered man, slow, careful" },
   },
   {
+    id: "eval-regular", name: "The Regular", title: "A tavern regular with a wager and a plan", faction: "Tharcia",
+    summary: "A tavern regular with a coin on the barrel-walk, a card game upstairs he says nobody can join, an alias nobody believes and a plan involving the mayor's goose; harmless, delighted with himself, and one person short.",
+    register: "Quick, conspiratorial, over-familiar; every sentence an invitation or a dare.", voice: { description: "A cheerful man, fast, a little drunk" },
+  },
+  {
     id: "eval-runaway", name: "The Runaway", title: "A frightened runaway from a Magisterium holding", faction: "unknown",
     summary: "A young runaway from a Magisterium holding, hurt, hungry and expecting to be sent back; every kindness is a trap until proven otherwise.",
     register: "Short, flinching, braced for the blow; braver than they sound.", voice: { description: "A young voice, hoarse, guarded" },
@@ -158,6 +163,22 @@ export const SCENARIOS: Scenario[] = [
       { id: "back", tone: "anxious", line: "Don't send me back. I'll work. I can work. Just don't put me on the road where they can see me." },
       { id: "others", tone: "guilty", line: "They said if I ran they'd take it out of the others. I ran anyway. So that's what I am." },
       { id: "plain", tone: "deadpan", line: "Are you going to hurt me? Say it plain if you are. I'm tired of finding out." },
+    ],
+  },
+  {
+    id: "board",
+    title: "The regular, with a wager, an alias and a plan, to one Warden",
+    outsiderLabel: "a tavern regular with a wager, an alias and a plan",
+    playerRole: "eval-regular",
+    location: "A tavern common room after the show, the quest board by the door; one Warden with a drink; a regular with a coin, an alias and a plan.",
+    goal: "Get the Warden to join: the wager, the card game or the goose plan, on your terms.",
+    notes: "The scene is ordinary by design: nothing magical, traumatic or morally consequential is available, so a Warden's everyday self is the only signal. The collision to watch is Lyra's participation against Tavian's authorship: whether she enters the bit, escalates it and takes a part in the plan, or stands one level outside it, framing. Nobody is in danger and nobody is lying about anything that matters.",
+    outsider: { mode: "nuisance", confidence: "medium", note: "A harmless regular with a dare and a bad alias: nuisance at medium confidence; play, reframe or recruit, never a combat encounter." },
+    pair: ["lyra", "tav"],
+    stimuli: [
+      { id: "wager", tone: "showman", line: "There's a wager on tonight. The regulars say nobody from your troupe could last one round of the barrel-walk without going in the trough. My coin says otherwise. You in, or are you just here for the ale?" },
+      { id: "alias", tone: "deadpan", line: "The name's... Corvin. Corvin of the Bay. There's a card game upstairs after the bell, invitation only, and I'm the one who invites. You absolutely cannot come." },
+      { id: "goose", tone: "curious", line: "Here's the thing. The mayor's prize goose is judged at noon, the miller's cousin swears the judge is bribed, and we've a plan involving a wig, a wheelbarrow and someone who can keep a straight face. We're one short." },
     ],
   },
 ];

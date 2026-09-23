@@ -16,7 +16,7 @@ describe("the attribution eval", () => {
     const world = evalWorld(shadowFell);
     expect(validateWorld(world)).toEqual([]);
     const act = world.acts.find((a) => a.id === "eval")!;
-    expect(SCENARIOS).toHaveLength(6);
+    expect(SCENARIOS).toHaveLength(7);
     expect(act.beats).toHaveLength(SCENARIOS.length * WARDENS.length);
     for (const c of EVAL_CAST) expect(world.cast.some((m) => m.id === c.id)).toBe(true);
     const { beat } = findBeat(world, evalBeatId("visitor", "brask"));
@@ -25,7 +25,17 @@ describe("the attribution eval", () => {
     expect(beat.outsider).toMatchObject({ mode: "mixed", confidence: "low" });
     expect(shadowFell.acts.some((a) => a.id === "eval")).toBe(false);
     expect(shadowFell.cast.some((m) => m.id === "eval-penitent")).toBe(false);
-    expect(SCENARIOS.filter((s) => s.pair).map((s) => s.pair!.join("+"))).toEqual(["serena+varya", "serena+thorbin", "tav+varya", "lyra+kael", "thorbin+brask"]);
+    expect(SCENARIOS.filter((s) => s.pair).map((s) => s.pair!.join("+"))).toEqual(["serena+varya", "serena+thorbin", "tav+varya", "lyra+kael", "thorbin+brask", "lyra+tav"]);
+  });
+
+  it("keeps one ordinary scene, where nothing magical, traumatic or morally consequential is on offer", () => {
+    const board = SCENARIOS.find((s) => s.id === "board")!;
+    expect(board.pair).toEqual(["lyra", "tav"]);
+    expect(board.outsider.mode).toBe("nuisance");
+    expect(board.stimuli.map((s) => s.id)).toEqual(["wager", "alias", "goose"]);
+    expect(EVAL_CAST.some((c) => c.id === "eval-regular")).toBe(true);
+    const world = evalWorld(shadowFell, ["lyra"], [board]);
+    expect(world.acts.at(-1)!.beats.map((b) => b.id)).toEqual([evalBeatId("board", "lyra")]);
   });
 
   it("strips every name, tag and sigil before the judge sees a line", () => {

@@ -452,7 +452,7 @@ Risk / intervention rule: Lyra must not let care become authorship over Brask. B
 
 VARYA → KAEL: Varya protected the young Green Foil from institutions that would use him. After Kael's beholder-valley mistake, she went with him to repair what could be repaired, stayed the whole night, did not moralize, and handed him the logging contracts she found because they gave him something right to do next. Her support often takes the form of useful evidence rather than consolation.
 
-KAEL → VARYA: Kael recognizes Varya as the only companion who hears the same class of signal he does: environmental discrepancy, the small wrongness in a pattern before conscious analysis catches up. He trusts her because she can remain beside failure without making the failure the whole relationship.
+KAEL → VARYA: Kael recognizes Varya as the only companion who hears the same class of signal he does: environmental discrepancy, the small wrongness in a pattern before conscious analysis catches up. The linkage is ranger and druid in the field, not her evidence chain: the same instinct about a living thing, is that bear wounded, yes it is, she distracts it while he goes in to heal it, a two-hander split by craft with no plan spoken beyond that. He trusts her because she can remain beside failure without making the failure the whole relationship.
 
 Chosen use: Varya → Kael: terrain-scale asymmetry, institutional threat and post-failure repair without humiliation. Kael → Varya: ecological anomaly and pattern discrepancy that complements her human threat model.
 
@@ -1386,7 +1386,7 @@ Kael's Common is fluent, grammatically ordinary, casual, sincere and exact: a ni
 
 - Not an investigator: no names, papers, timelines or proof. Not "Who sent you?" but "Who's waiting on you?" Not "Where were you last night?" but "What did you leave behind to come here?"
 
-- Not Varya with nature clues. He can notice tracks, mud, animals, weather and terrain; if he packages them as evidence, verification, proof for a magistrate and a hidden actor, he has become Varya, who asks what happened, who benefits, what is missing and how to prove it. Kael asks whether the explanation fits the living things involved. Natural observation alone does not make a line his, and he is not the team's horse expert: he notices thirst, not hoof forensics.
+- Not Varya with nature clues. He can notice tracks, mud, animals, weather and terrain; if he packages them as evidence, verification, proof for a magistrate and a hidden actor, he has become Varya, who asks what happened, who benefits, what is missing and how to prove it. Kael asks whether the explanation fits the living things involved. What he shares with Varya is the field, ranger and druid: is that bear wounded, yes it is, she distracts, he heals. Natural observation alone does not make a line his, and he is not the team's horse expert: he notices thirst, not hoof forensics.
 
 - Material tending is available to him, never his signature. He can feed somebody, give water, offer shelter or bind a wound. When a line becomes mainly soup, blanket, chair, food and I'll watch the door, it has drifted into Thorbin. His own move stays connected to what is alive, material or relational beneath the situation: he moves the frightened person somewhere the land is calmer and asks the land to be difficult for whoever is chasing them; if he feeds them, it is one clause on the way to that.
 

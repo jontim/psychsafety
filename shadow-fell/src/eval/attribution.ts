@@ -538,7 +538,7 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
   const rows = scores.map((s) => `| ${s.condition} | ${s.n} | ${s.judged} | ${pct(s.voice)} | ${pct(s.action)} | ${pct(s.intention)} | ${pct(s.swapResistance)} | ${s.violations} | ${s.wrongLineHits} | ${s.proseLeaks} | ${s.styleSlips} | ${s.careOpeners} | ${s.fallbacks} | ${s.unjudged} | ${s.offSpeaker} |`);
   const byWarden = WARDENS.map((w) => `| ${w} | ${scores.map((s) => (s.perWarden[w] ? `${pct(s.perWarden[w]!.voice)} / ${pct(s.perWarden[w]!.action)} (${s.perWarden[w]!.n})` : "")).join(" | ")} |`);
   const pairRows = scores.flatMap((s) => s.pairs.map((p) => `| ${s.condition} | ${p.scenario} | ${p.pair.join(" and ")} | ${p.n} | ${pct(p.voice)} | ${p.crossed} | ${p.forced ? `${pct(p.forced.right)} (${p.forced.n})` : ""} |`));
-  const confusionRows = scores.flatMap((s) => s.confusions.slice(0, 12).map((c) => `- ${s.condition}, ${c.scenario}: ${c.truth} taken for ${c.guess} ×${c.count}`));
+  const confusionRows = scores.flatMap((s) => s.confusions.map((c) => `- ${s.condition}, ${c.scenario}: ${c.truth} taken for ${c.guess} ×${c.count}`));
   const notes = samples.filter((x) => x.note).map((x) => `- ${x.condition}, ${x.warden} to the ${x.scenario}: ${x.note}`);
   const examples = scores.flatMap((s) => samples.filter((x) => x.condition === s.condition && x.source === "claude").slice(0, 2).map((x) => `- ${s.condition}, ${x.warden} to the ${x.scenario} (${x.tone}): "${stripIdentity(x.line, terms)}"${x.proseLeak ? ` [narration moved to the tell: ${stripIdentity(x.proseLeak, terms)}]` : ""}${x.intention ? ` [move: ${stripIdentity(x.intention, terms)}]` : ""}`));
   return [

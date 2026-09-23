@@ -67,6 +67,10 @@ describe("the compiled canon", () => {
     expect(runtime.validation.join(" ")).toContain("VALIDATED PRELIMINARILY");
     expect(runtime.validation.join(" ")).toContain("Plurality is optional. Specificity is mandatory.");
     expect(runtime.guardrails.some((g) => g.startsWith("Shared-care de-duplication"))).toBe(true);
+    expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("what the living system is telling him");
+    expect(runtime.guardrails.find((g) => g.startsWith("Shared-care de-duplication"))).toContain("failed to remain present for");
+    expect(runtime.validation.join(" ")).toContain("Collision resistance, a tie-breaker only");
+    expect(runtime.validation.join(" ")).toContain("the runtime renders the person doing that tactic");
     expect(runtime.wardens.brask!.languageRail.length).toBeGreaterThanOrEqual(14);
     expect(runtime.wardens.brask!.languageRail.join(" ")).toContain("Then we not know.");
     for (const id of ["tav", "serena", "thorbin", "varya", "lyra", "kael"]) expect(runtime.wardens[id]!.languageRail).toEqual([]);

@@ -123,6 +123,6 @@ export function slateCard(world: World, beat: Beat, runtime: CanonRuntime, gate 
   if (beat.outsider) {
     lines.push(`The outsider as the scene opens: ${beat.outsider.mode}, confidence ${beat.outsider.confidence}.${beat.outsider.note ? ` ${beat.outsider.note}` : ""} Classify by demonstrated behaviour, never by rank, species or magic, and reclassify as it changes.`);
   }
-  if (gate) lines.push("Slate: two to four candidate moves for the speaker this turn, scored −2 to +2 against the company's runtime; the line renders the best-scored one and never a −2. Give the owner, the coverage and the outsider mode alongside them.");
+  if (gate) lines.push("Slate: two to four candidate moves for the speaker this turn, scored −2 to +2 against the company's runtime and marked distinct when no other Warden present could make them unchanged. Never render a −2; with two or more at +1 or better render the best-scored, ties to the distinct move. The move decides what the line does; the character decides how it sounds. Give the owner, the coverage and the outsider mode alongside them.");
   return lines.join("\n");
 }

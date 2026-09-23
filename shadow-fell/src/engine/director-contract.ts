@@ -46,6 +46,8 @@ export const IntentionSchema = z.object({
   intention: z.string(),
   /** +2 canon-positive, +1 compatible, 0 neutral, -1 drift risk, -2 canon violation. */
   score: z.number().int().min(-2).max(2),
+  /** True when no other Warden present could make this move essentially unchanged; among equal scores the distinct move renders. */
+  distinct: z.boolean(),
   /** A few words on why it scores so. */
   note: z.string().optional(),
 });
@@ -58,7 +60,7 @@ export const SlateSchema = z.object({
   coverage: CoverageModeSchema,
   /** How the Wardens read the outsider right now; reclassified on behaviour. */
   outsiderMode: OutsiderModeSchema,
-  /** Two to four candidate moves for the speaker this turn; the line renders the best-scored. */
+  /** Two to four candidate moves for the speaker this turn; with two or more at +1 or better the best-scored renders, ties to the distinct move. */
   intentions: z.array(IntentionSchema).min(2).max(4),
 });
 export type Slate = z.infer<typeof SlateSchema>;

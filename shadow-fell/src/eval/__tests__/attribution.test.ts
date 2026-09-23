@@ -4,7 +4,7 @@ import { validateWorld, findBeat } from "../../engine/world.js";
 import { loadCanonRuntime } from "../../server/runtime.js";
 import { systemPrompt, turnMessage } from "../../server/prompt.js";
 import { understudy } from "../../server/understudy.js";
-import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, hitsWrongLine, judgeSystem, matchJudgements, sampleLine, slipsStyle, opensOnCare, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
+import { CONDITIONS, SCENARIOS, WARDENS, EVAL_CAST, evalWorld, evalBeatId, identityTerms, stripIdentity, scoreCondition, verdict, formatReport, hitsWrongLine, judgeSystem, matchJudgements, sampleLine, slipsStyle, opensOnCare, type Sample, type JudgedItem, type ConditionScore } from "../attribution.js";
 import { chooseMoves, scoreSteering, steeringVerdict, matchSteering, type SteeringPair } from "../steering.js";
 
 const runtime = loadCanonRuntime();
@@ -89,7 +89,7 @@ describe("the attribution eval", () => {
       // the fourth line came back unjudged
     ]);
     const B = scoreCondition("B", samples, judged, runtime);
-    expect(B).toMatchObject({ n: 4, judged: 3, unjudged: 1, fallbacks: 0, voice: 2 / 3, action: 1, swapResistance: 2 / 3 });
+    expect(B).toMatchObject({ n: 4, judged: 3, unjudged: 1, fallbacks: 0, voice: 2 / 3, action: 1, voiceActionSplit: 1, swapResistance: 2 / 3 });
     expect(B.perWarden.serena).toEqual({ n: 2, voice: 0.5, action: 1 });
     expect(B.perWarden.thorbin).toEqual({ n: 1, voice: 1, action: 1 });
     expect(B.perWarden.brask).toBeUndefined();
@@ -101,7 +101,7 @@ describe("the attribution eval", () => {
 
   it("says what the data says", () => {
     const base = (condition: "A" | "B" | "C", over: Partial<ConditionScore>): ConditionScore => ({
-      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 1, action: 1, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], ...over,
+      condition, label: CONDITIONS[condition].label, n: 4, judged: 4, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 1, action: 1, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], ...over,
     });
     const A = base("A", {});
     const B = base("B", { swapResistance: 1 });
@@ -113,6 +113,22 @@ describe("the attribution eval", () => {
     expect(verdict({ B, C: base("C", { swapResistance: 1, intention: 0.5 }) })).toMatch(/no gain from the gate/);
     expect(verdict({ B, C: base("C", { swapResistance: 1, voice: 0.5, intention: 0.9 }) })).toMatch(/labels moves better than it renders/);
     expect(verdict({ B: base("B", { voice: 0.6, action: 0.6, judged: 40 }), C: base("C", { voice: 0.8, action: 0.7, judged: 40 }) })).toMatch(/the gate helps/);
+    const drop = verdict({ B: base("B", { voice: 0.71, action: 0.71, judged: 42 }), C: base("C", { voice: 0.59, action: 0.59, judged: 37, intention: 0.42 }) });
+    expect(drop).toMatch(/no gain from the gate/);
+    expect(drop).toMatch(/rests on the steering test, not on attribution/);
+    expect(drop).not.toMatch(/Run the steering test; if the two forced moves render the same line, kill the gate/);
+  });
+
+  it("explains its columns and says when the judge never separated voice from behaviour", () => {
+    const base = (condition: "A" | "B", over: Partial<ConditionScore>): ConditionScore => ({
+      condition, label: CONDITIONS[condition].label, n: 42, judged: 42, offSpeaker: 0, fallbacks: 0, proseLeaks: 0, unjudged: 0, styleSlips: 0, careOpeners: 0, voice: 0.5, action: 0.5, voiceActionSplit: 0, swapResistance: 0.5, violations: 0, wrongLineHits: 0, perWarden: {}, pairs: [], confusions: [], ...over,
+    });
+    const collapsed = formatReport([base("A", {}), base("B", {})], { run: "t" }, [], []);
+    expect(collapsed).toContain("move is whether the chosen move, read on its own with names stripped");
+    expect(collapsed).toContain("the behaviour column is not an independent measurement in this run");
+    const split = formatReport([base("A", {}), base("B", { voiceActionSplit: 3 })], { run: "t" }, [], []);
+    expect(split).not.toContain("not an independent measurement");
+    expect(formatReport([base("A", { judged: 4, n: 4 })], { run: "t" }, [], [])).not.toContain("not an independent measurement");
   });
 
   it("switches the gate off cleanly for the ungated conditions and steers when asked", () => {
@@ -123,6 +139,8 @@ describe("the attribution eval", () => {
     expect(ungated).not.toContain("Generation loop:");
     expect(ungated).not.toContain("Fill slate as the scene's paperwork");
     expect(gated).toContain("Fill slate as the scene's paperwork");
+    expect(gated).toContain("break a tie toward the distinct move");
+    expect(gated).toContain("The slate never replaces the character.");
     expect(ungated).toContain("### Directed pairs");
     const { beat } = findBeat(world, evalBeatId("captain", "lyra"));
     const req = { worldId: "shadow-fell", beatId: beat.id, playerRole: beat.playerRole, stance: beat.stance, turn: 1, maxTurns: 3, playerLine: "Start with your name.", affect: "level", axes: {}, meters: {}, transcript: [] };
@@ -131,6 +149,7 @@ describe("the attribution eval", () => {
     expect(turnMessage(world, { ...req, steer: "ask for the concrete rule" }, runtime, true)).toContain("This turn the speaker's move is fixed: ask for the concrete rule.");
     expect(turnMessage(world, req, runtime, true)).not.toContain("move is fixed");
     expect(understudy(world, req, runtime).slate.owner).toBe("lyra");
+    expect(understudy(world, req, runtime).slate.intentions.every((i) => typeof i.distinct === "boolean")).toBe(true);
     expect(CONDITIONS.A.gate).toBe(false);
     expect(CONDITIONS.C.gate).toBe(true);
     expect(judgeSystem(runtime)).toContain("### Brask Runebearer (id: brask)");
@@ -139,8 +158,8 @@ describe("the attribution eval", () => {
 
 describe("the steering test", () => {
   it("chooses two distinct moves at +1 or better", () => {
-    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold the boundary", score: 2 }, { intention: "Hold the boundary", score: 1 }, { intention: "grant limited access", score: 1 }, { intention: "accuse him", score: -2 }] })).toEqual(["hold the boundary", "grant limited access"]);
-    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold", score: 1 }, { intention: "narrate", score: -2 }] })).toBeNull();
+    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold the boundary", score: 2, distinct: false }, { intention: "Hold the boundary", score: 1, distinct: false }, { intention: "grant limited access", score: 1, distinct: false }, { intention: "accuse him", score: -2, distinct: false }] })).toEqual(["hold the boundary", "grant limited access"]);
+    expect(chooseMoves({ owner: "serena", coverage: "owner", outsiderMode: "mixed", intentions: [{ intention: "hold", score: 1, distinct: false }, { intention: "narrate", score: -2, distinct: false }] })).toBeNull();
     expect(chooseMoves(undefined)).toBeNull();
   });
 

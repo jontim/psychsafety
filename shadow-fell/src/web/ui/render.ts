@@ -96,12 +96,14 @@ export function renderSlate(world: World, response: DirectorResponse | null, sou
     h("span", { class: "fact" }, h("b", {}, "Director "), source || "unknown"),
   ));
   const best = Math.max(...s.intentions.map((i) => i.score));
+  const tops = s.intentions.filter((i) => i.score === best);
+  const chosen = tops.find((i) => i.distinct) ?? tops[0];
   const list = h("div", { class: "intentions" });
   for (const i of s.intentions) {
-    const cls = `intention s${i.score < 0 ? "n" : ""}${Math.abs(i.score)} ${i.score === best ? "chosen" : ""}`;
+    const cls = `intention s${i.score < 0 ? "n" : ""}${Math.abs(i.score)} ${i === chosen ? "chosen" : ""}`;
     list.append(h("div", { class: cls },
       h("span", { class: "score" }, i.score > 0 ? `+${i.score}` : String(i.score)),
-      h("span", { class: "what" }, i.intention, i.note ? h("span", { class: "why" }, ` ${i.note}`) : null),
+      h("span", { class: "what" }, i.intention, i.distinct ? h("span", { class: "distinct", title: "No other Warden present could make this move unchanged" }, "distinct") : null, i.note ? h("span", { class: "why" }, ` ${i.note}`) : null),
     ));
   }
   box.append(list);

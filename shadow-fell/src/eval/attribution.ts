@@ -327,6 +327,8 @@ export interface ConditionScore {
   careOpeners: number;
   voice: number;
   action: number;
+  /** Judged lines where the judge named different Wardens for voice and for behaviour; zero across a run means the behaviour column is not independent. */
+  voiceActionSplit: number;
   intention?: number;
   swapResistance: number;
   violations: number;
@@ -395,7 +397,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
   const onSpeaker = live.filter((s) => s.speaker === s.warden);
   const perWarden: ConditionScore["perWarden"] = {};
   const confusionCounts = new Map<string, { scenario: string; truth: WardenId; guess: WardenId; count: number }>();
-  let voice = 0, action = 0, swapResistant = 0, violations = 0, wrongLineHits = 0, judgedLines = 0, unjudged = 0, styleSlips = 0;
+  let voice = 0, action = 0, swapResistant = 0, violations = 0, wrongLineHits = 0, judgedLines = 0, unjudged = 0, styleSlips = 0, voiceActionSplit = 0;
   let intentionRight = 0, intentionJudged = 0;
   for (const s of onSpeaker) {
     if (hitsWrongLine(s.line, runtime)) wrongLineHits++;
@@ -414,6 +416,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
         confusionCounts.set(key, c);
       }
       if (j.action === s.warden) { action++; pw.action++; }
+      if (j.action !== j.voice) voiceActionSplit++;
       if (!j.swappable) swapResistant++;
       if (j.violation) violations++;
     }
@@ -444,6 +447,7 @@ export function scoreCondition(condition: Condition, samples: Sample[], judged: 
     careOpeners: onSpeaker.filter((s) => opensOnCare(s.line)).length,
     voice: rate(voice, judgedLines),
     action: rate(action, judgedLines),
+    voiceActionSplit,
     ...(intentionJudged ? { intention: rate(intentionRight, intentionJudged) } : {}),
     swapResistance: rate(swapResistant, judgedLines),
     violations,
@@ -485,7 +489,7 @@ export function verdict(scores: Partial<Record<Condition, ConditionScore>>): str
     const better = C.voice >= B.voice && C.action >= B.action && C.swapResistance >= B.swapResistance && C.violations + C.wrongLineHits <= B.violations + B.wrongLineHits && (C.voice > B.voice || C.action > B.action || C.swapResistance > B.swapResistance);
     if (better) lines.push(`B vs C: the gate helps on this sample (voice ${pct(B.voice)} to ${pct(C.voice)}, behaviour ${pct(B.action)} to ${pct(C.action)}, swap resistance ${pct(B.swapResistance)} to ${pct(C.swapResistance)}). ${small ? "Preliminary; " : ""}the steering test decides whether the gate is causal.`);
     else if (C.intention !== undefined && C.intention > C.voice) lines.push(`B vs C: the gate labels moves better than it renders them (moves ${pct(C.intention)}, voice ${pct(C.voice)}): the problem is between move selection and surface realisation. Give the chosen move stronger rendering constraints rather than more character lore.`);
-    else lines.push(`B vs C: no gain from the gate on this sample (voice ${pct(B.voice)} to ${pct(C.voice)}, behaviour ${pct(B.action)} to ${pct(C.action)}, swap resistance ${pct(B.swapResistance)} to ${pct(C.swapResistance)}). ${small ? "Too small to kill it on; run the steering test." : "Run the steering test; if the two forced moves render the same line, kill the gate."}`);
+    else lines.push(`B vs C: no gain from the gate on this sample (voice ${pct(B.voice)} to ${pct(C.voice)}, behaviour ${pct(B.action)} to ${pct(C.action)}, swap resistance ${pct(B.swapResistance)} to ${pct(C.swapResistance)}). ${small ? "Too small to kill it on; run the steering test." : "The gate's case rests on the steering test, not on attribution: if two forced moves render the same line, kill it; if they render distinct lines in the same voice, keep it and read the C lines of the Wardens that dropped, since a gate that picks a canon-valid but generic move makes them appropriate rather than wrong."}`);
   }
   if (!lines.length) lines.push("Incomplete: run at least two conditions to compare.");
   return lines.join(" ");
@@ -507,6 +511,9 @@ export function formatReport(scores: ConditionScore[], meta: Record<string, stri
     "| Condition | n | judged | voice | behaviour | move | swap resistance | violations | wrong-line hits | prose leaks | style slips | care openers | fallbacks | unjudged | off-speaker |",
     "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ...rows,
+    "",
+    "Columns: voice and behaviour are the judge's attribution of the line by register and by choice; move is whether the chosen move, read on its own with names stripped, is attributed to the right Warden, not whether the line enacted it; swap resistance is the share of lines the judge could not reassign by changing only the name.",
+    ...(scores.reduce((k, s) => k + s.judged, 0) >= 20 && scores.every((s) => s.voiceActionSplit === 0) ? ["", "The judge named the same Warden for voice and for behaviour on every judged line, so the behaviour column is not an independent measurement in this run."] : []),
     "",
     `Verdict: ${verdict(Object.fromEntries(scores.map((s) => [s.condition, s])))}`,
     "",

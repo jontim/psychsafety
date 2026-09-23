@@ -173,6 +173,7 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .slate .intention.s0 .score { color: var(--ink-soft); }
 .slate .intention.sn1 .score { color: var(--storm-violet); }
 .slate .intention.sn2 .score { color: var(--crimson); }
+.slate .intention .distinct { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--old-gold); color: var(--old-gold); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; vertical-align: middle; }
 .slate .intention.sn2 .what { text-decoration: line-through; text-decoration-color: rgba(139,30,45,0.5); color: var(--ink-soft); }
 .slate .intention.chosen { border-color: var(--old-gold); box-shadow: inset 0 0 0 1px rgba(200,162,74,0.35); background: rgba(245,230,184,0.45); }
 .slate .intention .why { font-style: italic; color: var(--ink-soft); font-family: var(--serif); font-size: 13.5px; }

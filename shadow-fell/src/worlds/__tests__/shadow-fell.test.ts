@@ -72,6 +72,8 @@ describe("The Shadow Fell world pack", () => {
     const ledger = findBeat(shadowFell, "the-dispatch").beat.documents?.[0];
     expect(ledger?.title).toBe("The accounting of the attempt");
     expect(ledger?.body.join(" ")).toContain("eighteenth level");
+    expect(ledger?.body.at(-1)).toContain("about two million gold");
+    expect(ledger?.body.join(" ")).toContain("six villas");
     expect(findBeat(shadowFell, "the-study").beat.documents?.[0]?.title).toBe("The accounting of the attempt");
     expect(findBeat(shadowFell, "your-deniables").beat.documents?.[0]?.body.at(-1)).toContain("too complete");
     expect(validateWorld(shadowFell)).toEqual([]);

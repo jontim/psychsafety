@@ -49,6 +49,20 @@ describe("The Shadow Fell world pack", () => {
     expect(soraya.summary).toContain("nobody's shield");
     const restraint = shadowFell.meters.find((m) => m.id === "restraint")!;
     expect(restraint.axes.find((a) => a.axis === "pressure")?.weight).toBeLessThan(0);
+    expect(beat.goal).toContain("Omahnd");
+    expect(indigo.knows.join(" ")).toContain("skyship-grounding");
+  });
+
+  it("plays Navid's hire as the deleted briefing shot it", () => {
+    const { beat } = findBeat(shadowFell, "your-deniables");
+    expect(beat.brief?.you).toContain("in uniform");
+    expect(beat.brief?.never).toContain("Hegemony");
+    expect(beat.notes).toContain("This conversation never happened");
+    expect(beat.failWhen).toContain("names the Hegemony");
+    expect(beat.when).toContain("Omahnd");
+    const navid = shadowFell.cast.find((c) => c.id === "navid")!;
+    expect(navid.lines.join(" ")).toContain("keep it at arm's length");
+    expect(navid.summary).not.toContain("out of uniform");
   });
 
   it("strips director-only material from the public copy", () => {

@@ -63,6 +63,8 @@ describe("The Shadow Fell world pack", () => {
     const navid = shadowFell.cast.find((c) => c.id === "navid")!;
     expect(navid.lines.join(" ")).toContain("keep it at arm's length");
     expect(navid.summary).not.toContain("out of uniform");
+    expect(beat.brief?.room).toContain("extradition");
+    expect(findBeat(shadowFell, "the-alley").beat.brief?.room).toContain("extradition");
   });
 
   it("strips director-only material from the public copy", () => {

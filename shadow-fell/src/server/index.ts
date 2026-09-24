@@ -70,7 +70,11 @@ function withRenderedClips(world: World): World {
       const local = localPortrait(c.id);
       return local ? { ...c, portrait: local } : c;
     }),
-    clips: world.clips.map((c) => (c.file || !fs.existsSync(path.join(dir, `${c.key}.mp4`)) ? c : { ...c, file: `/clips/${c.key}.mp4` })),
+    clips: world.clips.map((c) => {
+      if (c.file || !fs.existsSync(path.join(dir, `${c.key}.mp4`))) return c;
+      const voiced = fs.existsSync(path.join(dir, `${c.key}.voiced`));
+      return { ...c, file: `/clips/${c.key}.mp4`, ...(voiced ? { voiced: true } : {}) };
+    }),
   };
 }
 

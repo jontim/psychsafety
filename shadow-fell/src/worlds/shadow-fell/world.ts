@@ -37,7 +37,7 @@ function establishing(key: string, prompt: string): Clip {
 
 /** Story footage: instruction, bridge or ending, with the Scribe's narration and a text-to-video prompt. Rendered once, reused every time the branch is entered. */
 function story(key: string, moment: NonNullable<Clip["moment"]>, narration: string | undefined, prompt: string): Clip {
-  return { key, kind: "story", tag: "neutral", moment, narration, prompt: `${prompt} Photoreal, cinematic, no dialogue, no text, 6 seconds.` };
+  return { key, kind: "story", tag: "neutral", moment, narration, prompt: `${prompt} Photoreal, cinematic. Silent: no one speaks, mouths closed, no lip movement, no voice, no on-screen text or lettering of any kind. 6 seconds.` };
 }
 
 const STORY_CLIPS: Clip[] = [
@@ -64,7 +64,7 @@ const STORY_CLIPS: Clip[] = [
     "A sky palace study at dawn, arched windows over cloud, a sealed dispatch on a desk beside a serving cloche with a dented rim, a man in silk at the window with his back to the room, slow push-in."),
   story("bridge-the-study-omahnd", { role: "bridge", beat: "the-study", flag: "omahnd-recommended" },
     "Dawn. The dispatch said Omahnd, because nothing else could be said, and her father had read it, and slept.",
-    "A sky palace study at dawn, a dispatch open on a desk with one word visible in a firm hand, a man in silk reading it at the window, the cloud sea gold below, slow push-in."),
+    "A sky palace study at dawn, a dispatch open on a desk sealed in red, a man in silk reading it at the window with his lips pressed shut, the cloud sea gold below, slow push-in."),
   story("bridge-the-study", { role: "bridge", beat: "the-study" },
     "Dawn. The dispatch was written, and her father had read it, and slept, which was more than she had.",
     "A sky palace study at dawn, arched windows over a cloud sea, a desk with a sealed dispatch, slow push-in."),
@@ -88,7 +88,7 @@ const STORY_CLIPS: Clip[] = [
     "A small sky cutter with lit sails moored beside a timber inn by a lake in northern forest at dusk, slow push-in."),
   story("bridge-make-it-famous", { role: "bridge", beat: "make-it-famous" },
     "Weeks into the six months. The ballad had been sung in other towns, and tonight it was bait.",
-    "A tour poster on a tavern wall at night, a crowd pushing in through the door, a bard tuning on a dais beyond, slow push-in."),
+    "A weathered poster on a tavern wall at night, its lettering out of focus, a crowd pushing in through the door, a bard tuning on a dais beyond, slow push-in."),
   story("bridge-the-alley", { role: "bridge", beat: "the-alley" },
     "The same night, behind the tavern. Brask had the heckler against the wall, and Serena was listening.",
     "A wet alley behind a tavern at night, a huge figure pinning a red-robed man to the wall, a lit window above, a woman in white and gold in the shadow of the door, static shot."),
@@ -104,7 +104,7 @@ const STORY_CLIPS: Clip[] = [
   story("ending-war", { role: "ending", outcome: "war" }, undefined,
     "A fleet of arcane sky galleons crossing jagged mountain peaks at noon, brass batteries on the ridgelines igniting in white flashes, storm cloud building, slow aerial wide."),
   story("ending-weak", { role: "ending", outcome: "weak" }, undefined,
-    "A sun-baked tea house of tiled mosaics and geometric arches at evening, men in brass-trimmed coats talking low over glasses of tea, a newspaper-like proclamation sheet on the table, slow push-in."),
+    "A sun-baked tea house of tiled mosaics and geometric arches at evening, men in brass-trimmed coats sitting silent over glasses of tea, a folded paper on the table between them, slow push-in."),
   story("ending-named", { role: "ending", outcome: "named" }, undefined,
     "An older man in sand-coloured robes rising from a front-row seat in a great hall and walking out under tiers of robed mages, then a mountain frontier at dusk with brass batteries lighting one by one, slow crane."),
 ];

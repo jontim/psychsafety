@@ -101,6 +101,8 @@ export const ClipSchema = z.object({
   prompt: z.string(),
   /** Published path under /clips once generated; absent means not yet rendered. */
   file: z.string().optional(),
+  /** Story footage only: the file carries the Scribe's narration as its audio track (scripts/voice-clips.ts), so it plays unmuted and the app does not speak over it. */
+  voiced: z.boolean().optional(),
 });
 export type Clip = z.infer<typeof ClipSchema>;
 

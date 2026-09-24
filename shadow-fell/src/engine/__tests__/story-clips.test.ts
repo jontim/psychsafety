@@ -32,6 +32,10 @@ describe("story footage", () => {
     expect(selectStoryClip(shadowFell.clips, { role: "bridge", beat: "the-dispatch", flags: ["cover-held"] })?.key).toBe("bridge-the-dispatch-cover-held");
     expect(selectStoryClip(shadowFell.clips, { role: "bridge", beat: "your-deniables", flags: ["doubt-omahnd", "statement", "omahnd-denied-quick"] })?.key).toBe("bridge-your-deniables-quick");
     expect(selectStoryClip(shadowFell.clips, { role: "instruction", beat: "mirror" })?.key).toBe("story-mirror");
-    for (const c of shadowFell.clips.filter((c) => c.kind === "story")) expect(c.prompt, c.key).toContain("6 seconds");
+    for (const c of shadowFell.clips.filter((c) => c.kind === "story")) {
+      expect(c.prompt, c.key).toContain("6 seconds");
+      expect(c.prompt, c.key).toContain("no one speaks");
+      expect(c.prompt, c.key).not.toMatch(/talking|poster on a tavern wall at night, a crowd|one word visible/);
+    }
   });
 });

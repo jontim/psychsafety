@@ -196,7 +196,18 @@ function showInterlude(clip: Clip | null, title: string, text: string, onDone: (
   app.screen = "interlude";
   render();
   void (async () => {
-    await speakMuted(narratorId(), text);
+    if (clip?.file && clip.voiced) {
+      // the file carries the Scribe's voice: wait for it to end, with a ceiling in case the browser blocks sound
+      const video = document.querySelector<HTMLVideoElement>(".interlude-stage video");
+      await new Promise<void>((resolve) => {
+        const done = () => resolve();
+        video?.addEventListener("ended", done, { once: true });
+        video?.addEventListener("error", done, { once: true });
+        setTimeout(done, 45000);
+      });
+    } else {
+      await speakMuted(narratorId(), text);
+    }
     await new Promise((r) => setTimeout(r, 600));
     if (app.screen === "interlude" && app.interlude === it) finishInterlude();
   })();
@@ -213,12 +224,12 @@ function finishInterlude(): void {
 function interludeScreen(): HTMLElement {
   const it = app.interlude!;
   const stage = h("div", { class: "stage interlude-stage" });
-  if (it.clip?.file) stage.append(h("video", { src: it.clip.file, autoplay: "", muted: "", loop: "", playsinline: "" }));
+  if (it.clip?.file) stage.append(it.clip.voiced ? h("video", { src: it.clip.file, autoplay: "", playsinline: "" }) : h("video", { src: it.clip.file, autoplay: "", muted: "", loop: "", playsinline: "" }));
   stage.append(
     h("div", { class: "vignette" }),
     h("div", { class: "top" }, h("div", { class: "scene" }, it.title)),
     h("div", { class: "ask" }, it.text),
-    h("div", { class: "card" }, h("div", { class: "who" }, castName(app.world, narratorId())), h("div", { class: "where" }, it.clip?.file ? "Library footage." : "No footage rendered for this moment yet; the Scribe reads it.")),
+    h("div", { class: "card" }, h("div", { class: "who" }, castName(app.world, narratorId())), h("div", { class: "where" }, it.clip?.file ? (it.clip.voiced ? "Library footage, with the Scribe's voice in the file." : "Library footage; the Scribe reads over it.") : "No footage rendered for this moment yet; the Scribe reads it.")),
   );
   const cont = h("button", { class: "btn gold btn-continue" }, "Continue");
   cont.addEventListener("click", finishInterlude);

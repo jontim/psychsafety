@@ -235,5 +235,6 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 
 /* Interludes: story footage between screens. */
 .interlude { max-width: 1100px; margin: 0 auto; }
-.interlude-stage { background: radial-gradient(60% 60% at 50% 40%, rgba(200,162,74,0.22), rgba(20,18,16,1) 100%); min-height: 420px; }
+.interlude-stage { background: radial-gradient(60% 60% at 50% 40%, rgba(200,162,74,0.10), rgba(20,18,16,1) 100%); min-height: 420px; }
+.interlude-stage .ask { text-shadow: 0 2px 18px rgba(0,0,0,0.95), 0 0 48px rgba(0,0,0,0.9); }
 .interlude-stage .ask { padding-bottom: 140px; }

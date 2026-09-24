@@ -130,6 +130,8 @@ export const BeatSchema = z.object({
    * fail and the story continues in order.
    */
   outcomes: z.record(z.string(), OutcomeSchema).optional(),
+  /** Papers on the table: player-facing, and read to the director. Each is a title and its lines. */
+  documents: z.array(z.object({ title: z.string(), body: z.array(z.string()).min(1) })).optional(),
   /** Which meters this beat shows. */
   meters: z.array(z.string()),
   /** Maximum player turns before the director must resolve the beat. */

@@ -46,7 +46,7 @@ Before the tour, the roles screen offers the Mirror: a warm-up with the Scribe. 
 
 ## Branches
 
-A beat may list `outcomes`: named ways it can end. The director picks one as it resolves; each outcome sets flags the later beats can read (director notes say "if flag X") and says where the story goes next, a beat id, the next beat in order, or `null` to end the story with an ending the debrief shows. Act I is built this way from the night of the attack: the windowless room, the dispatch, the Caliph's study and the proclamation, two roads of which end the story before the Stormwardens are ever played.
+A beat may carry `documents`, papers on the table the player reads in a parchment panel beside the stage and the director reads in the beat card; the accounting of the attempt is one. A beat may list `outcomes`: named ways it can end. The director picks one as it resolves; each outcome sets flags the later beats can read (director notes say "if flag X") and says where the story goes next, a beat id, the next beat in order, or `null` to end the story with an ending the debrief shows. Act I is built this way from the night of the attack: the windowless room, the dispatch, the Caliph's study and the proclamation, two roads of which end the story before the Stormwardens are ever played.
 
 ## How a turn works
 

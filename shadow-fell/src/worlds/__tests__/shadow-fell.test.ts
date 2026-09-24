@@ -69,6 +69,11 @@ describe("The Shadow Fell world pack", () => {
     expect(proclamation.outcomes!.weak!.next).toBeNull();
     expect(shadowFell.roles.map((r) => r.id)).toContain("rashan");
     expect(findBeat(shadowFell, "your-deniables").beat.notes).toContain("If flag omahnd-denied-quick");
+    const ledger = findBeat(shadowFell, "the-dispatch").beat.documents?.[0];
+    expect(ledger?.title).toBe("The accounting of the attempt");
+    expect(ledger?.body.join(" ")).toContain("eighteenth level");
+    expect(findBeat(shadowFell, "the-study").beat.documents?.[0]?.title).toBe("The accounting of the attempt");
+    expect(findBeat(shadowFell, "your-deniables").beat.documents?.[0]?.body.at(-1)).toContain("too complete");
     expect(validateWorld(shadowFell)).toEqual([]);
   });
 

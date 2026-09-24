@@ -194,6 +194,7 @@ function stageScreen(): HTMLElement {
   const side = h("div", {});
   const brief = renderBrief(snap.beat);
   if (brief) side.append(brief);
+  for (const doc of snap.beat.documents ?? []) side.append(renderDocument(doc));
   side.append(renderMeters(app.world, snap), renderRibbon(snap.affect));
   const debrief = h("div", { class: "panel" }, h("h3", {}, "The listener's note"),
     h("div", { class: "debrief" }, app.lastResponse?.debrief ?? "Say your first line."),
@@ -277,6 +278,13 @@ function turnStrip(snap: SessionSnapshot, counterpartName: string): HTMLElement 
     h("div", { class: "speech-so-far" }, app.speechSoFar.length ? `Your speech so far: "${app.speechSoFar.map((f) => f.text).join(" ")}"` : ""),
   );
   return strip;
+}
+
+/** A paper on the table, as the player would read it. */
+function renderDocument(doc: { title: string; body: string[] }): HTMLElement {
+  const box = h("div", { class: "panel document" }, h("div", { class: "doc-eyebrow" }, "On the table"), h("h3", {}, doc.title));
+  for (const line of doc.body) box.append(h("p", {}, line));
+  return box;
 }
 
 /** The player's brief: where this sits, who you are, what wins, what the room can see, what tends to work, what is forbidden. */

@@ -140,6 +140,7 @@ describe("the slate", () => {
     expect(message).toContain("Flags: cover-broken.");
     expect(message).toContain("Outcomes (when you resolve, set beat.outcome to exactly one of these keys):");
     expect(message).toContain("- north (advance):");
+    expect(message).toContain('On the table, "The accounting of the attempt": Twelve came.');
     expect(turnMessage(shadowFell, request("the-alley"), runtime)).not.toContain("## So far");
   });
 

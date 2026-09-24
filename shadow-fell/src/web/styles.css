@@ -225,3 +225,10 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 /* Branch outcomes and endings on the debrief. */
 .debrief-screen .outcome { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--state-blue); margin-bottom: 6px; }
 .debrief-screen .ending { font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.45; max-width: 70ch; margin: 12px 0 4px; padding-left: 12px; border-left: 3px solid var(--old-gold); }
+
+/* Papers on the table. */
+.panel.document { background: linear-gradient(175deg, #f8eed4 0%, #efdfb9 100%); border-color: #d6c28c; box-shadow: 0 10px 26px rgba(20,18,16,0.12), inset 0 0 0 1px rgba(255,255,255,0.35); }
+.panel.document .doc-eyebrow { font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: #8a6d2f; margin-bottom: 2px; }
+.panel.document h3 { font-family: var(--serif); font-style: italic; font-weight: 600; margin: 0 0 8px; color: #3a2d14; }
+.panel.document p { font-family: var(--serif); font-size: 14.5px; line-height: 1.45; margin: 0 0 6px; padding-bottom: 6px; border-bottom: 1px dashed rgba(138,109,47,0.35); color: #2b2214; }
+.panel.document p:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }

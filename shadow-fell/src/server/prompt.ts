@@ -131,6 +131,7 @@ function beatCard(world: World, beat: Beat): string {
     `Succeed when: ${beat.succeedWhen}`,
     `Fail when: ${beat.failWhen}`,
   ];
+  for (const d of beat.documents ?? []) lines.push(`On the table, "${d.title}": ${d.body.join(" ")}`);
   if (beat.outcomes) {
     lines.push("Outcomes (when you resolve, set beat.outcome to exactly one of these keys):");
     for (const [key, o] of Object.entries(beat.outcomes)) lines.push(`- ${key} (${o.status}): ${o.when}`);

@@ -95,7 +95,8 @@ export function systemPrompt(world: World, brief: string, dossiers: Record<strin
     "- Show tells; never explain them. Never narrate a character's inner state.",
     "- Evidence rises only on usable admission in the counterpart's own words within the right hearing; the player may never put words in a mouth.",
     "- Meter deltas are small: -8 to +8 in an ordinary turn, up to 15 for a real turn of the scene.",
-    "- Set beat.status to advance when succeedWhen is met, fail when failWhen is met, otherwise continue. Resolve by maxTurns.",
+    "- Set beat.status to advance when succeedWhen is met, fail when failWhen is met, otherwise continue. Resolve by maxTurns. When the beat lists outcomes, also set beat.outcome to the key that fits; the outcome's own status wins, and the resolution sentence should say what it means for the story.",
+    "- Director notes may say 'if flag X': apply them only when X appears under So far.",
     "- escalate only on a beat that declares force, and only when the counterpart resorts to violence or the player's words leave no other road. Never on a palace beat.",
     "- shot.kind reaction with a key from the counterpart's clip list; establishing on a scene's first turn; bespoke only for a verdict, a capture or a reveal, with a one-sentence prompt.",
     ...(gate ? ["- Fill slate as the scene's paperwork: who owns the problem this turn, the coverage mode, how the Wardens read the outsider, and two to four candidate moves the speaker could make with this line, each scored against the company's runtime, marked distinct when no other Warden present could make it essentially unchanged, and marked wayOfKnowing when it arises from this Warden's way of knowing, the thing their attention line says they notice first, rather than from a competence any adult in the room would show; derive the first candidate from that attention line. The line never renders a −2. When two or more moves score +1 or better, render the best-scored, and break a tie toward the move from the way of knowing, then toward the distinct move. When only one does, that is information about the character, not a failure: plurality is optional, specificity is mandatory. The move decides what the line does; the card, the dossier and the runtime decide how it sounds. The slate never replaces the character."] : []),
@@ -130,6 +131,10 @@ function beatCard(world: World, beat: Beat): string {
     `Succeed when: ${beat.succeedWhen}`,
     `Fail when: ${beat.failWhen}`,
   ];
+  if (beat.outcomes) {
+    lines.push("Outcomes (when you resolve, set beat.outcome to exactly one of these keys):");
+    for (const [key, o] of Object.entries(beat.outcomes)) lines.push(`- ${key} (${o.status}): ${o.when}`);
+  }
   if (beat.force) {
     const m = muster(world, beat);
     lines.push(`Force is possible here. Threat: ${beat.force.threat} A clean win needs: ${beat.force.requires.join(", ")}. Present cover: ${m.covered.join(", ") || "none"}; missing: ${m.missing.join(", ") || "none"}.`);
@@ -149,6 +154,8 @@ export function turnMessage(world: World, req: DirectorRequest, runtime?: CanonR
     return l.reading ? `${who}: "${l.text}" [${l.reading}]` : `${who}: "${l.text}"`;
   });
   const axes = Object.entries(req.axes).map(([k, v]) => `${k} ${v >= 0 ? "+" : ""}${v.toFixed(2)}`).join(", ");
+  const history = req.history ?? [];
+  const flags = req.flags ?? [];
   return [
     beatCard(world, beat),
     "",
@@ -156,6 +163,7 @@ export function turnMessage(world: World, req: DirectorRequest, runtime?: CanonR
     ...(req.steer ? [`This turn the speaker's move is fixed: ${req.steer}. Render the line from that move; the slate still scores it among the candidates.`, ""] : []),
     `Turn ${req.turn} of ${req.maxTurns}.`,
     `Meters now: ${Object.entries(req.meters).filter(([k]) => beat.meters.includes(k)).map(([k, v]) => `${k} ${Math.round(v)}`).join(", ")}.`,
+    ...(history.length || flags.length ? ["", "## So far", ...history.map((h) => `- ${h.title}: ${h.label}${h.resolution ? `. ${h.resolution}` : ""}`), `Flags: ${flags.length ? flags.join(", ") : "none"}.`] : []),
     "",
     "## Transcript so far",
     ...transcript,

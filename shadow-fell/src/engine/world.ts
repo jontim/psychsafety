@@ -9,6 +9,21 @@ export const CapabilitySchema = z.enum([
 ]);
 export type Capability = z.infer<typeof CapabilitySchema>;
 
+export const OutcomeSchema = z.object({
+  /** Player-facing: shown in the debrief when this outcome lands. */
+  label: z.string(),
+  /** Director-facing: what earns this outcome. */
+  when: z.string(),
+  status: z.enum(["advance", "fail"]).default("advance"),
+  /** Flags this outcome sets for the rest of the story. */
+  flags: z.array(z.string()).default([]),
+  /** Where the story goes: a beat id; undefined for the next beat in order; null to end here. */
+  next: z.string().nullable().optional(),
+  /** Player-facing text when next is null. */
+  ending: z.string().optional(),
+});
+export type Outcome = z.infer<typeof OutcomeSchema>;
+
 export const ForceSchema = z.object({
   /** What violence looks like if this beat tips over, in one sentence. */
   threat: z.string(),
@@ -107,6 +122,14 @@ export const BeatSchema = z.object({
   /** Plain-language conditions the director judges against. */
   succeedWhen: z.string(),
   failWhen: z.string(),
+  /**
+   * Named ways the beat can end. When present, the director picks exactly one as it
+   * resolves; the outcome sets flags the later beats can read, and says where the
+   * story goes next: a beat id, undefined for the next beat in order, or null to end
+   * the story here with the ending text. Absent means the beat ends on advance or
+   * fail and the story continues in order.
+   */
+  outcomes: z.record(z.string(), OutcomeSchema).optional(),
   /** Which meters this beat shows. */
   meters: z.array(z.string()),
   /** Maximum player turns before the director must resolve the beat. */
@@ -187,6 +210,7 @@ export function validateWorld(world: World): string[] {
   const problems: string[] = [];
   const castIds = new Set(world.cast.map((c) => c.id));
   const meterIds = new Set(world.meters.map((m) => m.id));
+  const beatIds = new Set(world.acts.flatMap((a) => a.beats.map((b) => b.id)));
   const clipKeys = new Set<string>();
   for (const clip of world.clips) {
     if (clipKeys.has(clip.key)) problems.push(`Duplicate clip key ${clip.key}`);
@@ -201,6 +225,10 @@ export function validateWorld(world: World): string[] {
       if (!castIds.has(beat.counterpart)) problems.push(`Beat ${beat.id}: unknown counterpart ${beat.counterpart}`);
       for (const p of beat.present) if (!castIds.has(p)) problems.push(`Beat ${beat.id}: unknown present ${p}`);
       for (const m of beat.meters) if (!meterIds.has(m)) problems.push(`Beat ${beat.id}: unknown meter ${m}`);
+      for (const [key, o] of Object.entries(beat.outcomes ?? {})) {
+        if (o.next && !beatIds.has(o.next)) problems.push(`Beat ${beat.id}: outcome ${key} goes to unknown beat ${o.next}`);
+        if (o.next === null && !o.ending) problems.push(`Beat ${beat.id}: outcome ${key} ends the story without an ending`);
+      }
     }
   }
   return problems;

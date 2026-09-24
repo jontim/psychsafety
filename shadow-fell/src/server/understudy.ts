@@ -108,6 +108,13 @@ export function understudy(world: World, req: DirectorRequest, runtime?: CanonRu
     }
   }
 
+  let outcome: string | undefined;
+  if (status !== "continue" && beat.outcomes) {
+    const entries = Object.entries(beat.outcomes);
+    const pick = entries.find(([, o]) => o.status === status) ?? entries[0];
+    if (pick) { outcome = pick[0]; resolution = pick[1].label; }
+  }
+
   const present = runtime ? wardensInBeat(runtime, beat).present : [];
   const owner = present.find((id) => id !== req.playerRole) ?? (present.length ? counterpart.id : "none");
   const slate: DirectorResponse["slate"] = {
@@ -127,7 +134,7 @@ export function understudy(world: World, req: DirectorRequest, runtime?: CanonRu
     tell,
     meterDeltas,
     shot: req.turn === 1 ? { kind: "establishing" } : { kind: "reaction", key: `${counterpart.id}-${tag}` },
-    beat: { status, resolution },
+    beat: { status, resolution, ...(outcome ? { outcome } : {}) },
     debrief,
     slate,
     ...(escalate ? { escalate } : {}),

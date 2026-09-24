@@ -20,7 +20,7 @@ const DEAD_NAMES: RegExp[] = [
 describe("dossiers", () => {
   it("exist for the cast that carries deep canon", () => {
     expect(Object.keys(dossiers).sort()).toEqual(
-      ["brask", "indigo", "kael", "lyra", "navid", "rashan", "sahir", "serena", "soraya", "tav", "thorbin", "varya"],
+      ["ambassador", "brask", "indigo", "kael", "lyra", "navid", "rashan", "sahir", "serena", "soraya", "tav", "thorbin", "varya"],
     );
   });
 

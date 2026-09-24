@@ -132,6 +132,17 @@ describe("the slate", () => {
     expect(card).toContain("predator, confidence high");
   });
 
+  it("tells the director what has happened so far, and lists a beat's outcomes", () => {
+    const req = { ...request("the-dispatch"), flags: ["cover-broken"], history: [{ beatId: "no-windows", title: "A room with no windows", outcome: "cover-broken", label: "His story came apart", resolution: "His vowels went north." }] };
+    const message = turnMessage(shadowFell, req, runtime);
+    expect(message).toContain("## So far");
+    expect(message).toContain("A room with no windows: His story came apart. His vowels went north.");
+    expect(message).toContain("Flags: cover-broken.");
+    expect(message).toContain("Outcomes (when you resolve, set beat.outcome to exactly one of these keys):");
+    expect(message).toContain("- north (advance):");
+    expect(turnMessage(shadowFell, request("the-alley"), runtime)).not.toContain("## So far");
+  });
+
   it("goes idle when no Warden is in the room", () => {
     const { beat } = findBeat(shadowFell, "no-windows");
     expect(wardensInBeat(runtime, beat).present).toEqual([]);

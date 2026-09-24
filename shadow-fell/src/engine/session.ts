@@ -15,6 +15,14 @@ export interface UtteranceRecord {
   drift: MeterValues;
 }
 
+export interface BeatRecord {
+  beatId: string;
+  title: string;
+  outcome: string | null;
+  label: string;
+  resolution: string;
+}
+
 export interface SessionSnapshot {
   worldId: string;
   act: Act;
@@ -31,6 +39,14 @@ export interface SessionSnapshot {
   force: { threat: string; muster: Muster; strategies: Strategy[] } | null;
   /** True when readings are shifted away from the player's plain voice, taken in the Mirror. */
   calibrated: boolean;
+  /** Flags set by outcomes so far. */
+  flags: string[];
+  /** Beats resolved so far, oldest first. */
+  history: BeatRecord[];
+  /** The key of the outcome that just resolved this beat, if it listed any. */
+  outcome: string | null;
+  /** Set when the last outcome ended the story here. */
+  ending: string | null;
 }
 
 /**
@@ -47,6 +63,11 @@ export class StorySession {
   private status: SessionSnapshot["status"] = "playing";
   private force: SessionSnapshot["force"] = null;
   private baseline: Baseline | null;
+  private flags = new Set<string>();
+  private history: BeatRecord[] = [];
+  private pendingNext: string | null | undefined = undefined;
+  private lastOutcome: string | null = null;
+  private ending: string | null = null;
 
   constructor(world: World, beatId: string, options: { baseline?: Baseline | null } = {}) {
     this.world = world;
@@ -90,6 +111,8 @@ export class StorySession {
       axes: { ...this.affect.latestAxes },
       meters: { ...this.meters },
       transcript: [...this.transcript],
+      flags: [...this.flags],
+      history: this.history.map((h) => ({ ...h })),
     };
   }
 
@@ -104,11 +127,36 @@ export class StorySession {
       this.force = { threat: response.escalate.threat, muster: m, strategies: buildStrategies(this.world, this.beat, m) };
       this.status = "force";
       if (m.cleanWin) this.resolveForce(null);
-    } else if (response.beat.status === "advance") this.status = "advanced";
-    else if (response.beat.status === "fail") this.status = "failed";
-    else if (this.turn >= this.beat.maxTurns) this.status = "advanced";
+    } else if (response.beat.status !== "continue" || this.turn >= this.beat.maxTurns) {
+      this.resolve(response.beat.status === "continue" ? "advance" : response.beat.status, response.beat.outcome, response.beat.resolution);
+    }
     const clip = response.shot.kind === "bespoke" ? null : this.suggestClip(response.shot.key);
     return { applied, clip };
+  }
+
+  /** Close the beat: pick the outcome (the director's key, or the first that matches the status), set its flags, remember it. */
+  private resolve(status: "advance" | "fail", outcomeKey: string | undefined, resolution: string | undefined): void {
+    const beat = this.beat;
+    const outcomes = beat.outcomes;
+    let key: string | null = null;
+    let label = status === "advance" ? "Resolved" : "Lost";
+    let final = status;
+    if (outcomes) {
+      const entries = Object.entries(outcomes);
+      const chosen = outcomeKey && outcomes[outcomeKey] ? ([outcomeKey, outcomes[outcomeKey]] as const) : (entries.find(([, o]) => o.status === status) ?? entries[0]);
+      if (chosen) {
+        key = chosen[0];
+        const o = chosen[1];
+        label = o.label;
+        final = o.status;
+        for (const f of o.flags) this.flags.add(f);
+        this.pendingNext = o.next;
+        if (o.next === null) this.ending = o.ending ?? o.label;
+      }
+    }
+    this.lastOutcome = key;
+    this.history.push({ beatId: beat.id, title: beat.title, outcome: key, label, resolution: resolution ?? "" });
+    this.status = final === "advance" ? "advanced" : "failed";
   }
 
   /**
@@ -143,7 +191,13 @@ export class StorySession {
 
   /** Move to the next beat, carrying meters and affect forward. Returns false at the end of the story. */
   advance(): boolean {
-    const next = nextBeatId(this.world, this.beatId);
+    if (this.pendingNext === null) {
+      this.status = "complete";
+      return false;
+    }
+    const next = this.pendingNext ?? nextBeatId(this.world, this.beatId);
+    this.pendingNext = undefined;
+    this.lastOutcome = null;
     if (!next) {
       this.status = "complete";
       return false;
@@ -188,6 +242,10 @@ export class StorySession {
       suggestedClip: this.suggestClip(),
       force: this.force,
       calibrated: this.baseline !== null,
+      flags: [...this.flags],
+      history: this.history.map((h) => ({ ...h })),
+      outcome: this.lastOutcome,
+      ending: this.ending,
     };
   }
 }

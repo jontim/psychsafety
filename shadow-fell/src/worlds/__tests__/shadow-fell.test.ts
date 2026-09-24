@@ -9,8 +9,8 @@ describe("The Shadow Fell world pack", () => {
     expect(validateWorld(shadowFell)).toEqual([]);
   });
 
-  it("has two acts and seven beats with the palace beats unarmed", () => {
-    expect(shadowFell.acts.map((a) => a.beats.length)).toEqual([2, 5]);
+  it("has two acts and ten beats with the palace beats unarmed", () => {
+    expect(shadowFell.acts.map((a) => a.beats.length)).toEqual([5, 5]);
     for (const b of shadowFell.acts[0]!.beats) expect(b.force).toBeUndefined();
     for (const b of shadowFell.acts[1]!.beats) expect(b.force).toBeDefined();
   });
@@ -31,7 +31,7 @@ describe("The Shadow Fell world pack", () => {
     }
     const pub = publicWorld(shadowFell);
     const room = pub.acts[0]!.beats[0]!;
-    expect(room.brief?.win).toContain("Navid");
+    expect(room.brief?.win).toContain("Magisterium");
     expect(room.notes).toBe("");
   });
 
@@ -51,6 +51,25 @@ describe("The Shadow Fell world pack", () => {
     expect(restraint.axes.find((a) => a.axis === "pressure")?.weight).toBeLessThan(0);
     expect(beat.goal).toContain("Omahnd");
     expect(indigo.knows.join(" ")).toContain("skyship-grounding");
+  });
+
+  it("runs Act I as four branching beats from the night of the attack", () => {
+    const ids = shadowFell.acts[0]!.beats.map((b) => b.id);
+    expect(ids).toEqual(["no-windows", "the-dispatch", "the-study", "the-proclamation", "your-deniables"]);
+    const room = findBeat(shadowFell, "no-windows").beat;
+    expect(Object.keys(room.outcomes!)).toEqual(["bureau-named", "cover-broken", "cover-held", "spent"]);
+    expect(room.goal).toContain("Omahndi cover");
+    const study = findBeat(shadowFell, "the-study").beat;
+    expect(study.outcomes!.war!.next).toBeNull();
+    expect(study.outcomes!.war!.ending).toContain("never get played");
+    const proclamation = findBeat(shadowFell, "the-proclamation").beat;
+    expect(proclamation.playerRole).toBe("rashan");
+    expect(proclamation.counterpart).toBe("ambassador");
+    expect(proclamation.outcomes!.strong!.next).toBe("your-deniables");
+    expect(proclamation.outcomes!.weak!.next).toBeNull();
+    expect(shadowFell.roles.map((r) => r.id)).toContain("rashan");
+    expect(findBeat(shadowFell, "your-deniables").beat.notes).toContain("If flag omahnd-denied-quick");
+    expect(validateWorld(shadowFell)).toEqual([]);
   });
 
   it("plays Navid's hire as the deleted briefing shot it", () => {

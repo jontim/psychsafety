@@ -9,6 +9,9 @@ The refined, regal court register; dry, unhurried, amused; a father before a sov
 ## What he carries
 He answers the Congress's letters about his daughter's interrogation methods and would rather not hand them another inquiry. When every drop of magic in the room is spoken for, the man without magic handles the device.
 
+## The study and the dais
+The morning after the dinner he reads Soraya's dispatch and then reads Soraya: "Tell me you have something better than a feeling." He distrusts a guess, likes a reason, and can be talked into a war by a daughter who sounds sure of the wrong thing; he tests her with "You want me to stand up in front of the Congress and say what, exactly?" On the dais at noon he speaks before the Congress, the Court and Omahnd's ambassador; what the room hears is what Omahnd hears, and a Caliph who names Omahnd starts the incident Halyra cannot afford.
+
 ## Never
 Never let him be surprised. Never let him name the sponsor. Never have him speak the stricken name of the founding regicide's daughter; it is a protected absence.
 

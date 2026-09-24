@@ -26,6 +26,10 @@ export const DirectorRequestSchema = z.object({
   transcript: z.array(TranscriptLineSchema),
   /** The steering surface: fix the speaker's move for this turn and render the line from it. Used by the steering eval. */
   steer: z.string().optional(),
+  /** Flags set by earlier beats' outcomes. */
+  flags: z.array(z.string()).optional(),
+  /** What has happened in earlier beats: their outcomes and resolutions. */
+  history: z.array(z.object({ beatId: z.string(), title: z.string(), outcome: z.string().nullable(), label: z.string(), resolution: z.string() })).optional(),
 });
 export type DirectorRequest = z.infer<typeof DirectorRequestSchema>;
 
@@ -90,6 +94,8 @@ export const DirectorResponseSchema = z.object({
   shot: ShotSchema,
   beat: z.object({
     status: z.enum(["continue", "advance", "fail"]),
+    /** On a beat that lists outcomes: the key of the one that landed. */
+    outcome: z.string().optional(),
     /** One sentence the debrief shows when the beat resolves. */
     resolution: z.string().optional(),
   }),

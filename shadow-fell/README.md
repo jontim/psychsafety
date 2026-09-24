@@ -44,6 +44,10 @@ EVI commits a transcript at every natural pause. The app gathers those fragments
 
 Before the tour, the roles screen offers the Mirror: a warm-up with the Scribe. He asks for your plain voice, then your best lie, your best support, your best command and your best showman, and says in plain words what a listener hears, with the ribbon live beside each attempt. The plain line becomes a baseline, remembered per browser, and every reading on the tour is shifted away from it (`calibrateAxes` in `src/engine/mirror.ts`), so the room hears what you did on purpose rather than what you always sound like. The band shows `Mirror: calibrated` once a baseline is held; the roles screen lets you retake or forget it.
 
+## Branches
+
+A beat may list `outcomes`: named ways it can end. The director picks one as it resolves; each outcome sets flags the later beats can read (director notes say "if flag X") and says where the story goes next, a beat id, the next beat in order, or `null` to end the story with an ending the debrief shows. Act I is built this way from the night of the attack: the windowless room, the dispatch, the Caliph's study and the proclamation, two roads of which end the story before the Stormwardens are ever played.
+
 ## How a turn works
 
 1. The ear reports a final utterance: transcript plus 48 prosody scores (`user_message.models.prosody.scores`).

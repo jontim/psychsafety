@@ -611,10 +611,13 @@ function callStrategy(idOrSpeech: string, abandon = false): void {
 function debriefScreen(): HTMLElement {
   const session = app.session!;
   const snap = session.snapshot();
-  const resolution = app.lastResponse?.beat.resolution ?? (snap.status === "failed" ? "The scene got away from you." : "The scene resolved.");
+  const last = snap.history.at(-1);
+  const resolution = app.lastResponse?.beat.resolution || last?.resolution || (snap.status === "failed" ? "The scene got away from you." : "The scene resolved.");
   const main = h("main", { class: "debrief-screen" },
-    h("h2", { class: "screen-title" }, snap.status === "failed" ? "It got away" : "Scene closed"),
+    h("h2", { class: "screen-title" }, snap.ending ? "The story ends here" : snap.status === "failed" ? "It got away" : "Scene closed"),
+    last?.outcome ? h("div", { class: "outcome" }, last.label) : null,
     h("div", { class: "resolution" }, resolution),
+    snap.ending ? h("div", { class: "ending" }, snap.ending) : null,
   );
   const grid = h("div", { class: "grid" }, h("div", {}, renderMeters(app.world, snap), renderRibbon(snap.affect)), renderTranscript(app.world, snap.transcript, snap.playerRole));
   const next = h("button", { class: "btn gold" }, "Next scene");
@@ -636,7 +639,7 @@ function debriefScreen(): HTMLElement {
   });
   const again = h("button", { class: "btn ghost" }, "Choose another role");
   again.addEventListener("click", () => { app.screen = "roles"; app.session = null; render(); });
-  main.append(grid, h("div", { class: "row", style: "margin-top:16px" }, next, again));
+  main.append(grid, h("div", { class: "row", style: "margin-top:16px" }, ...(snap.ending ? [] : [next]), again));
   return main;
 }
 

@@ -69,3 +69,7 @@ An offline eval, "which Warden said this?": generate lines per beat, strip the n
 ## Calibration
 
 A session built with a baseline (`new StorySession(world, beatId, { baseline })`) shifts both the smoothed and the latest axes away from the player's plain voice by `CALIBRATION_STRENGTH` (0.6) before meters drift, clips are chosen or the director is briefed. The baseline comes from the Mirror's plain line; the snapshot reports `calibrated`. Without a baseline nothing changes.
+
+## Outcomes and flags
+
+Beats may declare `outcomes` (`OutcomeSchema` in `src/engine/world.ts`): a key, a player-facing label, a director-facing `when`, a status, flags, and `next` (a beat id, undefined for the next beat in order, or null to end the story with `ending`). The director returns `beat.outcome`; the session applies the outcome's status and flags, records the beat in `history`, and `advance()` follows `next`. The request carries `flags` and `history`, and the turn prompt shows them under "So far", so director notes can say "if flag X". The understudy picks the first outcome whose status matches its own verdict. Validation rejects an outcome that points at an unknown beat or ends the story without an ending.

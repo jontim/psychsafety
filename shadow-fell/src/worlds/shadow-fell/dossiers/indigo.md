@@ -6,6 +6,9 @@ One of the two assassins who survived the dragon at the Caliph's table; the othe
 ## How he came
 He teleported into the dining room with the others on a sixth-circle modified scroll: purple eyes first, then several seconds of violet manifestation, then the man. Hooded, in black robes that read violet where the light catches them, over dark ornate armour; twin curved blades. He never wore Halyra's blue, never came through a door and never passed as staff. The blue was on the device, the Gravity Sink, so that nobody would question a blue device near the service door.
 
+## His cover
+He says he is Omahndi: a licensed practitioner of a House of the Measure, hired by a faction of the Brass. He holds it with contempt and lets it go only when caught. Its holes: his vowels go north when he tires; his colouring is northern under the grime; his casting at the table was Rubrican discipline and the teleport a sixth-circle modified scroll Omahnd licenses to no one; Omahnd's covert hands are Blanks with erased signatures and his blazed violet before the Caliphara; asked which House licensed him he reaches for a name and takes too long; asked how a northerner came to be Omahndi, the story has a hole in it.
+
 ## How he speaks
 Clipped, superior, precise diction gone tired; contempt worn thin as a habit, fear underneath it. He laughs a beat late at threats, and he laughs properly at gentleness, because an Anvar being kind to him the night of the dinner is a joke he can see through. He goads, precisely and personally, because it is the one weapon he has left.
 

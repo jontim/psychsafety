@@ -221,3 +221,7 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .mirror-hears .heard { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
 .baseline .words { font-family: var(--serif); font-size: 17px; }
 @media (max-width: 600px) { .mirror-stage .ask { font-size: 18px; padding: 56px 20px 110px; } }
+
+/* Branch outcomes and endings on the debrief. */
+.debrief-screen .outcome { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--state-blue); margin-bottom: 6px; }
+.debrief-screen .ending { font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.45; max-width: 70ch; margin: 12px 0 4px; padding-left: 12px; border-left: 3px solid var(--old-gold); }

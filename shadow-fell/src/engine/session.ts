@@ -2,7 +2,7 @@ import { type AffectState, createAffectState, updateAffect, describeAffect, CORE
 import { type EmotionVector, topDimensions } from "./dimensions.js";
 import { initMeters, applyDrift, applyDeltas, type MeterValues } from "./meters.js";
 import { type World, type Beat, type Act, findBeat, findCast, nextBeatId } from "./world.js";
-import { affectTagFromAxes, selectClip } from "./clips.js";
+import { affectTagFromAxes, selectClip, selectStoryClip } from "./clips.js";
 import type { DirectorRequest, DirectorResponse, TranscriptLine } from "./director-contract.js";
 import type { Clip } from "./world.js";
 import { muster as musterScene, strategies as buildStrategies, matchStrategy, resolveForce, type Muster, type Strategy, type ForceResolution } from "./force.js";
@@ -47,6 +47,10 @@ export interface SessionSnapshot {
   outcome: string | null;
   /** Set when the last outcome ended the story here. */
   ending: string | null;
+  /** Story footage for entering this beat on the current branch, if the pack has any. */
+  bridge: Clip | null;
+  /** Story footage for the ending that just landed, if the pack has any. */
+  endingClip: Clip | null;
 }
 
 /**
@@ -246,6 +250,8 @@ export class StorySession {
       history: this.history.map((h) => ({ ...h })),
       outcome: this.lastOutcome,
       ending: this.ending,
+      bridge: selectStoryClip(this.world.clips, { role: "bridge", beat: this.beatId, flags: [...this.flags] }),
+      endingClip: this.ending && this.lastOutcome ? selectStoryClip(this.world.clips, { role: "ending", beat: this.beatId, outcome: this.lastOutcome }) : null,
     };
   }
 }

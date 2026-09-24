@@ -1,6 +1,7 @@
 import { StorySession, type SessionSnapshot } from "../engine/session.js";
 import { findCast, type World, type Beat } from "../engine/world.js";
-import { affectTagFromAxes } from "../engine/clips.js";
+import { affectTagFromAxes, selectStoryClip } from "../engine/clips.js";
+import type { Clip } from "../engine/world.js";
 import type { DirectorResponse } from "../engine/director-contract.js";
 import { api, type Health } from "./backend.js";
 import { MockEar } from "./ear/mock-ear.js";
@@ -28,7 +29,9 @@ interface App {
   lastResponse: DirectorResponse | null;
   lastSource: string;
   reaction: string;
-  screen: "roles" | "stage" | "debrief" | "mirror";
+  screen: "roles" | "stage" | "debrief" | "mirror" | "interlude";
+  /** Story footage and the Scribe's words between screens. */
+  interlude: Interlude | null;
   /** The warm-up in progress, when the Mirror screen is up. */
   mirror: MirrorState | null;
   /** The player's plain voice from the Mirror, remembered per browser; the tour is read against it. */
@@ -37,6 +40,13 @@ interface App {
   speechSoFar: Fragment[];
   /** The director's slate panel: an authoring view, remembered per browser. */
   slateOpen: boolean;
+}
+
+interface Interlude {
+  clip: Clip | null;
+  title: string;
+  text: string;
+  onDone: () => void;
 }
 
 interface MirrorState {
@@ -62,7 +72,7 @@ async function boot(): Promise<void> {
     onChange: (fragments) => { app.speechSoFar = fragments; renderSpeechSoFar(); },
     onCommit: (merged) => { void processUtterance(merged); },
   });
-  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "roles", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1", mirror: null, baseline: loadBaseline() };
+  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "roles", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1", mirror: null, baseline: loadBaseline(), interlude: null };
   mock.onUtterance((u) => { void processUtterance(u); });
   mock.onStatus(setStatus);
   render();
@@ -127,7 +137,7 @@ function slatePill(): HTMLElement {
 }
 
 function render(): void {
-  root.replaceChildren(band(), app.screen === "roles" ? rolesScreen() : app.screen === "stage" ? stageScreen() : app.screen === "mirror" ? mirrorScreen() : debriefScreen());
+  root.replaceChildren(band(), app.screen === "roles" ? rolesScreen() : app.screen === "stage" ? stageScreen() : app.screen === "mirror" ? mirrorScreen() : app.screen === "interlude" ? interludeScreen() : debriefScreen());
 }
 
 function rolesScreen(): HTMLElement {
@@ -159,12 +169,60 @@ function rolesScreen(): HTMLElement {
 
 function startBeat(beatId: string): void {
   app.session = new StorySession(app.world, beatId, { baseline: app.baseline });
+  enterBeat();
+}
+
+/** Play the bridge for the current beat on the current branch, then open the stage on the counterpart's opening line. */
+function enterBeat(): void {
+  const session = app.session!;
   app.lastResponse = null;
   app.reaction = "";
-  const opening = app.session.opening();
-  app.screen = "stage";
+  const snap = session.snapshot();
+  const bridge = snap.bridge;
+  const text = bridge?.narration ?? snap.beat.when ?? snap.beat.goal;
+  showInterlude(bridge, `${snap.act.title} · ${snap.beat.title}`, text, () => {
+    const opening = session.opening();
+    app.screen = "stage";
+    render();
+    void speakMuted(opening.speaker, opening.text);
+  });
+}
+
+// ---------- Interludes: story footage between screens ----------
+
+function showInterlude(clip: Clip | null, title: string, text: string, onDone: () => void): void {
+  const it: Interlude = { clip, title, text, onDone };
+  app.interlude = it;
+  app.screen = "interlude";
   render();
-  void speakMuted(opening.speaker, opening.text);
+  void (async () => {
+    await speakMuted(narratorId(), text);
+    await new Promise((r) => setTimeout(r, 600));
+    if (app.screen === "interlude" && app.interlude === it) finishInterlude();
+  })();
+}
+
+function finishInterlude(): void {
+  const it = app.interlude;
+  if (!it) return;
+  app.interlude = null;
+  app.voice.stop();
+  it.onDone();
+}
+
+function interludeScreen(): HTMLElement {
+  const it = app.interlude!;
+  const stage = h("div", { class: "stage interlude-stage" });
+  if (it.clip?.file) stage.append(h("video", { src: it.clip.file, autoplay: "", muted: "", loop: "", playsinline: "" }));
+  stage.append(
+    h("div", { class: "vignette" }),
+    h("div", { class: "top" }, h("div", { class: "scene" }, it.title)),
+    h("div", { class: "ask" }, it.text),
+    h("div", { class: "card" }, h("div", { class: "who" }, castName(app.world, narratorId())), h("div", { class: "where" }, it.clip?.file ? "Library footage." : "No footage rendered for this moment yet; the Scribe reads it.")),
+  );
+  const cont = h("button", { class: "btn gold btn-continue" }, "Continue");
+  cont.addEventListener("click", finishInterlude);
+  return h("main", {}, h("div", { class: "interlude" }, stage, h("div", { class: "row", style: "margin-top:12px" }, cont)));
 }
 
 function stageScreen(): HTMLElement {
@@ -432,8 +490,8 @@ async function processUtterance(u: Utterance): Promise<void> {
     await speakMuted(turn.response.speaker, turn.response.line, turn.response.acting);
     const after = session.snapshot();
     if (after.status === "advanced" || after.status === "failed") {
-      app.screen = "debrief";
-      render();
+      if (after.ending) showInterlude(after.endingClip, "The story ends here", after.ending, () => { app.screen = "debrief"; render(); });
+      else { app.screen = "debrief"; render(); }
     } else if (after.status === "playing" && after.transcript.at(-1)?.speaker === narratorId()) {
       // a clean force win narrated itself
       const last = after.transcript.at(-1)!;
@@ -482,12 +540,15 @@ function mirrorCard(): HTMLElement {
 
 function startMirror(): void {
   app.session = null;
-  app.mirror = { step: 0, results: [], baseline: null, lastAffect: null };
-  app.reaction = "";
-  app.status = "";
-  app.screen = "mirror";
-  render();
-  void speakMuted(narratorId(), MIRROR_ASKS[0]!.line);
+  const clip = selectStoryClip(app.world.clips, { role: "instruction", beat: "mirror" });
+  showInterlude(clip, "The Mirror", clip?.narration ?? "Before the tour, a quiet room. Nothing here counts against you.", () => {
+    app.mirror = { step: 0, results: [], baseline: null, lastAffect: null };
+    app.reaction = "";
+    app.status = "";
+    app.screen = "mirror";
+    render();
+    void speakMuted(narratorId(), MIRROR_ASKS[0]!.line);
+  });
 }
 
 function mirrorStrip(): HTMLElement {
@@ -631,14 +692,7 @@ function debriefScreen(): HTMLElement {
   const next = h("button", { class: "btn gold" }, "Next scene");
   next.addEventListener("click", () => {
     if (session.advance()) {
-      const beat = session.snapshot().beat;
-      const opening = session.opening();
-      app.lastResponse = null;
-      app.reaction = "";
-      app.screen = "stage";
-      render();
-      void speakMuted(opening.speaker, opening.text);
-      setStatus(`${castName(app.world, beat.playerRole)}: ${beat.goal}`);
+      enterBeat();
     } else {
       app.screen = "roles";
       app.session = null;

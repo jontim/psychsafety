@@ -89,8 +89,12 @@ export const MeterSpecSchema = z.object({
 
 export const ClipSchema = z.object({
   key: z.string(),
-  kind: z.enum(["reaction", "establishing"]),
+  kind: z.enum(["reaction", "establishing", "story"]),
   character: z.string().optional(),
+  /** Story footage only: the moment it plays at. A bridge plays as a beat begins (a flag narrows it to a branch); an ending plays when an outcome ends the story; an instruction plays before a screen such as the Mirror. */
+  moment: z.object({ role: z.enum(["instruction", "bridge", "ending"]), beat: z.string().optional(), flag: z.string().optional(), outcome: z.string().optional() }).optional(),
+  /** Story footage only: what the Scribe reads over it; also the title card when no footage is rendered yet. */
+  narration: z.string().optional(),
   /** The affect tag the runtime selects on. */
   tag: z.enum(["warming", "cooling", "shock", "bored", "calculating", "pressed", "neutral"]),
   /** Generation prompt for Showrunner; the file is produced offline. */

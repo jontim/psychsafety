@@ -1,6 +1,7 @@
 // Render the world pack's clip manifest through fal's MiniMax H3 Max.
 // Usage:
-//   FAL_KEY=... npx tsx scripts/render-clips.ts [--dry-run] [--turbo] [--only <character|key|establishing>] [--limit N] [--force]
+//   FAL_KEY=... npx tsx scripts/render-clips.ts [--dry-run] [--turbo] [--only <character|key|establishing|story>] [--limit N] [--force]
+// Story clips (bridges, endings, the Mirror's instruction) render text-to-video and are reused every time that branch is entered.
 // Writes public/clips/<key>.mp4. The server serves any clip whose file exists, no manifest edits needed.
 import fs from "node:fs";
 import path from "node:path";
@@ -28,10 +29,11 @@ const extra: Record<string, unknown> = process.env.RENDER_EXTRA ? JSON.parse(pro
 const clips = world.clips.filter((c) => {
   if (!only) return true;
   if (only === "establishing") return c.kind === "establishing";
+  if (only === "story") return c.kind === "story";
   return c.key === only || c.character === only;
 }).filter((c) => force || !fs.existsSync(path.join(outDir, `${c.key}.mp4`))).slice(0, limit);
 
-const seconds = clips.reduce((a, c) => a + (c.kind === "establishing" ? 6 : 5), 0);
+const seconds = clips.reduce((a, c) => a + (c.kind === "reaction" ? 5 : 6), 0);
 console.log(`${clips.length} clips to render (${seconds} s of video), endpoint ${ENDPOINT}`);
 console.log(`Rough cost at $0.04 to $0.08 per second: $${(seconds * 0.04).toFixed(2)} to $${(seconds * 0.08).toFixed(2)}`);
 if (clips.length === 0) process.exit(0);

@@ -208,7 +208,7 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .mirror-card p.state { font-style: italic; }
 .mirror-card .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .mirror-stage { background: radial-gradient(60% 60% at 50% 35%, rgba(91,62,140,0.35), rgba(20,18,16,1) 100%); }
-.mirror-stage .ask { position: absolute; inset: 0; display: grid; place-items: center; padding: 64px 40px 120px; text-align: center; font-family: var(--serif); font-size: clamp(20px, 2.4vw, 30px); line-height: 1.35; color: var(--parchment); text-shadow: 0 2px 18px rgba(0,0,0,0.6); }
+.mirror-stage .ask, .interlude-stage .ask { position: absolute; inset: 0; display: grid; place-items: center; padding: 64px 40px 120px; text-align: center; font-family: var(--serif); font-size: clamp(20px, 2.4vw, 30px); line-height: 1.35; color: var(--parchment); text-shadow: 0 2px 18px rgba(0,0,0,0.6); }
 .mirror-progress .ask { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
 .mirror-progress .ask:last-child { border-bottom: 0; }
 .mirror-progress .ask .n { font-family: var(--serif); color: var(--ink-soft); }
@@ -220,7 +220,7 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .mirror-hears .verdict { font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.4; border-left: 3px solid var(--old-gold); padding-left: 10px; }
 .mirror-hears .heard { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
 .baseline .words { font-family: var(--serif); font-size: 17px; }
-@media (max-width: 600px) { .mirror-stage .ask { font-size: 18px; padding: 56px 20px 110px; } }
+@media (max-width: 600px) { .mirror-stage .ask, .interlude-stage .ask { font-size: 18px; padding: 56px 20px 110px; } }
 
 /* Branch outcomes and endings on the debrief. */
 .debrief-screen .outcome { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--state-blue); margin-bottom: 6px; }
@@ -232,3 +232,8 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .panel.document h3 { font-family: var(--serif); font-style: italic; font-weight: 600; margin: 0 0 8px; color: #3a2d14; }
 .panel.document p { font-family: var(--serif); font-size: 14.5px; line-height: 1.45; margin: 0 0 6px; padding-bottom: 6px; border-bottom: 1px dashed rgba(138,109,47,0.35); color: #2b2214; }
 .panel.document p:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+
+/* Interludes: story footage between screens. */
+.interlude { max-width: 1100px; margin: 0 auto; }
+.interlude-stage { background: radial-gradient(60% 60% at 50% 40%, rgba(200,162,74,0.22), rgba(20,18,16,1) 100%); min-height: 420px; }
+.interlude-stage .ask { padding-bottom: 140px; }

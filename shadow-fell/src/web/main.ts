@@ -13,6 +13,7 @@ import { h, castName, renderMeters, renderRibbon, renderTranscript, renderSlate,
 import type { TonePreset } from "../engine/mock-ear.js";
 import { computeAxes, createAffectState, updateAffect, type AffectState } from "../engine/affect.js";
 import { MIRROR_ASKS, readAsk, baselineFrom, calibrateAxes, describeBaseline, type Baseline, type MirrorReading } from "../engine/mirror.js";
+import { renderChart, type ChartHandle } from "./chart.js";
 
 const WORLD_ID = "shadow-fell";
 
@@ -29,7 +30,15 @@ interface App {
   lastResponse: DirectorResponse | null;
   lastSource: string;
   reaction: string;
-  screen: "roles" | "stage" | "debrief" | "mirror" | "interlude";
+  screen: "chart" | "stage" | "debrief" | "mirror" | "interlude";
+  /** The Scribe's chart on the opening screen, kept across renders so its animation is not restarted. */
+  chart: ChartHandle | null;
+  /** The chart drawn inside an interlude: a leg before a scene, a branch to an ending after one. */
+  legChart: ChartHandle | null;
+  /** The scene picked on the chart. */
+  picked: string | null;
+  /** The road so far, shown over the stage. */
+  chartOpen: boolean;
   /** Story footage and the Scribe's words between screens. */
   interlude: Interlude | null;
   /** The warm-up in progress, when the Mirror screen is up. */
@@ -47,6 +56,17 @@ interface Interlude {
   title: string;
   text: string;
   onDone: () => void;
+  /** When set, the stage shows the chart instead of footage: the leg into `to`, or the branch from `to` to an ending. */
+  chart?: ChartInterlude;
+}
+
+interface ChartInterlude {
+  kind: "leg" | "ending";
+  from: string | null;
+  to: string;
+  outcome?: string;
+  /** A second caption line under the place: when the scene sits. */
+  when?: string;
 }
 
 interface MirrorState {
@@ -72,7 +92,7 @@ async function boot(): Promise<void> {
     onChange: (fragments) => { app.speechSoFar = fragments; renderSpeechSoFar(); },
     onCommit: (merged) => { void processUtterance(merged); },
   });
-  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "roles", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1", mirror: null, baseline: loadBaseline(), interlude: null };
+  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "chart", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1", mirror: null, baseline: loadBaseline(), interlude: null, chart: null, legChart: null, picked: null, chartOpen: false };
   mock.onUtterance((u) => { void processUtterance(u); });
   mock.onStatus(setStatus);
   render();
@@ -116,6 +136,7 @@ function band(): HTMLElement {
     h("span", { class: `pill ${app.health.octave ? "on" : "off"}` }, app.health.octave ? "Voice: Octave" : "Voice: browser"),
     h("span", { class: `pill ${app.health.director !== "understudy" ? "on" : "off"}` }, `Director: ${app.health.director}`),
     h("span", { class: `pill ${app.baseline ? "on" : "off"}`, title: app.baseline ? describeBaseline(app.baseline) : "Warm up in the Mirror to calibrate the ear to your plain voice" }, app.baseline ? "Mirror: calibrated" : "Mirror: not yet"),
+    chartPill(),
     slatePill(),
   );
   return h("header", { class: "band" },
@@ -137,15 +158,96 @@ function slatePill(): HTMLElement {
 }
 
 function render(): void {
-  root.replaceChildren(band(), app.screen === "roles" ? rolesScreen() : app.screen === "stage" ? stageScreen() : app.screen === "mirror" ? mirrorScreen() : app.screen === "interlude" ? interludeScreen() : debriefScreen());
+  if (app.screen !== "chart" && app.chart) { app.chart.destroy(); app.chart = null; }
+  const screen = app.screen === "chart" ? chartScreen() : app.screen === "stage" ? stageScreen() : app.screen === "mirror" ? mirrorScreen() : app.screen === "interlude" ? interludeScreen() : debriefScreen();
+  const overlay = app.chartOpen && app.session && app.world.chart && (app.screen === "stage" || app.screen === "debrief") ? chartOverlay() : null;
+  root.replaceChildren(band(), screen, ...(overlay ? [overlay] : []));
 }
 
-function rolesScreen(): HTMLElement {
-  const main = h("main", {},
-    h("h2", { class: "screen-title" }, "Choose who you are"),
+type Act = World["acts"][number];
+
+/** The opening screen: the Scribe's chart with the road drawn on it, and a boarding card for the scene picked. Worlds without a chart get the role cards. */
+function chartScreen(): HTMLElement {
+  const main = h("main", { class: "chart-screen" },
+    h("h2", { class: "screen-title" }, app.world.chart ? "The Scribe's chart" : "Choose who you are"),
     h("p", { class: "screen-sub" }, app.world.premise),
   );
-  main.append(mirrorCard());
+  if (!app.world.chart) { main.append(mirrorCard(), rolesGrid()); return main; }
+  const scenes = app.world.acts.flatMap((a) => a.beats.map((b) => ({ act: a, beat: b })));
+  if (!app.picked || !scenes.some((x) => x.beat.id === app.picked)) app.picked = scenes[0]!.beat.id;
+  let fresh = false;
+  if (!app.chart) {
+    app.chart = renderChart(app.world, { portrait: portraitOf, interactive: true, onPick: (id) => { app.picked = id; render(); } });
+    fresh = true;
+  }
+  app.chart.select(app.picked);
+  const wrap = h("div", { class: "chart-wrap" });
+  wrap.append(app.chart.el);
+  main.append(
+    h("p", { class: "chart-hint" }, "The road as the ballad tells it. Pick a scene to begin there."),
+    wrap,
+    boardingCard(scenes.find((x) => x.beat.id === app.picked)!, scenes[0]!.beat.id),
+    mirrorCard(),
+  );
+  if (fresh) { const handle = app.chart; queueMicrotask(() => { void handle.playAtlas(); }); }
+  return main;
+}
+
+function portraitOf(castId: string): string {
+  return portraitFor(app.world.cast.find((c) => c.id === castId));
+}
+
+/** Who you are and where you stand at the scene picked on the chart. */
+function boardingCard(x: { act: Act; beat: Beat }, firstId: string): HTMLElement {
+  const member = findCast(app.world, x.beat.playerRole);
+  const role = app.world.roles.find((r) => r.id === x.beat.playerRole);
+  const n = app.world.acts.flatMap((a) => a.beats).findIndex((b) => b.id === x.beat.id) + 1;
+  const begin = h("button", { class: "btn gold" }, x.beat.id === firstId ? "Play from the start" : "Begin here");
+  begin.addEventListener("click", () => startBeat(x.beat.id));
+  const actions = h("div", { class: "actions" }, begin);
+  if (x.beat.id !== firstId) {
+    const start = h("button", { class: "btn ghost" }, "Play from the start");
+    start.addEventListener("click", () => startBeat(firstId));
+    actions.append(start);
+  }
+  return h("div", { class: "boarding" },
+    h("img", { src: portraitFor(member), alt: member.name }),
+    h("div", {},
+      h("div", { class: "eyebrow" }, `${x.act.title} · scene ${n}`),
+      h("h3", {}, x.beat.title, h("span", { class: `stance ${x.beat.stance}` }, x.beat.stance === "reading" ? "reading" : "being read")),
+      h("div", { class: "who" }, `You are ${member.name}${member.title ? `, ${member.title}` : ""}.`),
+      x.beat.when ? h("div", { class: "when" }, x.beat.when) : null,
+      h("div", { class: "sum" }, role?.summary ?? x.beat.goal),
+    ),
+    actions,
+  );
+}
+
+/** The road so far, over the stage: solid where you have been, pulsing where you are, ghosted ahead. */
+function chartOverlay(): HTMLElement {
+  const snap = app.session!.snapshot();
+  const travelled = [...snap.history.map((r) => r.beatId), snap.beat.id];
+  const handle = renderChart(app.world, { portrait: portraitOf, travelled, current: snap.beat.id, ending: snap.ending ? snap.outcome : null });
+  const total = app.world.acts.reduce((n, a) => n + a.beats.length, 0);
+  const n = app.world.acts.flatMap((a) => a.beats).findIndex((b) => b.id === snap.beat.id) + 1;
+  const sofar = snap.history.length ? `Scene ${n} of ${total}. So far: ${snap.history.map((r) => r.label).join("; ")}.` : `Scene ${n} of ${total}. The road begins here.`;
+  const close = h("button", { class: "btn ghost" }, "Close");
+  const shut = (): void => { app.chartOpen = false; render(); };
+  close.addEventListener("click", shut);
+  const sheet = h("div", { class: "sheet" }, h("div", { class: "chart-wrap" }, handle.el), h("div", { class: "row" }, h("div", { class: "sofar" }, sofar), close));
+  const overlay = h("div", { class: "chart-overlay" }, sheet);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) shut(); });
+  return overlay;
+}
+
+function chartPill(): HTMLElement | null {
+  if (!app.world.chart || !app.session || (app.screen !== "stage" && app.screen !== "debrief")) return null;
+  const pill = h("button", { class: `pill toggle ${app.chartOpen ? "on" : "off"}`, title: "The road so far, on the Scribe's chart" }, app.chartOpen ? "Chart: open" : "Chart");
+  pill.addEventListener("click", () => { app.chartOpen = !app.chartOpen; render(); });
+  return pill;
+}
+
+function rolesGrid(): HTMLElement {
   const grid = h("div", { class: "roles" });
   for (const role of app.world.roles) {
     const member = findCast(app.world, role.id);
@@ -163,8 +265,7 @@ function rolesScreen(): HTMLElement {
     card.addEventListener("click", () => startBeat(beat.beat.id));
     grid.append(card);
   }
-  main.append(grid);
-  return main;
+  return grid;
 }
 
 function startBeat(beatId: string): void {
@@ -177,15 +278,47 @@ function enterBeat(): void {
   const session = app.session!;
   app.lastResponse = null;
   app.reaction = "";
+  app.chartOpen = false;
   const snap = session.snapshot();
   const bridge = snap.bridge;
   const text = bridge?.narration ?? snap.beat.when ?? snap.beat.goal;
-  showInterlude(bridge, `${snap.act.title} · ${snap.beat.title}`, text, () => {
+  const title = `${snap.act.title} · ${snap.beat.title}`;
+  const footage = (): void => showInterlude(bridge, title, text, () => {
     const opening = session.opening();
     app.screen = "stage";
     render();
     void speakMuted(opening.speaker, opening.text);
   });
+  const wp = app.world.chart?.waypoints.find((w) => w.beat === snap.beat.id);
+  if (wp) showChartInterlude({ kind: "leg", from: snap.history.at(-1)?.beatId ?? null, to: snap.beat.id, when: snap.beat.when }, title, wp.place, footage);
+  else footage();
+}
+
+/** The chart between screens: the road draws itself to the next scene, or branches to the ending reached; then on to the footage. */
+function showChartInterlude(chart: ChartInterlude, title: string, text: string, onDone: () => void): void {
+  const it: Interlude = { clip: null, title, text, onDone, chart };
+  app.interlude = it;
+  app.screen = "interlude";
+  render();
+  void (async () => {
+    const handle = app.legChart;
+    if (handle) {
+      try {
+        if (chart.kind === "ending" && chart.outcome) await handle.playEnding(chart.to, chart.outcome);
+        else await handle.playLeg(chart.from, chart.to);
+      } catch (e) { console.error("chart interlude", e); }
+    }
+    await new Promise((r) => setTimeout(r, 900));
+    if (app.screen === "interlude" && app.interlude === it) finishInterlude();
+  })();
+}
+
+/** An ending: the fork drawn on the chart, then the ending footage, then the debrief. */
+function showEnding(after: SessionSnapshot): void {
+  const footage = (): void => showInterlude(after.endingClip, "The story ends here", after.ending ?? "", () => { app.screen = "debrief"; render(); });
+  const place = app.world.chart?.endings.find((e) => e.outcome === after.outcome);
+  if (place && after.outcome) showChartInterlude({ kind: "ending", from: null, to: after.beat.id, outcome: after.outcome }, "The story ends here", place.label, footage);
+  else footage();
 }
 
 // ---------- Interludes: story footage between screens ----------
@@ -217,6 +350,8 @@ function finishInterlude(): void {
   const it = app.interlude;
   if (!it) return;
   app.interlude = null;
+  app.legChart?.destroy();
+  app.legChart = null;
   app.voice.stop();
   it.onDone();
 }
@@ -224,6 +359,21 @@ function finishInterlude(): void {
 function interludeScreen(): HTMLElement {
   const it = app.interlude!;
   const stage = h("div", { class: "stage interlude-stage" });
+  if (it.chart) {
+    const snap = app.session?.snapshot();
+    const history = snap?.history.map((r) => r.beatId) ?? [];
+    const travelled = it.chart.kind === "ending" ? history : history;
+    app.legChart?.destroy();
+    app.legChart = renderChart(app.world, { portrait: portraitOf, travelled, current: it.chart.kind === "ending" ? it.chart.to : null });
+    stage.classList.add("paper");
+    stage.append(
+      app.legChart.el,
+      h("div", { class: "chart-caption" }, h("div", { class: "scene" }, it.title), h("div", { class: "line" }, it.text), it.chart.when ? h("div", { class: "when" }, it.chart.when) : null),
+    );
+    const cont = h("button", { class: "btn gold btn-continue" }, "Continue");
+    cont.addEventListener("click", finishInterlude);
+    return h("main", {}, h("div", { class: "interlude" }, stage, h("div", { class: "row", style: "margin-top:12px" }, cont)));
+  }
   if (it.clip?.file) stage.append(it.clip.voiced ? h("video", { src: it.clip.file, autoplay: "", playsinline: "" }) : h("video", { src: it.clip.file, autoplay: "", muted: "", loop: "", playsinline: "" }));
   stage.append(
     h("div", { class: "vignette" }),
@@ -415,7 +565,7 @@ function controls(snap: SessionSnapshot): HTMLElement {
     box.append(panel);
   }
 
-  box.append(inputBox("Leave the scene", () => { stopHume(); app.voice.stop(); app.screen = "roles"; app.session = null; render(); }));
+  box.append(inputBox("Leave the scene", () => { stopHume(); app.voice.stop(); app.screen = "chart"; app.session = null; render(); }));
   return box;
 }
 
@@ -501,7 +651,7 @@ async function processUtterance(u: Utterance): Promise<void> {
     await speakMuted(turn.response.speaker, turn.response.line, turn.response.acting);
     const after = session.snapshot();
     if (after.status === "advanced" || after.status === "failed") {
-      if (after.ending) showInterlude(after.endingClip, "The story ends here", after.ending, () => { app.screen = "debrief"; render(); });
+      if (after.ending) showEnding(after);
       else { app.screen = "debrief"; render(); }
     } else if (after.status === "playing" && after.transcript.at(-1)?.speaker === narratorId()) {
       // a clean force win narrated itself
@@ -599,12 +749,12 @@ function mirrorScreen(): HTMLElement {
       h("div", { class: "react" }, done ? "" : ask.measure),
     ),
   );
-  const leave = () => { stopHume(); app.voice.stop(); app.mirror = null; app.screen = "roles"; render(); };
+  const leave = () => { stopHume(); app.voice.stop(); app.mirror = null; app.screen = "chart"; render(); };
   const main = h("div", {}, mirrorStrip(), stage);
   if (!done) main.append(h("div", { class: "controls" }, inputBox("Leave the Mirror", leave)));
   else {
     const begin = h("button", { class: "btn gold" }, "Begin the tour with this voice");
-    begin.addEventListener("click", () => { saveBaseline(m.baseline); app.mirror = null; app.screen = "roles"; render(); });
+    begin.addEventListener("click", () => { saveBaseline(m.baseline); app.mirror = null; app.screen = "chart"; render(); });
     const again = h("button", { class: "btn ghost" }, "Take it again");
     again.addEventListener("click", startMirror);
     const skip = h("button", { class: "btn ghost" }, "Leave without it");
@@ -705,13 +855,13 @@ function debriefScreen(): HTMLElement {
     if (session.advance()) {
       enterBeat();
     } else {
-      app.screen = "roles";
+      app.screen = "chart";
       app.session = null;
       render();
     }
   });
-  const again = h("button", { class: "btn ghost" }, "Choose another role");
-  again.addEventListener("click", () => { app.screen = "roles"; app.session = null; render(); });
+  const again = h("button", { class: "btn ghost" }, app.world.chart ? "Back to the chart" : "Choose another role");
+  again.addEventListener("click", () => { app.screen = "chart"; app.session = null; render(); });
   main.append(grid, h("div", { class: "row", style: "margin-top:16px" }, ...(snap.ending ? [] : [next]), again));
   return main;
 }

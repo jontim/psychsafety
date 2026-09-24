@@ -168,6 +168,41 @@ export const RoleSchema = z.object({
   summary: z.string(),
 });
 
+/** A point on the chart, in chart units. */
+const PointSchema = z.tuple([z.number(), z.number()]);
+
+/**
+ * The Scribe's chart: a stylised map of the world with the story's road laid on it. Geography is the world
+ * pack's to draw (an SVG path for the land, ranges as chevron lines, forests, waters); every beat gets a
+ * waypoint, every ending a glyph, and a scene that happens inside one building can sit in an inset.
+ */
+export const ChartSchema = z.object({
+  width: z.number(),
+  height: z.number(),
+  title: z.string(),
+  sheet: z.string().optional(),
+  note: z.string().optional(),
+  /** Land as an SVG path (islands as further subpaths). Everything outside is sea. */
+  land: z.string(),
+  waters: z.array(z.object({ id: z.string(), label: z.string().optional(), d: z.string(), at: PointSchema.optional() })).default([]),
+  rivers: z.array(z.object({ id: z.string(), d: z.string() })).default([]),
+  /** Mountain ranges as polylines, drawn as chevrons; a frontier range also carries the dashed border. */
+  ranges: z.array(z.object({ id: z.string(), label: z.string().optional(), sub: z.string().optional(), points: z.array(PointSchema).min(2), at: PointSchema.optional(), tone: z.enum(["ink", "frontier"]).default("ink") })).default([]),
+  forests: z.array(z.object({ id: z.string(), label: z.string().optional(), d: z.string(), at: PointSchema.optional() })).default([]),
+  regions: z.array(z.object({ id: z.string(), label: z.string(), at: PointSchema, size: z.enum(["large", "small"]).default("large"), tone: z.enum(["ink", "home", "rival", "faint"]).default("ink"), sub: z.string().optional() })).default([]),
+  places: z.array(z.object({ id: z.string(), label: z.string(), at: PointSchema, glyph: z.enum(["palace", "city", "port", "pass"]).default("city") })).default([]),
+  /** Off-sheet directions, lettered at the margin. */
+  beyond: z.array(z.object({ label: z.string(), at: PointSchema, dir: z.enum(["n", "s", "e", "w"]) })).default([]),
+  /** A magnified circle for scenes inside one building: waypoints in it are placed in chart units inside the circle; the road leaves it at `exit` and continues from `anchor`, the place on the sheet it magnifies. */
+  insets: z.array(z.object({ id: z.string(), title: z.string(), cx: z.number(), cy: z.number(), r: z.number(), anchor: PointSchema, exit: PointSchema, plan: z.array(z.string()).default([]) })).default([]),
+  waypoints: z.array(z.object({ beat: z.string(), at: PointSchema, place: z.string(), label: z.string().optional(), inset: z.string().optional(), via: z.array(PointSchema).default([]), side: z.enum(["left", "right", "above", "below"]).optional() })),
+  endings: z.array(z.object({ outcome: z.string(), at: PointSchema, label: z.string(), glyph: z.enum(["storm", "fade", "withdraw"]).default("storm"), inset: z.string().optional() })).default([]),
+  compass: PointSchema.optional(),
+  cartouche: PointSchema.optional(),
+  scale: z.object({ at: PointSchema, px: z.number(), label: z.string() }).optional(),
+});
+export type Chart = z.infer<typeof ChartSchema>;
+
 export const WorldSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -184,6 +219,8 @@ export const WorldSchema = z.object({
   prohibitions: z.array(z.string()).default([]),
   /** Cast id that narrates force resolutions and scene cards. */
   narrator: z.string().optional(),
+  /** The Scribe's chart: the story as a road on a map. Optional; without it the web falls back to role cards. */
+  chart: ChartSchema.optional(),
 });
 export type World = z.infer<typeof WorldSchema>;
 
@@ -238,6 +275,26 @@ export function validateWorld(world: World): string[] {
         if (o.next === null && !o.ending) problems.push(`Beat ${beat.id}: outcome ${key} ends the story without an ending`);
       }
     }
+  }
+  if (world.chart) {
+    const c = world.chart;
+    const insetIds = new Set(c.insets.map((x) => x.id));
+    const charted = new Set<string>();
+    for (const w of c.waypoints) {
+      if (!beatIds.has(w.beat)) problems.push(`Chart: waypoint for unknown beat ${w.beat}`);
+      if (charted.has(w.beat)) problems.push(`Chart: beat ${w.beat} has two waypoints`);
+      charted.add(w.beat);
+      if (w.inset && !insetIds.has(w.inset)) problems.push(`Chart: waypoint ${w.beat} names unknown inset ${w.inset}`);
+    }
+    for (const id of beatIds) if (!charted.has(id)) problems.push(`Chart: beat ${id} has no waypoint`);
+    const endingKeys = new Set(world.acts.flatMap((a) => a.beats.flatMap((b) => Object.entries(b.outcomes ?? {}).filter(([, o]) => o.next === null).map(([k]) => k))));
+    const placed = new Set<string>();
+    for (const e of c.endings) {
+      if (!endingKeys.has(e.outcome)) problems.push(`Chart: ending glyph for unknown ending ${e.outcome}`);
+      if (e.inset && !insetIds.has(e.inset)) problems.push(`Chart: ending ${e.outcome} names unknown inset ${e.inset}`);
+      placed.add(e.outcome);
+    }
+    for (const k of endingKeys) if (!placed.has(k)) problems.push(`Chart: ending ${k} has no place on the chart`);
   }
   return problems;
 }

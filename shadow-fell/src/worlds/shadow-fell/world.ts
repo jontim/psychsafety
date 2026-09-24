@@ -1,4 +1,5 @@
 import { defineWorld, type Clip, type WorldInput } from "../../engine/world.js";
+import { SHADOW_FELL_CHART } from "./chart.js";
 
 /**
  * The Shadow Fell: the unshown middle of Death Came to Dinner.
@@ -111,6 +112,7 @@ const STORY_CLIPS: Clip[] = [
 
 const pack: WorldInput = {
   id: "shadow-fell",
+  chart: SHADOW_FELL_CHART,
   title: "The Shadow Fell",
   tagline: "Halyran intelligence has taken an interest. The world listens to how you say it.",
   premise:

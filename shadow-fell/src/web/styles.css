@@ -238,3 +238,123 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .interlude-stage { background: radial-gradient(60% 60% at 50% 40%, rgba(200,162,74,0.10), rgba(20,18,16,1) 100%); min-height: 420px; }
 .interlude-stage .ask { text-shadow: 0 2px 18px rgba(0,0,0,0.95), 0 0 48px rgba(0,0,0,0.9); }
 .interlude-stage .ask { padding-bottom: 140px; }
+
+/* ---------- The Scribe's chart: the story as a road on an aviation chart of the continent. ---------- */
+.chart-wrap { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border: 1px solid #c9b78e; background: #d8d0b7; }
+.chart { display: block; width: 100%; height: auto; background: #d8d0b7; font-family: var(--serif); }
+.chart text { fill: #3d3020; }
+.chart .sea { fill: #d8d0b7; }
+.chart .grid line { stroke: #5a4526; stroke-opacity: 0.09; stroke-width: 0.8; }
+.chart .shore-band { fill: none; stroke: #7a6440; stroke-opacity: 0.16; stroke-width: 9; stroke-linejoin: round; }
+.chart .land { fill: #eee3c8; }
+.chart .coast { fill: none; stroke: #4a3a22; stroke-width: 1.3; stroke-linejoin: round; }
+.chart .water { fill: #d8d0b7; stroke: #4a3a22; stroke-width: 1.1; }
+.chart .river { fill: none; stroke: #5f7d93; stroke-width: 1.2; stroke-opacity: 0.8; }
+.chart .forest { stroke: #6f7a4c; stroke-width: 0.8; stroke-opacity: 0.5; }
+.chart .range { fill: none; stroke: #4a3a22; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; opacity: 0.85; }
+.chart .frontier { fill: none; stroke: #8b1e2d; stroke-width: 1.2; stroke-dasharray: 5 3; opacity: 0.75; }
+.chart .region { font-variant: small-caps; letter-spacing: 0.24em; text-anchor: middle; fill: #4a3a22; font-weight: 600; font-size: 16px; }
+.chart .region.small { font-size: 11px; letter-spacing: 0.18em; font-weight: 500; }
+.chart .region.home { fill: #7a5a1c; }
+.chart .region.rival { fill: #7a2a2a; }
+.chart .region.faint { fill-opacity: 0.55; }
+.chart .sub { font-style: italic; font-size: 9.5px; text-anchor: middle; fill: #6b5a40; }
+.chart .flabel { font-style: italic; font-size: 10px; text-anchor: middle; fill: #5d6b3e; letter-spacing: 0.12em; }
+.chart .wlabel { font-style: italic; font-size: 12px; text-anchor: middle; fill: #4f6a80; letter-spacing: 0.2em; }
+.chart .rlabel { font-size: 9px; text-anchor: middle; fill: #4a3a22; letter-spacing: 0.14em; font-variant: small-caps; }
+.chart .rsub { font-size: 8px; font-style: italic; text-anchor: middle; fill: #7a2a2a; }
+.chart .place .glyph { fill: #eee3c8; stroke: #3d3020; stroke-width: 1.1; stroke-linejoin: round; }
+.chart .place.pass .glyph, .chart .place.port .glyph { fill: none; }
+.chart .place text { font-size: 9.5px; font-variant: small-caps; letter-spacing: 0.1em; fill: #3d3020; }
+.chart .beyond text { font-size: 8.5px; letter-spacing: 0.16em; font-variant: small-caps; fill: #6b5a40; }
+.chart .beyond path { fill: none; stroke: #6b5a40; stroke-width: 1; }
+.chart .inset .ring { fill: #f3ead3; stroke: #c8a24a; stroke-width: 2; }
+.chart .inset .ring2 { fill: none; stroke: #4a3a22; stroke-width: 0.8; }
+.chart .inset .plan { fill: none; stroke: #4a3a22; stroke-width: 1; opacity: 0.8; }
+.chart .inset .plan.fill { fill: #e7dcc0; }
+.chart .inset .leader { fill: none; stroke: #4a3a22; stroke-width: 0.8; stroke-dasharray: 3 3; opacity: 0.6; }
+.chart .inset .anchor { fill: none; stroke: #4a3a22; stroke-width: 0.9; }
+.chart .inset .ititle { font-size: 10px; font-variant: small-caps; letter-spacing: 0.2em; text-anchor: middle; fill: #7a5a1c; }
+.chart .leg.ghost path { fill: none; stroke: #3d3020; stroke-width: 1.5; stroke-dasharray: 1.5 5; stroke-linecap: round; opacity: 0.38; }
+.chart .onward { fill: none; stroke: #3d3020; stroke-width: 1.5; stroke-dasharray: 1.5 5; stroke-linecap: round; opacity: 0.25; }
+.chart .leg.solid .piece.pending { visibility: hidden; }
+.chart .leg.solid .under { fill: none; stroke: #f3ead3; stroke-width: 5; stroke-linecap: round; opacity: 0.75; }
+.chart .leg.solid .dash { fill: none; stroke: #8b1e2d; stroke-width: 2.3; stroke-dasharray: 7 4; stroke-linecap: round; }
+.chart .fork { opacity: 0; transition: opacity 0.7s ease; }
+.chart .fork.shown { opacity: 1; }
+.chart .fork .branch { fill: none; stroke: #8b1e2d; stroke-width: 1.4; stroke-dasharray: 2 5; stroke-linecap: round; opacity: 0.6; }
+.chart .fork .guide { fill: none; stroke: none; }
+.chart .fork .flabel-out { font-size: 9.5px; font-style: italic; fill: #7a2a2a; paint-order: stroke; stroke: #eee3c8; stroke-width: 3px; stroke-linejoin: round; }
+.chart .fork .flabel-out.small { font-size: 5.5px; stroke-width: 2px; }
+.chart .ending .mark { fill: #f3ead3; stroke: #7a2a2a; stroke-width: 1.2; }
+.chart .ending .bolt { fill: #7a2a2a; stroke: none; }
+.chart .ending.withdraw .bolt { fill: none; stroke: #7a2a2a; stroke-width: 1.5; stroke-linecap: round; }
+.chart .ending .elabel { font-size: 9px; font-style: italic; fill: #7a2a2a; opacity: 0.85; paint-order: stroke; stroke: #eee3c8; stroke-width: 3px; }
+.chart .ending.fired .mark { fill: #8b1e2d; stroke: #3d3020; animation: chart-flash 0.8s ease-out 3; }
+.chart .ending.fired .bolt { fill: #f5e6b8; stroke: #f5e6b8; }
+.chart .ending.fired .elabel { opacity: 1; font-weight: 600; }
+.chart .wp { transition: opacity 0.5s ease; }
+.chart .wp.faint { opacity: 0.34; }
+.chart .wp.pick { cursor: pointer; }
+.chart .wp .halo { fill: #c8a24a; opacity: 0; transition: opacity 0.25s; }
+.chart .wp.pick:hover .halo, .chart .wp.selected .halo { opacity: 0.4; }
+.chart .wp .pulse { fill: none; stroke: #8b1e2d; stroke-width: 2; opacity: 0; }
+.chart .wp.current .pulse { animation: chart-pulse 1.8s ease-out infinite; }
+.chart .wp .shadow { fill: #000; opacity: 0.25; }
+.chart .wp .ring { fill: none; stroke: #c8a24a; stroke-width: 2.4; }
+.chart .wp.current .ring { stroke: #8b1e2d; }
+.chart .wp .badge { fill: #141210; stroke: #c8a24a; stroke-width: 1; }
+.chart .wp .num { fill: #f5e6b8; font-family: var(--sans); font-weight: 700; }
+.chart .wp .label rect { fill: #f3ead3; fill-opacity: 0.93; stroke: #4a3a22; stroke-width: 0.6; }
+.chart .wp .label .title { font-weight: 600; fill: #1b1712; }
+.chart .wp .label .place { font-style: italic; fill: #6b5a40; }
+.chart .wp .body.pop { animation: chart-pop 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) both; transform-box: fill-box; transform-origin: center; }
+.chart .vessel { transition: opacity 0.3s; }
+.chart .vessel.hidden { opacity: 0; }
+.chart .vessel .hull { fill: #3d3020; }
+.chart .vessel .mast { stroke: #3d3020; stroke-width: 1.2; }
+.chart .vessel .sail { fill: #8b1e2d; opacity: 0.9; }
+.chart .vessel .sail.small { fill: #c8a24a; }
+.chart .compass .outer { fill: none; stroke: #4a3a22; stroke-width: 0.8; }
+.chart .compass .inner { fill: none; stroke: #4a3a22; stroke-width: 0.5; opacity: 0.7; }
+.chart .compass .star { fill: #4a3a22; }
+.chart .compass .n { font-weight: 700; fill: #7a2a2a; font-size: 12px; }
+.chart .cartouche rect { fill: #f3ead3; stroke: #4a3a22; stroke-width: 1; }
+.chart .cartouche rect.inner { fill: none; stroke-width: 0.5; }
+.chart .cartouche .ctitle { font-size: 14px; font-variant: small-caps; letter-spacing: 0.2em; font-weight: 700; fill: #3d3020; }
+.chart .cartouche .csheet { font-size: 9px; font-style: italic; fill: #6b5a40; }
+.chart .cartouche .cnote { font-size: 8px; fill: #6b5a40; letter-spacing: 0.06em; }
+.chart .scale line { stroke: #3d3020; stroke-width: 1.2; }
+.chart .scale text { font-size: 8px; font-family: var(--sans); fill: #3d3020; }
+.chart .vignette, .chart .grain { pointer-events: none; }
+.chart .grain { opacity: 0.6; mix-blend-mode: multiply; }
+@keyframes chart-pop { 0% { transform: scale(0.25); opacity: 0; } 65% { transform: scale(1.14); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes chart-pulse { 0% { opacity: 0.9; transform: scale(1); } 100% { opacity: 0; transform: scale(2.2); } }
+.chart .wp .pulse { transform-box: fill-box; transform-origin: center; }
+@keyframes chart-flash { 0% { fill: #f5e6b8; } 50% { fill: #8b1e2d; } 100% { fill: #8b1e2d; } }
+
+/* The opening screen: the chart, then the boarding card for the scene picked on it. */
+.chart-screen .chart-hint { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 8px; }
+.boarding { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 18px; align-items: center; margin: 16px 0 22px; padding: 14px 18px; background: var(--parchment); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 24px rgba(20,18,16,0.10); }
+.boarding img { width: 110px; aspect-ratio: 4/5; object-fit: cover; border-radius: 10px; border: 2px solid var(--old-gold); display: block; }
+.boarding .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--state-blue); }
+.boarding h3 { font-family: var(--serif); font-size: 26px; margin: 2px 0 4px; }
+.boarding .who { font-size: 13.5px; color: var(--ink); margin-bottom: 4px; }
+.boarding .when { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink); margin-bottom: 6px; }
+.boarding .sum { font-size: 13.5px; color: var(--ink-soft); max-width: 70ch; }
+.boarding .actions { display: flex; flex-direction: column; gap: 8px; }
+@media (max-width: 760px) { .boarding { grid-template-columns: 1fr; } .boarding img { width: 90px; } .boarding .actions { flex-direction: row; flex-wrap: wrap; } }
+
+/* The chart as an interlude: a leg drawing itself before a scene, a branch to an ending after one. */
+.interlude-stage.paper { background: #d8d0b7; }
+.interlude-stage .chart { position: absolute; inset: 0; width: 100%; height: 100%; }
+.interlude-stage .chart-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 20px 16px; background: linear-gradient(180deg, transparent, rgba(20,18,16,0.82)); color: var(--parchment); pointer-events: none; }
+.interlude-stage .chart-caption .scene { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--old-gold); }
+.interlude-stage .chart-caption .line { font-family: var(--serif); font-size: clamp(17px, 1.9vw, 24px); line-height: 1.3; text-shadow: 0 1px 8px rgba(0,0,0,0.8); }
+.interlude-stage .chart-caption .when { font-family: var(--serif); font-style: italic; font-size: 14px; opacity: 0.85; margin-top: 2px; }
+
+/* The chart during play: the road so far, over the stage. */
+.chart-overlay { position: fixed; inset: 0; z-index: 40; background: rgba(20,18,16,0.72); display: grid; place-items: center; padding: 18px; }
+.chart-overlay .sheet { width: min(1120px, 96vw); max-height: 96vh; overflow: auto; background: #e9dcc0; border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 12px 10px; border: 1px solid var(--old-gold); }
+.chart-overlay .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+.chart-overlay .sofar { font-family: var(--serif); font-style: italic; color: var(--ink-soft); }

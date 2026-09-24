@@ -213,7 +213,8 @@ export function evalWorld(base: World, wardens: readonly string[] = WARDENS, sce
     }
   }
   const cast = [...base.cast, ...EVAL_CAST.filter((c) => !base.cast.some((b) => b.id === c.id))];
-  return defineWorld({ ...base, cast, acts: [...base.acts, { id: "eval", title: "Attribution eval", summary: "Eval-only beats; never shipped in the game.", beats }] });
+  // Eval beats are not on the Scribe's chart, so the derived world carries none.
+  return defineWorld({ ...base, cast, chart: undefined, acts: [...base.acts, { id: "eval", title: "Attribution eval", summary: "Eval-only beats; never shipped in the game.", beats }] });
 }
 
 /** Names, tags and character-specific nouns to remove before the judge sees a line. Longest first so full names go before parts. */

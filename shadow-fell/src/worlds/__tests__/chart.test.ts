@@ -32,6 +32,20 @@ describe("The Shadow Fell chart", () => {
     for (const w of tour) expect(w.place, w.beat).not.toMatch(/\b(Mhasun|Vesperin|Valerith|Rivenhearth|Avarand)\b/);
   });
 
+  it("rides Jon's plate: a ship for the flight north, a carriage with both facings for the tour, names revealed by the road", () => {
+    expect(chart.plate?.clean).toBeTruthy();
+    expect(chart.plate?.lettered).toBeTruthy();
+    expect(chart.vehicles.sky?.faces).toBe("left");
+    expect(chart.vehicles.road?.alt, "the wagon has lettering, so it needs its own left-facing artwork").toBeTruthy();
+    expect(chart.waypoints.find((w) => w.beat === "your-deniables")?.by).toBe("sky");
+    for (const id of ["make-it-famous", "the-alley", "stay-inconspicuous", "morning", "the-carriage"]) expect(chart.waypoints.find((w) => w.beat === id)?.by, id).toBe("road");
+    for (const w of chart.waypoints.filter((x) => x.inset)) expect(w.by).toBeUndefined();
+    const revealedBy = new Set(chart.regions.map((r) => r.reveal).filter(Boolean));
+    expect([...revealedBy].sort()).toEqual(["make-it-famous", "the-carriage", "your-deniables"]);
+    expect(chart.regions.find((r) => r.id === "halyra")?.reveal).toBeUndefined();
+    for (const r of chart.regions) expect(r.box, r.id).toBeDefined();
+  });
+
   it("reaches the player: the public world keeps the chart", () => {
     expect(publicWorld(shadowFell).chart?.waypoints.length).toBe(beats.length);
   });

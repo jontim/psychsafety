@@ -13,6 +13,7 @@ type Pt = [number, number];
 type Waypoint = Chart["waypoints"][number];
 type Inset = Chart["insets"][number];
 type Ending = Chart["endings"][number];
+type Vehicle = Chart["vehicles"][string];
 type Beat = World["acts"][number]["beats"][number];
 interface Box { x: number; y: number; w: number; h: number }
 /** Somewhere the road can go: a waypoint or an ending glyph. */
@@ -120,6 +121,11 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   const beats: Beat[] = world.acts.flatMap((a) => a.beats);
   const beatById = new Map<string, Beat>(beats.map((b) => [b.id, b]));
   const beatNo = new Map<string, number>(beats.map((b, i) => [b.id, i + 1]));
+  /** Chart units per design unit: sizes below were drawn for a 1200-wide sheet and scale with the plate. */
+  const U = W / 1200;
+  const plate = chart.plate;
+  const regions = chart.regions;
+  const px = (n: number): string => `${r1(n * U)}px`;
   let destroyed = false;
   let seq = 0;
 
@@ -170,8 +176,8 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       s("circle", { cx: 2.5, cy: 2.5, r: 1.3, fill: "#6f7a4c", "fill-opacity": 0.55 }),
       s("circle", { cx: 6.8, cy: 6.4, r: 1, fill: "#6f7a4c", "fill-opacity": 0.45 }),
     ),
-    s("clipPath", { id: `${uid}-clip-l` }, s("circle", { r: 18 })),
-    s("clipPath", { id: `${uid}-clip-s` }, s("circle", { r: 13 })),
+    s("clipPath", { id: `${uid}-clip-l` }, s("circle", { r: 18 * U })),
+    s("clipPath", { id: `${uid}-clip-s` }, s("circle", { r: 13 * U })),
     s("radialGradient", { id: `${uid}-vignette`, cx: "50%", cy: "50%", r: "70%" },
       s("stop", { offset: "60%", "stop-color": "#4a3a22", "stop-opacity": 0 }),
       s("stop", { offset: "100%", "stop-color": "#4a3a22", "stop-opacity": 0.22 }),
@@ -187,10 +193,32 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   gPaper.append(grid);
   svg.append(gPaper);
 
+  // The artwork: a clean plate, and a lettered plate unmasked region by region as the road reaches them.
+  const letterRects = new Map<string, SVGRectElement>();
+  if (plate) {
+    svg.classList.add("plate");
+    const gPlate = s("g", { class: "plate-layers" });
+    gPlate.append(s("image", { href: plate.clean, x: 0, y: 0, width: W, height: H, preserveAspectRatio: "none" }));
+    if (plate.lettered) {
+      defs.append(s("filter", { id: `${uid}-soft`, x: "-30%", y: "-30%", width: "160%", height: "160%" }, s("feGaussianBlur", { stdDeviation: 4 * U })));
+      const mask = s("mask", { id: `${uid}-letters`, maskUnits: "userSpaceOnUse", x: 0, y: 0, width: W, height: H }, s("rect", { x: 0, y: 0, width: W, height: H, fill: "#000" }));
+      for (const rg of chart.regions) {
+        if (!rg.box) continue;
+        const [bx, by, bw, bh] = rg.box;
+        const rect = s("rect", { class: "letter", x: bx, y: by, width: bw, height: bh, fill: "#fff", filter: `url(#${uid}-soft)`, style: `opacity:${rg.reveal ? 0 : 1}` });
+        mask.append(rect);
+        letterRects.set(rg.id, rect);
+      }
+      defs.append(mask);
+      gPlate.append(s("image", { href: plate.lettered, x: 0, y: 0, width: W, height: H, preserveAspectRatio: "none", mask: `url(#${uid}-letters)` }));
+    }
+    svg.append(gPlate);
+  }
+
   const gLand = s("g", { class: "terrain" },
-    s("path", { class: "shore-band", d: chart.land }),
-    s("path", { class: "land", d: chart.land }),
-    s("path", { class: "coast", d: chart.land }),
+    s("path", { class: "shore-band", d: chart.land ?? "" }),
+    s("path", { class: "land", d: chart.land ?? "" }),
+    s("path", { class: "coast", d: chart.land ?? "" }),
   );
   for (const w of chart.waters) {
     gLand.append(s("path", { class: "shore-band", d: w.d }), s("path", { class: "water", d: w.d }));
@@ -209,12 +237,26 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       if (r.sub) gLand.append(s("text", { class: "rsub", x: r.at[0], y: r.at[1] + 10 }, r.sub));
     }
   }
-  svg.append(gLand);
+  if (!plate) svg.append(gLand);
 
   const gNames = s("g", { class: "names" });
+  const regionEls = new Map<string, SVGGElement>();
   for (const rg of chart.regions) {
-    gNames.append(s("text", { class: `region ${rg.size} ${rg.tone}`, x: rg.at[0], y: rg.at[1] }, rg.label));
-    if (rg.sub) gNames.append(s("text", { class: "sub", x: rg.at[0], y: rg.at[1] + 14 }, rg.sub));
+    if (rg.box && plate?.lettered) continue; // lettered on the plate, unmasked on arrival
+    const g = s("g", { class: `region-label ${rg.reveal ? "hidden" : ""}`, "data-region": rg.id });
+    g.append(s("text", { class: `region ${rg.size} ${rg.tone}`, x: rg.at[0], y: rg.at[1], style: `font-size:${px(rg.size === "large" ? 16 : 11)}` }, rg.label));
+    if (rg.sub) g.append(s("text", { class: "sub", x: rg.at[0], y: rg.at[1] + 14 * U, style: `font-size:${px(9.5)}` }, rg.sub));
+    gNames.append(g);
+    regionEls.set(rg.id, g);
+  }
+  /** Names appear as the road reaches them: lettered plate boxes unmask, drawn labels fade in. */
+  function revealRegions(beatId: string): void {
+    for (const rg of regions) {
+      if (rg.reveal !== beatId) continue;
+      regionEls.get(rg.id)?.classList.remove("hidden");
+      const rect = letterRects.get(rg.id);
+      if (rect) rect.style.opacity = "1";
+    }
   }
   const GLYPHS: Record<string, string> = {
     palace: "M -7 3 L 7 3 L 6 -1 L 3 -1 L 3 -4 A 3 3 0 0 1 -3 -4 L -3 -1 L -6 -1 Z M -9 7 Q -4 4 0 7 Q 4 10 9 7",
@@ -223,7 +265,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     pass: "M -8 4 L -3 -3 M 3 -3 L 8 4 M 0 2 m -1.2 0 a 1.2 1.2 0 1 0 2.4 0 a 1.2 1.2 0 1 0 -2.4 0",
   };
   for (const p of chart.places) {
-    gNames.append(s("g", { class: `place ${p.glyph}`, transform: `translate(${p.at[0]} ${p.at[1]})` },
+    gNames.append(s("g", { class: `place ${p.glyph}`, transform: `translate(${p.at[0]} ${p.at[1]}) scale(${r1(U)})` },
       s("path", { class: "glyph", d: GLYPHS[p.glyph] ?? GLYPHS.city! }),
       s("text", { x: 12, y: 4 }, p.label),
     ));
@@ -231,7 +273,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   for (const b of chart.beyond) {
     const arrow = b.dir === "n" ? "M 0 -4 L 0 -14 M -4 -10 L 0 -14 L 4 -10" : b.dir === "s" ? "M 0 4 L 0 14 M -4 10 L 0 14 L 4 10" : b.dir === "e" ? "M 4 0 L 14 0 M 10 -4 L 14 0 L 10 4" : "M -4 0 L -14 0 M -10 -4 L -14 0 L -10 4";
     const tx = b.dir === "e" ? -4 : b.dir === "w" ? 4 : 0;
-    gNames.append(s("g", { class: "beyond", transform: `translate(${b.at[0]} ${b.at[1]})` },
+    gNames.append(s("g", { class: "beyond", transform: `translate(${b.at[0]} ${b.at[1]}) scale(${r1(U)})` },
       s("path", { d: arrow }),
       s("text", { x: tx, y: b.dir === "n" ? 8 : b.dir === "s" ? -6 : 3, "text-anchor": b.dir === "e" ? "end" : b.dir === "w" ? "start" : "middle" }, b.label),
     ));
@@ -248,7 +290,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       s("circle", { class: "ring2", cx: ins.cx, cy: ins.cy, r: ins.r - 5 }),
     );
     ins.plan.forEach((d, i) => g.append(s("path", { class: `plan ${i === 0 ? "fill" : ""}`, d })));
-    g.append(s("text", { class: "ititle", x: ins.cx, y: ins.cy - ins.r - 8 }, `${ins.title} · inset`));
+    g.append(s("text", { class: "ititle", x: ins.cx, y: ins.cy - ins.r - 8 * U, style: `font-size:${px(10)}` }, `${ins.title} · inset`));
     gInsets.append(g);
   }
   svg.append(gInsets);
@@ -264,6 +306,66 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     s("path", { class: "sail small", d: "M -1 -9 Q -8 -6 -7 -1 Z" }),
   );
   svg.append(gGhost, gRoad, gForks, gWps, vessel);
+
+  // The vehicles that lay the road: a sprite each, with the artwork for the other facing when it has lettering.
+  interface Mover { kind: "cutter" | "vehicle"; g: SVGGElement; main: SVGImageElement | null; alt: SVGImageElement | null; faces: "left" | "right"; facing: "left" | "right"; flipStart: number; flipFrom: number; scale: number; x: number; y: number }
+  const movers = new Map<string, Mover>();
+  const cutterMover: Mover = { kind: "cutter", g: vessel, main: null, alt: null, faces: "right", facing: "right", flipStart: -1, flipFrom: 1, scale: 1, x: 0, y: 0 };
+  for (const [key, v] of Object.entries(chart.vehicles) as Array<[string, Vehicle]>) {
+    const main = s("image", { href: v.src, x: -v.width / 2, y: -v.height / 2, width: v.width, height: v.height, preserveAspectRatio: "xMidYMid meet" });
+    const alt = v.alt ? s("image", { href: v.alt, x: -v.width / 2, y: -v.height / 2, width: v.width, height: v.height, preserveAspectRatio: "xMidYMid meet", style: "display:none" }) : null;
+    const g = s("g", { class: "vehicle hidden", "data-vehicle": key }, main, alt);
+    movers.set(key, { kind: "vehicle", g, main, alt, faces: v.faces, facing: v.faces, flipStart: -1, flipFrom: 1, scale: 1, x: 0, y: 0 });
+    svg.append(g);
+  }
+  const FLIP_MS = 280;
+  /** Place a mover, turning it to face its heading: a sprite with a second artwork swaps at the narrowest point of a squash; one without is mirrored. */
+  function placeMover(m: Mover, x: number, y: number, dx: number, dy: number, now: number): void {
+    m.x = x; m.y = y;
+    if (m.kind === "cutter") {
+      const deg = (Math.atan2(dy, dx) * 180) / Math.PI;
+      m.g.setAttribute("transform", `translate(${r1(x)} ${r1(y)}) rotate(${r1(deg)}) scale(${r1(U * m.scale)})`);
+      return;
+    }
+    const heading: "left" | "right" | null = dx < -0.3 ? "left" : dx > 0.3 ? "right" : null;
+    if (heading && heading !== m.facing) { m.facing = heading; m.flipStart = now; m.flipFrom = m.alt ? 1 : (m.facing === "left" ? 1 : -1) * -1; }
+    const mirror = m.alt ? 1 : (m.facing === m.faces ? 1 : -1);
+    let sx = mirror;
+    if (m.flipStart >= 0) {
+      const k = Math.min(1, (now - m.flipStart) / FLIP_MS);
+      const width = k < 0.5 ? 1 - 2 * k : 2 * k - 1;
+      if (m.alt) {
+        const showMain = m.facing === m.faces;
+        if (k >= 0.5) { m.main!.style.display = showMain ? "" : "none"; m.alt.style.display = showMain ? "none" : ""; }
+        sx = width;
+      } else sx = width * (k < 0.5 ? m.flipFrom : mirror);
+      if (k >= 1) m.flipStart = -1;
+    } else if (m.alt) {
+      const showMain = m.facing === m.faces;
+      m.main!.style.display = showMain ? "" : "none";
+      m.alt.style.display = showMain ? "none" : "";
+    }
+    m.g.setAttribute("transform", `translate(${r1(x)} ${r1(y)}) scale(${r1(sx * m.scale)} ${r1(m.scale)})`);
+  }
+  /** Grow or shrink a mover in place: a take-off or a landing. */
+  function scaleMover(m: Mover, from: number, to: number, ms: number): Promise<void> {
+    const t0 = performance.now();
+    return new Promise((resolve) => {
+      const step = (now: number): void => {
+        if (destroyed) { resolve(); return; }
+        const t = Math.min(1, (now - t0) / ms);
+        m.scale = from + (to - from) * easeInOut(t);
+        placeMover(m, m.x, m.y, 0, 0, now);
+        if (t < 1) requestAnimationFrame(step); else resolve();
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  const moverFor = (wp: Waypoint, kind: string | null): Mover | null => {
+    if (kind !== "flight") return null;
+    if (wp.by) return movers.get(wp.by) ?? null;
+    return plate ? null : cutterMover;
+  };
 
   // ---------- Furniture: compass, cartouche, scale, grain ----------
   if (chart.compass) {
@@ -297,8 +399,10 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       s("text", { x: 0, y: -6 }, "0"), s("text", { x: px, y: -6, "text-anchor": "end" }, label),
     ));
   }
-  svg.append(s("rect", { class: "vignette", x: 0, y: 0, width: W, height: H, fill: `url(#${uid}-vignette)` }));
-  svg.append(s("rect", { class: "grain", x: -W, y: -H, width: 3 * W, height: 3 * H, filter: `url(#${uid}-grain)` }));
+  if (!plate) {
+    svg.append(s("rect", { class: "vignette", x: 0, y: 0, width: W, height: H, fill: `url(#${uid}-vignette)` }));
+    svg.append(s("rect", { class: "grain", x: -W, y: -H, width: 3 * W, height: 3 * H, filter: `url(#${uid}-grain)` }));
+  }
 
   // ---------- Waypoints and endings ----------
   const wpEls = new Map<string, SVGGElement>();
@@ -306,7 +410,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     const beat = beatById.get(wp.beat);
     if (!beat) throw new Error(`Chart: no beat ${wp.beat}`);
     const inset = wp.inset ? insets.get(wp.inset) : undefined;
-    const k = inset ? 0.72 : 1;
+    const k = (inset ? 0.72 : 1) * U;
     const r = 18 * k;
     const g = s("g", { class: "wp faint", "data-beat": wp.beat, transform: `translate(${wp.at[0]} ${wp.at[1]})` });
     const body = s("g", { class: "body" },
@@ -341,7 +445,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
 
   const endingEls = new Map<string, SVGGElement>();
   function endingEl(e: Ending): SVGGElement {
-    const g = s("g", { class: `ending ${e.glyph}`, "data-outcome": e.outcome, transform: `translate(${e.at[0]} ${e.at[1]})` });
+    const g = s("g", { class: `ending ${e.glyph}`, "data-outcome": e.outcome, transform: `translate(${e.at[0]} ${e.at[1]}) scale(${r1(U)})` });
     if (e.glyph === "storm") g.append(s("circle", { class: "mark", r: 9 }), s("path", { class: "bolt", d: "M 1.5 -7 L -4 1 L 0 1 L -1.5 7 L 4 -1 L 0 -1 Z" }));
     else if (e.glyph === "fade") g.append(s("circle", { class: "mark", cx: -7, r: 3 }), s("circle", { class: "mark", cx: 2, r: 2.2 }), s("circle", { class: "mark", cx: 9, r: 1.4 }));
     else g.append(s("circle", { class: "mark", r: 9 }), s("path", { class: "bolt", d: "M -4 0 L 4 0 M 1 -3.5 L 4.5 0 L 1 3.5" }));
@@ -354,9 +458,9 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   const forkLabels: Array<{ text: SVGTextElement; path: SVGPathElement; t: number }> = [];
   /** A fork label: one line per outcome that takes that road. */
   function forkText(label: string, small: boolean): SVGTextElement {
-    const text = s("text", { class: `flabel-out ${small ? "small" : ""}`, "text-anchor": "middle" });
+    const text = s("text", { class: `flabel-out ${small ? "small" : ""}`, "text-anchor": "middle", style: `font-size:${px(small ? 5.5 : 9.5)}` });
     const lines = label.split(" / ");
-    lines.forEach((line, i) => text.append(s("tspan", { x: 0, dy: i === 0 ? 0 : (small ? 6.5 : 11) }, line)));
+    lines.forEach((line, i) => text.append(s("tspan", { x: 0, dy: i === 0 ? 0 : (small ? 6.5 : 11) * U }, line)));
     return text;
   }
   for (const [beatId, list] of forks) {
@@ -369,13 +473,18 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
         if (!e) continue;
         const pieces = legPieces(nodeOf(wp), { at: e.at, inset: e.inset });
         let labelPath: SVGPathElement | null = null;
-        for (const p of pieces) { const path = s("path", { class: "branch", d: p.d }); g.append(path); if (p.kind === "flight" || !labelPath) labelPath = path; }
+        for (const p of pieces) { const path = s("path", { class: "branch", d: p.d, style: `stroke-width:${px(1.4)};stroke-dasharray:${r1(2 * U)} ${r1(5 * U)}` }); g.append(path); if (p.kind === "flight" || !labelPath) labelPath = path; }
         const glyph = endingEl(e);
         endingEls.set(e.outcome, glyph);
         g.append(glyph);
+        // the cause sits under the glyph's own line (glyph, then what follows, then what led there), clear of the branch
         const text = forkText(f.label, false);
+        const fx = r1(e.at[0]), fy = r1(e.at[1] + 33 * U);
+        text.setAttribute("x", String(fx));
+        text.setAttribute("y", String(fy));
+        for (const span of text.querySelectorAll("tspan")) span.setAttribute("x", String(fx));
         g.append(text);
-        if (labelPath) forkLabels.push({ text, path: labelPath, t: 0.68 });
+        void labelPath;
       } else {
         const to = wps.get(f.to);
         if (!to) continue;
@@ -401,8 +510,8 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       const q = path.getPointAtLength(Math.min(L, L * t + 4));
       const nx = -(q.y - p.y), ny = q.x - p.x;
       const n = Math.hypot(nx, ny) || 1;
-      const off = text.classList.contains("small") ? 6 : 10;
-      const x = r1(p.x + (nx / n) * off), y = r1(p.y + (ny / n) * off + 3);
+      const off = (text.classList.contains("small") ? 6 : 10) * U;
+      const x = r1(p.x + (nx / n) * off), y = r1(p.y + (ny / n) * off + 3 * U);
       text.setAttribute("x", String(x));
       text.setAttribute("y", String(y));
       for (const span of text.querySelectorAll("tspan")) span.setAttribute("x", String(x));
@@ -415,7 +524,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     const a = wps.get(leg.from), b = wps.get(leg.to);
     if (!a || !b) continue;
     const g = s("g", { class: "leg ghost", "data-from": leg.from, "data-to": leg.to });
-    for (const p of legPieces(nodeOf(a), nodeOf(b))) g.append(s("path", { d: p.d }));
+    for (const p of legPieces(nodeOf(a), nodeOf(b))) g.append(s("path", { d: p.d, style: `stroke-width:${px(1.5)};stroke-dasharray:${r1(1.5 * U)} ${r1(5 * U)}` }));
     gGhost.append(g);
   }
   // The road past the last scene, fading: the story goes on beyond this sheet.
@@ -423,7 +532,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   const lastWp = last ? wps.get(last.id) : undefined;
   if (lastWp && !lastWp.inset) {
     const [x, y] = lastWp.at;
-    gGhost.append(s("path", { class: "onward", d: `M ${x} ${y} Q ${x + 26} ${y - 30} ${x + 44} ${y - 46}` }));
+    gGhost.append(s("path", { class: "onward", d: `M ${x} ${y} Q ${r1(x + 26 * U)} ${r1(y - 30 * U)} ${r1(x + 44 * U)} ${r1(y - 46 * U)}`, style: `stroke-width:${px(1.5)};stroke-dasharray:${r1(1.5 * U)} ${r1(5 * U)}` }));
   }
 
   /** A solid leg between two nodes, drawn in pieces; pending pieces stay hidden until revealed. */
@@ -432,8 +541,8 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     const pieces: SVGGElement[] = [];
     for (const p of legPieces(a, b)) {
       const piece = s("g", { class: `piece ${pending ? "pending" : ""}`, "data-kind": p.kind },
-        s("path", { class: "under", d: p.d }),
-        s("path", { class: "dash", d: p.d }),
+        plate ? null : s("path", { class: "under", d: p.d }),
+        s("path", { class: "dash", d: p.d, style: plate ? `stroke-width:${px(4.2)};stroke-dasharray:${r1(12 * U)} ${r1(7 * U)}` : "" }),
       );
       g.append(piece);
       pieces.push(piece);
@@ -461,7 +570,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   function fit(b: Box): Box {
     const a = aspect();
     let { x, y, w, h } = b;
-    if (w < 220) { x -= (220 - w) / 2; w = 220; }
+    if (w < 220 * U) { x -= (220 * U - w) / 2; w = 220 * U; }
     if (w / h < a) { const nw = h * a; x -= (nw - w) / 2; w = nw; } else { const nh = w / a; y -= (nh - h) / 2; h = nh; }
     const maxW = Math.max(W, H * a);
     if (w > maxW) { const k = maxW / w; const cx = x + w / 2, cy = y + h / 2; w *= k; h *= k; x = cx - w / 2; y = cy - h / 2; }
@@ -487,51 +596,67 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     });
   }
   const insetBox = (id: string): Box => { const i = insets.get(id)!; return { x: i.cx - i.r * 1.12, y: i.cy - i.r * 1.12, w: i.r * 2.24, h: i.r * 2.24 }; };
-  const nodeBox = (n: { at: Pt; inset?: string | undefined }): Box => (n.inset ? insetBox(n.inset) : boxAround(n.at, 60));
+  const nodeBox = (n: { at: Pt; inset?: string | undefined }): Box => (n.inset ? insetBox(n.inset) : boxAround(n.at, 60 * U));
   /** Everything a fork can lead to, framed together: the scene, the roads out and where they end. */
   function forkBox(beatId: string): Box | null {
     const list = forks.get(beatId), wp = wps.get(beatId);
     if (!list || !wp) return null;
     let box = nodeBox(wp);
     for (const f of list) {
-      if (f.to === null) { const e = f.outcome ? endings.get(f.outcome) : undefined; if (e) box = unionBox(box, boxAround(e.at, 70)); }
+      if (f.to === null) { const e = f.outcome ? endings.get(f.outcome) : undefined; if (e) box = unionBox(box, boxAround(e.at, 70 * U)); }
       else { const t = wps.get(f.to); if (t) box = unionBox(box, nodeBox(t)); }
     }
-    if (wp.inset) box = unionBox(box, boxAround(insets.get(wp.inset)!.anchor, 60));
-    return padBox(box, 30);
+    if (wp.inset) box = unionBox(box, boxAround(insets.get(wp.inset)!.anchor, 60 * U));
+    return padBox(box, 30 * U);
   }
   const pathBox = (p: SVGPathElement, pad: number): Box => { const b = p.getBBox(); return padBox({ x: b.x, y: b.y, w: b.width, h: b.height }, pad); };
 
   // ---------- Animation ----------
   /** Reveal one piece of road as if drawn by hand, the vessel flying its length when asked. */
-  function revealPiece(piece: SVGGElement, ms: number, fly: boolean): Promise<void> {
+  function revealPiece(piece: SVGGElement, ms: number, mover: Mover | null): Promise<void> {
     const dash = piece.querySelector<SVGPathElement>("path.dash")!;
     const L = dash.getTotalLength();
     const id = `${uid}-m${++seq}`;
-    const mp = s("path", { d: dash.getAttribute("d") ?? "", fill: "none", stroke: "#fff", "stroke-width": 14, "stroke-linecap": "round", "stroke-dasharray": String(L), "stroke-dashoffset": String(L) });
+    const mp = s("path", { d: dash.getAttribute("d") ?? "", fill: "none", stroke: "#fff", "stroke-width": 14 * U, "stroke-linecap": "round", "stroke-dasharray": String(L), "stroke-dashoffset": String(L) });
     const mask = s("mask", { id, maskUnits: "userSpaceOnUse", x: -W, y: -H, width: 3 * W, height: 3 * H }, mp);
     defs.append(mask);
     piece.setAttribute("mask", `url(#${id})`);
     piece.classList.remove("pending");
-    if (fly) vessel.classList.remove("hidden");
+    if (mover) mover.g.classList.remove("hidden");
     const t0 = performance.now();
     return new Promise((resolve) => {
-      const finish = (): void => { piece.removeAttribute("mask"); mask.remove(); if (fly) vessel.classList.add("hidden"); resolve(); };
+      const finish = (): void => { piece.removeAttribute("mask"); mask.remove(); resolve(); };
       const step = (now: number): void => {
         if (destroyed) { finish(); return; }
         const t = Math.min(1, (now - t0) / ms);
         const e = easeInOut(t);
         mp.setAttribute("stroke-dashoffset", String(r1(L * (1 - e))));
-        if (fly) {
+        if (mover) {
           const p = dash.getPointAtLength(L * e);
-          const q = dash.getPointAtLength(Math.min(L, L * e + 3));
-          const deg = (Math.atan2(q.y - p.y, q.x - p.x) * 180) / Math.PI;
-          vessel.setAttribute("transform", `translate(${r1(p.x)} ${r1(p.y)}) rotate(${r1(deg)})`);
+          const q = dash.getPointAtLength(Math.min(L, L * e + 4 * U));
+          placeMover(mover, p.x, p.y, q.x - p.x, q.y - p.y, now);
         }
         if (t < 1) requestAnimationFrame(step); else finish();
       };
       requestAnimationFrame(step);
     });
+  }
+  /** Put a mover at the start of a piece, facing along it, and grow it in: the take-off. */
+  async function takeOff(m: Mover, dash: SVGPathElement): Promise<void> {
+    const p = dash.getPointAtLength(0), q = dash.getPointAtLength(Math.min(dash.getTotalLength(), 6 * U));
+    const heading: "left" | "right" | null = q.x - p.x < -0.3 ? "left" : q.x - p.x > 0.3 ? "right" : null;
+    if (heading) m.facing = heading;
+    m.flipStart = -1;
+    m.scale = 0.12;
+    placeMover(m, p.x, p.y, 0, 0, performance.now());
+    m.g.classList.remove("hidden");
+    await scaleMover(m, 0.12, 1, 420);
+  }
+  /** Shrink a mover where it stands and hide it: the landing. */
+  async function land(m: Mover): Promise<void> {
+    await scaleMover(m, 1, 0.12, 480);
+    m.g.classList.add("hidden");
+    m.scale = 1;
   }
   const wait = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
   let currentBeat: string | null = null;
@@ -539,6 +664,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     const g = wpEls.get(beatId);
     if (!g) return;
     g.classList.remove("faint");
+    revealRegions(beatId);
     if (pop) { const body = g.querySelector(".body"); body?.classList.remove("pop"); void (body as SVGGElement | null)?.getBBox(); body?.classList.add("pop"); }
     if (asCurrent) {
       if (currentBeat) wpEls.get(currentBeat)?.classList.remove("current");
@@ -560,23 +686,27 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     const a = from ? wps.get(from) : undefined;
     if (!a) {
       applyCam(whole());
-      await moveCam(fit(b.inset ? insetBox(b.inset) : boxAround(b.at, 150)), 1300);
+      await moveCam(fit(b.inset ? insetBox(b.inset) : boxAround(b.at, 150 * U)), 1300);
       show(to, true, true);
       await revealForks(to);
       return;
     }
     const pieces = ensureLeg(from!, to, true);
     const sameInset = !!a.inset && a.inset === b.inset;
-    applyCam(fit(a.inset ? insetBox(a.inset) : boxAround(a.at, 150)));
+    applyCam(fit(a.inset ? insetBox(a.inset) : boxAround(a.at, 150 * U)));
+    let flying: Mover | null = null;
     for (const piece of pieces) {
       const dash = piece.querySelector<SVGPathElement>("path.dash")!;
       const L = dash.getTotalLength();
-      const ms = clamp(L * 3.2, 450, 2600);
+      const ms = clamp((L / U) * 3.2, 450, 2600);
       const kind = piece.getAttribute("data-kind");
-      if (kind === "flight") void moveCam(fit(pathBox(dash, 120)), ms);
+      const mover = moverFor(b, kind);
+      if (kind === "flight") void moveCam(fit(pathBox(dash, 120 * U)), ms + (mover ? 420 : 0));
       else if (!sameInset && b.inset && piece === pieces[pieces.length - 1]) void moveCam(fit(insetBox(b.inset)), ms);
-      await revealPiece(piece, ms, kind === "flight" && L > 160);
+      if (mover && mover !== flying) { await takeOff(mover, dash); flying = mover; }
+      await revealPiece(piece, ms, mover && L > 40 * U ? mover : null);
     }
+    if (flying) await land(flying);
     show(to, true, true);
     await revealForks(to);
   }
@@ -596,13 +726,13 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     show(beat, true, false);
     showForks(beat);
     const { pieces } = solidLeg(nodeOf(b), { at: e.at, inset: e.inset }, `${beat}>${outcome}`, true);
-    applyCam(fit(b.inset ? insetBox(b.inset) : boxAround(b.at, 150)));
+    applyCam(fit(b.inset ? insetBox(b.inset) : boxAround(b.at, 150 * U)));
     for (const piece of pieces) {
       const dash = piece.querySelector<SVGPathElement>("path.dash")!;
       const L = dash.getTotalLength();
-      const ms = clamp(L * 3.2, 450, 2200);
-      if (piece.getAttribute("data-kind") === "flight") void moveCam(fit(pathBox(dash, 110)), ms);
-      await revealPiece(piece, ms, false);
+      const ms = clamp((L / U) * 3.2, 450, 2200);
+      if (piece.getAttribute("data-kind") === "flight") void moveCam(fit(pathBox(dash, 110 * U)), ms);
+      await revealPiece(piece, ms, null);
     }
     fire(outcome);
     await wait(300);
@@ -617,11 +747,15 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       if (!wp) continue;
       if (prev) {
         const pieces = ensureLeg(prev, beat.id, true);
+        let flying: Mover | null = null;
         for (const piece of pieces) {
           const dash = piece.querySelector<SVGPathElement>("path.dash")!;
           const L = dash.getTotalLength();
-          await revealPiece(piece, clamp(L * 2.4, 320, 1900), piece.getAttribute("data-kind") === "flight" && L > 160);
+          const mover = moverFor(wp, piece.getAttribute("data-kind"));
+          if (mover && mover !== flying) { await takeOff(mover, dash); flying = mover; }
+          await revealPiece(piece, clamp((L / U) * 2.4, 320, 1900), mover && L > 40 * U ? mover : null);
         }
+        if (flying) await land(flying);
       }
       show(beat.id, false, true);
       showForks(beat.id);

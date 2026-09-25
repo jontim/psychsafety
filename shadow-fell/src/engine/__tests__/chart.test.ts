@@ -47,6 +47,18 @@ describe("the chart", () => {
     expect(validateWorld(badInset)).toContain("Chart: waypoint one names unknown inset nowhere");
   });
 
+  it("knows its vehicles and the beats that reveal a name", () => {
+    const badVehicle = defineWorld({ ...base(), chart: chart({ waypoints: [{ beat: "one", at: [1, 1], place: "x" }, { beat: "two", at: [2, 2], place: "y", by: "balloon" }] }) });
+    expect(validateWorld(badVehicle)).toContain("Chart: waypoint two travels by unknown vehicle balloon");
+    const badReveal = defineWorld({ ...base(), chart: chart({ regions: [{ id: "r", label: "R", at: [5, 5], reveal: "nine" }] }) });
+    expect(validateWorld(badReveal)).toContain("Chart: region r is revealed by unknown beat nine");
+    const plated = defineWorld({ ...base(), chart: chart({ land: undefined, plate: { clean: "/p.jpg" }, vehicles: { sky: { src: "/s.png", width: 10, height: 10 } }, waypoints: [{ beat: "one", at: [1, 1], place: "x" }, { beat: "two", at: [2, 2], place: "y", by: "sky" }] }) });
+    expect(validateWorld(plated)).toEqual([]);
+    expect(plated.chart?.vehicles.sky?.faces).toBe("right");
+    const bare = defineWorld({ ...base(), chart: chart({ land: undefined }) });
+    expect(validateWorld(bare)).toContain("Chart: no plate and no land to draw");
+  });
+
   it("is optional: a world without one still validates", () => {
     expect(validateWorld(defineWorld(base()))).toEqual([]);
   });

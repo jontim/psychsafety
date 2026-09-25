@@ -358,3 +358,19 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .chart-overlay .sheet { width: min(1120px, 96vw); max-height: 96vh; overflow: auto; background: #e9dcc0; border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 12px 10px; border: 1px solid var(--old-gold); }
 .chart-overlay .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
 .chart-overlay .sofar { font-family: var(--serif); font-style: italic; color: var(--ink-soft); }
+
+/* The chart on a plate: Jon's artwork under the road, names unmasked as the road reaches them, vehicles laying the line. */
+.chart.plate .sea { fill: #cdb98f; }
+.chart.plate .leg.solid .dash { stroke: #1b1712; stroke-dasharray: 12 7; }
+.chart.plate .leg.ghost path { opacity: 0.3; }
+.chart mask rect.letter { transition: opacity 0.9s ease; }
+.chart .region-label { transition: opacity 0.8s ease; }
+.chart .region-label.hidden { opacity: 0; }
+.chart .vehicle { transition: opacity 0.25s ease; pointer-events: none; }
+.chart .vehicle.hidden { opacity: 0; }
+.chart.plate .inset .ring { fill: #efe1c2; }
+/* On a plate the map starts almost empty, as Jon's does: no ghost road, and a scene not yet reached is only a faint medallion. */
+.chart.plate .leg.ghost, .chart.plate .onward { display: none; }
+.chart.plate .wp.faint .label { opacity: 0; }
+.chart.plate .wp.faint.selected .label, .chart.plate .wp.faint:hover .label { opacity: 1; }
+.chart.plate .wp .label { transition: opacity 0.4s ease; }

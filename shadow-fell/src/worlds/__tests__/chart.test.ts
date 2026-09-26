@@ -6,24 +6,36 @@ describe("The Shadow Fell chart", () => {
   const chart = shadowFell.chart!;
   const beats = shadowFell.acts.flatMap((a) => a.beats);
 
-  it("charts every scene, with the four palace scenes inside Halyra's enclave and the sheet blank ahead", () => {
+  it("charts every scene: the three palace scenes on the palace plate, the Congress on the land below, the sheet blank ahead", () => {
     expect(chart).toBeDefined();
     const charted = new Set(chart.waypoints.map((w) => w.beat));
     for (const b of beats) expect(charted.has(b.id), b.id).toBe(true);
-    expect(chart.insets).toEqual([]);
     expect(chart.foreknowledge, "no road ahead of the player is on the sheet").toBe(false);
-    const halyra = chart.regions.find((r) => r.id === "halyra")!.box!;
-    for (const id of ["no-windows", "the-dispatch", "the-study", "the-proclamation"]) {
+    const palace = chart.insets.find((i) => i.id === "palace")!;
+    expect(palace.shape, "Jon's overview plate, bound into the sheet as a panel").toBe("panel");
+    expect(palace.image).toMatch(/^\/chart\//);
+    const [px, py, pw, ph] = palace.box;
+    for (const id of ["no-windows", "the-dispatch", "the-study"]) {
       const w = chart.waypoints.find((x) => x.beat === id)!;
-      expect(w.at[0], `${id} within the enclave`).toBeGreaterThan(halyra[0]);
-      expect(w.at[0], `${id} within the enclave`).toBeLessThan(halyra[0] + halyra[2]);
-      expect(w.at[1], `${id} above the lettering`).toBeLessThan(halyra[1]);
-      expect(w.by, `${id} is a hop of the Humā`).toBe("sky");
+      expect(w.inset, `${id} is in the palace`).toBe("palace");
+      expect(w.by, `${id} is reached on foot, no vehicle over the plate`).toBeUndefined();
+      expect(w.at[0], `${id} on the panel`).toBeGreaterThan(px); expect(w.at[0], `${id} on the panel`).toBeLessThan(px + pw);
+      expect(w.at[1], `${id} on the panel`).toBeGreaterThan(py); expect(w.at[1], `${id} on the panel`).toBeLessThan(py + ph);
+      expect(w.view?.src, `${id} shows a plate of the place when boarded`).toMatch(/^\/chart\/palace/);
     }
-    const hops = ["the-dispatch", "the-study", "the-proclamation"].map((id) => chart.waypoints.find((x) => x.beat === id)!);
+    const halyra = chart.regions.find((r) => r.id === "halyra")!.box!;
+    const congress = chart.waypoints.find((x) => x.beat === "the-proclamation")!;
+    expect(congress.inset, "the Congress is not in the palace").toBeUndefined();
+    expect(congress.by, "the Humā takes the Caliph down to it").toBe("sky");
+    expect(Math.abs(congress.at[0] - (halyra[0] + halyra[2] / 2)), "within the enclave").toBeLessThan(halyra[2]);
+    expect(congress.at[1], "on the land below, not over the palace").toBeGreaterThan(halyra[1] + halyra[3]);
+    expect(palace.anchor[0], "the palace hangs over the enclave").toBeGreaterThan(halyra[0]); expect(palace.anchor[0], "the palace hangs over the enclave").toBeLessThan(halyra[0] + halyra[2]);
     const ship = chart.vehicles.sky!;
-    let prev = chart.waypoints.find((x) => x.beat === "no-windows")!;
-    for (const w of hops) { expect(Math.hypot(w.at[0] - prev.at[0], w.at[1] - prev.at[1]), `${w.beat} moves a little`).toBeLessThan(ship.width * 2); prev = w; }
+    expect(Math.hypot(congress.at[0] - palace.anchor[0], congress.at[1] - palace.anchor[1]), "a short flight down: a hop").toBeLessThan(ship.width * 2.5);
+    const dinner = chart.places.find((p) => p.id === "dinner")!;
+    expect(dinner.inset).toBe("palace");
+    expect(dinner.reveal, "where it happened is marked from the start").toBeUndefined();
+    expect(dinner.at[0]).toBeGreaterThan(px); expect(dinner.at[0]).toBeLessThan(px + pw);
   });
 
   it("gives the three early endings a place off the road", () => {
@@ -47,7 +59,7 @@ describe("The Shadow Fell chart", () => {
     expect(chart.vehicles.road?.alt, "the wagon has lettering, so it needs its own left-facing artwork").toBeTruthy();
     expect(chart.waypoints.find((w) => w.beat === "your-deniables")?.by).toBe("sky");
     for (const id of ["make-it-famous", "the-alley", "stay-inconspicuous", "morning", "the-carriage"]) expect(chart.waypoints.find((w) => w.beat === id)?.by, id).toBe("road");
-    for (const w of chart.waypoints) expect(w.by, `${w.beat} is carried by something`).toBeTruthy();
+    for (const w of chart.waypoints) if (!w.inset) expect(w.by, `${w.beat} is carried by something`).toBeTruthy();
     expect(chart.vehicles.sky?.small).toBeLessThan(1);
     for (const r of chart.regions) if (r.id !== "halyra" && r.id !== "mhasun") expect(r.reveal, `${r.id} is discovered by crossing`).toBe("near");
     expect(chart.regions.find((r) => r.id === "halyra")?.reveal, "home is lettered from the start").toBeUndefined();

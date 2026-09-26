@@ -11,10 +11,14 @@ import type { WorldInput } from "../../engine/world.js";
  * name on its side, so it comes in both facings. The coordinates below are plate pixels.
  *
  * The road is the player's, drawn section by section as the story moves from one scene to the next, and the
- * sheet stays blank ahead of it (no foreknowledge): the Humā moves a little within Halyra between the palace
- * scenes, flies straight to the Reach when Navid is sent to hire deniables (by way of Omahnd only when the
- * dispatch said Omahnd), lands and fades as the tour wagon grows in its place, and the wagon works east across
- * Covalis toward the border. Names appear as they are crossed. No town on the tour is named but the last.
+ * sheet stays blank ahead of it (no foreknowledge). The palace scenes are pins on Jon's overview plate of the
+ * Sky Palace, bound into the sheet's south-west corner as a panel (his other two plates, the private berth and
+ * the dining terrace, are the views shown when those scenes are boarded: the thing is huge, and no one drawing
+ * holds it). The road walks between the pins and leaves by the berth; the Humā then flies down to the Congress,
+ * which is not in the palace but on the land below, carved out of a mountain; from there the flight goes straight
+ * to the Reach when Navid is sent to hire deniables (by way of Omahnd only when the dispatch said Omahnd), lands
+ * and fades as the tour wagon grows in its place, and the wagon works east across Covalis toward the border.
+ * Names appear as they are crossed. No town on the tour is named but the last.
  */
 export const SHADOW_FELL_CHART: NonNullable<WorldInput["chart"]> = {
   width: 1672,
@@ -51,14 +55,22 @@ export const SHADOW_FELL_CHART: NonNullable<WorldInput["chart"]> = {
     { id: "halyra", label: "Sky-Caliphate of Halyra", at: [1243, 776], tone: "home", box: [1066, 748, 354, 56] },
     { id: "xalangi", label: "Xalangi Expanse", at: [1106, 866], size: "small", tone: "faint", reveal: "near", box: [962, 840, 288, 52] },
   ],
-  // The four palace scenes sit inside Halyra's enclave; the Humā carries the family between them, a little at a time.
+  // The Sky Palace: Jon's overview plate (2000 x 858) as a panel in the sheet's corner, pins in sheet units (plate pixel x 0.19,
+  // from the panel's corner). The three plates are different angles of one huge structure, so the pins on the overview are placed
+  // by inference from the other two: the private berth by the Caliphina's quarters at one end, the Caliph's rooms at the other,
+  // the windowless room deep in the hull, the dining terrace under the great dome. Move them freely; nothing else depends on them.
+  insets: [{ id: "palace", title: "The Sky Palace of Halyra", shape: "panel", image: "/chart/palace.webp", box: [22, 768, 380, 163], anchor: [1190, 705], exit: [398, 815] }],
   waypoints: [
-    { beat: "no-windows", at: [1200, 690], place: "Deep in the palace", by: "sky", side: "above" },
-    { beat: "the-dispatch", at: [1120, 690], place: "The Humā at the dock", by: "sky", side: "left" },
-    { beat: "the-study", at: [1345, 690], place: "The Caliph's study, at dawn", by: "sky", via: [[1235, 660]], side: "right" },
-    { beat: "the-proclamation", at: [1270, 690], place: "The Congress hall, noon", by: "sky", side: "below" },
+    { beat: "no-windows", at: [212, 886], inset: "palace", place: "Deep in the hull", side: "left",
+      view: { src: "/chart/palace-dining.webp", caption: "The family's dining terrace, under the great dome, where it happened the night before." } },
+    { beat: "the-dispatch", at: [322, 822], inset: "palace", place: "The Humā, at the private berth", side: "below",
+      view: { src: "/chart/palace-berth.webp", caption: "The private berth at the Caliphina's quarters, the Humā alongside. She keeps the military liaison there by her own choice." } },
+    { beat: "the-study", at: [128, 831], inset: "palace", place: "At dawn, on the far side of the complex", side: "above",
+      view: { src: "/chart/palace.webp", caption: "The Sky Palace from the causeway; the Humā in flight. The Caliph and the Caliphara keep the far side of the complex." } },
+    // The Congress is not in the palace: it sits on the land below, carved out of a mountain. The Humā takes the Caliph down to it.
+    { beat: "the-proclamation", at: [1450, 830], place: "The Congress, under the mountain", by: "sky", via: [[1300, 715], [1432, 740]], side: "below" },
     // The flight north: straight to the Reach when Halyra saw through the file; by way of Omahnd when the dispatch said Omahnd.
-    { beat: "your-deniables", at: [770, 515], place: "The Hundred Kingdoms, at the Reach's edge", by: "sky", via: [[1090, 560]], side: "right",
+    { beat: "your-deniables", at: [770, 515], place: "The Hundred Kingdoms, at the Reach's edge", by: "sky", via: [[1470, 745], [1130, 600]], side: "right",
       routes: [{ flag: "omahnd-recommended", label: "by way of Omahnd, if the dispatch said so", via: [[1010, 830], [720, 845], [600, 700], [640, 530]] }] },
     // The tour: from the landing to western Covalis, then north and south across Covalis like a beta wave, working east toward the border.
     { beat: "make-it-famous", at: [596, 236], place: "A tavern in western Covalis", by: "road", via: [[690, 420], [604, 318]], side: "left" },
@@ -68,11 +80,15 @@ export const SHADOW_FELL_CHART: NonNullable<WorldInput["chart"]> = {
     { beat: "the-carriage", at: [1010, 126], label: "The carriage", place: "A town square, late in the tour", by: "road", via: [[905, 300]], side: "right" },
   ],
   endings: [
-    { outcome: "war", at: [1010, 586], label: "By noon, over the Aegis Peaks", glyph: "storm" },
-    { outcome: "named", at: [926, 706], label: "By nightfall, the Frontier closed", glyph: "withdraw" },
-    { outcome: "weak", at: [962, 792], label: "Three days late, in the tea houses", glyph: "fade" },
+    { outcome: "war", at: [1520, 640], label: "By noon, over the Aegis Peaks", glyph: "storm" },
+    { outcome: "named", at: [1560, 760], label: "By nightfall, the Frontier closed", glyph: "withdraw" },
+    { outcome: "weak", at: [1340, 905], label: "Three days late, in the tea houses", glyph: "fade" },
   ],
   // Past the last staged scene the road goes on east, to the last kingdom town before the border.
   onward: [[1046, 160], [1050, 212]],
-  places: [{ id: "eronyr", label: "Eronyr", at: [1050, 212], glyph: "city", reveal: "near", reach: 160 }],
+  places: [
+    { id: "eronyr", label: "Eronyr", at: [1050, 212], glyph: "city", reveal: "near", reach: 160 },
+    // Where it happened: the family's dining terrace, marked on the palace plate from the start.
+    { id: "dinner", label: "The dinner", at: [182, 857], glyph: "site", inset: "palace" },
+  ],
 };

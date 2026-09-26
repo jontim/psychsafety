@@ -307,14 +307,17 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     city: "M -3.5 -3.5 L 3.5 -3.5 L 3.5 3.5 L -3.5 3.5 Z M 0 -3.5 L 0 -6",
     port: "M 0 -5 L 0 5 M -5 1 Q 0 6 5 1 M -3 -3 L 3 -3",
     pass: "M -8 4 L -3 -3 M 3 -3 L 8 4 M 0 2 m -1.2 0 a 1.2 1.2 0 1 0 2.4 0 a 1.2 1.2 0 1 0 -2.4 0",
+    site: "M 0 -7 A 7 7 0 1 0 0 7 A 7 7 0 1 0 0 -7 M 0 -3 A 3 3 0 1 0 0 3 A 3 3 0 1 0 0 -3 M -10 0 L -7 0 M 7 0 L 10 0 M 0 -10 L 0 -7 M 0 7 L 0 10",
   };
+  /** Places inside an inset sit above its plate, not under it with the names. */
+  const gInsetPlaces = s("g", { class: "inset-places" });
   const placeEls = new Map<string, SVGGElement>();
   for (const p of chart.places) {
-    const g = s("g", { class: `place ${p.glyph} ${p.reveal ? "hidden" : ""}`, "data-place": p.id, transform: `translate(${p.at[0]} ${p.at[1]}) scale(${r1(U)})` },
+    const g = s("g", { class: `place ${p.glyph} ${p.reveal ? "hidden" : ""}`, "data-place": p.id, transform: `translate(${p.at[0]} ${p.at[1]}) scale(${r1(p.inset ? 0.55 * U : U)})` },
       s("path", { class: "glyph", d: GLYPHS[p.glyph] ?? GLYPHS.city! }),
       s("text", { x: 12, y: 4 }, p.label),
     );
-    gNames.append(g);
+    (p.inset ? gInsetPlaces : gNames).append(g);
     placeEls.set(p.id, g);
   }
   for (const b of chart.beyond) {
@@ -328,19 +331,40 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   svg.append(gNames);
 
   const gInsets = s("g", { class: "insets" });
+  /** An inset's frame on the sheet, from its box: the panel itself, or the circle inscribed in it. */
+  const insetGeom = (i: Inset): Box & { cx: number; cy: number; r: number } => { const [x, y, w, h] = i.box; return { x, y, w, h, cx: x + w / 2, cy: y + h / 2, r: Math.min(w, h) / 2 }; };
   for (const ins of chart.insets) {
-    const g = s("g", { class: "inset", "data-inset": ins.id });
-    g.append(
-      s("path", { class: "leader", d: `M ${ins.exit[0]} ${ins.exit[1]} L ${ins.anchor[0]} ${ins.anchor[1]}` }),
-      s("circle", { class: "anchor", cx: ins.anchor[0], cy: ins.anchor[1], r: 9 }),
-      s("circle", { class: "ring", cx: ins.cx, cy: ins.cy, r: ins.r }),
-      s("circle", { class: "ring2", cx: ins.cx, cy: ins.cy, r: ins.r - 5 }),
-    );
+    const { x, y, w, h, cx, cy, r } = insetGeom(ins);
+    const g = s("g", { class: `inset ${ins.shape}`, "data-inset": ins.id });
+    const clipId = `${uid}-inset-${ins.id}`;
+    if (ins.shape === "panel") {
+      // a plate of the place, framed and bound into the sheet like an approach plate; its anchor is marked on the map, no leader
+      defs.append(s("clipPath", { id: clipId }, s("rect", { x, y, width: w, height: h, rx: 5 * U })));
+      g.append(s("rect", { class: "ring", x: x - 3 * U, y: y - 3 * U, width: w + 6 * U, height: h + 6 * U, rx: 7 * U }));
+      if (ins.image) g.append(s("image", { href: ins.image, x, y, width: w, height: h, preserveAspectRatio: "xMidYMid slice", "clip-path": `url(#${clipId})` }));
+      g.append(s("rect", { class: "ring2", x, y, width: w, height: h, rx: 5 * U }));
+      g.append(s("circle", { class: "anchor", cx: ins.anchor[0], cy: ins.anchor[1], r: 9 }));
+    } else {
+      defs.append(s("clipPath", { id: clipId }, s("circle", { cx, cy, r: r - 5 })));
+      g.append(
+        s("path", { class: "leader", d: `M ${ins.exit[0]} ${ins.exit[1]} L ${ins.anchor[0]} ${ins.anchor[1]}` }),
+        s("circle", { class: "anchor", cx: ins.anchor[0], cy: ins.anchor[1], r: 9 }),
+        s("circle", { class: "ring", cx, cy, r }),
+      );
+      if (ins.image) g.append(s("image", { href: ins.image, x: cx - r, y: cy - r, width: 2 * r, height: 2 * r, preserveAspectRatio: "xMidYMid slice", "clip-path": `url(#${clipId})` }));
+      g.append(s("circle", { class: "ring2", cx, cy, r: r - 5 }));
+    }
     ins.plan.forEach((d, i) => g.append(s("path", { class: `plan ${i === 0 ? "fill" : ""}`, d })));
-    g.append(s("text", { class: "ititle", x: ins.cx, y: ins.cy - ins.r - 8 * U, style: `font-size:${px(10)}` }, `${ins.title} · inset`));
+    // the caption: on paper above the frame, so the map's own ink never runs through it
+    const cap = ins.shape === "panel" ? ins.title : `${ins.title} · inset`;
+    const cw = cap.length * 10 * U * 0.62 + 20 * U, ch = 16 * U;
+    if (ins.shape === "panel") g.append(s("rect", { class: "ititle-box", x: cx - cw / 2, y: y - 8 * U - ch * 0.72, width: cw, height: ch, rx: 3 * U }));
+    g.append(s("text", { class: "ititle", x: cx, y: y - 8 * U, style: `font-size:${px(10)}` }, cap));
     gInsets.append(g);
   }
-  svg.append(gInsets);
+  svg.append(gInsets, gInsetPlaces);
+  /** Where the story stands on the sheet at a waypoint: the waypoint, or for a scene inside an inset, the inset's anchor. */
+  const standOf = (w: Waypoint): Pt => (w.inset ? insets.get(w.inset)!.anchor : w.at);
 
   const gGhost = s("g", { class: "ghost-roads" });
   const gRoad = s("g", { class: "roads" });
@@ -352,7 +376,9 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     s("path", { class: "sail", d: "M 0 -12 Q 10 -8 7 -1 Z" }),
     s("path", { class: "sail small", d: "M -1 -9 Q -8 -6 -7 -1 Z" }),
   );
-  svg.append(gGhost, gRoad, gForks, gWps, vessel);
+  /** Ending glyphs on a blank sheet live outside the fork groups (which never show without foreknowledge): unlit until fired. */
+  const gEndings = s("g", { class: "endings" });
+  svg.append(gGhost, gRoad, gForks, gEndings, gWps, vessel);
 
   // The vehicles that lay the road: a sprite each, with the artwork for the other facing when it has lettering.
   interface Mover { kind: "cutter" | "vehicle"; g: SVGGElement; main: SVGImageElement | null; alt: SVGImageElement | null; faces: "left" | "right"; facing: "left" | "right"; flipStart: number; flipFrom: number; scale: number; x: number; y: number }
@@ -477,7 +503,8 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     const beat = beatById.get(wp.beat);
     if (!beat) throw new Error(`Chart: no beat ${wp.beat}`);
     const inset = wp.inset ? insets.get(wp.inset) : undefined;
-    const k = (inset ? 0.72 : 1) * U;
+    // pins inside an inset are drawn for the zoomed-in view; on a plate panel smaller still, so the place shows through
+    const k = (inset ? (inset.shape === "panel" ? 0.55 : 0.72) : 1) * U;
     const r = 18 * k;
     const g = s("g", { class: "wp faint", "data-beat": wp.beat, transform: `translate(${wp.at[0]} ${wp.at[1]})` });
     const body = s("g", { class: "body" },
@@ -543,7 +570,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
         for (const p of pieces) { const path = s("path", { class: "branch", d: p.d, style: `stroke-width:${px(1.4)};stroke-dasharray:${r1(2 * U)} ${r1(5 * U)}` }); g.append(path); if (p.kind === "flight" || !labelPath) labelPath = path; }
         const glyph = endingEl(e);
         endingEls.set(e.outcome, glyph);
-        g.append(glyph);
+        (foreknowledge ? g : gEndings).append(glyph);
         // the cause sits under the glyph's own line (glyph, then what follows, then what led there), clear of the branch
         const text = forkText(f.label, false);
         const fx = r1(e.at[0]), fy = r1(e.at[1] + 33 * U);
@@ -633,7 +660,8 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     for (const p of legPieces(a, b)) {
       const piece = s("g", { class: `piece ${pending ? "pending" : ""}`, "data-kind": p.kind },
         plate ? null : s("path", { class: "under", d: p.d }),
-        s("path", { class: "dash", d: p.d, style: plate ? `stroke-width:${px(4.2)};stroke-dasharray:${r1(12 * U)} ${r1(7 * U)}` : "" }),
+        // on a plate the flown road is a heavy dashed line; the walk inside an inset a lighter one
+        s("path", { class: "dash", d: p.d, style: plate ? (p.kind === "inside" ? `stroke-width:${px(2.4)};stroke-dasharray:${r1(6 * U)} ${r1(4 * U)}` : `stroke-width:${px(4.2)};stroke-dasharray:${r1(12 * U)} ${r1(7 * U)}`) : "" }),
       );
       g.append(piece);
       pieces.push(piece);
@@ -686,7 +714,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       camRaf = requestAnimationFrame(step);
     });
   }
-  const insetBox = (id: string): Box => { const i = insets.get(id)!; return { x: i.cx - i.r * 1.12, y: i.cy - i.r * 1.12, w: i.r * 2.24, h: i.r * 2.24 }; };
+  const insetBox = (id: string): Box => { const i = insets.get(id)!; const g = insetGeom(i); return i.shape === "panel" ? padBox({ x: g.x, y: g.y, w: g.w, h: g.h }, g.w * 0.03) : { x: g.cx - g.r * 1.12, y: g.cy - g.r * 1.12, w: g.r * 2.24, h: g.r * 2.24 }; };
   const nodeBox = (n: { at: Pt; inset?: string | undefined }): Box => (n.inset ? insetBox(n.inset) : boxAround(n.at, 60 * U));
   /** Everything a fork can lead to, framed together: the scene, the roads out and where they end. */
   function forkBox(beatId: string): Box | null {
@@ -797,7 +825,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       await moveCam(fit(b.inset ? insetBox(b.inset) : boxAround(b.at, 150 * U)), 1300);
       show(to, true, true);
       const v = vehicleOf(b);
-      if (v) await riseAt(v, b.at, vehicleSpec(v)?.small ?? 0.55, null);
+      if (v) await riseAt(v, standOf(b), vehicleSpec(v)?.small ?? 0.55, null);
       await revealForks(to);
       return;
     }
@@ -805,7 +833,8 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     const sameInset = !!a.inset && a.inset === b.inset;
     applyCam(fit(a.inset ? insetBox(a.inset) : boxAround(a.at, 150 * U)));
     const mover = vehicleOf(b) ?? (plate ? null : cutterMover);
-    const total = pieces.reduce((n, p) => n + (p.querySelector<SVGPathElement>("path.dash")?.getTotalLength() ?? 0), 0);
+    // a hop is judged on the flown part alone: the walk inside an inset is not the vehicle's
+    const total = pieces.filter((p) => p.getAttribute("data-kind") === "flight").reduce((n, p) => n + (p.querySelector<SVGPathElement>("path.dash")?.getTotalLength() ?? 0), 0);
     const hop = mover ? isHop(mover, total / U) : false;
     const rideScale = mover ? (hop ? vehicleSpec(mover)?.small ?? 0.55 : 1) : 1;
     let riding: Mover | null = null;
@@ -814,7 +843,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       const L = dash.getTotalLength();
       const ms = clamp((L / U) * (hop ? 6 : 3.2), hop ? 900 : 450, 2600);
       const kind = piece.getAttribute("data-kind");
-      if (kind === "flight" && !hop) void moveCam(fit(pathBox(dash, 120 * U)), ms + (mover ? 420 : 0));
+      if (kind === "flight" && (!hop || a.inset)) void moveCam(fit(pathBox(dash, 120 * U)), ms + (mover ? 420 : 0));
       else if (!sameInset && b.inset && piece === pieces[pieces.length - 1]) void moveCam(fit(insetBox(b.inset)), ms);
       if (mover && kind === "flight" && riding !== mover) { await takeOff(mover, dash, rideScale); riding = mover; }
       await revealPiece(piece, ms, mover && kind === "flight" ? mover : null);
@@ -825,12 +854,13 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       const nextLeg = legs.find((l) => l.from === to);
       const nextVehicle = nextLeg ? vehicleOf(wps.get(nextLeg.to)) : null;
       const nextWp = nextLeg ? wps.get(nextLeg.to) : undefined;
+      const stand = standOf(b);
       if (nextVehicle && nextVehicle !== riding) {
-        const nextLength = nextWp ? legPieces(nodeOf(b), nodeOf(nextWp)).reduce((n, p) => { const el = s("path", { d: p.d }); gRoad.append(el); const L = el.getTotalLength(); el.remove(); return n + L; }, 0) : 0;
+        const nextLength = nextWp ? legPieces(nodeOf(b), nodeOf(nextWp)).filter((p) => p.kind === "flight").reduce((n, p) => { const el = s("path", { d: p.d }); gRoad.append(el); const L = el.getTotalLength(); el.remove(); return n + L; }, 0) : 0;
         const nextScale = isHop(nextVehicle, nextLength / U) ? vehicleSpec(nextVehicle)?.small ?? 0.55 : 1;
-        await Promise.all([land(riding), riseAt(nextVehicle, b.at, nextScale, nextWp ? headingOf(b.at, nextWp.via[0] ?? nextWp.at) : null)]);
+        await Promise.all([land(riding), riseAt(nextVehicle, stand, nextScale, nextWp ? headingOf(stand, nextWp.via[0] ?? standOf(nextWp)) : null)]);
       } else {
-        park(riding, b.at, riding.scale, null);
+        park(riding, stand, riding.scale, null);
       }
     }
     await revealForks(to);
@@ -889,12 +919,13 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       // its size: small after a hop (or at the start), full after a long leg; a vehicle that took over here is sized for the leg it will drive
       const nextWp = nextLeg ? wps.get(nextLeg.to) : undefined;
       const measure = v === carriedOn && carriedOn !== arrivedBy && nextWp ? { from: wp, to: nextWp } : prev ? { from: prev, to: wp } : null;
-      const facing = measure ? headingOf(measure.from.at, measure.to.via[0] ?? measure.to.at) : null;
+      const facing = measure ? headingOf(standOf(measure.from), measure.to.via[0] ?? standOf(measure.to)) : null;
+      const stand = standOf(wp);
       if (measure) {
-        const probe = s("path", { d: legPieces(nodeOf(measure.from), nodeOf(measure.to)).map((p) => p.d).join(" ") });
+        const probe = s("path", { d: legPieces(nodeOf(measure.from), nodeOf(measure.to)).filter((p) => p.kind === "flight").map((p) => p.d).join(" ") });
         gRoad.append(probe);
-        queueMicrotask(() => { if (destroyed) return; const length = probe.getTotalLength(); probe.remove(); park(v, wp.at, isHop(v, length / U) ? spec?.small ?? 0.55 : 1, facing); });
-      } else park(v, wp.at, spec?.small ?? 0.55, facing);
+        queueMicrotask(() => { if (destroyed) return; const length = probe.getTotalLength(); probe.remove(); park(v, stand, isHop(v, length / U) ? spec?.small ?? 0.55 : 1, facing); });
+      } else park(v, stand, spec?.small ?? 0.55, facing);
     }
   }
   // what the road already travelled passed by, once the paths are in the document and can be measured

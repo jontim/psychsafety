@@ -49,6 +49,21 @@ describe("the chart", () => {
     expect(validateWorld(unplaced)).toContain("Chart: ending off has no place on the chart");
     const badInset = defineWorld({ ...base(), chart: chart({ waypoints: [{ beat: "one", at: [1, 1], place: "x", inset: "nowhere" }, { beat: "two", at: [2, 2], place: "y" }] }) });
     expect(validateWorld(badInset)).toContain("Chart: waypoint one names unknown inset nowhere");
+    const badPlace = defineWorld({ ...base(), chart: chart({ places: [{ id: "p", label: "P", at: [1, 1], inset: "nowhere" }] }) });
+    expect(validateWorld(badPlace)).toContain("Chart: place p names unknown inset nowhere");
+  });
+
+  it("binds a plate of a place into the sheet as a panel inset, with scenes and places inside it", () => {
+    const panel = defineWorld({ ...base(), chart: chart({
+      insets: [{ id: "hall", title: "Hall", shape: "panel", image: "/hall.webp", box: [0, 60, 40, 20], anchor: [50, 50], exit: [40, 70] }],
+      waypoints: [{ beat: "one", at: [10, 70], place: "x", inset: "hall", view: { src: "/hall-view.webp", caption: "The hall" } }, { beat: "two", at: [50, 50], place: "y" }],
+      places: [{ id: "table", label: "The table", at: [20, 72], glyph: "site", inset: "hall" }],
+    }) });
+    expect(validateWorld(panel)).toEqual([]);
+    expect(panel.chart?.insets[0]?.shape).toBe("panel");
+    expect(panel.chart?.insets[0]?.plan).toEqual([]);
+    const circle = defineWorld({ ...base(), chart: chart({ insets: [{ id: "c", title: "C", box: [0, 0, 30, 30], anchor: [50, 50], exit: [30, 15] }] }) });
+    expect(circle.chart?.insets[0]?.shape, "a circle unless said otherwise").toBe("circle");
   });
 
   it("knows its vehicles and the beats that reveal a name", () => {

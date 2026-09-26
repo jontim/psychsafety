@@ -220,6 +220,8 @@ function boardingCard(x: { act: Act; beat: Beat }, firstId: string): HTMLElement
     start.addEventListener("click", () => startBeat(firstId));
     actions.append(start);
   }
+  // the place itself, when the chart carries a plate of it: the view from the approach
+  const view = app.world.chart?.waypoints.find((w) => w.beat === x.beat.id)?.view;
   return h("div", { class: "boarding" },
     h("img", { src: portraitFor(member), alt: member.name }),
     h("div", {},
@@ -230,6 +232,7 @@ function boardingCard(x: { act: Act; beat: Beat }, firstId: string): HTMLElement
       h("div", { class: "sum" }, role?.summary ?? x.beat.goal),
     ),
     actions,
+    view ? h("figure", { class: "view" }, h("img", { src: view.src, alt: view.caption }), h("figcaption", {}, view.caption)) : null,
   );
 }
 

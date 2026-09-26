@@ -40,10 +40,12 @@ describe("The Shadow Fell chart", () => {
     expect(chart.waypoints.find((w) => w.beat === "your-deniables")?.by).toBe("sky");
     for (const id of ["make-it-famous", "the-alley", "stay-inconspicuous", "morning", "the-carriage"]) expect(chart.waypoints.find((w) => w.beat === id)?.by, id).toBe("road");
     for (const w of chart.waypoints.filter((x) => x.inset)) expect(w.by).toBeUndefined();
-    const revealedBy = new Set(chart.regions.map((r) => r.reveal).filter(Boolean));
+    const revealedBy = new Set(chart.regions.map((r) => r.reveal).filter((x) => x && x !== "never"));
     expect([...revealedBy].sort()).toEqual(["make-it-famous", "the-carriage", "your-deniables"]);
     expect(chart.regions.find((r) => r.id === "halyra")?.reveal).toBeUndefined();
+    for (const id of ["tharcia", "mhasun", "finnegans"]) expect(chart.regions.find((r) => r.id === id)?.reveal, `${id} stays under the mask`).toBe("never");
     for (const r of chart.regions) expect(r.box, r.id).toBeDefined();
+    expect(chart.plate?.letters).toBeTruthy();
   });
 
   it("reaches the player: the public world keeps the chart", () => {

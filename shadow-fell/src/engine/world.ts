@@ -185,7 +185,7 @@ export const ChartSchema = z.object({
   /** Land as an SVG path (islands as further subpaths). Everything outside is sea. Optional when a plate carries the artwork. */
   land: z.string().optional(),
   /** Artwork under the road: a clean plate the size of the sheet, and a lettered plate whose region names are unmasked as the road reaches them. */
-  plate: z.object({ clean: z.string(), lettered: z.string().optional() }).optional(),
+  plate: z.object({ clean: z.string(), lettered: z.string().optional(), /** The lettering alone, on transparency (scripts/chart-letters.ts lifts it off the lettered plate); preferred over unmasking the lettered plate when the two plates do not align. */ letters: z.string().optional() }).optional(),
   /** The vehicles that lay the road, by key: a sprite each, sized in chart units, facing left or right in the artwork. */
   vehicles: z.record(z.string(), z.object({ src: z.string(), width: z.number(), height: z.number(), faces: z.enum(["left", "right"]).default("right"), /** The same vehicle drawn facing the other way; without it the sprite is mirrored, which is wrong for one with lettering on it. */ alt: z.string().optional() })).default({}),
   waters: z.array(z.object({ id: z.string(), label: z.string().optional(), d: z.string(), at: PointSchema.optional() })).default([]),
@@ -193,8 +193,8 @@ export const ChartSchema = z.object({
   /** Mountain ranges as polylines, drawn as chevrons; a frontier range also carries the dashed border. */
   ranges: z.array(z.object({ id: z.string(), label: z.string().optional(), sub: z.string().optional(), points: z.array(PointSchema).min(2), at: PointSchema.optional(), tone: z.enum(["ink", "frontier"]).default("ink") })).default([]),
   forests: z.array(z.object({ id: z.string(), label: z.string().optional(), d: z.string(), at: PointSchema.optional() })).default([]),
-  /** Region names. `reveal` names the beat at whose arrival the name appears (else it shows from the start); `box` is its area on the lettered plate, unmasked instead of lettering it. */
-  regions: z.array(z.object({ id: z.string(), label: z.string(), at: PointSchema, size: z.enum(["large", "small"]).default("large"), tone: z.enum(["ink", "home", "rival", "faint"]).default("ink"), sub: z.string().optional(), reveal: z.string().optional(), box: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional() })).default([]),
+  /** Region names. `reveal` names the beat at whose arrival the name appears, or "never" for a name the road never reaches (else it shows from the start); `box` is its area on the lettered plate, unmasked instead of lettering it. */
+  regions: z.array(z.object({ id: z.string(), label: z.string(), at: PointSchema, size: z.enum(["large", "small"]).default("large"), tone: z.enum(["ink", "home", "rival", "faint"]).default("ink"), sub: z.string().optional(), reveal: z.string().optional(), box: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(), /** How scripts/chart-letters.ts lifts this name off the lettered plate: "letters" subtracts the clean plate's ink first; "all" takes every stroke in the box, for a name drawn where the clean plate has a mark of its own. */ lift: z.enum(["letters", "all"]).default("letters") })).default([]),
   places: z.array(z.object({ id: z.string(), label: z.string(), at: PointSchema, glyph: z.enum(["palace", "city", "port", "pass"]).default("city") })).default([]),
   /** Off-sheet directions, lettered at the margin. */
   beyond: z.array(z.object({ label: z.string(), at: PointSchema, dir: z.enum(["n", "s", "e", "w"]) })).default([]),
@@ -294,7 +294,7 @@ export function validateWorld(world: World): string[] {
     }
     for (const id of beatIds) if (!charted.has(id)) problems.push(`Chart: beat ${id} has no waypoint`);
     for (const w of c.waypoints) if (w.by && !(w.by in c.vehicles)) problems.push(`Chart: waypoint ${w.beat} travels by unknown vehicle ${w.by}`);
-    for (const rg of c.regions) if (rg.reveal && !beatIds.has(rg.reveal)) problems.push(`Chart: region ${rg.id} is revealed by unknown beat ${rg.reveal}`);
+    for (const rg of c.regions) if (rg.reveal && rg.reveal !== "never" && !beatIds.has(rg.reveal)) problems.push(`Chart: region ${rg.id} is revealed by unknown beat ${rg.reveal}`);
     if (!c.plate && !c.land) problems.push("Chart: no plate and no land to draw");
     const endingKeys = new Set(world.acts.flatMap((a) => a.beats.flatMap((b) => Object.entries(b.outcomes ?? {}).filter(([, o]) => o.next === null).map(([k]) => k))));
     const placed = new Set<string>();

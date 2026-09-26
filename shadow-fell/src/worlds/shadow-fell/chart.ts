@@ -5,9 +5,10 @@ import type { WorldInput } from "../../engine/world.js";
  *
  * The artwork is Jon's inked plate of the continent (1672 x 940): a clean plate under the road, and a lettered
  * plate whose region names are unmasked as the road reaches them, the way his own map animation reveals them.
- * Until his plates arrive the two are frames of that animation (the first frame, with the Humā at her moorings
- * over Halyra, and the last, with every name in place), and the vehicles are cut from it. Swap the files under
- * public/chart to replace them; the coordinates below are plate pixels.
+ * The two plates are separate renders and do not align pixel for pixel, so the names are lifted off the lettered
+ * plate into a transparent layer (scripts/chart-letters.ts, from the boxes below) and only that layer is unmasked.
+ * The vehicles are Jon's sprites with their backgrounds keyed: the skyship faces left; the wagon has the tour's
+ * name on its side, so it comes in both facings. The coordinates below are plate pixels.
  *
  * The route follows the one Jon drew: west from Halyra along the southern coast through Omahnd, north through
  * the Elven Antiquity to the Hundred Kingdoms and the Inner Kingdom, where the skyship lands; then by carriage
@@ -17,27 +18,37 @@ import type { WorldInput } from "../../engine/world.js";
  */
 export const SHADOW_FELL_CHART: NonNullable<WorldInput["chart"]> = {
   width: 1672,
-  height: 940,
+  height: 941,
   title: "The Scribe's Chart",
   sheet: "Ildara, as the ballad tells it",
-  plate: { clean: "/chart/plate.jpg", lettered: "/chart/plate-lettered.jpg" },
+  plate: { clean: "/chart/plate.webp", lettered: "/chart/plate-lettered.webp", letters: "/chart/letters.webp" },
   vehicles: {
-    sky: { src: "/chart/ship.png", width: 150, height: 120, faces: "left" },
-    road: { src: "/chart/carriage.png", alt: "/chart/carriage-left.png", width: 212, height: 86, faces: "right" },
+    sky: { src: "/chart/ship.webp", width: 150, height: 98, faces: "left" },
+    road: { src: "/chart/carriage.webp", alt: "/chart/carriage-left.webp", width: 200, height: 102, faces: "right" },
   },
-  // Region names live on the lettered plate; each box is unmasked when the road arrives at its beat.
+  // Every name on Jon's lettered plate, with its box. The road reveals the ones it reaches, as his animation does;
+  // "never" keeps a name under the mask for the whole story. Halyra is lettered from the start.
   regions: [
-    { id: "omahnd", label: "Caliphate of Omahnd", at: [653, 768], tone: "rival", reveal: "your-deniables", box: [500, 748, 306, 40] },
-    { id: "antiquity", label: "The Elven Antiquity", at: [870, 661], tone: "faint", reveal: "your-deniables", box: [700, 643, 340, 36] },
-    { id: "hundred", label: "The Hundred Kingdoms", at: [588, 526], size: "small", reveal: "your-deniables", box: [508, 498, 160, 56] },
-    { id: "inner", label: "The Inner Kingdom", at: [854, 475], reveal: "your-deniables", box: [750, 460, 210, 30] },
-    { id: "rhyotish", label: "Rhyotish", at: [746, 578], size: "small", reveal: "your-deniables", box: [698, 566, 96, 24] },
-    { id: "avarand", label: "Avarand", at: [331, 371], reveal: "make-it-famous", box: [262, 356, 138, 30] },
-    { id: "forbidden", label: "The Forbidden Lands", at: [580, 340], reveal: "make-it-famous", box: [478, 308, 210, 66] },
-    { id: "reach", label: "The Reach", at: [861, 366], reveal: "make-it-famous", box: [756, 349, 210, 34] },
-    { id: "morrighad", label: "Morrighad", at: [454, 271], size: "small", reveal: "make-it-famous", box: [400, 260, 108, 22] },
-    { id: "covalis", label: "Covalis", at: [887, 191], reveal: "the-carriage", box: [808, 174, 158, 30] },
-    { id: "halyra", label: "Sky-Caliphate of Halyra", at: [1235, 778], tone: "home", box: [1062, 760, 346, 38] },
+    { id: "qoranhi", label: "Qoranhi Steppes", at: [236, 148], size: "small", tone: "faint", reveal: "never", box: [158, 112, 156, 72] },
+    { id: "concord", label: "Boreal Concord", at: [925, 91], tone: "faint", reveal: "never", box: [798, 68, 254, 46] },
+    { id: "covalis", label: "Covalis", at: [890, 182], reveal: "the-carriage", box: [805, 157, 171, 51] },
+    { id: "mhasun", label: "Mhasun", at: [1427, 114], size: "small", tone: "rival", reveal: "never", box: [1384, 97, 86, 34] },
+    { id: "tharcia", label: "Tharcia", at: [1395, 200], tone: "rival", reveal: "never", box: [1312, 173, 167, 54] },
+    { id: "morrighad", label: "Morrighad", at: [452, 266], size: "small", reveal: "make-it-famous", box: [394, 248, 116, 36] },
+    { id: "forbidden", label: "The Forbidden Lands", at: [582, 337], reveal: "make-it-famous", box: [477, 302, 211, 71] },
+    { id: "avarand", label: "Avarand", at: [336, 372], reveal: "make-it-famous", box: [255, 347, 162, 50] },
+    { id: "reach", label: "The Reach", at: [865, 360], reveal: "make-it-famous", box: [745, 333, 241, 54] },
+    { id: "inner", label: "The Inner Kingdom", at: [857, 475], reveal: "your-deniables", box: [762, 455, 190, 40], lift: "all" },
+    { id: "finnegans", label: "Finnegan's Pass", at: [1093, 462], size: "small", reveal: "never", box: [1012, 441, 162, 42] },
+    { id: "hundred", label: "The Hundred Kingdoms", at: [586, 525], size: "small", reveal: "your-deniables", box: [504, 492, 165, 67] },
+    { id: "aelfenwode", label: "Aelfenwöde", at: [1123, 545], reveal: "never", box: [1042, 517, 162, 56] },
+    { id: "rhyotish", label: "Rhyotish", at: [753, 578], size: "small", reveal: "your-deniables", box: [696, 558, 114, 40] },
+    { id: "serpent", label: "Great Eastern Serpent Steppes", at: [1583, 515], size: "small", tone: "faint", reveal: "never", box: [1528, 442, 110, 146] },
+    { id: "antiquity", label: "The Elven Antiquity", at: [876, 665], tone: "faint", reveal: "your-deniables", box: [698, 637, 356, 57] },
+    { id: "morvannon", label: "Morvannon Archipelago", at: [177, 702], size: "small", tone: "faint", reveal: "never", box: [80, 666, 194, 72] },
+    { id: "omahnd", label: "Caliphate of Omahnd", at: [656, 768], tone: "rival", reveal: "your-deniables", box: [483, 735, 347, 67] },
+    { id: "halyra", label: "Sky-Caliphate of Halyra", at: [1243, 776], tone: "home", box: [1066, 748, 354, 56] },
+    { id: "xalangi", label: "Xalangi Expanse", at: [1106, 866], size: "small", tone: "faint", reveal: "never", box: [962, 840, 288, 52] },
   ],
   insets: [
     {

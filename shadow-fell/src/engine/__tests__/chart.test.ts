@@ -52,6 +52,8 @@ describe("the chart", () => {
     expect(validateWorld(badVehicle)).toContain("Chart: waypoint two travels by unknown vehicle balloon");
     const badReveal = defineWorld({ ...base(), chart: chart({ regions: [{ id: "r", label: "R", at: [5, 5], reveal: "nine" }] }) });
     expect(validateWorld(badReveal)).toContain("Chart: region r is revealed by unknown beat nine");
+    const never = defineWorld({ ...base(), chart: chart({ regions: [{ id: "r", label: "R", at: [5, 5], reveal: "never" }] }) });
+    expect(validateWorld(never)).toEqual([]);
     const plated = defineWorld({ ...base(), chart: chart({ land: undefined, plate: { clean: "/p.jpg" }, vehicles: { sky: { src: "/s.png", width: 10, height: 10 } }, waypoints: [{ beat: "one", at: [1, 1], place: "x" }, { beat: "two", at: [2, 2], place: "y", by: "sky" }] }) });
     expect(validateWorld(plated)).toEqual([]);
     expect(plated.chart?.vehicles.sky?.faces).toBe("right");

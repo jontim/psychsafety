@@ -199,7 +199,8 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     svg.classList.add("plate");
     const gPlate = s("g", { class: "plate-layers" });
     gPlate.append(s("image", { href: plate.clean, x: 0, y: 0, width: W, height: H, preserveAspectRatio: "none" }));
-    if (plate.lettered) {
+    const overlay = plate.letters ?? plate.lettered;
+    if (overlay) {
       defs.append(s("filter", { id: `${uid}-soft`, x: "-30%", y: "-30%", width: "160%", height: "160%" }, s("feGaussianBlur", { stdDeviation: 4 * U })));
       const mask = s("mask", { id: `${uid}-letters`, maskUnits: "userSpaceOnUse", x: 0, y: 0, width: W, height: H }, s("rect", { x: 0, y: 0, width: W, height: H, fill: "#000" }));
       for (const rg of chart.regions) {
@@ -210,7 +211,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
         letterRects.set(rg.id, rect);
       }
       defs.append(mask);
-      gPlate.append(s("image", { href: plate.lettered, x: 0, y: 0, width: W, height: H, preserveAspectRatio: "none", mask: `url(#${uid}-letters)` }));
+      gPlate.append(s("image", { href: overlay, x: 0, y: 0, width: W, height: H, preserveAspectRatio: "none", mask: `url(#${uid}-letters)` }));
     }
     svg.append(gPlate);
   }
@@ -242,7 +243,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   const gNames = s("g", { class: "names" });
   const regionEls = new Map<string, SVGGElement>();
   for (const rg of chart.regions) {
-    if (rg.box && plate?.lettered) continue; // lettered on the plate, unmasked on arrival
+    if (rg.box && (plate?.letters || plate?.lettered)) continue; // lettered on the plate, unmasked on arrival
     const g = s("g", { class: `region-label ${rg.reveal ? "hidden" : ""}`, "data-region": rg.id });
     g.append(s("text", { class: `region ${rg.size} ${rg.tone}`, x: rg.at[0], y: rg.at[1], style: `font-size:${px(rg.size === "large" ? 16 : 11)}` }, rg.label));
     if (rg.sub) g.append(s("text", { class: "sub", x: rg.at[0], y: rg.at[1] + 14 * U, style: `font-size:${px(9.5)}` }, rg.sub));

@@ -74,7 +74,12 @@ for (const j of jobs) {
     const footage = seconds(raw) || 6;
     const loops = Math.max(0, Math.ceil(speech / footage) - 1);
     const out = path.join(dir, `${j.clip.key}.tmp.mp4`);
-    execFileSync("ffmpeg", ["-y", "-v", "error", "-stream_loop", String(loops), "-i", raw, "-i", mp3, "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "128k", "-t", speech.toFixed(2), "-movflags", "+faststart", out]);
+    // the footage's own sound (ambient only, by the prompt) stays under the Scribe at a quarter of its level; a clip with no sound gets the Scribe alone
+    const hasSound = execFileSync("ffprobe", ["-v", "error", "-select_streams", "a", "-show_entries", "stream=codec_type", "-of", "csv=p=0", raw]).toString().includes("audio");
+    const mix = hasSound
+      ? ["-filter_complex", "[0:a]volume=0.25[amb];[1:a][amb]amix=inputs=2:duration=first:dropout_transition=0[a]", "-map", "0:v:0", "-map", "[a]"]
+      : ["-map", "0:v:0", "-map", "1:a:0"];
+    execFileSync("ffmpeg", ["-y", "-v", "error", "-stream_loop", String(loops), "-i", raw, "-i", mp3, ...mix, "-c:v", "copy", "-c:a", "aac", "-b:a", "128k", "-t", speech.toFixed(2), "-movflags", "+faststart", out]);
     fs.renameSync(out, j.mp4);
     fs.writeFileSync(j.marker, JSON.stringify({ text: j.text, voice: voice.name ?? null, seconds: speech, at: new Date().toISOString() }, null, 2));
     console.log(`voiced (${speech.toFixed(1)} s, footage looped ${loops + 1}x)`);

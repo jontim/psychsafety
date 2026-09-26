@@ -179,21 +179,27 @@ function chartScreen(): HTMLElement {
   if (!app.world.chart) { main.append(mirrorCard(), rolesGrid()); return main; }
   const scenes = app.world.acts.flatMap((a) => a.beats.map((b) => ({ act: a, beat: b })));
   if (!app.picked || !scenes.some((x) => x.beat.id === app.picked)) app.picked = scenes[0]!.beat.id;
-  let fresh = false;
-  if (!app.chart) {
-    app.chart = renderChart(app.world, { portrait: portraitOf, interactive: true, onPick: (id) => { app.picked = id; render(); } });
-    fresh = true;
-  }
-  app.chart.select(app.picked);
+  // The sheet as it would stand at the picked scene: the plain road up to it, the vehicle parked there, nothing ahead.
+  const at = scenes.findIndex((x) => x.beat.id === app.picked);
+  const before = scenes.slice(0, at).map((x) => x.beat.id);
+  app.chart?.destroy();
+  app.chart = renderChart(app.world, { portrait: portraitOf, travelled: before, current: app.picked, flags: [] });
+  app.chart.settle();
   const wrap = h("div", { class: "chart-wrap" });
   wrap.append(app.chart.el);
+  const chips = h("div", { class: "scene-chips" });
+  for (const [i, x] of scenes.entries()) {
+    const chip = h("button", { class: `chip ${x.beat.id === app.picked ? "on" : ""}`, title: x.beat.when ?? "" }, h("span", { class: "n" }, String(i + 1)), h("span", { class: "t" }, x.beat.title), h("span", { class: "who" }, castName(app.world, x.beat.playerRole)));
+    chip.addEventListener("click", () => { app.picked = x.beat.id; render(); });
+    chips.append(chip);
+  }
   main.append(
-    h("p", { class: "chart-hint" }, "The road as the ballad tells it. Pick a scene to begin there."),
+    h("p", { class: "chart-hint" }, "The sheet stays blank ahead of you; the road draws itself as you go. Begin at the start, or pick a scene to jump in."),
     wrap,
+    chips,
     boardingCard(scenes.find((x) => x.beat.id === app.picked)!, scenes[0]!.beat.id),
     mirrorCard(),
   );
-  if (fresh) { const handle = app.chart; queueMicrotask(() => { void handle.playAtlas(); }); }
   return main;
 }
 
@@ -378,7 +384,12 @@ function interludeScreen(): HTMLElement {
     cont.addEventListener("click", finishInterlude);
     return h("main", {}, h("div", { class: "interlude" }, stage, h("div", { class: "row", style: "margin-top:12px" }, cont)));
   }
-  if (it.clip?.file) stage.append(it.clip.voiced ? h("video", { src: it.clip.file, autoplay: "", playsinline: "" }) : h("video", { src: it.clip.file, autoplay: "", muted: "", loop: "", playsinline: "" }));
+  if (it.clip?.file) {
+    const video = it.clip.voiced ? h("video", { src: it.clip.file, autoplay: "", playsinline: "" }) : h("video", { src: it.clip.file, autoplay: "", muted: "", loop: "", playsinline: "" });
+    // the attribute alone does not silence a video made after the page loaded; the property does
+    video.muted = !it.clip.voiced;
+    stage.append(video);
+  }
   stage.append(
     h("div", { class: "vignette" }),
     h("div", { class: "top" }, h("div", { class: "scene" }, it.title)),
@@ -400,6 +411,7 @@ function stageScreen(): HTMLElement {
   const stage = h("div", { class: "stage" });
   if (clip?.file) {
     const v = h("video", { src: clip.file, autoplay: "", muted: "", loop: "", playsinline: "" });
+    v.muted = true;
     stage.append(v);
   } else {
     stage.append(h("img", { src: portraitFor(counterpart), alt: counterpart.name }));

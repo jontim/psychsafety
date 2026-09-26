@@ -379,3 +379,17 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .chart.plate .wp.faint .label { opacity: 0; }
 .chart.plate .wp.faint.selected .label, .chart.plate .wp.faint:hover .label { opacity: 1; }
 .chart.plate .wp .label { transition: opacity 0.4s ease; }
+
+/* The blank sheet: nothing ahead of the road is on it until the road gets there. */
+.chart.blank .wp.faint { display: none; }
+.chart .ending.unlit { display: none; }
+.chart .vehicle { transition: opacity 0.25s ease; }
+
+/* Scenes to jump in at, under the chart on the opening screen. */
+.scene-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+.scene-chips .chip { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 12px 6px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--parchment); color: var(--ink); font-size: 13px; }
+.scene-chips .chip .n { font-family: var(--sans); font-weight: 700; font-size: 11px; color: var(--white-gold); background: var(--brush); border-radius: 999px; padding: 1px 7px; }
+.scene-chips .chip .t { font-family: var(--serif); font-weight: 600; font-size: 15px; }
+.scene-chips .chip .who { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.scene-chips .chip.on { border-color: var(--old-gold); background: linear-gradient(135deg, rgba(200,162,74,0.22), rgba(200,162,74,0.08)); }
+.scene-chips .chip:hover { border-color: var(--old-gold); }

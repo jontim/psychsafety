@@ -38,7 +38,7 @@ function establishing(key: string, prompt: string): Clip {
 
 /** Story footage: instruction, bridge or ending, with the Scribe's narration and a text-to-video prompt. Rendered once, reused every time the branch is entered. */
 function story(key: string, moment: NonNullable<Clip["moment"]>, narration: string | undefined, prompt: string): Clip {
-  return { key, kind: "story", tag: "neutral", moment, narration, prompt: `${prompt} Photoreal, cinematic. Silent: no one speaks, mouths closed, no lip movement, no voice, no on-screen text or lettering of any kind. 6 seconds.` };
+  return { key, kind: "story", tag: "neutral", moment, narration, prompt: `${prompt} Photoreal, cinematic, 6 seconds. No dialogue: no one speaks, mouths closed, no lip movement, no voice-over. Sound: ambient only (wind, water, room tone), no voices, no music. No on-screen text or lettering of any kind.` };
 }
 
 const STORY_CLIPS: Clip[] = [
@@ -47,7 +47,7 @@ const STORY_CLIPS: Clip[] = [
     "A quiet stone room at morning, a tall mirror in a carved frame, a writing desk with a quill and a fair copy, dust in a shaft of light, slow push-in."),
   story("bridge-no-windows", { role: "bridge", beat: "no-windows" },
     "Hours after the dinner. Guests, then, the worst kind, and Sahir found them a room with no windows. One of the two was already a pig. The other had a story, and the Caliphina had the night.",
-    "A sky palace corridor at night, blue anchor-light in pale stone walls, a bound figure led toward a door with no window in it, a woman in court gold following with a lieutenant in blue behind her, slow tracking shot."),
+    "A sky palace corridor at night, blue anchor-light in pale stone walls, a bound figure led toward a door with no window in it, two figures following at a distance, slow tracking shot."),
   story("bridge-the-dispatch", { role: "bridge", beat: "the-dispatch" },
     "An hour later, aboard the Humā at the palace dock. The wreck under a cloth, the folio open, and a lieutenant who had done the sums.",
     "A moored sky cutter at a palace dock at night, lantern light in a stern cabin window, a bronze device under a cloth on a chart table, slow push-in from the dock."),
@@ -65,16 +65,16 @@ const STORY_CLIPS: Clip[] = [
     "A sky palace study at dawn, arched windows over cloud, a sealed dispatch on a desk beside a serving cloche with a dented rim, a man in silk at the window with his back to the room, slow push-in."),
   story("bridge-the-study-omahnd", { role: "bridge", beat: "the-study", flag: "omahnd-recommended" },
     "Dawn. The dispatch said Omahnd, because nothing else could be said, and her father had read it, and slept.",
-    "A sky palace study at dawn, a dispatch open on a desk sealed in red, a man in silk reading it at the window with his lips pressed shut, the cloud sea gold below, slow push-in."),
+    "A sky palace study at dawn, a dispatch open on a desk sealed in red, a man in silk at the window with his back to the room, the cloud sea gold below, slow push-in."),
   story("bridge-the-study", { role: "bridge", beat: "the-study" },
     "Dawn. The dispatch was written, and her father had read it, and slept, which was more than she had.",
     "A sky palace study at dawn, arched windows over a cloud sea, a desk with a sealed dispatch, slow push-in."),
   story("bridge-the-proclamation-statement", { role: "bridge", beat: "the-proclamation", flag: "statement" },
     "Noon. The Congress called, the Court on the dais, and Omahnd's ambassador in the front row with his hands folded. The Caliph had decided to speak.",
-    "A great hall in a sky palace at midday filling with robed mages in tiers, a dais under gold light, an older man in sand-coloured robes taking a front-row seat and folding his hands, slow crane down."),
+    "A great hall in a sky palace at midday, robed figures seated in tiers, a dais under gold light, an older man in sand-coloured robes seated in the front row with his hands folded, slow crane down."),
   story("bridge-the-proclamation-hedge", { role: "bridge", beat: "the-proclamation", flag: "hedge" },
     "Noon. The Congress called, the Court on the dais, and Omahnd's ambassador in the front row. The Caliph had agreed to say something, and had not yet decided what.",
-    "A great hall in a sky palace at midday, tiers of robed mages waiting, an empty dais under gold light, an older man in sand-coloured robes in the front row with a small smile, slow push-in."),
+    "A great hall in a sky palace at midday, tiers of robed figures seated and still, an empty dais under gold light, an older man in sand-coloured robes in the front row, slow push-in."),
   story("bridge-the-proclamation", { role: "bridge", beat: "the-proclamation" },
     "Noon. The Congress called, the Court on the dais, and Omahnd's ambassador in the front row with his hands folded.",
     "A great hall in a sky palace at midday, tiers of robed mages, a dais under gold light, slow crane down."),
@@ -92,7 +92,7 @@ const STORY_CLIPS: Clip[] = [
     "A weathered poster on a tavern wall at night, its lettering out of focus, a crowd pushing in through the door, a bard tuning on a dais beyond, slow push-in."),
   story("bridge-the-alley", { role: "bridge", beat: "the-alley" },
     "The same night, behind the tavern. Brask had the heckler against the wall, and Serena was listening.",
-    "A wet alley behind a tavern at night, a huge figure pinning a red-robed man to the wall, a lit window above, a woman in white and gold in the shadow of the door, static shot."),
+    "A wet alley behind a tavern at night, a huge figure holding a red-robed man against the wall, both still, a lit window above, a figure in white and gold in the shadow of the door, static shot."),
   story("bridge-stay-inconspicuous", { role: "bridge", beat: "stay-inconspicuous" },
     "The morning after. A Magisterium wizard was missing, and the troupe's carriage was in the captain's yard.",
     "A provincial watch house at grey morning, a poster-covered carriage impounded in the yard, three figures walking toward the door, slow pan."),
@@ -105,9 +105,9 @@ const STORY_CLIPS: Clip[] = [
   story("ending-war", { role: "ending", outcome: "war" }, undefined,
     "A fleet of arcane sky galleons crossing jagged mountain peaks at noon, brass batteries on the ridgelines igniting in white flashes, storm cloud building, slow aerial wide."),
   story("ending-weak", { role: "ending", outcome: "weak" }, undefined,
-    "A sun-baked tea house of tiled mosaics and geometric arches at evening, men in brass-trimmed coats sitting silent over glasses of tea, a folded paper on the table between them, slow push-in."),
+    "A sun-baked tea house of tiled mosaics and geometric arches at evening, men in brass-trimmed coats seated and still over glasses of tea, a folded paper on the table, slow push-in."),
   story("ending-named", { role: "ending", outcome: "named" }, undefined,
-    "An older man in sand-coloured robes rising from a front-row seat in a great hall and walking out under tiers of robed mages, then a mountain frontier at dusk with brass batteries lighting one by one, slow crane."),
+    "An older man in sand-coloured robes rising from a front-row seat in a great hall and walking out under tiers of seated robed figures, then a mountain frontier at dusk with brass batteries lighting one by one, slow crane."),
 ];
 
 const pack: WorldInput = {

@@ -32,6 +32,8 @@ describe("the chart", () => {
     expect(w.chart?.waypoints[0]?.via).toEqual([]);
     expect(w.chart?.waypoints[0]?.routes).toEqual([]);
     expect(w.chart?.onward).toEqual([]);
+    expect(w.chart?.foreknowledge).toBe(false);
+    expect(w.chart?.vehicles).toEqual({});
     expect(w.chart?.endings[0]?.glyph).toBe("storm");
   });
 

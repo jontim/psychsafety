@@ -39,8 +39,8 @@ export interface ChartOptions {
 
 export interface ChartHandle {
   el: SVGSVGElement;
-  /** Ink the whole road in order, scene by scene, forks included. The opening screen. */
-  playAtlas(): Promise<void>;
+  /** Frame the whole sheet as it stands: the road so far, the vehicle parked where the story is. The opening screen. */
+  settle(): void;
   /** Draw the leg into a beat from the one before it (or settle on it when the story starts there), then show its forks. */
   playLeg(from: string | null, to: string): Promise<void>;
   /** Draw the branch from a beat to the ending it reached, and light the glyph. */
@@ -126,6 +126,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   /** Chart units per design unit: sizes below were drawn for a 1200-wide sheet and scale with the plate. */
   const U = W / 1200;
   const plate = chart.plate;
+  const foreknowledge = chart.foreknowledge;
   const regions = chart.regions;
   const places = chart.places;
   /** How close the road must pass to a name to discover it, in chart units. */
@@ -175,7 +176,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   }
 
   // ---------- The sheet ----------
-  const svg = s("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "xMidYMid meet", role: "img", "aria-label": chart.title });
+  const svg = s("svg", { class: `chart ${foreknowledge ? "" : "blank"}`, viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "xMidYMid meet", role: "img", "aria-label": chart.title });
   const defs = s("defs", {},
     s("filter", { id: `${uid}-grain`, x: "0", y: "0", width: "100%", height: "100%" },
       s("feTurbulence", { type: "fractalNoise", baseFrequency: "0.9", numOctaves: "2", seed: "7", result: "noise" }),
@@ -365,6 +366,24 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     svg.append(g);
   }
   const FLIP_MS = 280;
+  /** The vehicle standing where the story is; it drives the next leg without a take-off. */
+  let parked: Mover | null = null;
+  const vehicleOf = (wp: Waypoint | undefined): Mover | null => (wp?.by ? movers.get(wp.by) ?? null : null);
+  const vehicleSpec = (m: Mover): Vehicle | undefined => { for (const [k, v] of Object.entries(chart.vehicles) as Array<[string, Vehicle]>) if (movers.get(k) === m) return v; return undefined; };
+  /** Stand a vehicle at a point, at a size, facing a way, and remember it as the one the story rides. */
+  function park(m: Mover, at: Pt, scale: number, facing: "left" | "right" | null): void {
+    if (parked && parked !== m) { parked.g.classList.add("hidden"); }
+    m.scale = scale;
+    m.flipStart = -1;
+    if (facing) m.facing = facing;
+    m.g.style.opacity = "1";
+    placeMover(m, at[0], at[1], 0, 0, performance.now());
+    m.g.classList.remove("hidden");
+    parked = m;
+  }
+  const headingOf = (from: Pt, to: Pt): "left" | "right" | null => (to[0] - from[0] < -0.3 ? "left" : to[0] - from[0] > 0.3 ? "right" : null);
+  /** A hop is a leg shorter than twice the vehicle: it moves a little, at its small size, and stays. */
+  const isHop = (m: Mover, length: number): boolean => { const v = vehicleSpec(m); return !!v && length < v.width * 2; };
   /** Place a mover, turning it to face its heading: a sprite with a second artwork swaps at the narrowest point of a squash; one without is mirrored. */
   function placeMover(m: Mover, x: number, y: number, dx: number, dy: number, now: number): void {
     m.x = x; m.y = y;
@@ -493,7 +512,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
 
   const endingEls = new Map<string, SVGGElement>();
   function endingEl(e: Ending): SVGGElement {
-    const g = s("g", { class: `ending ${e.glyph}`, "data-outcome": e.outcome, transform: `translate(${e.at[0]} ${e.at[1]}) scale(${r1(U)})` });
+    const g = s("g", { class: `ending ${e.glyph} ${foreknowledge ? "" : "unlit"}`, "data-outcome": e.outcome, transform: `translate(${e.at[0]} ${e.at[1]}) scale(${r1(U)})` });
     if (e.glyph === "storm") g.append(s("circle", { class: "mark", r: 9 }), s("path", { class: "bolt", d: "M 1.5 -7 L -4 1 L 0 1 L -1.5 7 L 4 -1 L 0 -1 Z" }));
     else if (e.glyph === "fade") g.append(s("circle", { class: "mark", cx: -7, r: 3 }), s("circle", { class: "mark", cx: 2, r: 2.2 }), s("circle", { class: "mark", cx: 9, r: 1.4 }));
     else g.append(s("circle", { class: "mark", r: 9 }), s("path", { class: "bolt", d: "M -4 0 L 4 0 M 1 -3.5 L 4.5 0 L 1 3.5" }));
@@ -568,7 +587,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
 
   // Ghost roads: every leg of the road as it will be, dotted.
   const legEls = new Map<string, SVGGElement>();
-  for (const leg of legs) {
+  for (const leg of foreknowledge ? legs : []) {
     const a = wps.get(leg.from), b = wps.get(leg.to);
     if (!a || !b) continue;
     const g = s("g", { class: "leg ghost", "data-from": leg.from, "data-to": leg.to });
@@ -586,7 +605,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     gGhost.append(onwardEl);
   }
   // Other ways in: a waypoint with routes shows the roads not taken as ghosts at the fork before it, with what would take them.
-  for (const w of chart.waypoints) {
+  for (const w of foreknowledge ? chart.waypoints : []) {
     if (!w.routes.length) continue;
     const leg = legs.find((l) => l.to === w.beat);
     const a = leg ? wps.get(leg.from) : undefined;
@@ -714,23 +733,36 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       requestAnimationFrame(step);
     });
   }
-  /** Put a mover at the start of a piece, facing along it, and grow it in: the take-off. */
-  async function takeOff(m: Mover, dash: SVGPathElement): Promise<void> {
+  /** Put a mover at the start of a piece, facing along it, and grow it in to a size: the take-off (or, for a parked vehicle, the stretch before a long leg). */
+  async function takeOff(m: Mover, dash: SVGPathElement, to: number): Promise<void> {
     const p = dash.getPointAtLength(0), q = dash.getPointAtLength(Math.min(dash.getTotalLength(), 6 * U));
-    const heading: "left" | "right" | null = q.x - p.x < -0.3 ? "left" : q.x - p.x > 0.3 ? "right" : null;
+    const heading = headingOf([p.x, p.y], [q.x, q.y]);
     if (heading) m.facing = heading;
     m.flipStart = -1;
-    m.scale = 0.12;
-    m.g.style.opacity = "0";
+    const from = parked === m ? m.scale : 0.12;
+    m.scale = from;
+    m.g.style.opacity = parked === m ? "1" : "0";
     placeMover(m, p.x, p.y, 0, 0, performance.now());
     m.g.classList.remove("hidden");
-    await scaleMover(m, 0.12, 1, 560, easeOutBack, [0, 1]);
+    if (Math.abs(to - from) > 0.01) await scaleMover(m, from, to, parked === m ? 420 : 560, easeOutBack, parked === m ? undefined : [0, 1]);
   }
   /** Shrink a mover where it stands until it is gone: the landing. */
   async function land(m: Mover): Promise<void> {
-    await scaleMover(m, 1, 0.1, 640, easeInOut, [1, 0]);
+    await scaleMover(m, m.scale, 0.1, 640, easeInOut, [1, 0]);
     m.g.classList.add("hidden");
     m.scale = 1;
+    if (parked === m) parked = null;
+  }
+  /** Grow a vehicle out of a spot as another lands there: the hire, the change of horses. */
+  async function riseAt(m: Mover, at: Pt, to: number, facing: "left" | "right" | null): Promise<void> {
+    m.flipStart = -1;
+    if (facing) m.facing = facing;
+    m.scale = 0.12;
+    m.g.style.opacity = "0";
+    placeMover(m, at[0], at[1], 0, 0, performance.now());
+    m.g.classList.remove("hidden");
+    await scaleMover(m, 0.12, to, 760, easeOutBack, [0, 1]);
+    parked = m;
   }
   const wait = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
   let currentBeat: string | null = null;
@@ -748,12 +780,13 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     }
   }
   function showForks(beatId: string): void {
+    if (!foreknowledge) return;
     const g = forkEls.get(beatId);
     if (!g) return;
     placeForkLabels();
     g.classList.add("shown");
   }
-  function fire(outcome: string): void { endingEls.get(outcome)?.classList.add("fired"); }
+  function fire(outcome: string): void { const g = endingEls.get(outcome); if (!g) return; g.classList.remove("unlit"); g.classList.add("fired"); }
 
   async function playLeg(from: string | null, to: string): Promise<void> {
     const b = wps.get(to);
@@ -763,31 +796,48 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
       applyCam(whole());
       await moveCam(fit(b.inset ? insetBox(b.inset) : boxAround(b.at, 150 * U)), 1300);
       show(to, true, true);
+      const v = vehicleOf(b);
+      if (v) await riseAt(v, b.at, vehicleSpec(v)?.small ?? 0.55, null);
       await revealForks(to);
       return;
     }
     const pieces = ensureLeg(from!, to, true);
     const sameInset = !!a.inset && a.inset === b.inset;
     applyCam(fit(a.inset ? insetBox(a.inset) : boxAround(a.at, 150 * U)));
-    let flying: Mover | null = null;
+    const mover = vehicleOf(b) ?? (plate ? null : cutterMover);
+    const total = pieces.reduce((n, p) => n + (p.querySelector<SVGPathElement>("path.dash")?.getTotalLength() ?? 0), 0);
+    const hop = mover ? isHop(mover, total / U) : false;
+    const rideScale = mover ? (hop ? vehicleSpec(mover)?.small ?? 0.55 : 1) : 1;
+    let riding: Mover | null = null;
     for (const piece of pieces) {
       const dash = piece.querySelector<SVGPathElement>("path.dash")!;
       const L = dash.getTotalLength();
-      const ms = clamp((L / U) * 3.2, 450, 2600);
+      const ms = clamp((L / U) * (hop ? 6 : 3.2), hop ? 900 : 450, 2600);
       const kind = piece.getAttribute("data-kind");
-      const mover = moverFor(b, kind);
-      if (kind === "flight") void moveCam(fit(pathBox(dash, 120 * U)), ms + (mover ? 420 : 0));
+      if (kind === "flight" && !hop) void moveCam(fit(pathBox(dash, 120 * U)), ms + (mover ? 420 : 0));
       else if (!sameInset && b.inset && piece === pieces[pieces.length - 1]) void moveCam(fit(insetBox(b.inset)), ms);
-      if (mover && mover !== flying) { await takeOff(mover, dash); flying = mover; }
-      await revealPiece(piece, ms, mover && L > 40 * U ? mover : null);
+      if (mover && kind === "flight" && riding !== mover) { await takeOff(mover, dash, rideScale); riding = mover; }
+      await revealPiece(piece, ms, mover && kind === "flight" ? mover : null);
     }
-    if (flying) await land(flying);
     show(to, true, true);
+    if (riding) {
+      // what carries the story on from here: the same vehicle stays; a different one rises as this one lands
+      const nextLeg = legs.find((l) => l.from === to);
+      const nextVehicle = nextLeg ? vehicleOf(wps.get(nextLeg.to)) : null;
+      const nextWp = nextLeg ? wps.get(nextLeg.to) : undefined;
+      if (nextVehicle && nextVehicle !== riding) {
+        const nextLength = nextWp ? legPieces(nodeOf(b), nodeOf(nextWp)).reduce((n, p) => { const el = s("path", { d: p.d }); gRoad.append(el); const L = el.getTotalLength(); el.remove(); return n + L; }, 0) : 0;
+        const nextScale = isHop(nextVehicle, nextLength / U) ? vehicleSpec(nextVehicle)?.small ?? 0.55 : 1;
+        await Promise.all([land(riding), riseAt(nextVehicle, b.at, nextScale, nextWp ? headingOf(b.at, nextWp.via[0] ?? nextWp.at) : null)]);
+      } else {
+        park(riding, b.at, riding.scale, null);
+      }
+    }
     await revealForks(to);
   }
   /** Show a beat's forks and pull the camera back until every road out is in view. */
   async function revealForks(beatId: string): Promise<void> {
-    if (!forks.has(beatId)) return;
+    if (!foreknowledge || !forks.has(beatId)) return;
     await wait(350);
     showForks(beatId);
     const box = forkBox(beatId);
@@ -813,31 +863,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     await wait(300);
   }
 
-  async function playAtlas(): Promise<void> {
-    applyCam(whole());
-    let prev: string | null = null;
-    for (const beat of beats) {
-      if (destroyed) return;
-      const wp = wps.get(beat.id);
-      if (!wp) continue;
-      if (prev) {
-        const pieces = ensureLeg(prev, beat.id, true);
-        let flying: Mover | null = null;
-        for (const piece of pieces) {
-          const dash = piece.querySelector<SVGPathElement>("path.dash")!;
-          const L = dash.getTotalLength();
-          const mover = moverFor(wp, piece.getAttribute("data-kind"));
-          if (mover && mover !== flying) { await takeOff(mover, dash); flying = mover; }
-          await revealPiece(piece, clamp((L / U) * 2.4, 320, 1900), mover && L > 40 * U ? mover : null);
-        }
-        if (flying) await land(flying);
-      }
-      show(beat.id, false, true);
-      showForks(beat.id);
-      await wait(prev ? 140 : 420);
-      prev = beat.id;
-    }
-  }
+  function settle(): void { applyCam(whole()); }
 
   // ---------- Initial state ----------
   const travelled = opts.travelled ?? [];
@@ -847,6 +873,30 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     show(id, false, false);
   }
   if (opts.current) { show(opts.current, true, false); queueMicrotask(() => { if (!destroyed && opts.current) showForks(opts.current); }); }
+  // the vehicle the story rides stands where the story is: small after a hop or at the start, full after a long leg
+  {
+    const here = opts.current ?? travelled[travelled.length - 1] ?? null;
+    const wp = here ? wps.get(here) : undefined;
+    // the vehicle standing here is the one that carries the story on: where the next leg is by another, that one took over on arrival
+    const nextLeg = here ? legs.find((l) => l.from === here) : undefined;
+    const carriedOn = nextLeg ? vehicleOf(wps.get(nextLeg.to)) : null;
+    const arrivedBy = vehicleOf(wp);
+    const v = carriedOn ?? arrivedBy;
+    if (wp && v && !opts.ending) {
+      const prevId = opts.current ? travelled[travelled.length - 1] : travelled[travelled.length - 2];
+      const prev = prevId && prevId !== here ? wps.get(prevId) : undefined;
+      const spec = vehicleSpec(v);
+      // its size: small after a hop (or at the start), full after a long leg; a vehicle that took over here is sized for the leg it will drive
+      const nextWp = nextLeg ? wps.get(nextLeg.to) : undefined;
+      const measure = v === carriedOn && carriedOn !== arrivedBy && nextWp ? { from: wp, to: nextWp } : prev ? { from: prev, to: wp } : null;
+      const facing = measure ? headingOf(measure.from.at, measure.to.via[0] ?? measure.to.at) : null;
+      if (measure) {
+        const probe = s("path", { d: legPieces(nodeOf(measure.from), nodeOf(measure.to)).map((p) => p.d).join(" ") });
+        gRoad.append(probe);
+        queueMicrotask(() => { if (destroyed) return; const length = probe.getTotalLength(); probe.remove(); park(v, wp.at, isHop(v, length / U) ? spec?.small ?? 0.55 : 1, facing); });
+      } else park(v, wp.at, spec?.small ?? 0.55, facing);
+    }
+  }
   // what the road already travelled passed by, once the paths are in the document and can be measured
   if (travelled.length > 1) queueMicrotask(() => { if (destroyed) return; for (const g of legEls.values()) for (const path of g.querySelectorAll<SVGPathElement>('g.piece[data-kind="flight"] path.dash')) sweep(path); });
   if (opts.ending && opts.current) {
@@ -857,7 +907,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   let selected: string | null = null;
   return {
     el: svg,
-    playAtlas,
+    settle,
     playLeg,
     playEnding,
     select(beatId) {

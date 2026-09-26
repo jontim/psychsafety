@@ -187,7 +187,9 @@ export const ChartSchema = z.object({
   /** Artwork under the road: a clean plate the size of the sheet, and a lettered plate whose region names are unmasked as the road reaches them. */
   plate: z.object({ clean: z.string(), lettered: z.string().optional(), /** The lettering alone, on transparency (scripts/chart-letters.ts lifts it off the lettered plate); preferred over unmasking the lettered plate when the two plates do not align. */ letters: z.string().optional() }).optional(),
   /** The vehicles that lay the road, by key: a sprite each, sized in chart units, facing left or right in the artwork. */
-  vehicles: z.record(z.string(), z.object({ src: z.string(), width: z.number(), height: z.number(), faces: z.enum(["left", "right"]).default("right"), /** The same vehicle drawn facing the other way; without it the sprite is mirrored, which is wrong for one with lettering on it. */ alt: z.string().optional() })).default({}),
+  vehicles: z.record(z.string(), z.object({ src: z.string(), width: z.number(), height: z.number(), faces: z.enum(["left", "right"]).default("right"), /** The same vehicle drawn facing the other way; without it the sprite is mirrored, which is wrong for one with lettering on it. */ alt: z.string().optional(), /** Its size on a hop (a leg shorter than twice its width) and while parked after one: a ship moving a little within a city. */ small: z.number().default(0.55) })).default({}),
+  /** Whether the road ahead is on the sheet before it is travelled. False (the default) is the fog of no map: scenes not yet reached, the roads to them, the forks and the endings are not drawn until the road gets there. True draws them faint and shows the forks on arrival. */
+  foreknowledge: z.boolean().default(false),
   waters: z.array(z.object({ id: z.string(), label: z.string().optional(), d: z.string(), at: PointSchema.optional() })).default([]),
   rivers: z.array(z.object({ id: z.string(), d: z.string() })).default([]),
   /** Mountain ranges as polylines, drawn as chevrons; a frontier range also carries the dashed border. */

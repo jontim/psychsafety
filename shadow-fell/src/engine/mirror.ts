@@ -1,5 +1,5 @@
 import { CORE_AXES, AXIS_BY_ID, computeAxes, formatSigned } from "./affect.js";
-import type { EmotionVector } from "./dimensions.js";
+import { topDimensions, type EmotionKey, type EmotionVector } from "./dimensions.js";
 
 /**
  * The Mirror: a warm-up before the tour. The Scribe asks for the player's plain
@@ -80,7 +80,7 @@ export const MIRROR_ASKS: MirrorAsk[] = [
   {
     id: "plain",
     title: "Your plain voice",
-    line: "Before we begin: say something true and dull. What you ate this morning; how you slept. I am not judging it. I am learning what you sound like when nothing is at stake.",
+    line: "Before we begin: say something true and dull. What you ate this morning; how you slept. This one is not scored; it is the mark the rest is read against. After it I will ask you for four things and tell you, each time, what a stranger would hear. A rehearsal, not an examination.",
     measure: "Nothing yet. This is the mark the rest is measured against.",
     judge: "reach",
     targets: [],
@@ -101,7 +101,7 @@ export const MIRROR_ASKS: MirrorAsk[] = [
     verdicts: [
       "A stranger would believe you. Easy, open, unhurried; nothing in your voice asked whether I bought it.",
       "Half a lie. Steady enough, but something in you was checking my face.",
-      "That was a confession with the words changed. A listener hears the guilt and the hurry before the sentence ends.",
+      "That was a confession with the words changed; a listener hears it before the sentence ends.",
     ],
   },
   {
@@ -114,7 +114,7 @@ export const MIRROR_ASKS: MirrorAsk[] = [
     verdicts: [
       "They would believe you were on their side. Warm, steady, no edge in it.",
       "Kind words, but the voice was somewhere else. Warmth needs the whole of you.",
-      "That was advice, or a scolding. A listener hears the edge before the comfort.",
+      "That was not comfort; a listener would not feel you were with them.",
     ],
   },
   {
@@ -127,7 +127,7 @@ export const MIRROR_ASKS: MirrorAsk[] = [
     verdicts: [
       "They would already be moving. Certain, steady, no doubt in it.",
       "They would look at each other first. The words were right; the certainty was not all there.",
-      "They would stay where they are. A listener hears the doubt, or the fright, before the order.",
+      "They would stay where they are; a listener hears it before the order."
     ],
   },
   {
@@ -140,7 +140,7 @@ export const MIRROR_ASKS: MirrorAsk[] = [
     verdicts: [
       "The room would buy the barrel. Delight, and you enjoyed it, and it showed.",
       "A sale, not a show. The words worked harder than the voice did.",
-      "The ale sounded exactly as bad as it is. A listener hears the boredom, or the embarrassment, first.",
+      "The ale sounded exactly as bad as it is."
     ],
   },
 ];
@@ -155,8 +155,10 @@ export interface MirrorReading {
   score: number;
   band: MirrorBand;
   verdict: string;
-  /** The two strongest qualities a listener heard, in plain words. */
+  /** What the ear heard loudest, in a listener's words: the top dimensions when the scores are given, else the strongest axes. */
   heard: string[];
+  /** What the Scribe says: the verdict, what he heard, which targets held and which fell short, and one piece of advice aimed at the weakest. No numbers; those are in `detail`. */
+  said: string[];
   axes: Axes;
   /** For a held ask: how much leaked against the plain voice, in axis units. */
   leak?: number;
@@ -254,12 +256,117 @@ export function explainReading(ask: MirrorAsk, axes: Axes, score: number): strin
   return lines;
 }
 
-/** Read one attempt against its ask: calibrated axes for a reached ask, the deviation from the plain voice for a held one. */
-export function readAsk(ask: MirrorAsk, axes: Axes): MirrorReading {
+/** What a listener would call each of the ear's 48 dimensions, for the Scribe's mouth. */
+export const LISTENER_WORDS: Record<EmotionKey, string> = {
+  admiration: "admiration", adoration: "adoration", aestheticAppreciation: "appreciation", amusement: "amusement", anger: "anger",
+  anxiety: "nerves", awe: "awe", awkwardness: "awkwardness", boredom: "flatness", calmness: "calm", concentration: "focus",
+  confusion: "confusion", contemplation: "thought", contempt: "contempt", contentment: "contentment", craving: "hunger", desire: "desire",
+  determination: "resolve", disappointment: "disappointment", disgust: "distaste", distress: "strain", doubt: "doubt", ecstasy: "rapture",
+  embarrassment: "embarrassment", empathicPain: "fellow-feeling", entrancement: "fascination", envy: "envy", excitement: "excitement", fear: "fear",
+  guilt: "guilt", horror: "horror", interest: "interest", joy: "joy", love: "tenderness", nostalgia: "nostalgia", pain: "pain", pride: "pride",
+  realization: "realisation", relief: "relief", romance: "romance", sadness: "sadness", satisfaction: "satisfaction", shame: "shame",
+  surpriseNegative: "alarm", surprisePositive: "pleasant surprise", sympathy: "sympathy", tiredness: "weariness", triumph: "triumph",
+};
+
+/** The loudest dimensions in a reading, in a listener's words: those above the floor, or the top two when nothing is loud. */
+export function heardWords(scores: EmotionVector, count = 3, floor = 0.08): string[] {
+  const top = topDimensions(scores, count);
+  const loud = top.filter((d) => d.score >= floor);
+  return (loud.length ? loud : top.slice(0, 2)).map((d) => LISTENER_WORDS[d.key]);
+}
+
+const listWords = (w: string[]): string => (w.length <= 1 ? w.join("") : `${w.slice(0, -1).join(", ")} and ${w[w.length - 1]}`);
+
+/** How the Scribe names a wanted axis in a reached ask: there, faint, absent, or the opposite of what was asked. */
+const REACH_WANTED: Record<string, [string, string, string, string]> = {
+  care: ["The care was in it.", "The care was faint.", "There was little care in it.", "It was cold rather than caring."],
+  warmth: ["The warmth was in it.", "The warmth was faint.", "There was little warmth in it.", "It was cold."],
+  command: ["The certainty was in it.", "The certainty was faint.", "There was little certainty in it.", "It sounded unsure."],
+  composure: ["It was steady.", "It was nearly steady.", "It was not quite steady.", "It was unsettled."],
+  showmanship: ["The delight was in it.", "The delight was faint.", "There was little delight in it.", "It sounded bored, or embarrassed."],
+  candour: ["It was open.", "It was nearly open.", "It was not open.", "It sounded guarded."],
+  pressure: ["There was push in it.", "There was a little push in it.", "There was no push in it.", "It was slack."],
+};
+/** How the Scribe names an unwanted axis: absent, creeping, or in charge. */
+const REACH_UNWANTED: Record<string, [string, string, string]> = {
+  edge: ["No edge in it.", "An edge crept in.", "The edge took it over."],
+  pressure: ["No heat in it.", "Some heat crept in.", "The heat took it over."],
+};
+const ADVICE_MORE: Record<string, string> = {
+  care: "Slower, lower, and stay with them; the ear hears care as unhurried and a little sad, not as bright.",
+  warmth: "Soften the start of each word and let the voice smile.",
+  command: "Shorter sentences and a falling tone, with no question in it. Certainty is a full stop.",
+  composure: "Breathe before the line and land the last word; the ear hears hurry and a rising pitch as nerves.",
+  showmanship: "Enjoy it out loud: vary the pitch, lift the ends, let a smile into the vowels.",
+  candour: "Open the vowels and keep the pace even; guardedness sounds clipped.",
+  pressure: "Let some heat in; a command with no push in it is a suggestion.",
+};
+const ADVICE_LESS: Record<string, string> = {
+  edge: "Take the bite out of the consonants; the ear hears it as anger, whatever the words.",
+  pressure: "Take the heat out: slower, lower, and let the sentence end.",
+};
+/** For a held ask: what the Scribe says when a target leaked, and when it held. */
+const HOLD_PHRASES: Record<string, [string, string]> = {
+  composure: ["Your composure dropped against your plain voice: that is the tell.", "Your composure held."],
+  candour: ["Something guarded came into it.", "You stayed open."],
+  edge: ["An edge came in, and a liar who gets sharp is a liar.", "No edge."],
+  pressure: ["Heat came in.", "No heat."],
+};
+const HOLD_ADVICE: Record<string, string> = {
+  composure: "Say it the way you told me your breakfast: same speed, same pitch, nothing to prove.",
+  candour: "Do not sell it. The guarded sound is the pitch tightening; let it sit low.",
+  edge: "Take the emphasis off the denial; a good lie does not argue.",
+  pressure: "Slower. A lie in a hurry is a lie.",
+};
+/** A leak the Scribe bothers to name, in axis units. */
+const LEAK_NOTED = 0.02;
+
+/** The Scribe's lines for a reading: the verdict, what he heard, each target as it stood, and advice for the weakest unless it held. */
+export function speakReading(ask: MirrorAsk, axes: Axes, band: MirrorBand, heard: string[]): string[] {
+  const said: string[] = [ask.verdicts[band === "high" || band === "plain" ? 0 : band === "middle" ? 1 : 2]];
+  if (heard.length) said.push(`I heard ${listWords(heard)}.`);
+  if (band === "plain") return said;
+  if (ask.judge === "hold") {
+    let worst: { axis: string; leak: number } | null = null;
+    for (const t of ask.targets) {
+      const leaked = leakAt(t, axes);
+      const phrase = HOLD_PHRASES[t.axis];
+      if (phrase) said.push(phrase[leaked > LEAK_NOTED ? 0 : 1]);
+      if (leaked > LEAK_NOTED && (!worst || leaked > worst.leak)) worst = { axis: t.axis, leak: leaked };
+    }
+    if (band === "high") said.push("That is the voice. Keep it.");
+    else if (worst && HOLD_ADVICE[worst.axis]) said.push(HOLD_ADVICE[worst.axis]!);
+    return said;
+  }
+  // when it held, only the main targets are named, so a minor axis cannot contradict "keep that"
+  let worst: { axis: string; short: number; more: boolean } | null = null;
+  for (const { axis, weight } of ask.targets) {
+    if (band === "high" && Math.abs(weight) < 0.5) continue;
+    const v = axes[axis] ?? 0;
+    if (weight > 0) {
+      const phrase = REACH_WANTED[axis];
+      if (phrase) said.push(phrase[v >= 0.15 ? 0 : v >= 0.05 ? 1 : v >= -0.05 ? 2 : 3]);
+      const short = (0.15 - v) * weight;
+      if (v < 0.15 && (!worst || short > worst.short)) worst = { axis, short, more: true };
+    } else {
+      const phrase = REACH_UNWANTED[axis];
+      if (phrase) said.push(phrase[v <= 0.02 ? 0 : v <= 0.08 ? 1 : 2]);
+      const short = v * Math.abs(weight);
+      if (v > 0.02 && (!worst || short > worst.short)) worst = { axis, short, more: false };
+    }
+  }
+  if (band === "high") said.push("Keep that.");
+  else if (worst) { const advice = worst.more ? ADVICE_MORE[worst.axis] : ADVICE_LESS[worst.axis]; if (advice) said.push(advice); }
+  return said;
+}
+
+/** Read one attempt against its ask: calibrated axes for a reached ask, the deviation from the plain voice for a held one. With the raw scores, the Scribe names what the ear heard loudest. */
+export function readAsk(ask: MirrorAsk, axes: Axes, scores?: EmotionVector): MirrorReading {
   const score = scoreAsk(ask, axes);
   const band = bandFor(ask, score);
   const verdict = ask.verdicts[band === "high" || band === "plain" ? 0 : band === "middle" ? 1 : 2];
-  const reading: MirrorReading = { ask: ask.id, score, band, verdict, heard: heardAs(axes), axes: { ...axes }, detail: explainReading(ask, axes, score) };
+  const heard = scores ? heardWords(scores) : heardAs(axes);
+  const reading: MirrorReading = { ask: ask.id, score, band, verdict, heard, said: speakReading(ask, axes, band, heard), axes: { ...axes }, detail: explainReading(ask, axes, score) };
   if (ask.judge === "hold" && ask.targets.length) reading.leak = leakOf(ask, axes);
   return reading;
 }

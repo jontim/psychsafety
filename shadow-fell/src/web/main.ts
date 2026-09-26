@@ -836,7 +836,7 @@ function renderMirrorProgress(m: MirrorState): HTMLElement {
   MIRROR_ASKS.forEach((ask, i) => {
     const r = m.results[i];
     const state = r ? "done" : i === m.step ? "now" : "next";
-    const word = r ? (r.band === "plain" ? "taken" : r.band === "high" ? "held" : r.band === "middle" ? "half" : "missed") : state === "now" ? "now" : "";
+    const word = r ? (r.band === "plain" ? "taken" : r.band === "high" ? "held" : r.band === "middle" ? "nearly" : "not yet") : state === "now" ? "now" : "";
     box.append(h("div", { class: `ask ${state} ${r?.band ?? ""}` }, h("span", { class: "n" }, String(i + 1)), h("span", { class: "t" }, ask.title), h("span", { class: "w" }, word)));
   });
   return box;
@@ -846,8 +846,7 @@ function renderHears(m: MirrorState): HTMLElement {
   const box = h("div", { class: "panel mirror-hears" }, h("h3", {}, "What the world hears"));
   const last = m.results.at(-1);
   if (!last) { box.append(h("div", { class: "empty" }, "Say the plain line and the Scribe will tell you what he heard.")); return box; }
-  box.append(h("div", { class: "verdict" }, last.verdict));
-  if (last.heard.length) box.append(h("div", { class: "heard" }, `Heard as ${last.heard.join(" and ")}.`));
+  box.append(h("div", { class: "verdict" }, last.said.join(" ")));
   // the working: every verdict can be checked against the ribbon
   if (last.detail.length) box.append(h("div", { class: "working" }, h("div", { class: "label" }, "The working"), ...last.detail.map((line) => h("div", { class: "line" }, line))));
   // the notebook: label the attempt, copy it, or export every attempt kept in this browser, so the ear can be tuned from real readings
@@ -903,7 +902,7 @@ async function processMirrorUtterance(u: Utterance): Promise<void> {
     if (ask.id === "plain") m.baseline = baselineFrom(u.scores);
     // a reached ask is read against the calibrated voice; a held one (the lie) against what changed from the plain voice
     const axes = ask.id === "plain" ? raw : ask.judge === "hold" ? deviationFrom(raw, m.baseline) : calibrateAxes(raw, m.baseline);
-    const reading = readAsk(ask, axes);
+    const reading = readAsk(ask, axes, u.scores);
     m.results.push(reading);
     m.lastAffect = updateAffect(createAffectState(), u.scores);
     // keep the whole attempt: the verdict can be checked, labelled and exported, and the ear tuned from real readings
@@ -916,7 +915,7 @@ async function processMirrorUtterance(u: Utterance): Promise<void> {
     setStatus("");
     render();
     const next = MIRROR_ASKS[m.step];
-    void scribeSays(next ? [reading.verdict, next.line] : [reading.verdict]);
+    void scribeSays(next ? [...reading.said, next.line] : reading.said);
   } catch (e) {
     setStatus(`The Mirror slipped: ${(e as Error).message}`);
     refreshMirrorStrip();

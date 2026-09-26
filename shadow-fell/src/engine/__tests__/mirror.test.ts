@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { MIRROR_ASKS, ASK_BY_ID, readAsk, scoreAsk, baselineFrom, calibrateAxes, deviationFrom, heardAs, describeBaseline, HIGH_BAND, MIDDLE_BAND, LEAK_HELD, LEAK_HALF, CALIBRATION_STRENGTH } from "../mirror.js";
 import { computeAxes } from "../affect.js";
+import { zeroVector } from "../dimensions.js";
 import { toneVector, type TonePreset } from "../mock-ear.js";
 import { StorySession } from "../session.js";
 import { shadowFell } from "../../worlds/shadow-fell/world.js";
@@ -55,6 +56,28 @@ describe("the Mirror", () => {
     expect(guilty.band).toBe("low");
     expect(guilty.verdict).toContain("confession");
     expect(LEAK_HELD).toBeLessThan(LEAK_HALF);
+  });
+
+  it("speaks to what it heard, names what held and what fell short, and keeps the numbers out of its mouth", () => {
+    const v = zeroVector(); v.sadness = 0.3; v.doubt = 0.25; v.distress = 0.2; v.sympathy = 0.1;
+    const r = readAsk(ASK_BY_ID.support, { care: 0.02, edge: 0.09 }, v);
+    expect(r.band).toBe("low");
+    expect(r.said[0]).toBe(r.verdict);
+    expect(r.said[1]).toBe("I heard sadness, doubt and strain.");
+    expect(r.said).toContain("There was little care in it.");
+    expect(r.said).toContain("The edge took it over.");
+    expect(r.said.at(-1)).toMatch(/^Slower, lower/);
+    for (const l of r.said) expect(l).not.toMatch(/\d/);
+    const held = readAsk(ASK_BY_ID.lie, { composure: 0.01, candour: 0, edge: -0.02 }, toneVector("calm"));
+    expect(held.said[1]).toMatch(/^I heard calm/);
+    expect(held.said).toContain("Your composure held.");
+    expect(held.said.at(-1)).toBe("That is the voice. Keep it.");
+    const flinch = readAsk(ASK_BY_ID.lie, { composure: -0.08, edge: 0.06, candour: 0 });
+    expect(flinch.said.some((l) => l.startsWith("Your composure dropped"))).toBe(true);
+    expect(flinch.said.at(-1)).toMatch(/^Say it the way you told me your breakfast/);
+    const plain = readAsk(ASK_BY_ID.plain, {}, toneVector("calm"));
+    expect(plain.said).toHaveLength(2);
+    expect(MIRROR_ASKS[0]!.line).toContain("A rehearsal, not an examination.");
   });
 
   it("shows its working on a reached ask, and takes only a little of the plain voice away", () => {

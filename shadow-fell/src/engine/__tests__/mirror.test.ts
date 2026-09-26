@@ -44,12 +44,12 @@ describe("the Mirror", () => {
     expect(perfect.verdict).toContain("A stranger would believe you");
     expect(perfect.detail.at(-1)).toContain("Leaked 0.00");
     // steadier and slower than at rest is not a leak either
-    expect(readAsk(lie, { composure: 0.2, pressure: -0.1, candour: 0.1 }).band).toBe("high");
-    const flinch = readAsk(lie, { composure: -0.06, pressure: 0.05, candour: 0 });
+    expect(readAsk(lie, { composure: 0.2, pressure: 0.3, candour: 0.1, edge: -0.1 }).band).toBe("high");
+    const flinch = readAsk(lie, { composure: -0.08, edge: 0.06, candour: 0 });
     expect(flinch.leak).toBeCloseTo(0.11, 5);
     expect(flinch.band).toBe("middle");
     expect(flinch.verdict).toContain("Half a lie");
-    expect(flinch.detail.some((l) => l.includes("Composure -0.06"))).toBe(true);
+    expect(flinch.detail.some((l) => l.includes("Composure -0.08"))).toBe(true);
     const guilty = readAsk(lie, deviationFrom(axesOf("guilty"), plain));
     expect(guilty.leak!).toBeGreaterThan(LEAK_HALF);
     expect(guilty.band).toBe("low");
@@ -61,8 +61,8 @@ describe("the Mirror", () => {
     const r = readAsk(ASK_BY_ID.support, axesOf("warm"));
     expect(r.detail.length).toBe(ASK_BY_ID.support.targets.length + 1);
     expect(r.detail.at(-1)).toMatch(/^Score \+\d\.\d\d\. Held at 0\.25; half at 0\.05\.$/);
-    expect(r.detail[0]).toMatch(/^Warmth \+0\.\d\d, weight 1\.0; earns/);
-    expect(ASK_BY_ID.support.targets.map((t) => t.axis)).toEqual(["warmth", "pressure"]);
+    expect(r.detail[0]).toMatch(/^Care \+0\.\d\d, weight 1\.0; earns/);
+    expect(ASK_BY_ID.support.targets.map((t) => t.axis)).toEqual(["care", "edge"]);
     expect(CALIBRATION_STRENGTH).toBeLessThan(0.5);
     expect(readAsk(ASK_BY_ID.plain, {}).detail[0]).toContain("plain line");
   });
@@ -91,8 +91,8 @@ describe("the Mirror", () => {
   });
 
   it("scores against targets with signed weights and clamps", () => {
-    expect(scoreAsk(ASK_BY_ID.support, { warmth: 1, pressure: -1, composure: 1 })).toBeCloseTo(1, 5);
-    expect(scoreAsk(ASK_BY_ID.support, { warmth: -1, pressure: 1, composure: -1 })).toBeCloseTo(-1, 5);
+    expect(scoreAsk(ASK_BY_ID.support, { care: 1, edge: -1 })).toBeCloseTo(1, 5);
+    expect(scoreAsk(ASK_BY_ID.support, { care: -1, edge: 1 })).toBeCloseTo(-1, 5);
   });
 
   it("calibrates a story session's readings against the baseline", () => {

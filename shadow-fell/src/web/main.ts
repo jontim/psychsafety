@@ -14,6 +14,7 @@ import type { TonePreset } from "../engine/mock-ear.js";
 import { computeAxes, createAffectState, updateAffect, type AffectState } from "../engine/affect.js";
 import { MIRROR_ASKS, readAsk, baselineFrom, calibrateAxes, deviationFrom, describeBaseline, type Baseline, type MirrorReading } from "../engine/mirror.js";
 import { renderChart, type ChartHandle } from "./chart.js";
+import { BUILD } from "./build.js";
 
 const WORLD_ID = "shadow-fell";
 
@@ -73,11 +74,51 @@ interface ChartInterlude {
   when?: string;
 }
 
+/** One attempt in the Mirror, kept whole so a reading can be checked, labelled and exported for tuning the ear. */
+interface MirrorSample {
+  at: string;
+  build: string;
+  ear: string;
+  ask: string;
+  text: string;
+  scores: Utterance["scores"];
+  rawAxes: Record<string, number>;
+  judged: Record<string, number>;
+  baseline: Record<string, number> | null;
+  score: number;
+  band: string;
+  leak?: number;
+  detail: string[];
+  label?: "best" | "poor";
+}
+
 interface MirrorState {
   step: number;
   results: MirrorReading[];
   baseline: Baseline | null;
   lastAffect: AffectState | null;
+  samples: MirrorSample[];
+}
+
+const NOTEBOOK_KEY = "mirrorNotebook";
+function notebook(): MirrorSample[] {
+  try { const raw = safeGet(NOTEBOOK_KEY); return raw ? (JSON.parse(raw) as MirrorSample[]) : []; } catch { return []; }
+}
+function keepSample(sample: MirrorSample): void {
+  const all = notebook();
+  all.push(sample);
+  safeSet(NOTEBOOK_KEY, JSON.stringify(all.slice(-200)));
+}
+function relabelLast(label: "best" | "poor"): void {
+  const all = notebook();
+  const last = all.at(-1);
+  if (last) { last.label = label; safeSet(NOTEBOOK_KEY, JSON.stringify(all)); }
+}
+function download(name: string, text: string): void {
+  const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  const a = h("a", { href: url, download: name });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 const root = document.getElementById("app")!;
@@ -142,6 +183,7 @@ function band(): HTMLElement {
     h("span", { class: `pill ${app.baseline ? "on" : "off"}`, title: app.baseline ? describeBaseline(app.baseline) : "Warm up in the Mirror to calibrate the ear to your plain voice" }, app.baseline ? "Mirror: calibrated" : "Mirror: not yet"),
     chartPill(),
     slatePill(),
+    h("span", { class: "pill off", title: "The build you are running; it changes with every push" }, `build ${BUILD}`),
   );
   return h("header", { class: "band" },
     h("div", {}, h("h1", {}, app.world.title), h("div", { class: "tag" }, app.world.tagline)),
@@ -722,7 +764,7 @@ function startMirror(): void {
   app.session = null;
   const clip = selectStoryClip(app.world.clips, { role: "instruction", beat: "mirror" });
   showInterlude(clip, "The Mirror", clip?.narration ?? "Before the tour, a quiet room. Nothing here counts against you.", () => {
-    app.mirror = { step: 0, results: [], baseline: null, lastAffect: null };
+    app.mirror = { step: 0, results: [], baseline: null, lastAffect: null, samples: [] };
     app.reaction = "";
     app.status = "";
     app.screen = "mirror";
@@ -762,6 +804,7 @@ function mirrorScreen(): HTMLElement {
     h("div", { class: "vignette" }),
     h("div", { class: "top" }, h("div", { class: "scene" }, done ? "The Mirror · done" : `The Mirror · ${m.step + 1} of ${MIRROR_ASKS.length} · ${ask.title}`)),
     h("div", { class: "ask" }, done ? "That is the whole of it. Your plain voice is the mark now; the tour is read against it." : ask.line),
+    !done && app.ear.kind !== "hume" ? h("div", { class: "ear-warn" }, "The ear is not live: nothing you say aloud is heard. Open the microphone, or type a line and pick the tone it should carry.") : null,
     h("div", { class: "card" },
       h("div", { class: "who" }, castName(app.world, narratorId())),
       h("div", { class: "where" }, "A quiet room before the tour. Nothing here counts against you."),
@@ -807,6 +850,18 @@ function renderHears(m: MirrorState): HTMLElement {
   if (last.heard.length) box.append(h("div", { class: "heard" }, `Heard as ${last.heard.join(" and ")}.`));
   // the working: every verdict can be checked against the ribbon
   if (last.detail.length) box.append(h("div", { class: "working" }, h("div", { class: "label" }, "The working"), ...last.detail.map((line) => h("div", { class: "line" }, line))));
+  // the notebook: label the attempt, copy it, or export every attempt kept in this browser, so the ear can be tuned from real readings
+  const sample = m.samples.at(-1);
+  const mark = (label: "best" | "poor", word: string) => {
+    const b = h("button", { class: `btn ghost tiny ${sample?.label === label ? "on" : ""}` }, word);
+    b.addEventListener("click", () => { if (sample) { sample.label = label; relabelLast(label); render(); } });
+    return b;
+  };
+  const copy = h("button", { class: "btn ghost tiny" }, "Copy reading");
+  copy.addEventListener("click", () => { void navigator.clipboard?.writeText(JSON.stringify(sample ?? last, null, 2)).then(() => setStatus("Reading copied."), () => setStatus("Could not copy; the reading is in the browser console.")); });
+  const exp = h("button", { class: "btn ghost tiny" }, `Export notebook (${notebook().length})`);
+  exp.addEventListener("click", () => download(`mirror-notebook-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(notebook(), null, 2)));
+  box.append(h("div", { class: "tools" }, mark("best", "That was my best"), mark("poor", "That was poor on purpose"), copy, exp));
   return box;
 }
 
@@ -851,6 +906,12 @@ async function processMirrorUtterance(u: Utterance): Promise<void> {
     const reading = readAsk(ask, axes);
     m.results.push(reading);
     m.lastAffect = updateAffect(createAffectState(), u.scores);
+    // keep the whole attempt: the verdict can be checked, labelled and exported, and the ear tuned from real readings
+    const sample: MirrorSample = { at: new Date().toISOString(), build: BUILD, ear: app.ear.kind, ask: ask.id, text: u.text, scores: u.scores, rawAxes: raw, judged: axes, baseline: m.baseline?.axes ?? null, score: reading.score, band: reading.band, detail: reading.detail };
+    if (reading.leak !== undefined) sample.leak = reading.leak;
+    m.samples.push(sample);
+    keepSample(sample);
+    console.info("[mirror]", sample);
     m.step += 1;
     setStatus("");
     render();

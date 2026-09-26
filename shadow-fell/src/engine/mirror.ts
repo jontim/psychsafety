@@ -94,9 +94,10 @@ export const MIRROR_ASKS: MirrorAsk[] = [
     id: "lie",
     title: "Your best lie",
     line: "Now lie to me. Tell me you have never set foot in Halyra, and make me believe it. A good lie is easy in the mouth. A bad one asks permission.",
-    measure: "Your plain voice with the words changed: nothing dropped, nothing hurried, nothing guilty.",
+    measure: "Your plain voice with the words changed: nothing dropped, nothing guilty, no edge in it.",
     judge: "hold",
-    targets: [{ axis: "composure", weight: 1 }, { axis: "pressure", weight: -1 }, { axis: "candour", weight: 0.6 }],
+    // a confident lie may sound determined, so heat is not a tell; a drop in composure, a drop in candour and a rise in edge are
+    targets: [{ axis: "composure", weight: 1 }, { axis: "candour", weight: 0.8 }, { axis: "edge", weight: -0.5 }],
     verdicts: [
       "A stranger would believe you. Easy, open, unhurried; nothing in your voice asked whether I bought it.",
       "Half a lie. Steady enough, but something in you was checking my face.",
@@ -107,9 +108,9 @@ export const MIRROR_ASKS: MirrorAsk[] = [
     id: "support",
     title: "Your best support",
     line: "Someone you love has just failed at the thing they wanted most. Tell them it will be all right, and mean it.",
-    measure: "Warm, with no heat in it.",
+    measure: "Care in it, and no edge.",
     judge: "reach",
-    targets: [{ axis: "warmth", weight: 1 }, { axis: "pressure", weight: -0.6 }],
+    targets: [{ axis: "care", weight: 1 }, { axis: "edge", weight: -0.6 }],
     verdicts: [
       "They would believe you were on their side. Warm, steady, no edge in it.",
       "Kind words, but the voice was somewhere else. Warmth needs the whole of you.",
@@ -177,6 +178,8 @@ const QUALITY_WORDS: Record<string, [string, string]> = {
   candour: ["open", "guarded"],
   pressure: ["heated", "unhurried"],
   showmanship: ["playful", "flat"],
+  care: ["caring", "distant"],
+  edge: ["sharp", "gentle"],
 };
 
 /** The strongest qualities in a reading, as a listener would name them. */

@@ -57,6 +57,22 @@ export const CORE_AXES: AffectAxisSpec[] = [
     positive: { amusement: 1, excitement: 0.8, triumph: 0.7, aestheticAppreciation: 0.6, joy: 0.5, entrancement: 0.5, pride: 0.4, awe: 0.4 },
     negative: { boredom: 1, tiredness: 0.8, awkwardness: 0.6, embarrassment: 0.5, doubt: 0.4 },
   },
+  {
+    // Comfort does not sound like joy to the ear: it sounds like concern. A voice telling someone it will be all right carries
+    // sympathy, empathic pain and a soft sadness, and reads as distress to an axis that only knows heat. This one knows.
+    id: "care",
+    label: "Care",
+    description: "Concern for someone: sympathy, empathic pain, love and a soft sadness against contempt, anger or disgust.",
+    positive: { sympathy: 1, empathicPain: 0.8, love: 0.7, adoration: 0.5, sadness: 0.4, calmness: 0.4, contentment: 0.3, relief: 0.3, admiration: 0.3 },
+    negative: { contempt: 1, anger: 0.9, disgust: 0.8, disappointment: 0.4, boredom: 0.3 },
+  },
+  {
+    id: "edge",
+    label: "Edge",
+    description: "Sharpness: anger, contempt, disgust and disappointment against calm, sympathy or love. The scolding in a voice.",
+    positive: { anger: 1, contempt: 0.9, disgust: 0.7, disappointment: 0.4 },
+    negative: { calmness: 0.5, sympathy: 0.4, love: 0.3 },
+  },
 ];
 
 export const AXIS_BY_ID: Record<string, AffectAxisSpec> = Object.fromEntries(CORE_AXES.map((a) => [a.id, a]));

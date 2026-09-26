@@ -16,8 +16,8 @@ export const api = {
   director: (req: DirectorRequest) =>
     fetch("/api/director", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(req) })
       .then((r) => unwrap<{ response: DirectorResponse; source: "claude" | "understudy"; note?: string }>(r)),
-  tts: async (worldId: string, speaker: string, text: string, acting?: string): Promise<Blob | null> => {
-    const res = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ worldId, speaker, text, acting }) });
+  tts: async (worldId: string, speaker: string, text: string, acting?: string, signal?: AbortSignal): Promise<Blob | null> => {
+    const res = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ worldId, speaker, text, acting }), signal });
     if (res.status === 503) return null;
     if (!res.ok) throw new Error(`Octave failed (${res.status})`);
     return res.blob();

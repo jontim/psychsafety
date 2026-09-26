@@ -26,6 +26,10 @@ interface App {
   voice: Voice;
   consented: boolean;
   busy: boolean;
+  /** The Scribe is speaking in the Mirror; it never holds the turn, and a new line cuts him off. */
+  speaking: boolean;
+  /** Bumped whenever the Scribe is cut off, so a run of lines stops after the one that was cut. */
+  speechGen: number;
   status: string;
   lastResponse: DirectorResponse | null;
   lastSource: string;
@@ -92,7 +96,7 @@ async function boot(): Promise<void> {
     onChange: (fragments) => { app.speechSoFar = fragments; renderSpeechSoFar(); },
     onCommit: (merged) => { void processUtterance(merged); },
   });
-  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "chart", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1", mirror: null, baseline: loadBaseline(), interlude: null, chart: null, legChart: null, picked: null, chartOpen: false };
+  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, speaking: false, speechGen: 0, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "chart", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1", mirror: null, baseline: loadBaseline(), interlude: null, chart: null, legChart: null, picked: null, chartOpen: false };
   mock.onUtterance((u) => { void processUtterance(u); });
   mock.onStatus(setStatus);
   render();
@@ -708,17 +712,17 @@ function startMirror(): void {
     app.status = "";
     app.screen = "mirror";
     render();
-    void speakMuted(narratorId(), MIRROR_ASKS[0]!.line);
+    void scribeSays([MIRROR_ASKS[0]!.line]);
   });
 }
 
 function mirrorStrip(): HTMLElement {
   const m = app.mirror!;
   const done = m.step >= MIRROR_ASKS.length;
-  const state = app.busy ? "The Scribe is speaking" : done ? "The Mirror is done" : "Your turn";
+  const state = app.speaking ? "The Scribe is speaking; answer whenever you like" : done ? "The Mirror is done" : "Your turn";
   const last = m.results.at(-1);
   const read = last ? (last.heard.length ? `The Scribe hears you as ${last.heard.join(" and ")}.` : "The Scribe hears nothing leaning either way.") : "Not read yet.";
-  const strip = h("div", { class: `turn-strip ${app.busy ? "busy" : "yours"}` });
+  const strip = h("div", { class: `turn-strip ${app.speaking ? "busy" : "yours"}` });
   strip.append(
     h("div", { class: "turn-state" }, state),
     done ? h("div", { class: "turn-rule" }, h("span", { class: "hint" }, "Begin the tour, or take it again.")) : floorRule(),
@@ -749,12 +753,12 @@ function mirrorScreen(): HTMLElement {
       h("div", { class: "react" }, done ? "" : ask.measure),
     ),
   );
-  const leave = () => { stopHume(); app.voice.stop(); app.mirror = null; app.screen = "chart"; render(); };
+  const leave = () => { stopHume(); cutScribe(); app.mirror = null; app.screen = "chart"; render(); };
   const main = h("div", {}, mirrorStrip(), stage);
   if (!done) main.append(h("div", { class: "controls" }, inputBox("Leave the Mirror", leave)));
   else {
     const begin = h("button", { class: "btn gold" }, "Begin the tour with this voice");
-    begin.addEventListener("click", () => { saveBaseline(m.baseline); app.mirror = null; app.screen = "chart"; render(); });
+    begin.addEventListener("click", () => { cutScribe(); saveBaseline(m.baseline); app.mirror = null; app.screen = "chart"; render(); });
     const again = h("button", { class: "btn ghost" }, "Take it again");
     again.addEventListener("click", startMirror);
     const skip = h("button", { class: "btn ghost" }, "Leave without it");
@@ -795,11 +799,32 @@ function renderBaselinePanel(b: Baseline): HTMLElement {
   return box;
 }
 
+/** The Scribe reads lines in turn without holding the Mirror: a new line from the player cuts him off. */
+async function scribeSays(lines: string[]): Promise<void> {
+  const gen = ++app.speechGen;
+  app.speaking = true;
+  refreshMirrorStrip();
+  try {
+    for (const line of lines) {
+      if (gen !== app.speechGen) return;
+      await speakMuted(narratorId(), line);
+    }
+  } finally {
+    if (gen === app.speechGen) { app.speaking = false; refreshMirrorStrip(); }
+  }
+}
+
+function cutScribe(): void {
+  app.speechGen += 1;
+  app.speaking = false;
+  app.voice.stop();
+}
+
+/** Read the player's answer to the current ask at once; the Scribe's verdict and the next ask follow without holding the turn. */
 async function processMirrorUtterance(u: Utterance): Promise<void> {
   const m = app.mirror;
   if (!m || m.step >= MIRROR_ASKS.length) return;
-  if (app.busy) { setTimeout(() => { void processMirrorUtterance(u); }, 400); return; }
-  app.busy = true;
+  cutScribe();
   try {
     const ask = MIRROR_ASKS[m.step]!;
     const raw = computeAxes(u.scores);
@@ -810,13 +835,10 @@ async function processMirrorUtterance(u: Utterance): Promise<void> {
     m.step += 1;
     setStatus("");
     render();
-    await speakMuted(narratorId(), reading.verdict);
     const next = MIRROR_ASKS[m.step];
-    if (next) await speakMuted(narratorId(), next.line);
+    void scribeSays(next ? [reading.verdict, next.line] : [reading.verdict]);
   } catch (e) {
     setStatus(`The Mirror slipped: ${(e as Error).message}`);
-  } finally {
-    app.busy = false;
     refreshMirrorStrip();
   }
 }

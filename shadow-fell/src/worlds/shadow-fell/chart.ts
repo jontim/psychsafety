@@ -14,10 +14,12 @@ import type { WorldInput } from "../../engine/world.js";
  * sheet stays blank ahead of it (no foreknowledge). The palace scenes are pins on Jon's overview plate of the
  * Sky Palace, bound into the sheet's south-west corner as a panel (his other two plates, the private berth and
  * the dining terrace, are the views shown when those scenes are boarded: the thing is huge, and no one drawing
- * holds it). The road walks between the pins and leaves by the berth; the Humā then flies down to the Congress,
- * which is not in the palace but on the land below, carved out of a mountain; from there the flight goes straight
- * to the Reach when Navid is sent to hire deniables (by way of Omahnd only when the dispatch said Omahnd), lands
- * and fades as the tour wagon grows in its place, and the wagon works east across Covalis toward the border.
+ * holds it). The road walks between the pins and leaves by the berth; the Humā then takes the Caliph down to the
+ * Eightfold Hall, the Congress carved into Mount Sifr, the null mountain half a mile below the palace (Jon's sheet of it is
+ * that scene's view); from there Navid's cutter, the Shahin, flies straight to the Reach when he is sent to hire
+ * deniables (by way of Omahnd only when the dispatch said Omahnd; the chart draws both ships with the one skyship
+ * sprite), lands and fades as the tour wagon grows in its place, and the wagon works east across Covalis toward
+ * the border.
  * Names appear as they are crossed. No town on the tour is named but the last.
  */
 export const SHADOW_FELL_CHART: NonNullable<WorldInput["chart"]> = {
@@ -59,7 +61,8 @@ export const SHADOW_FELL_CHART: NonNullable<WorldInput["chart"]> = {
   // from the panel's corner). The three plates are different angles of one huge structure, so the pins on the overview are placed
   // by inference from the other two: the private berth by the Caliphina's quarters at one end, the Caliph's rooms at the other,
   // the windowless room deep in the hull, the dining terrace under the great dome. Move them freely; nothing else depends on them.
-  insets: [{ id: "palace", title: "The Sky Palace of Halyra", shape: "panel", image: "/chart/palace.webp", box: [22, 768, 380, 163], anchor: [1190, 705], exit: [398, 815] }],
+  // The palace hangs half a mile above the Eightfold Hall, so its anchor sits beside the Congress pin, just east of the lettering.
+  insets: [{ id: "palace", title: "The Sky Palace of Halyra", shape: "panel", image: "/chart/palace.webp", box: [22, 768, 380, 163], anchor: [1440, 772], exit: [398, 815] }],
   waypoints: [
     { beat: "no-windows", at: [212, 886], inset: "palace", place: "Deep in the hull", side: "left",
       view: { src: "/chart/palace-dining.webp", caption: "The family's dining terrace, under the great dome, where it happened the night before." } },
@@ -67,10 +70,11 @@ export const SHADOW_FELL_CHART: NonNullable<WorldInput["chart"]> = {
       view: { src: "/chart/palace-berth.webp", caption: "The private berth at the Caliphina's quarters, the Humā alongside. She keeps the military liaison there by her own choice." } },
     { beat: "the-study", at: [128, 831], inset: "palace", place: "At dawn, on the far side of the complex", side: "above",
       view: { src: "/chart/palace.webp", caption: "The Sky Palace from the causeway; the Humā in flight. The Caliph and the Caliphara keep the far side of the complex." } },
-    // The Congress is not in the palace: it sits on the land below, carved out of a mountain. The Humā takes the Caliph down to it.
-    { beat: "the-proclamation", at: [1450, 830], place: "The Congress, under the mountain", by: "sky", via: [[1300, 715], [1432, 740]], side: "below" },
+    // The Congress is not in the palace: the Eightfold Hall is carved into the null mountain below. The Humā takes the Caliph down to it.
+    { beat: "the-proclamation", at: [1450, 830], place: "The Eightfold Hall, in Mount Sifr below", by: "sky", via: [[1482, 798]], side: "below",
+      view: { src: "/chart/congress.webp", caption: "The Eightfold Hall: the Congress of Halyra carved into Mount Sifr, the null mountain, the Sky Palace half a mile above. The stone takes everyone's magic; only argument is allowed in." } },
     // The flight north: straight to the Reach when Halyra saw through the file; by way of Omahnd when the dispatch said Omahnd.
-    { beat: "your-deniables", at: [770, 515], place: "The Hundred Kingdoms, at the Reach's edge", by: "sky", via: [[1470, 745], [1130, 600]], side: "right",
+    { beat: "your-deniables", at: [770, 515], place: "The Hundred Kingdoms, at the Reach's edge", by: "sky", via: [[1505, 752], [1130, 600]], side: "right",
       routes: [{ flag: "omahnd-recommended", label: "by way of Omahnd, if the dispatch said so", via: [[1010, 830], [720, 845], [600, 700], [640, 530]] }] },
     // The tour: from the landing to western Covalis, then north and south across Covalis like a beta wave, working east toward the border.
     { beat: "make-it-famous", at: [596, 236], place: "A tavern in western Covalis", by: "road", via: [[690, 420], [604, 318]], side: "left" },

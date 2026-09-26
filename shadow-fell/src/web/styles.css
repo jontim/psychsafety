@@ -351,7 +351,7 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .boarding .sum { font-size: 13.5px; color: var(--ink-soft); max-width: 70ch; }
 .boarding .actions { display: flex; flex-direction: column; gap: 8px; }
 .boarding .view { grid-column: 1 / -1; margin: 6px 0 0; }
-.boarding .view img { width: 100%; aspect-ratio: 2.33; object-fit: cover; border-radius: 10px; border: 2px solid var(--old-gold); display: block; }
+.boarding .view img { width: 100%; height: auto; aspect-ratio: auto; object-fit: fill; border-radius: 10px; border: 2px solid var(--old-gold); display: block; }
 .boarding .view figcaption { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--ink-soft); margin-top: 7px; }
 @media (max-width: 760px) { .boarding { grid-template-columns: 1fr; } .boarding img { width: 90px; } .boarding .actions { flex-direction: row; flex-wrap: wrap; } }
 

@@ -29,9 +29,10 @@ describe("The Shadow Fell chart", () => {
     expect(congress.by, "the Humā takes the Caliph down to it").toBe("sky");
     expect(Math.abs(congress.at[0] - (halyra[0] + halyra[2] / 2)), "within the enclave").toBeLessThan(halyra[2]);
     expect(congress.at[1], "on the land below, not over the palace").toBeGreaterThan(halyra[1] + halyra[3]);
-    expect(palace.anchor[0], "the palace hangs over the enclave").toBeGreaterThan(halyra[0]); expect(palace.anchor[0], "the palace hangs over the enclave").toBeLessThan(halyra[0] + halyra[2]);
+    expect(Math.abs(palace.anchor[0] - (halyra[0] + halyra[2] / 2)), "the palace hangs over the enclave").toBeLessThan(halyra[2]);
     const ship = chart.vehicles.sky!;
-    expect(Math.hypot(congress.at[0] - palace.anchor[0], congress.at[1] - palace.anchor[1]), "a short flight down: a hop").toBeLessThan(ship.width * 2.5);
+    expect(Math.hypot(congress.at[0] - palace.anchor[0], congress.at[1] - palace.anchor[1]), "the palace hangs half a mile above the hall: a hop down").toBeLessThan(ship.width);
+    expect(congress.view?.src, "Jon's sheet of the Eightfold Hall is the scene's view").toBe("/chart/congress.webp");
     const dinner = chart.places.find((p) => p.id === "dinner")!;
     expect(dinner.inset).toBe("palace");
     expect(dinner.reveal, "where it happened is marked from the start").toBeUndefined();

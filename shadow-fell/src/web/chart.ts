@@ -30,6 +30,8 @@ export interface ChartOptions {
   current?: string | null;
   /** An ending that has fired: its branch is drawn and its glyph lit. */
   ending?: string | null;
+  /** The player's flags so far: a waypoint with routes takes the first whose flag is set. */
+  flags?: string[];
   /** Waypoints answer clicks with onPick and show a hand on hover. */
   interactive?: boolean;
   onPick?: (beatId: string) => void;
@@ -125,6 +127,9 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
   const U = W / 1200;
   const plate = chart.plate;
   const regions = chart.regions;
+  const places = chart.places;
+  /** How close the road must pass to a name to discover it, in chart units. */
+  const REACH = 90;
   const px = (n: number): string => `${r1(n * U)}px`;
   let destroyed = false;
   let seq = 0;
@@ -150,7 +155,11 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     if (own.length >= 2) forks.set(b.id, own);
   });
 
-  const nodeOf = (w: Waypoint): RoadNode => ({ at: w.at, inset: w.inset, via: w.via });
+  const flagSet = new Set(opts.flags ?? []);
+  /** The road into a waypoint can depend on what the player decided: the first route whose flag is set wins, else the plain way. */
+  const routeFor = (w: Waypoint) => w.routes.find((r) => flagSet.has(r.flag));
+  const viaFor = (w: Waypoint): Pt[] => routeFor(w)?.via ?? w.via;
+  const nodeOf = (w: Waypoint): RoadNode => ({ at: w.at, inset: w.inset, via: viaFor(w) });
   /** The road from one node to the next, in pieces: inside an inset, or in flight across the sheet. */
   function legPieces(a: RoadNode, b: RoadNode): Piece[] {
     const ia = a.inset ? insets.get(a.inset) : undefined;
@@ -251,13 +260,46 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     regionEls.set(rg.id, g);
   }
   /** Names appear as the road reaches them: lettered plate boxes unmask, drawn labels fade in. */
+  const revealed = new Set<string>();
+  function revealRegion(id: string): void {
+    if (revealed.has(id)) return;
+    revealed.add(id);
+    regionEls.get(id)?.classList.remove("hidden");
+    const rect = letterRects.get(id);
+    if (rect) rect.style.opacity = "1";
+  }
+  function revealPlace(id: string): void {
+    if (revealed.has(`place:${id}`)) return;
+    revealed.add(`place:${id}`);
+    placeEls.get(id)?.classList.remove("hidden");
+  }
   function revealRegions(beatId: string): void {
+    for (const rg of regions) if (rg.reveal === beatId) revealRegion(rg.id);
+    for (const pl of places) if (pl.reveal === beatId) revealPlace(pl.id);
+  }
+  /** Distance from a point to a box, zero inside it. */
+  const boxDistance = (p: Pt, box: [number, number, number, number]): number => {
+    const dx = Math.max(box[0] - p[0], 0, p[0] - (box[0] + box[2]));
+    const dy = Math.max(box[1] - p[1], 0, p[1] - (box[1] + box[3]));
+    return Math.hypot(dx, dy);
+  };
+  /** The map fills in as the road crosses it: any name within reach of this point is discovered, whether or not anything happens there. */
+  function discover(p: Pt): void {
     for (const rg of regions) {
-      if (rg.reveal !== beatId) continue;
-      regionEls.get(rg.id)?.classList.remove("hidden");
-      const rect = letterRects.get(rg.id);
-      if (rect) rect.style.opacity = "1";
+      if (rg.reveal !== "near" || revealed.has(rg.id)) continue;
+      const box = rg.box ?? [rg.at[0] - 40, rg.at[1] - 12, 80, 24];
+      if (boxDistance(p, box) <= (rg.reach ?? REACH)) revealRegion(rg.id);
     }
+    for (const pl of places) {
+      if (pl.reveal !== "near" || revealed.has(`place:${pl.id}`)) continue;
+      if (Math.hypot(p[0] - pl.at[0], p[1] - pl.at[1]) <= (pl.reach ?? REACH)) revealPlace(pl.id);
+    }
+  }
+  /** Walk a road already travelled and discover what it passed; the path must be in the document. */
+  function sweep(path: SVGPathElement): void {
+    const L = path.getTotalLength();
+    if (!L) return;
+    for (let d = 0; d <= L; d += 8 * U) { const q = path.getPointAtLength(d); discover([q.x, q.y]); }
   }
   const GLYPHS: Record<string, string> = {
     palace: "M -7 3 L 7 3 L 6 -1 L 3 -1 L 3 -4 A 3 3 0 0 1 -3 -4 L -3 -1 L -6 -1 Z M -9 7 Q -4 4 0 7 Q 4 10 9 7",
@@ -265,11 +307,14 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     port: "M 0 -5 L 0 5 M -5 1 Q 0 6 5 1 M -3 -3 L 3 -3",
     pass: "M -8 4 L -3 -3 M 3 -3 L 8 4 M 0 2 m -1.2 0 a 1.2 1.2 0 1 0 2.4 0 a 1.2 1.2 0 1 0 -2.4 0",
   };
+  const placeEls = new Map<string, SVGGElement>();
   for (const p of chart.places) {
-    gNames.append(s("g", { class: `place ${p.glyph}`, transform: `translate(${p.at[0]} ${p.at[1]}) scale(${r1(U)})` },
+    const g = s("g", { class: `place ${p.glyph} ${p.reveal ? "hidden" : ""}`, "data-place": p.id, transform: `translate(${p.at[0]} ${p.at[1]}) scale(${r1(U)})` },
       s("path", { class: "glyph", d: GLYPHS[p.glyph] ?? GLYPHS.city! }),
       s("text", { x: 12, y: 4 }, p.label),
-    ));
+    );
+    gNames.append(g);
+    placeEls.set(p.id, g);
   }
   for (const b of chart.beyond) {
     const arrow = b.dir === "n" ? "M 0 -4 L 0 -14 M -4 -10 L 0 -14 L 4 -10" : b.dir === "s" ? "M 0 4 L 0 14 M -4 10 L 0 14 L 4 10" : b.dir === "e" ? "M 4 0 L 14 0 M 10 -4 L 14 0 L 10 4" : "M -4 0 L -14 0 M -10 -4 L -14 0 L -10 4";
@@ -348,14 +393,16 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     }
     m.g.setAttribute("transform", `translate(${r1(x)} ${r1(y)}) scale(${r1(sx * m.scale)} ${r1(m.scale)})`);
   }
-  /** Grow or shrink a mover in place: a take-off or a landing. */
-  function scaleMover(m: Mover, from: number, to: number, ms: number): Promise<void> {
+  const easeOutBack = (t: number): number => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+  /** Grow or shrink a mover in place, fading with it: a take-off springs, a landing shrinks to nothing. */
+  function scaleMover(m: Mover, from: number, to: number, ms: number, ease: (t: number) => number = easeInOut, fade?: [number, number]): Promise<void> {
     const t0 = performance.now();
     return new Promise((resolve) => {
       const step = (now: number): void => {
         if (destroyed) { resolve(); return; }
         const t = Math.min(1, (now - t0) / ms);
-        m.scale = from + (to - from) * easeInOut(t);
+        m.scale = from + (to - from) * ease(t);
+        if (fade) m.g.style.opacity = String(r1(fade[0] + (fade[1] - fade[0]) * easeInOut(t)));
         placeMover(m, m.x, m.y, 0, 0, now);
         if (t < 1) requestAnimationFrame(step); else resolve();
       };
@@ -528,12 +575,36 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     for (const p of legPieces(nodeOf(a), nodeOf(b))) g.append(s("path", { d: p.d, style: `stroke-width:${px(1.5)};stroke-dasharray:${r1(1.5 * U)} ${r1(5 * U)}` }));
     gGhost.append(g);
   }
-  // The road past the last scene, fading: the story goes on beyond this sheet.
+  // The road past the last scene, dotted: the story goes on beyond this sheet, toward wherever the chart says.
   const last = beats[beats.length - 1];
   const lastWp = last ? wps.get(last.id) : undefined;
+  let onwardEl: SVGPathElement | null = null;
   if (lastWp && !lastWp.inset) {
     const [x, y] = lastWp.at;
-    gGhost.append(s("path", { class: "onward", d: `M ${x} ${y} Q ${r1(x + 26 * U)} ${r1(y - 30 * U)} ${r1(x + 44 * U)} ${r1(y - 46 * U)}`, style: `stroke-width:${px(1.5)};stroke-dasharray:${r1(1.5 * U)} ${r1(5 * U)}` }));
+    const d = chart.onward.length ? spline([lastWp.at, ...chart.onward]) : `M ${x} ${y} Q ${r1(x + 26 * U)} ${r1(y - 30 * U)} ${r1(x + 44 * U)} ${r1(y - 46 * U)}`;
+    onwardEl = s("path", { class: "onward", d, style: `stroke-width:${px(1.5)};stroke-dasharray:${r1(1.5 * U)} ${r1(5 * U)}` });
+    gGhost.append(onwardEl);
+  }
+  // Other ways in: a waypoint with routes shows the roads not taken as ghosts at the fork before it, with what would take them.
+  for (const w of chart.waypoints) {
+    if (!w.routes.length) continue;
+    const leg = legs.find((l) => l.to === w.beat);
+    const a = leg ? wps.get(leg.from) : undefined;
+    if (!leg || !a) continue;
+    const chosen = routeFor(w);
+    // labels sit late on a detour and early on the plain way, clear of each other and of the endings near the start
+    const others: Array<{ via: Pt[]; label: string; t: number }> = w.routes.filter((r) => r !== chosen).map((r) => ({ via: r.via, label: r.label ?? `by way of ${r.flag}`, t: 0.72 }));
+    if (chosen) others.unshift({ via: w.via, label: "the plain way", t: 0.3 });
+    let g = forkEls.get(leg.from);
+    if (!g) { g = s("g", { class: "fork", "data-beat": leg.from }); forkEls.set(leg.from, g); gForks.append(g); }
+    for (const alt of others) {
+      const pieces = legPieces(nodeOf(a), { at: w.at, inset: w.inset, via: alt.via });
+      let labelPath: SVGPathElement | null = null;
+      for (const p of pieces) { const path = s("path", { class: "branch alt", d: p.d, style: `stroke-width:${px(1.4)};stroke-dasharray:${r1(2 * U)} ${r1(5 * U)}` }); g.append(path); if (p.kind === "flight" || !labelPath) labelPath = path; }
+      const text = forkText(alt.label, false);
+      g.append(text);
+      if (labelPath) forkLabels.push({ text, path: labelPath, t: alt.t });
+    }
   }
 
   /** A solid leg between two nodes, drawn in pieces; pending pieces stay hidden until revealed. */
@@ -632,8 +703,9 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
         const t = Math.min(1, (now - t0) / ms);
         const e = easeInOut(t);
         mp.setAttribute("stroke-dashoffset", String(r1(L * (1 - e))));
+        const p = dash.getPointAtLength(L * e);
+        if (piece.getAttribute("data-kind") === "flight") discover([p.x, p.y]);
         if (mover) {
-          const p = dash.getPointAtLength(L * e);
           const q = dash.getPointAtLength(Math.min(L, L * e + 4 * U));
           placeMover(mover, p.x, p.y, q.x - p.x, q.y - p.y, now);
         }
@@ -649,13 +721,14 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     if (heading) m.facing = heading;
     m.flipStart = -1;
     m.scale = 0.12;
+    m.g.style.opacity = "0";
     placeMover(m, p.x, p.y, 0, 0, performance.now());
     m.g.classList.remove("hidden");
-    await scaleMover(m, 0.12, 1, 420);
+    await scaleMover(m, 0.12, 1, 560, easeOutBack, [0, 1]);
   }
-  /** Shrink a mover where it stands and hide it: the landing. */
+  /** Shrink a mover where it stands until it is gone: the landing. */
   async function land(m: Mover): Promise<void> {
-    await scaleMover(m, 1, 0.12, 480);
+    await scaleMover(m, 1, 0.1, 640, easeInOut, [1, 0]);
     m.g.classList.add("hidden");
     m.scale = 1;
   }
@@ -666,6 +739,7 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     if (!g) return;
     g.classList.remove("faint");
     revealRegions(beatId);
+    if (last && beatId === last.id) onwardEl?.classList.add("shown");
     if (pop) { const body = g.querySelector(".body"); body?.classList.remove("pop"); void (body as SVGGElement | null)?.getBBox(); body?.classList.add("pop"); }
     if (asCurrent) {
       if (currentBeat) wpEls.get(currentBeat)?.classList.remove("current");
@@ -773,6 +847,8 @@ export function renderChart(world: World, opts: ChartOptions): ChartHandle {
     show(id, false, false);
   }
   if (opts.current) { show(opts.current, true, false); queueMicrotask(() => { if (!destroyed && opts.current) showForks(opts.current); }); }
+  // what the road already travelled passed by, once the paths are in the document and can be measured
+  if (travelled.length > 1) queueMicrotask(() => { if (destroyed) return; for (const g of legEls.values()) for (const path of g.querySelectorAll<SVGPathElement>('g.piece[data-kind="flight"] path.dash')) sweep(path); });
   if (opts.ending && opts.current) {
     const b = wps.get(opts.current), e = endings.get(opts.ending);
     if (b && e) { solidLeg(nodeOf(b), { at: e.at, inset: e.inset }, `${opts.current}>${opts.ending}`, false); fire(opts.ending); }

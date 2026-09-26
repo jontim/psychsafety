@@ -30,6 +30,8 @@ describe("the chart", () => {
     const w = defineWorld({ ...base(), chart: chart() });
     expect(validateWorld(w)).toEqual([]);
     expect(w.chart?.waypoints[0]?.via).toEqual([]);
+    expect(w.chart?.waypoints[0]?.routes).toEqual([]);
+    expect(w.chart?.onward).toEqual([]);
     expect(w.chart?.endings[0]?.glyph).toBe("storm");
   });
 
@@ -52,7 +54,7 @@ describe("the chart", () => {
     expect(validateWorld(badVehicle)).toContain("Chart: waypoint two travels by unknown vehicle balloon");
     const badReveal = defineWorld({ ...base(), chart: chart({ regions: [{ id: "r", label: "R", at: [5, 5], reveal: "nine" }] }) });
     expect(validateWorld(badReveal)).toContain("Chart: region r is revealed by unknown beat nine");
-    const never = defineWorld({ ...base(), chart: chart({ regions: [{ id: "r", label: "R", at: [5, 5], reveal: "never" }] }) });
+    const never = defineWorld({ ...base(), chart: chart({ regions: [{ id: "r", label: "R", at: [5, 5], reveal: "never" }, { id: "n", label: "N", at: [6, 6], reveal: "near", reach: 30 }], places: [{ id: "p", label: "P", at: [7, 7], reveal: "near" }] }) });
     expect(validateWorld(never)).toEqual([]);
     const plated = defineWorld({ ...base(), chart: chart({ land: undefined, plate: { clean: "/p.jpg" }, vehicles: { sky: { src: "/s.png", width: 10, height: 10 } }, waypoints: [{ beat: "one", at: [1, 1], place: "x" }, { beat: "two", at: [2, 2], place: "y", by: "sky" }] }) });
     expect(validateWorld(plated)).toEqual([]);

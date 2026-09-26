@@ -370,7 +370,12 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .chart .vehicle.hidden { opacity: 0; }
 .chart.plate .inset .ring { fill: #efe1c2; }
 /* On a plate the map starts almost empty, as Jon's does: no ghost road, and a scene not yet reached is only a faint medallion. */
-.chart.plate .leg.ghost, .chart.plate .onward { display: none; }
+.chart.plate .leg.ghost { display: none; }
+.chart.plate .onward { opacity: 0; transition: opacity 0.9s ease; }
+.chart.plate .onward.shown { opacity: 0.55; }
+.chart .place { transition: opacity 0.8s ease; }
+.chart .place.hidden { opacity: 0; }
+.chart .fork .branch.alt { stroke: #3d3020; opacity: 0.45; }
 .chart.plate .wp.faint .label { opacity: 0; }
 .chart.plate .wp.faint.selected .label, .chart.plate .wp.faint:hover .label { opacity: 1; }
 .chart.plate .wp .label { transition: opacity 0.4s ease; }

@@ -193,16 +193,19 @@ export const ChartSchema = z.object({
   /** Mountain ranges as polylines, drawn as chevrons; a frontier range also carries the dashed border. */
   ranges: z.array(z.object({ id: z.string(), label: z.string().optional(), sub: z.string().optional(), points: z.array(PointSchema).min(2), at: PointSchema.optional(), tone: z.enum(["ink", "frontier"]).default("ink") })).default([]),
   forests: z.array(z.object({ id: z.string(), label: z.string().optional(), d: z.string(), at: PointSchema.optional() })).default([]),
-  /** Region names. `reveal` names the beat at whose arrival the name appears, or "never" for a name the road never reaches (else it shows from the start); `box` is its area on the lettered plate, unmasked instead of lettering it. */
-  regions: z.array(z.object({ id: z.string(), label: z.string(), at: PointSchema, size: z.enum(["large", "small"]).default("large"), tone: z.enum(["ink", "home", "rival", "faint"]).default("ink"), sub: z.string().optional(), reveal: z.string().optional(), box: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(), /** How scripts/chart-letters.ts lifts this name off the lettered plate: "letters" subtracts the clean plate's ink first; "all" takes every stroke in the box, for a name drawn where the clean plate has a mark of its own. */ lift: z.enum(["letters", "all"]).default("letters") })).default([]),
-  places: z.array(z.object({ id: z.string(), label: z.string(), at: PointSchema, glyph: z.enum(["palace", "city", "port", "pass"]).default("city") })).default([]),
+  /** Region names. `reveal`: "near" when the road passes within `reach` chart units of the name (the joy of a map filling in as you cross it), a beat id at that beat's arrival, "never" for a name kept under the mask, or absent for shown from the start; `box` is its area on the lettered plate, unmasked instead of lettering it. */
+  regions: z.array(z.object({ id: z.string(), label: z.string(), at: PointSchema, size: z.enum(["large", "small"]).default("large"), tone: z.enum(["ink", "home", "rival", "faint"]).default("ink"), sub: z.string().optional(), reveal: z.string().optional(), reach: z.number().optional(), box: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(), /** How scripts/chart-letters.ts lifts this name off the lettered plate: "letters" subtracts the clean plate's ink first; "all" takes every stroke in the box, for a name drawn where the clean plate has a mark of its own. */ lift: z.enum(["letters", "all"]).default("letters") })).default([]),
+  /** Named places with a glyph. `reveal`: "near" when the road passes within `reach` of it, a beat id at that beat's arrival, "never", or absent for shown from the start. */
+  places: z.array(z.object({ id: z.string(), label: z.string(), at: PointSchema, glyph: z.enum(["palace", "city", "port", "pass"]).default("city"), reveal: z.string().optional(), reach: z.number().optional() })).default([]),
   /** Off-sheet directions, lettered at the margin. */
   beyond: z.array(z.object({ label: z.string(), at: PointSchema, dir: z.enum(["n", "s", "e", "w"]) })).default([]),
   /** A magnified circle for scenes inside one building: waypoints in it are placed in chart units inside the circle; the road leaves it at `exit` and continues from `anchor`, the place on the sheet it magnifies. */
   insets: z.array(z.object({ id: z.string(), title: z.string(), cx: z.number(), cy: z.number(), r: z.number(), anchor: PointSchema, exit: PointSchema, plan: z.array(z.string()).default([]) })).default([]),
-  /** A waypoint per beat. `by` names the vehicle that lays the road into it (none: on foot, no vehicle). */
-  waypoints: z.array(z.object({ beat: z.string(), at: PointSchema, place: z.string(), label: z.string().optional(), inset: z.string().optional(), via: z.array(PointSchema).default([]), side: z.enum(["left", "right", "above", "below"]).optional(), by: z.string().optional() })),
+  /** A waypoint per beat. `by` names the vehicle that lays the road into it (none: on foot, no vehicle). `via` is the plain way in; `routes` are other ways, each taken when its flag is set, so the road can depend on what the player decided. */
+  waypoints: z.array(z.object({ beat: z.string(), at: PointSchema, place: z.string(), label: z.string().optional(), inset: z.string().optional(), via: z.array(PointSchema).default([]), routes: z.array(z.object({ flag: z.string(), via: z.array(PointSchema).default([]), label: z.string().optional() })).default([]), side: z.enum(["left", "right", "above", "below"]).optional(), by: z.string().optional() })),
   endings: z.array(z.object({ outcome: z.string(), at: PointSchema, label: z.string(), glyph: z.enum(["storm", "fade", "withdraw"]).default("storm"), inset: z.string().optional() })).default([]),
+  /** Where the road goes on past the last scene, dotted and fading: points after the last waypoint. */
+  onward: z.array(PointSchema).default([]),
   compass: PointSchema.optional(),
   cartouche: PointSchema.optional(),
   scale: z.object({ at: PointSchema, px: z.number(), label: z.string() }).optional(),
@@ -294,7 +297,9 @@ export function validateWorld(world: World): string[] {
     }
     for (const id of beatIds) if (!charted.has(id)) problems.push(`Chart: beat ${id} has no waypoint`);
     for (const w of c.waypoints) if (w.by && !(w.by in c.vehicles)) problems.push(`Chart: waypoint ${w.beat} travels by unknown vehicle ${w.by}`);
-    for (const rg of c.regions) if (rg.reveal && rg.reveal !== "never" && !beatIds.has(rg.reveal)) problems.push(`Chart: region ${rg.id} is revealed by unknown beat ${rg.reveal}`);
+    const revealOk = (r: string | undefined): boolean => !r || r === "never" || r === "near" || beatIds.has(r);
+    for (const rg of c.regions) if (!revealOk(rg.reveal)) problems.push(`Chart: region ${rg.id} is revealed by unknown beat ${rg.reveal}`);
+    for (const pl of c.places) if (!revealOk(pl.reveal)) problems.push(`Chart: place ${pl.id} is revealed by unknown beat ${pl.reveal}`);
     if (!c.plate && !c.land) problems.push("Chart: no plate and no land to draw");
     const endingKeys = new Set(world.acts.flatMap((a) => a.beats.flatMap((b) => Object.entries(b.outcomes ?? {}).filter(([, o]) => o.next === null).map(([k]) => k))));
     const placed = new Set<string>();

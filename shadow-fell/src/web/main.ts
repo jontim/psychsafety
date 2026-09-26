@@ -227,7 +227,7 @@ function boardingCard(x: { act: Act; beat: Beat }, firstId: string): HTMLElement
 function chartOverlay(): HTMLElement {
   const snap = app.session!.snapshot();
   const travelled = [...snap.history.map((r) => r.beatId), snap.beat.id];
-  const handle = renderChart(app.world, { portrait: portraitOf, travelled, current: snap.beat.id, ending: snap.ending ? snap.outcome : null });
+  const handle = renderChart(app.world, { portrait: portraitOf, travelled, current: snap.beat.id, ending: snap.ending ? snap.outcome : null, flags: snap.flags });
   const total = app.world.acts.reduce((n, a) => n + a.beats.length, 0);
   const n = app.world.acts.flatMap((a) => a.beats).findIndex((b) => b.id === snap.beat.id) + 1;
   const sofar = snap.history.length ? `Scene ${n} of ${total}. So far: ${snap.history.map((r) => r.label).join("; ")}.` : `Scene ${n} of ${total}. The road begins here.`;
@@ -364,7 +364,7 @@ function interludeScreen(): HTMLElement {
     const history = snap?.history.map((r) => r.beatId) ?? [];
     const travelled = it.chart.kind === "ending" ? history : history;
     app.legChart?.destroy();
-    app.legChart = renderChart(app.world, { portrait: portraitOf, travelled, current: it.chart.kind === "ending" ? it.chart.to : null });
+    app.legChart = renderChart(app.world, { portrait: portraitOf, travelled, current: it.chart.kind === "ending" ? it.chart.to : null, flags: snap?.flags ?? [] });
     stage.classList.add("paper");
     stage.append(
       app.legChart.el,

@@ -12,7 +12,7 @@ import { Floor, type Fragment, type FloorMode } from "./floor.js";
 import { h, castName, renderMeters, renderRibbon, renderTranscript, renderSlate, portraitFor } from "./ui/render.js";
 import type { TonePreset } from "../engine/mock-ear.js";
 import { computeAxes, createAffectState, updateAffect, type AffectState } from "../engine/affect.js";
-import { MIRROR_ASKS, readAsk, baselineFrom, calibrateAxes, describeBaseline, type Baseline, type MirrorReading } from "../engine/mirror.js";
+import { MIRROR_ASKS, readAsk, baselineFrom, calibrateAxes, deviationFrom, describeBaseline, type Baseline, type MirrorReading } from "../engine/mirror.js";
 import { renderChart, type ChartHandle } from "./chart.js";
 
 const WORLD_ID = "shadow-fell";
@@ -805,6 +805,8 @@ function renderHears(m: MirrorState): HTMLElement {
   if (!last) { box.append(h("div", { class: "empty" }, "Say the plain line and the Scribe will tell you what he heard.")); return box; }
   box.append(h("div", { class: "verdict" }, last.verdict));
   if (last.heard.length) box.append(h("div", { class: "heard" }, `Heard as ${last.heard.join(" and ")}.`));
+  // the working: every verdict can be checked against the ribbon
+  if (last.detail.length) box.append(h("div", { class: "working" }, h("div", { class: "label" }, "The working"), ...last.detail.map((line) => h("div", { class: "line" }, line))));
   return box;
 }
 
@@ -844,7 +846,9 @@ async function processMirrorUtterance(u: Utterance): Promise<void> {
     const ask = MIRROR_ASKS[m.step]!;
     const raw = computeAxes(u.scores);
     if (ask.id === "plain") m.baseline = baselineFrom(u.scores);
-    const reading = readAsk(ask, ask.id === "plain" ? raw : calibrateAxes(raw, m.baseline));
+    // a reached ask is read against the calibrated voice; a held one (the lie) against what changed from the plain voice
+    const axes = ask.id === "plain" ? raw : ask.judge === "hold" ? deviationFrom(raw, m.baseline) : calibrateAxes(raw, m.baseline);
+    const reading = readAsk(ask, axes);
     m.results.push(reading);
     m.lastAffect = updateAffect(createAffectState(), u.scores);
     m.step += 1;

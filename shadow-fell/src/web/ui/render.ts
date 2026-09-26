@@ -41,15 +41,18 @@ export function renderRibbon(affect: AffectState): HTMLElement {
     box.append(h("div", { class: "empty" }, "Nothing heard yet. The ribbon shows the listener's reading of your last line: what a stranger would hear, not what you meant."));
     return box;
   }
+  // A live ear reads small: a whole-utterance prosody score rarely passes 0.5 and an axis rarely passes 0.3,
+  // so the bars are drawn to those ranges and the numbers beside them are the truth.
+  const DIM_RANGE = 0.5, AXIS_RANGE = 0.3;
   const dims = h("div", { class: "dims" });
   for (const d of topDimensions(affect.latest, 8)) {
-    dims.append(h("div", { class: "dim" }, h("span", {}, d.label), h("div", { class: "bar" }, h("div", { class: "fill", style: `width:${Math.round(d.score * 100)}%` }))));
+    dims.append(h("div", { class: "dim" }, h("span", {}, `${d.label} ${d.score.toFixed(2)}`), h("div", { class: "bar" }, h("div", { class: "fill", style: `width:${Math.min(100, Math.round((d.score / DIM_RANGE) * 100))}%` }))));
   }
   box.append(dims);
   const axes = h("div", { class: "axes" });
   for (const spec of CORE_AXES) {
     const v = affect.latestAxes[spec.id] ?? 0;
-    const pct = Math.abs(v) * 50;
+    const pct = Math.min(50, (Math.abs(v) / AXIS_RANGE) * 50);
     const fill = h("div", { class: `fill ${v < 0 ? "neg" : ""}`, style: v >= 0 ? `left:50%;width:${pct}%` : `right:50%;width:${pct}%` });
     axes.append(h("div", { class: "axis", title: spec.description }, h("div", { class: "track" }, fill), h("span", {}, `${spec.label} ${formatSigned(v)}`)));
   }

@@ -68,7 +68,7 @@ An offline eval, "which Warden said this?": generate lines per beat, strip the n
 
 ## Calibration
 
-A session built with a baseline (`new StorySession(world, beatId, { baseline })`) shifts both the smoothed and the latest axes away from the player's plain voice by `CALIBRATION_STRENGTH` (0.6) before meters drift, clips are chosen or the director is briefed. The baseline comes from the Mirror's plain line; the snapshot reports `calibrated`. Without a baseline nothing changes.
+A session built with a baseline (`new StorySession(world, beatId, { baseline })`) shifts both the smoothed and the latest axes away from the player's plain voice by `CALIBRATION_STRENGTH` (0.35; it was 0.6, which stripped a calm speaker of the calm the quiet asks look for) before meters drift, clips are chosen or the director is briefed. In the Mirror a *held* ask (the lie) is read instead on `deviationFrom`, the full-strength difference from the plain voice, and scored by what leaked; a *reached* ask is read on the calibrated axes. Every `MirrorReading` carries `detail`, the working in plain lines. The baseline comes from the Mirror's plain line; the snapshot reports `calibrated`. Without a baseline nothing changes.
 
 ## Outcomes and flags
 

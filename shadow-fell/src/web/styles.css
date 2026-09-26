@@ -219,6 +219,9 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .mirror-progress .ask.low .w { color: var(--storm-violet); }
 .mirror-hears .verdict { font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.4; border-left: 3px solid var(--old-gold); padding-left: 10px; }
 .mirror-hears .heard { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+.mirror-hears .working { margin-top: 12px; font-size: 12.5px; color: var(--ink-soft); }
+.mirror-hears .working .label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--state-blue); margin-bottom: 4px; }
+.mirror-hears .working .line { padding: 3px 0; border-top: 1px dashed rgba(20,18,16,0.14); }
 .baseline .words { font-family: var(--serif); font-size: 17px; }
 @media (max-width: 600px) { .mirror-stage .ask, .interlude-stage .ask { font-size: 18px; padding: 56px 20px 110px; } }
 

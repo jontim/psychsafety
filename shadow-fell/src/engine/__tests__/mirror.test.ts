@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { MIRROR_ASKS, ASK_BY_ID, readAsk, scoreAsk, baselineFrom, calibrateAxes, heardAs, describeBaseline, HIGH_BAND, MIDDLE_BAND } from "../mirror.js";
+import { MIRROR_ASKS, ASK_BY_ID, readAsk, scoreAsk, baselineFrom, calibrateAxes, deviationFrom, heardAs, describeBaseline, HIGH_BAND, MIDDLE_BAND, LEAK_HELD, LEAK_HALF, CALIBRATION_STRENGTH } from "../mirror.js";
 import { computeAxes } from "../affect.js";
 import { toneVector, type TonePreset } from "../mock-ear.js";
 import { StorySession } from "../session.js";
@@ -14,9 +14,8 @@ describe("the Mirror", () => {
     for (const ask of MIRROR_ASKS) expect(ask.verdicts).toHaveLength(3);
   });
 
-  it("reads each exemplar tone high on its own ask and low on its foil", () => {
+  it("reads each exemplar tone high on its reached ask and low on its foil", () => {
     const cases: Array<[keyof typeof ASK_BY_ID, TonePreset, TonePreset]> = [
-      ["lie", "calm", "guilty"],
       ["support", "warm", "contemptuous"],
       ["command", "commanding", "anxious"],
       ["showman", "showman", "deadpan"],
@@ -34,10 +33,38 @@ describe("the Mirror", () => {
     }
   });
 
-  it("calls a deadpan lie half a lie", () => {
-    const r = readAsk(ASK_BY_ID.lie, axesOf("deadpan"));
-    expect(r.band).toBe("middle");
-    expect(r.verdict).toContain("Half a lie");
+  it("believes a lie told in your own plain voice, hears a flinch as half a lie, and guilt as a confession", () => {
+    const lie = ASK_BY_ID.lie;
+    expect(lie.judge).toBe("hold");
+    const plain = baselineFrom(toneVector("calm"));
+    const perfect = readAsk(lie, deviationFrom(axesOf("calm"), plain));
+    expect(perfect.leak).toBe(0);
+    expect(perfect.score).toBe(1);
+    expect(perfect.band).toBe("high");
+    expect(perfect.verdict).toContain("A stranger would believe you");
+    expect(perfect.detail.at(-1)).toContain("Leaked 0.00");
+    // steadier and slower than at rest is not a leak either
+    expect(readAsk(lie, { composure: 0.2, pressure: -0.1, candour: 0.1 }).band).toBe("high");
+    const flinch = readAsk(lie, { composure: -0.06, pressure: 0.05, candour: 0 });
+    expect(flinch.leak).toBeCloseTo(0.11, 5);
+    expect(flinch.band).toBe("middle");
+    expect(flinch.verdict).toContain("Half a lie");
+    expect(flinch.detail.some((l) => l.includes("Composure -0.06"))).toBe(true);
+    const guilty = readAsk(lie, deviationFrom(axesOf("guilty"), plain));
+    expect(guilty.leak!).toBeGreaterThan(LEAK_HALF);
+    expect(guilty.band).toBe("low");
+    expect(guilty.verdict).toContain("confession");
+    expect(LEAK_HELD).toBeLessThan(LEAK_HALF);
+  });
+
+  it("shows its working on a reached ask, and takes only a little of the plain voice away", () => {
+    const r = readAsk(ASK_BY_ID.support, axesOf("warm"));
+    expect(r.detail.length).toBe(ASK_BY_ID.support.targets.length + 1);
+    expect(r.detail.at(-1)).toMatch(/^Score \+\d\.\d\d\. Held at 0\.25; half at 0\.05\.$/);
+    expect(r.detail[0]).toMatch(/^Warmth \+0\.\d\d, weight 1\.0; earns/);
+    expect(ASK_BY_ID.support.targets.map((t) => t.axis)).toEqual(["warmth", "pressure"]);
+    expect(CALIBRATION_STRENGTH).toBeLessThan(0.5);
+    expect(readAsk(ASK_BY_ID.plain, {}).detail[0]).toContain("plain line");
   });
 
   it("scores the plain ask at zero and names what was heard", () => {

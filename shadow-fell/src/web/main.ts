@@ -831,10 +831,24 @@ function mirrorStrip(): HTMLElement {
   return strip;
 }
 
+/**
+ * Repaint the Mirror strip in place. Its lines change many times a turn (every interim transcript brings a status), and
+ * replacing the strip pulled the floor rule and the Done button out from under the pointer each time.
+ */
 function refreshMirrorStrip(): void {
   const strip = document.querySelector<HTMLElement>(".turn-strip");
   if (!strip || !app.mirror) return;
-  strip.replaceWith(mirrorStrip());
+  const fresh = mirrorStrip();
+  if (strip.className !== fresh.className) strip.className = fresh.className;
+  for (const cls of ["turn-state", "turn-read", "turn-status", "speech-so-far"]) {
+    const now = strip.querySelector<HTMLElement>(`.${cls}`);
+    const next = fresh.querySelector<HTMLElement>(`.${cls}`);
+    if (now && next && now.textContent !== next.textContent) now.textContent = next.textContent;
+  }
+  // the rule is swapped only when its kind changes (a select and Done for the live ear, a hint otherwise), never while in use
+  const rule = strip.querySelector<HTMLElement>(".turn-rule");
+  const nextRule = fresh.querySelector<HTMLElement>(".turn-rule");
+  if (rule && nextRule && rule.firstElementChild?.tagName !== nextRule.firstElementChild?.tagName && !rule.contains(document.activeElement)) rule.replaceWith(nextRule);
 }
 
 function mirrorScreen(): HTMLElement {
@@ -1019,11 +1033,20 @@ function turnLamp(): HTMLElement {
   return lamp;
 }
 let lampTicker: ReturnType<typeof setInterval> | null = null;
-/** Redraw the lamp in place; while speech is on the floor it ticks, for the countdown. */
+/**
+ * Repaint the lamp in place; while speech is on the floor it ticks, for the countdown. The button itself is kept: replacing
+ * it at every status restarted its pulse and took it from under the pointer, so it flashed and could not be pressed.
+ */
 function refreshLamp(): void {
-  const old = document.querySelector<HTMLElement>(".lamp");
-  if (old) old.replaceWith(turnLamp());
-  const ticking = lampState() === "hearing";
+  const state = lampState();
+  const lamp = document.querySelector<HTMLElement>(".lamp");
+  if (lamp) {
+    const cls = `btn lamp ${state}${state === "off" ? " gold" : ""}`;
+    const text = lampText(state);
+    if (lamp.className !== cls) lamp.className = cls;
+    if (lamp.textContent !== text) lamp.textContent = text;
+  }
+  const ticking = state === "hearing";
   if (ticking && !lampTicker) lampTicker = setInterval(refreshLamp, 250);
   if (!ticking && lampTicker) { clearInterval(lampTicker); lampTicker = null; }
 }

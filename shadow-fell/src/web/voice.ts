@@ -15,6 +15,8 @@ export class Voice {
   private release: (() => void) | null = null;
   private aborter: AbortController | null = null;
   octave = true;
+  /** Told once when Octave is given up on for the session, so the player knows whose voice this is. */
+  onFallback: ((why: string) => void) | null = null;
   /** True while a line is being fetched or heard. */
   speaking = false;
   /** Lines fetched ahead of their turn, so the next sentence starts without a wait. */
@@ -64,6 +66,7 @@ export class Voice {
           return;
         }
         this.octave = false;
+        this.onFallback?.("Octave is not available, so the browser's own voice stands in for this session.");
       } catch (e) {
         if (aborter.signal.aborted) return; // stopped, or given up on: the line is over
         console.warn("octave", e);

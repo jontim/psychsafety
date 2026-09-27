@@ -18,7 +18,8 @@ export const api = {
       .then((r) => unwrap<{ response: DirectorResponse; source: "claude" | "understudy"; note?: string }>(r)),
   tts: async (worldId: string, speaker: string, text: string, acting?: string, signal?: AbortSignal): Promise<Blob | null> => {
     const res = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ worldId, speaker, text, acting }), signal });
-    if (res.status === 503) return null;
+    // 503: no key on the server. 401, 402, 403: the key is refused or out of credit. None mends by retrying, so Octave is given up on for the session.
+    if (res.status === 503 || res.status === 401 || res.status === 402 || res.status === 403) { console.warn(`[octave] not available (${res.status})`); return null; }
     if (!res.ok) throw new Error(`Octave failed (${res.status})`);
     return res.blob();
   },

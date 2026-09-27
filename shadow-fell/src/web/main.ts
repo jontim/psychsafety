@@ -148,6 +148,7 @@ async function boot(): Promise<void> {
   const mock = new MockEar();
   const voice = new Voice(WORLD_ID);
   voice.octave = health.octave;
+  voice.onFallback = (why) => setStatus(why);
   // the turn hands over when the player says so, unless they choose a silence rule; a silence shorter than five seconds
   // cut people off mid-thought, so an older saved setting is raised to five
   const savedMode = (safeGet("floorMode") as FloorMode | null) ?? "manual";
@@ -197,7 +198,7 @@ function setStatus(s: string): void {
 
 function band(): HTMLElement {
   const pills = h("div", { class: "pills" },
-    h("span", { class: `pill ${app.ear.kind === "hume" ? "on" : "off"}` }, app.ear.kind === "hume" ? "Ear: Hume EVI" : app.health.hume ? "Ear: mock (Hume ready)" : "Ear: mock"),
+    h("span", { class: `pill ${app.ear.kind === "hume" && app.ear.state !== "closed" ? "on" : "off"}` }, app.ear.kind === "hume" ? (app.ear.state === "closed" ? "Ear: closed" : "Ear: Hume EVI") : app.health.hume ? "Ear: mock (Hume ready)" : "Ear: mock"),
     h("span", { class: `pill ${app.health.octave ? "on" : "off"}` }, app.health.octave ? "Voice: Octave" : "Voice: browser"),
     h("span", { class: `pill ${app.health.director !== "understudy" ? "on" : "off"}` }, `Director: ${app.health.director}`),
     h("span", { class: `pill ${app.baseline ? "on" : "off"}`, title: app.baseline ? describeBaseline(app.baseline) : "Warm up in the Mirror to calibrate the ear to your plain voice" }, app.baseline ? "Mirror: calibrated" : "Mirror: not yet"),
@@ -856,7 +857,11 @@ function mirrorScreen(): HTMLElement {
   const done = m.step >= MIRROR_ASKS.length;
   const ask = MIRROR_ASKS[Math.min(m.step, MIRROR_ASKS.length - 1)]!;
   // the ear warning sits under the scene label, in the top band, so it never lies across the Scribe's ask
-  const warn = !done && app.ear.kind !== "hume" ? h("div", { class: "ear-warn", title: "Nothing you say aloud is heard until the microphone is open. Typed lines carry the tone you pick." }, "Ear not live · nothing said aloud is heard · open the microphone, or type a line") : null;
+  const earClosed = app.ear.kind === "hume" && app.ear.state === "closed";
+  const warn = done ? null
+    : earClosed ? h("div", { class: "ear-warn", title: "The live ear was refused or lost, and is closed. Typed lines still work, with the tone you pick." }, `Ear closed · ${app.ear.whyClosed || "the line was lost"} · type a line, or tap the lamp to try again`)
+    : app.ear.kind !== "hume" ? h("div", { class: "ear-warn", title: "Nothing you say aloud is heard until the microphone is open. Typed lines carry the tone you pick." }, "Ear not live · nothing said aloud is heard · open the microphone, or type a line")
+    : null;
   const stage = h("div", { class: `stage mirror-stage${warn ? " warned" : ""}` },
     h("div", { class: "vignette" }),
     h("div", { class: "top" }, h("div", { class: "scene" }, done ? "The Mirror · done" : `The Mirror · ${m.step + 1} of ${MIRROR_ASKS.length} · ${ask.title}`), warn),
@@ -1006,7 +1011,10 @@ function lampState(): LampState {
 }
 function lampText(state: LampState): string {
   if (state === "off") return "Use the microphone";
-  if (state === "lost") return app.ear.kind === "hume" && app.ear.state === "closed" ? "The ear lost the line · tap to open the microphone again" : "The ear is reconnecting · your words do not count yet";
+  if (state === "lost") {
+    if (app.ear.kind !== "hume" || app.ear.state !== "closed") return "The ear is reconnecting · your words do not count yet";
+    return app.ear.whyClosed ? `The ear is closed: ${app.ear.whyClosed} · type your lines, or tap to try again` : "The ear lost the line · tap to open the microphone again";
+  }
   if (state === "scribe") {
     const who = app.screen === "mirror" ? "The Scribe" : app.session ? castName(app.world, app.session.snapshot().beat.counterpart) : "They";
     return `${who} ${who === "They" ? "have" : "has"} the floor · tap to cut in`;
@@ -1053,6 +1061,8 @@ function refreshLamp(): void {
 /** The lamp and the strip above the stage, together, whenever the turn changes hands. */
 function refreshTurn(): void {
   refreshLamp();
+  // a live ear closed for good is shown once in full: the stage warning and the band pill are drawn by render
+  if (app.ear.kind === "hume" && app.ear.state === "closed" && app.screen === "mirror" && !document.querySelector(".ear-warn")) { render(); return; }
   if (app.mirror) refreshMirrorStrip();
   else if (app.session && app.screen === "stage") refreshTurnStrip();
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { FLAP_WINDOW_MS, RECONNECT_TRIES, flapsAfter, givenUp, pauseBefore } from "../ear/line.js";
+import { FLAP_WINDOW_MS, RECONNECT_TRIES, firstSentence, flapsAfter, givenUp, isFatal, pauseBefore } from "../ear/line.js";
 
 describe("picking a dropped line up again", () => {
   it("pauses half a second after a plain drop and doubles per failure up to eight seconds", () => {
@@ -33,5 +33,16 @@ describe("picking a dropped line up again", () => {
     expect(givenUp(flaps)).toBe(true);
     // a line that then holds for a minute starts the count afresh
     expect(givenUp(flapsAfter(flaps, at, at + 60_000))).toBe(false);
+  });
+
+  it("knows a refusal no retry can mend, and says it in one short sentence", () => {
+    const hume = "Exhausted credit balance. Visit app.hume.ai/billing to manage your account.";
+    expect(isFatal(`E0300 ${hume}`)).toBe(true);
+    expect(isFatal(`1008, ${hume}`)).toBe(true);
+    expect(isFatal("Invalid API key")).toBe(true);
+    expect(isFatal("1006")).toBe(false);
+    expect(isFatal("1011, internal error")).toBe(false);
+    expect(firstSentence(hume)).toBe("Exhausted credit balance");
+    expect(firstSentence("the line was refused")).toBe("the line was refused");
   });
 });

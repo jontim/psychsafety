@@ -146,7 +146,11 @@ app.post("/api/tts", async (req, res) => {
     res.send(audio);
   } catch (error) {
     console.error("tts", error);
-    res.status(502).json({ error: `Octave failed: ${(error as Error).message}` });
+    const message = (error as Error).message ?? String(error);
+    const status = (error as { statusCode?: number }).statusCode;
+    // a refusal (no credit, a bad key) is passed on as itself, so the browser stops asking for the session
+    const refused = [401, 402, 403].includes(status ?? 0) || /credit|balance|unauthori|forbidden|api key/i.test(message);
+    res.status(refused ? ([401, 402, 403].includes(status ?? 0) ? status! : 402) : 502).json({ error: `Octave failed: ${message}` });
   }
 });
 

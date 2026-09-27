@@ -9,6 +9,8 @@ export interface Ear {
   readonly kind: "hume" | "mock";
   /** The live ear's line: open, reconnecting, or closed. The mock is always open. */
   readonly state?: "connecting" | "open" | "reconnecting" | "closed";
+  /** Why the line is closed for good this session, in a few words the lamp can show. */
+  readonly whyClosed?: string;
   start(): Promise<void>;
   stop(): void;
   onUtterance(cb: (u: Utterance) => void): void;

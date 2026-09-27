@@ -28,3 +28,17 @@ export function flapsAfter(flapsSoFar: number, openedAt: number, closedAt: numbe
 
 /** True once the line has flapped as many times as it would be tried. */
 export const givenUp = (flaps: number): boolean => flaps >= RECONNECT_TRIES;
+
+/**
+ * A refusal no retry can mend: the far end will say the same again in a
+ * minute. Hume's E0300 is an exhausted credit balance; a bad or forbidden key
+ * is the other kind. Such a line is let go at once, with the reason shown.
+ */
+const FATAL = /\bE0300\b|exhausted credit|credit balance|billing|unauthori[sz]ed|invalid api key|forbidden/i;
+export const isFatal = (said: string): boolean => FATAL.test(said);
+
+/** The first sentence of a message, for a lamp: "Exhausted credit balance", not the whole invoice. */
+export function firstSentence(message: string): string {
+  const first = message.trim().split(/(?<=[.!?])\s+/)[0] ?? message;
+  return first.replace(/[.!?]+$/, "");
+}

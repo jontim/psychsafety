@@ -1,7 +1,7 @@
 import { HumeClient, getAudioStream, getBrowserSupportedMimeType, convertBlobToBase64, ensureSingleValidAudioTrack, MimeType } from "hume";
 import { normalizeScores } from "../../engine/dimensions.js";
 import type { Ear, Utterance } from "./types.js";
-import { RECONNECT_TRIES, flapsAfter, givenUp, pauseBefore } from "./line.js";
+import { RECONNECT_TRIES, firstSentence, flapsAfter, givenUp, isFatal, pauseBefore } from "./line.js";
 
 export interface HumeEarOptions {
   /** Mints a fresh access token; called at every connection, since a token lives half an hour and a session can outlast it. */
@@ -47,6 +47,8 @@ export class HumeEar implements Ear {
   private flaps = 0;
   /** The last thing Hume said went wrong, for the status when the line is let go. */
   private trouble = "";
+  /** Why the line is closed for good, in a few words, for the lamp. */
+  whyClosed = "";
 
   constructor(private readonly opts: HumeEarOptions) {}
 
@@ -97,6 +99,8 @@ export class HumeEar implements Ear {
       } else if (msg.type === "error") {
         console.warn("[hume] error", msg.code, msg.message);
         this.trouble = `Hume said ${msg.code ? `${msg.code}: ` : ""}${msg.message}`;
+        // a refusal no retry can mend (no credit, a bad key) closes the ear at once, with the reason where the lamp can show it
+        if (isFatal(`${msg.code ?? ""} ${msg.message}`)) { this.letGo(firstSentence(msg.message)); return; }
         this.report(`Hume error ${msg.code ?? ""}: ${msg.message}`);
       } else if (msg.type === "chat_metadata") {
         this.report("Session open. Say your line.");
@@ -107,11 +111,13 @@ export class HumeEar implements Ear {
       if (this.socket !== socket || this.stopped || this.reconnecting) return;
       this.lastEvent = `closed ${e.code}`;
       const closeWhy = `${e.code}${e.reason ? `, ${e.reason}` : ""}`;
+      if (isFatal(closeWhy)) { this.letGo(firstSentence(e.reason || "the line was refused")); return; }
       this.flaps = flapsAfter(this.flaps, this.connectedAt, Date.now());
       const said = this.trouble ? `${this.trouble}; closed ${closeWhy}` : `closed ${closeWhy}`;
       if (givenUp(this.flaps)) {
         // the far end closes the line as soon as it opens: reopening it forever would flash the lamp at every flip
         this.state = "closed";
+        this.whyClosed = "the line keeps dropping as soon as it opens";
         console.warn("[hume] the line keeps closing as soon as it opens", said);
         this.report(`The ear keeps losing the line as soon as it opens (${said}). Close the microphone, wait a minute, and open it again.`);
         return;
@@ -177,7 +183,21 @@ export class HumeEar implements Ear {
     this.reconnecting = false;
     if (this.stopped) return;
     this.state = "closed";
+    this.whyClosed = "the line could not be got back";
     this.report(`The ear could not get the line back (${this.trouble || "no reason given"}). Close the microphone and open it again.`);
+  }
+
+  /** Close the line for good this session: the far end refused it for a reason no retry can mend. The microphone can be opened again later. */
+  private letGo(said: string): void {
+    this.whyClosed = said;
+    this.state = "closed";
+    const socket = this.socket;
+    this.socket = null; // the close that follows is not a drop
+    try { socket?.close(); } catch { /* already closed */ }
+    try { if (this.recorder && this.recorder.state !== "inactive") this.recorder.stop(); } catch { /* already stopped */ }
+    this.recorder = null;
+    console.warn("[hume] the line was refused:", said);
+    this.report(`The ear is closed: ${said}. Type your lines for now, or open the microphone again later.`);
   }
 
   /** A disabled track keeps the encoder running on silence, so the stream stays continuous. */

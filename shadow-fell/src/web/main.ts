@@ -133,8 +133,10 @@ async function boot(): Promise<void> {
   const mock = new MockEar();
   const voice = new Voice(WORLD_ID);
   voice.octave = health.octave;
-  const savedMode = (safeGet("floorMode") as FloorMode | null) ?? "silence";
-  const savedSilence = Number(safeGet("floorSilenceMs") ?? 3000);
+  // the turn hands over when the player says so, unless they choose a silence rule; a silence shorter than five seconds
+  // cut people off mid-thought, so an older saved setting is raised to five
+  const savedMode = (safeGet("floorMode") as FloorMode | null) ?? "manual";
+  const savedSilence = Math.max(5000, Number(safeGet("floorSilenceMs") ?? 5000));
   const floor = new Floor({
     mode: savedMode,
     silenceMs: savedSilence,
@@ -169,8 +171,7 @@ function renderSpeechSoFar(): void {
   if (!el) return;
   const text = app.speechSoFar.map((f) => f.text).join(" ");
   el.textContent = text ? `Your speech so far: "${text}"` : "";
-  const done = document.querySelector<HTMLButtonElement>(".btn-done");
-  if (done) done.disabled = !app.speechSoFar.length;
+  for (const done of document.querySelectorAll<HTMLButtonElement>(".btn-done")) done.disabled = !app.speechSoFar.length || app.floor.finishing;
 }
 
 function setStatus(s: string): void {
@@ -499,7 +500,7 @@ function floorRule(): HTMLElement {
   const rule = h("div", { class: "turn-rule" });
   if (app.ear.kind === "hume") {
     const select = h("select", { class: "floor-mode" }) as HTMLSelectElement;
-    const floorRules: Array<[string, string]> = [["silence:2000", "2 s of silence hands it over"], ["silence:3000", "3 s of silence hands it over"], ["silence:5000", "5 s of silence hands it over"], ["manual:0", "Only Done hands it over"]];
+    const floorRules: Array<[string, string]> = [["manual:0", "Only Done hands it over"], ["silence:5000", "5 s of silence hands it over"], ["silence:8000", "8 s of silence hands it over"]];
     for (const [value, label] of floorRules) {
       const o = h("option", { value }, label) as HTMLOptionElement;
       if ((app.floor.mode === "manual" && value.startsWith("manual")) || (app.floor.mode === "silence" && value === `silence:${app.floor.silenceMs}`)) o.selected = true;
@@ -515,7 +516,7 @@ function floorRule(): HTMLElement {
     });
     const done = h("button", { class: "btn gold btn-done" }, "Done, over to them") as HTMLButtonElement;
     done.disabled = !app.speechSoFar.length;
-    done.addEventListener("click", () => app.floor.commit());
+    done.addEventListener("click", () => app.floor.done());
     rule.append(select, done);
   } else {
     rule.append(h("span", { class: "hint" }, "Type a line below and choose how you said it, or open the microphone."));
@@ -586,9 +587,16 @@ function renderBrief(beat: Beat): HTMLElement | null {
 function inputBox(leaveLabel: string, onLeave: () => void): HTMLElement {
   const wrap = h("div", { class: "input-box" });
   const row = h("div", { class: "row" });
-  // the turn lamp: green while your words count, dim while a character has the floor (tap it to cut in)
+  // the turn lamp: green while your words count, dim while a character has the floor (tap it to cut in); Done hands the turn over
   row.append(turnLamp());
-  if (app.ear.kind === "hume") { const off = h("button", { class: "btn ghost" }, "Microphone off"); off.addEventListener("click", stopHume); row.append(off); }
+  if (app.ear.kind === "hume") {
+    const done = h("button", { class: "btn gold btn-done" }, "Done · read it") as HTMLButtonElement;
+    done.disabled = !app.speechSoFar.length || app.floor.finishing;
+    done.addEventListener("click", () => app.floor.done());
+    const off = h("button", { class: "btn ghost" }, "Microphone off");
+    off.addEventListener("click", stopHume);
+    row.append(done, off);
+  }
   const leave = h("button", { class: "btn ghost" }, leaveLabel);
   leave.addEventListener("click", onLeave);
   row.append(leave);
@@ -657,7 +665,11 @@ async function startHume(): Promise<void> {
     const { accessToken, configId } = await api.token();
     const pauseAssistant = new URLSearchParams(location.search).get("pause") === "1";
     const ear = new HumeEar({ accessToken, configId, pauseAssistant });
-    ear.onUtterance((u) => app.floor.add(u));
+    // a sentence that lands while a character has the floor is the tail of a turn already read, or bleed: it never starts a turn
+    ear.onUtterance((u) => {
+      if (app.micMuted) { console.info("[ear] not counted, the floor was not the player's:", u.text); setStatus(`Not counted, the floor was not yours: "${u.text}"`); return; }
+      app.floor.add(u);
+    });
     ear.onStatus((status) => { if (status.startsWith("Hearing:")) { app.floor.touch(); app.lastHeardAt = Date.now(); refreshTurn(); } setStatus(status); });
     await ear.start();
     app.ear = ear;
@@ -927,6 +939,7 @@ function lampText(state: LampState): string {
     return `${who} ${who === "They" ? "have" : "has"} the floor · tap to cut in`;
   }
   if (state === "hearing") {
+    if (app.floor.finishing) return "Finishing · reading it in a moment";
     if (app.floor.mode === "manual") return "Hearing you · press Done when you have finished";
     const at = app.floor.handsOverAt;
     return at ? `Hearing you · hands over in ${Math.max(1, Math.ceil((at - Date.now()) / 1000))} s` : "Hearing you";

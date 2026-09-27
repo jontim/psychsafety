@@ -87,7 +87,7 @@ describe("the Mirror", () => {
   it("shows its working on a reached ask, and takes only a little of the plain voice away", () => {
     const r = readAsk(ASK_BY_ID.support, axesOf("warm"));
     expect(r.detail.length).toBe(ASK_BY_ID.support.targets.length + 1);
-    expect(r.detail.at(-1)).toMatch(/^Score \+\d\.\d\d as the soft kind \(the fierce kind scored [+-]?\d\.\d\d\)\. Held at 0\.25; half at 0\.05\.$/);
+    expect(r.detail.at(-1)).toMatch(/^Score \+\d\.\d\d as the soft kind \(the fierce kind scored [+-]?\d\.\d\d\)\. Held at 0\.15; half at 0\.05\.$/);
     expect(r.detail[0]).toMatch(/^Care \+0\.\d\d, weight 1\.0; earns/);
     expect(ASK_BY_ID.support.targets.map((t) => t.axis)).toEqual(["care", "scorn"]);
     expect(r.route).toBe("soft");

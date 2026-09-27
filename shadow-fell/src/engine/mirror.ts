@@ -178,9 +178,12 @@ export interface MirrorReading {
   detail: string[];
 }
 
-/** Bands for a reached ask: the score it takes to hold, and to be half there. */
-export const HIGH_BAND = 0.25;
+/** Bands for a reached ask: the score it takes to hold, and to be half there. A live ear reads small: a strong delivery puts an axis near 0.2, so holding is 0.15. */
+export const HIGH_BAND = 0.15;
 export const MIDDLE_BAND = 0.05;
+/** An axis a listener would call plainly there, and one only faintly there, on a live ear's scale. */
+export const THERE = 0.12;
+export const FAINT = 0.04;
 /** Bands for a held ask, in leaked axis units against the plain voice: under LEAK_HELD it held; under LEAK_HALF it half held; more is a confession. */
 export const LEAK_HELD = 0.08;
 export const LEAK_HALF = 0.18;
@@ -384,9 +387,9 @@ export function speakReading(ask: MirrorAsk, axes: Axes, band: MirrorBand, heard
     const v = axes[axis] ?? 0;
     if (weight > 0) {
       const phrase = REACH_WANTED[axis];
-      if (phrase) said.push(phrase[v >= 0.15 ? 0 : v >= 0.05 ? 1 : v >= -0.05 ? 2 : 3]);
-      const short = (0.15 - v) * weight;
-      if (v < 0.15 && (!worst || short > worst.short)) worst = { axis, short, more: true };
+      if (phrase) said.push(phrase[v >= THERE ? 0 : v >= FAINT ? 1 : v >= -FAINT ? 2 : 3]);
+      const short = (THERE - v) * weight;
+      if (v < THERE && (!worst || short > worst.short)) worst = { axis, short, more: true };
     } else {
       const phrase = REACH_UNWANTED[axis];
       if (phrase) said.push(phrase[v <= 0.02 ? 0 : v <= 0.08 ? 1 : 2]);

@@ -34,8 +34,10 @@ export function mergeFragments(fragments: Fragment[]): Utterance {
 export class Floor {
   private fragments: Fragment[] = [];
   private timer: ReturnType<typeof setTimeout> | null = null;
-  /** When the turn hands over on its own (silence mode), as a timestamp; null while nothing is pending. */
+  /** When the turn hands over on its own (silence mode) or the grace after Done ends, as a timestamp; null while nothing is pending. */
   handsOverAt: number | null = null;
+  /** True during the short grace after Done, while the ear's last sentence is still landing. */
+  finishing = false;
   mode: FloorMode;
   silenceMs: number;
 
@@ -54,12 +56,39 @@ export class Floor {
     this.arm();
   }
 
-  /** Re-arm the silence timer, for example when an interim transcript shows the speaker is still going. */
+  /** Re-arm the silence timer, for example when an interim transcript shows the speaker is still going; during the grace after Done, give the ear a moment longer. */
   touch(): void {
+    if (this.finishing) {
+      const at = Math.max(this.handsOverAt ?? 0, Date.now() + 1000);
+      this.handsOverAt = at;
+      if (this.timer) clearTimeout(this.timer);
+      this.timer = setTimeout(() => this.finish(), at - Date.now());
+      return;
+    }
     if (this.fragments.length) this.arm();
   }
 
+  /**
+   * The speaker says they are done. The ear's last sentence is often still on its way, so a short grace is kept
+   * for it before the turn is read; a fragment that lands in the grace joins the turn instead of starting a new one.
+   */
+  done(graceMs = 1500): void {
+    if (this.timer) clearTimeout(this.timer);
+    this.finishing = true;
+    this.handsOverAt = Date.now() + graceMs;
+    this.timer = setTimeout(() => this.finish(), graceMs);
+    this.opts.onChange(this.pending);
+  }
+
+  private finish(): void {
+    this.finishing = false;
+    this.timer = null;
+    if (this.fragments.length) this.commit();
+    else { this.handsOverAt = null; this.opts.onChange([]); }
+  }
+
   private arm(): void {
+    if (this.finishing) return;
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
     this.handsOverAt = null;
@@ -74,6 +103,7 @@ export class Floor {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
     this.handsOverAt = null;
+    this.finishing = false;
     if (!this.fragments.length) return;
     const fragments = this.fragments;
     this.fragments = [];
@@ -85,6 +115,7 @@ export class Floor {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
     this.handsOverAt = null;
+    this.finishing = false;
     this.fragments = [];
     this.opts.onChange([]);
   }

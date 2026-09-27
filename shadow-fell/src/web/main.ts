@@ -826,7 +826,7 @@ function mirrorScreen(): HTMLElement {
     h("div", { class: "vignette" }),
     h("div", { class: "top" }, h("div", { class: "scene" }, done ? "The Mirror · done" : `The Mirror · ${m.step + 1} of ${MIRROR_ASKS.length} · ${ask.title}`)),
     h("div", { class: "ask" }, done ? "That is the whole of it. Your plain voice is the mark now; the tour is read against it." : ask.line),
-    !done && app.ear.kind !== "hume" ? h("div", { class: "ear-warn" }, "The ear is not live: nothing you say aloud is heard. Open the microphone, or type a line and pick the tone it should carry.") : null,
+    !done && app.ear.kind !== "hume" ? h("div", { class: "ear-warn", title: "Nothing you say aloud is heard until the microphone is open. Typed lines carry the tone you pick." }, "Ear not live · nothing said aloud is heard · open the microphone, or type a line") : null,
     h("div", { class: "card" },
       h("div", { class: "who" }, castName(app.world, narratorId())),
       h("div", { class: "where" }, "A quiet room before the tour. Nothing here counts against you."),

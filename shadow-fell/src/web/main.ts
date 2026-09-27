@@ -662,15 +662,19 @@ function askConsent(): void {
 async function startHume(): Promise<void> {
   try {
     setStatus("Minting a Hume token...");
-    const { accessToken, configId } = await api.token();
     const pauseAssistant = new URLSearchParams(location.search).get("pause") === "1";
-    const ear = new HumeEar({ accessToken, configId, pauseAssistant });
+    // the ear mints its own tokens, so it can pick the line up again with a fresh one when it drops or runs out
+    const ear = new HumeEar({ getToken: () => api.token(), pauseAssistant, quiet: () => !app.floor.hasSpeech });
     // a sentence that lands while a character has the floor is the tail of a turn already read, or bleed: it never starts a turn
     ear.onUtterance((u) => {
       if (app.micMuted) { console.info("[ear] not counted, the floor was not the player's:", u.text); setStatus(`Not counted, the floor was not yours: "${u.text}"`); return; }
       app.floor.add(u);
     });
-    ear.onStatus((status) => { if (status.startsWith("Hearing:")) { app.floor.touch(); app.lastHeardAt = Date.now(); refreshTurn(); } setStatus(status); });
+    ear.onStatus((status) => {
+      if (status.startsWith("Hearing:")) { app.floor.touch(); app.lastHeardAt = Date.now(); }
+      setStatus(status);
+      refreshTurn();
+    });
     await ear.start();
     app.ear = ear;
     render();
@@ -924,16 +928,18 @@ function cutScribe(): void {
 }
 
 // ---------- The turn lamp ----------
-type LampState = "off" | "scribe" | "listen" | "hearing";
-/** Whose turn it is, as the microphone sees it: closed while a character speaks, hearing while the floor holds speech, else listening. */
+type LampState = "off" | "scribe" | "listen" | "hearing" | "lost";
+/** Whose turn it is, as the microphone sees it: closed while a character speaks, hearing while the floor holds speech, else listening; lost while the line is down. */
 function lampState(): LampState {
   if (app.ear.kind !== "hume") return "off";
+  if (app.ear.state !== "open") return "lost";
   if (app.micMuted) return "scribe";
   if (app.floor.hasSpeech || Date.now() - app.lastHeardAt < 1500) return "hearing";
   return "listen";
 }
 function lampText(state: LampState): string {
   if (state === "off") return "Use the microphone";
+  if (state === "lost") return app.ear.kind === "hume" && app.ear.state === "closed" ? "The ear lost the line · tap to open the microphone again" : "The ear is reconnecting · your words do not count yet";
   if (state === "scribe") {
     const who = app.screen === "mirror" ? "The Scribe" : app.session ? castName(app.world, app.session.snapshot().beat.counterpart) : "They";
     return `${who} ${who === "They" ? "have" : "has"} the floor · tap to cut in`;
@@ -952,6 +958,7 @@ function turnLamp(): HTMLElement {
   lamp.addEventListener("click", () => {
     const now = lampState();
     if (now === "off") askConsent();
+    else if (now === "lost") { if (app.ear.kind === "hume" && app.ear.state === "closed") { stopHume(); askConsent(); } }
     else if (now === "scribe") { if (app.screen === "mirror") cutScribe(); else app.voice.stop(); }
     // while it is green the lamp is a light, not a switch; the microphone has its own off button
   });

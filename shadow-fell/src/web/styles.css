@@ -143,6 +143,8 @@ main { padding: clamp(16px, 3vw, 32px); max-width: 1320px; margin: 0 auto; }
 .btn.lamp.listen { background: #2f7d4a; border-color: #2f7d4a; color: #f5e6b8; animation: lamp-pulse 1.6s infinite; }
 .btn.lamp.hearing { background: #1f6b3a; border-color: #b8f5c8; color: #f5e6b8; box-shadow: 0 0 0 4px rgba(47,125,74,0.35); }
 .btn.lamp.listen::before, .btn.lamp.hearing::before { background: #b8f5c8; opacity: 1; }
+.btn.lamp.lost { background: rgba(200,162,74,0.16); border-color: var(--old-gold); color: var(--old-gold); animation: lamp-pulse 1.2s infinite; }
+.btn.lamp.lost::before { background: var(--old-gold); opacity: 1; }
 @keyframes lamp-pulse { 0% { box-shadow: 0 0 0 0 rgba(47,125,74,0.55);} 70% { box-shadow: 0 0 0 12px rgba(47,125,74,0);} 100% { box-shadow: 0 0 0 0 rgba(47,125,74,0);} }
 textarea.say { width: 100%; min-height: 64px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: 15px var(--serif); background: #fbf6ea; resize: vertical; }
 select, input[type=range] { font: inherit; }

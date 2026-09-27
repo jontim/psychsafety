@@ -16,6 +16,8 @@ export const TONE_PRESETS = {
   guilty: { guilt: 0.6, shame: 0.5, awkwardness: 0.4, anxiety: 0.4, sadness: 0.3 },
   curious: { interest: 0.7, realization: 0.4, contemplation: 0.4, surprisePositive: 0.3 },
   angry: { anger: 0.8, contempt: 0.4, distress: 0.3, determination: 0.4 },
+  fierce: { admiration: 0.5, determination: 0.5, anger: 0.4, triumph: 0.3, excitement: 0.3, love: 0.2 },
+  outraged: { anger: 0.6, determination: 0.5, contempt: 0.3, pride: 0.3, calmness: 0.1 },
 } satisfies Record<string, Partial<Record<EmotionKey, number>>>;
 
 export type TonePreset = keyof typeof TONE_PRESETS;

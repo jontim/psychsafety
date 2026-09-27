@@ -54,6 +54,10 @@ interface App {
   speechSoFar: Fragment[];
   /** The director's slate panel: an authoring view, remembered per browser. */
   slateOpen: boolean;
+  /** True while a character speaks and the microphone is closed: nothing said then is heard. */
+  micMuted: boolean;
+  /** When the ear last reported hearing the player, even before a fragment was committed. */
+  lastHeardAt: number;
 }
 
 interface Interlude {
@@ -134,10 +138,10 @@ async function boot(): Promise<void> {
   const floor = new Floor({
     mode: savedMode,
     silenceMs: savedSilence,
-    onChange: (fragments) => { app.speechSoFar = fragments; renderSpeechSoFar(); },
+    onChange: (fragments) => { app.speechSoFar = fragments; renderSpeechSoFar(); refreshTurn(); },
     onCommit: (merged) => { void processUtterance(merged); },
   });
-  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, speaking: false, speechGen: 0, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "chart", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1", mirror: null, baseline: loadBaseline(), interlude: null, chart: null, legChart: null, picked: null, chartOpen: false };
+  app = { health, world, session: null, ear: mock, mock, voice, consented: false, busy: false, speaking: false, speechGen: 0, status: "", lastResponse: null, lastSource: "", reaction: "", screen: "chart", floor, speechSoFar: [], slateOpen: safeGet("slateOpen") === "1", mirror: null, baseline: loadBaseline(), interlude: null, chart: null, legChart: null, picked: null, chartOpen: false, micMuted: false, lastHeardAt: 0 };
   mock.onUtterance((u) => { void processUtterance(u); });
   mock.onStatus(setStatus);
   render();
@@ -522,7 +526,7 @@ function floorRule(): HTMLElement {
 /** The pilot's T: what is happening now, the rule that ends your turn, and how they read you, above the stage where it is seen. */
 function turnState(snap: SessionSnapshot, counterpartName: string): { state: string; cls: string } {
   const thinking = app.status === "The director is thinking...";
-  const state = app.busy ? (thinking ? "The director is thinking" : `${counterpartName} is speaking`) : snap.status === "force" ? "It tips. Call it." : "Your turn";
+  const state = app.busy ? (app.micMuted ? `${counterpartName} has the floor; tap the lamp to cut in` : thinking ? "The director is thinking; your words still count" : `${counterpartName} is speaking`) : snap.status === "force" ? "It tips. Call it." : "Your turn; your words count now";
   return { state, cls: `turn-strip ${app.busy ? "busy" : "yours"}` };
 }
 
@@ -582,12 +586,12 @@ function renderBrief(beat: Beat): HTMLElement | null {
 function inputBox(leaveLabel: string, onLeave: () => void): HTMLElement {
   const wrap = h("div", { class: "input-box" });
   const row = h("div", { class: "row" });
-  const micBtn = h("button", { class: `btn ${app.ear.kind === "hume" ? "live" : "gold"}` }, app.ear.kind === "hume" ? "Listening (stop)" : "Use the microphone");
-  micBtn.addEventListener("click", () => (app.ear.kind === "hume" ? stopHume() : askConsent()));
-  if (!app.health.hume) { micBtn.setAttribute("disabled", ""); micBtn.title = "Set HUME_API_KEY and HUME_SECRET_KEY in .env to use the microphone."; }
+  // the turn lamp: green while your words count, dim while a character has the floor (tap it to cut in)
+  row.append(turnLamp());
+  if (app.ear.kind === "hume") { const off = h("button", { class: "btn ghost" }, "Microphone off"); off.addEventListener("click", stopHume); row.append(off); }
   const leave = h("button", { class: "btn ghost" }, leaveLabel);
   leave.addEventListener("click", onLeave);
-  row.append(micBtn, leave);
+  row.append(leave);
   wrap.append(row);
 
   const say = h("textarea", { class: "say", placeholder: app.ear.kind === "hume" ? "Or type a line; the mock tone applies to typed lines." : "Type your line here, then choose how you said it." }) as HTMLTextAreaElement;
@@ -654,7 +658,7 @@ async function startHume(): Promise<void> {
     const pauseAssistant = new URLSearchParams(location.search).get("pause") === "1";
     const ear = new HumeEar({ accessToken, configId, pauseAssistant });
     ear.onUtterance((u) => app.floor.add(u));
-    ear.onStatus((status) => { if (status.startsWith("Hearing:")) app.floor.touch(); setStatus(status); });
+    ear.onStatus((status) => { if (status.startsWith("Hearing:")) { app.floor.touch(); app.lastHeardAt = Date.now(); refreshTurn(); } setStatus(status); });
     await ear.start();
     app.ear = ear;
     render();
@@ -676,10 +680,14 @@ function stopHume(): void {
 /** Speak a line with the microphone muted, so the ear never hears our own characters. */
 async function speakMuted(speaker: string, text: string, acting?: string): Promise<void> {
   app.ear.mute?.();
+  app.micMuted = true;
+  refreshTurn();
   try {
     await app.voice.speak(speaker, text, acting);
   } finally {
     app.ear.unmute?.();
+    app.micMuted = false;
+    refreshTurn();
   }
 }
 
@@ -741,6 +749,8 @@ function saveBaseline(b: Baseline | null): void {
 }
 
 function mirrorCard(): HTMLElement {
+  // the Scribe's first line is fetched while the card is on screen, so the Mirror does not open on a silence
+  app.voice.prefetch(narratorId(), MIRROR_ASKS[0]!.line);
   const card = h("div", { class: "mirror-card" });
   const text = h("div", { class: "text" },
     h("div", { class: "eyebrow" }, "Before the tour"),
@@ -776,10 +786,10 @@ function startMirror(): void {
 function mirrorStrip(): HTMLElement {
   const m = app.mirror!;
   const done = m.step >= MIRROR_ASKS.length;
-  const state = app.speaking ? "The Scribe is speaking; answer whenever you like" : done ? "The Mirror is done" : "Your turn";
+  const state = app.micMuted ? "The Scribe has the floor; tap the lamp to cut in" : done ? "The Mirror is done" : "Your turn; your words count now";
   const last = m.results.at(-1);
-  const read = last ? (last.heard.length ? `The Scribe hears you as ${last.heard.join(" and ")}.` : "The Scribe hears nothing leaning either way.") : "Not read yet.";
-  const strip = h("div", { class: `turn-strip ${app.speaking ? "busy" : "yours"}` });
+  const read = last ? (last.heard.length ? `The Scribe heard ${last.heard.join(", ")}.` : "The Scribe hears nothing leaning either way.") : "Not read yet.";
+  const strip = h("div", { class: `turn-strip ${app.micMuted ? "busy" : "yours"}` });
   strip.append(
     h("div", { class: "turn-state" }, state),
     done ? h("div", { class: "turn-rule" }, h("span", { class: "hint" }, "Begin the tour, or take it again.")) : floorRule(),
@@ -874,21 +884,81 @@ function renderBaselinePanel(b: Baseline): HTMLElement {
 async function scribeSays(lines: string[]): Promise<void> {
   const gen = ++app.speechGen;
   app.speaking = true;
-  refreshMirrorStrip();
+  // the later lines are fetched while the first plays, so the Scribe does not pause between sentences
+  for (const line of lines.slice(1)) app.voice.prefetch(narratorId(), line);
+  // the microphone closes once for the whole speech, so the lamp does not flicker between lines
+  app.ear.mute?.();
+  app.micMuted = true;
+  refreshTurn();
   try {
     for (const line of lines) {
       if (gen !== app.speechGen) return;
-      await speakMuted(narratorId(), line);
+      await app.voice.speak(narratorId(), line);
     }
   } finally {
-    if (gen === app.speechGen) { app.speaking = false; refreshMirrorStrip(); }
+    // a superseded speech leaves the microphone to whoever cut it off
+    if (gen === app.speechGen) { app.speaking = false; app.ear.unmute?.(); app.micMuted = false; refreshTurn(); }
   }
 }
 
+/** Cut the Scribe off and open the microphone: the player has the floor. */
 function cutScribe(): void {
   app.speechGen += 1;
   app.speaking = false;
   app.voice.stop();
+  app.ear.unmute?.();
+  app.micMuted = false;
+  refreshTurn();
+}
+
+// ---------- The turn lamp ----------
+type LampState = "off" | "scribe" | "listen" | "hearing";
+/** Whose turn it is, as the microphone sees it: closed while a character speaks, hearing while the floor holds speech, else listening. */
+function lampState(): LampState {
+  if (app.ear.kind !== "hume") return "off";
+  if (app.micMuted) return "scribe";
+  if (app.floor.hasSpeech || Date.now() - app.lastHeardAt < 1500) return "hearing";
+  return "listen";
+}
+function lampText(state: LampState): string {
+  if (state === "off") return "Use the microphone";
+  if (state === "scribe") {
+    const who = app.screen === "mirror" ? "The Scribe" : app.session ? castName(app.world, app.session.snapshot().beat.counterpart) : "They";
+    return `${who} ${who === "They" ? "have" : "has"} the floor · tap to cut in`;
+  }
+  if (state === "hearing") {
+    if (app.floor.mode === "manual") return "Hearing you · press Done when you have finished";
+    const at = app.floor.handsOverAt;
+    return at ? `Hearing you · hands over in ${Math.max(1, Math.ceil((at - Date.now()) / 1000))} s` : "Hearing you";
+  }
+  return "Speak now · your words count";
+}
+function turnLamp(): HTMLElement {
+  const state = lampState();
+  const lamp = h("button", { class: `btn lamp ${state}${state === "off" ? " gold" : ""}` }, lampText(state));
+  lamp.addEventListener("click", () => {
+    const now = lampState();
+    if (now === "off") askConsent();
+    else if (now === "scribe") { if (app.screen === "mirror") cutScribe(); else app.voice.stop(); }
+    // while it is green the lamp is a light, not a switch; the microphone has its own off button
+  });
+  if (!app.health.hume) { lamp.setAttribute("disabled", ""); lamp.title = "Set HUME_API_KEY and HUME_SECRET_KEY in .env to use the microphone."; }
+  return lamp;
+}
+let lampTicker: ReturnType<typeof setInterval> | null = null;
+/** Redraw the lamp in place; while speech is on the floor it ticks, for the countdown. */
+function refreshLamp(): void {
+  const old = document.querySelector<HTMLElement>(".lamp");
+  if (old) old.replaceWith(turnLamp());
+  const ticking = lampState() === "hearing";
+  if (ticking && !lampTicker) lampTicker = setInterval(refreshLamp, 250);
+  if (!ticking && lampTicker) { clearInterval(lampTicker); lampTicker = null; }
+}
+/** The lamp and the strip above the stage, together, whenever the turn changes hands. */
+function refreshTurn(): void {
+  refreshLamp();
+  if (app.mirror) refreshMirrorStrip();
+  else if (app.session && app.screen === "stage") refreshTurnStrip();
 }
 
 /** Read the player's answer to the current ask at once; the Scribe's verdict and the next ask follow without holding the turn. */
@@ -915,6 +985,8 @@ async function processMirrorUtterance(u: Utterance): Promise<void> {
     setStatus("");
     render();
     const next = MIRROR_ASKS[m.step];
+    const after = MIRROR_ASKS[m.step + 1];
+    if (after) app.voice.prefetch(narratorId(), after.line);
     void scribeSays(next ? [...reading.said, next.line] : reading.said);
   } catch (e) {
     setStatus(`The Mirror slipped: ${(e as Error).message}`);

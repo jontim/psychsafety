@@ -34,6 +34,8 @@ export function mergeFragments(fragments: Fragment[]): Utterance {
 export class Floor {
   private fragments: Fragment[] = [];
   private timer: ReturnType<typeof setTimeout> | null = null;
+  /** When the turn hands over on its own (silence mode), as a timestamp; null while nothing is pending. */
+  handsOverAt: number | null = null;
   mode: FloorMode;
   silenceMs: number;
 
@@ -60,13 +62,18 @@ export class Floor {
   private arm(): void {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
-    if (this.mode === "silence") this.timer = setTimeout(() => this.commit(), this.silenceMs);
+    this.handsOverAt = null;
+    if (this.mode === "silence") {
+      this.handsOverAt = Date.now() + this.silenceMs;
+      this.timer = setTimeout(() => this.commit(), this.silenceMs);
+    }
   }
 
   /** End the turn now, whatever the mode. */
   commit(): void {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
+    this.handsOverAt = null;
     if (!this.fragments.length) return;
     const fragments = this.fragments;
     this.fragments = [];
@@ -77,6 +84,7 @@ export class Floor {
   clear(): void {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
+    this.handsOverAt = null;
     this.fragments = [];
     this.opts.onChange([]);
   }

@@ -57,6 +57,10 @@ export type MirrorAskId = "plain" | "lie" | "support" | "command" | "showman";
  */
 export type MirrorJudge = "reach" | "hold";
 
+export interface MirrorTarget { axis: string; weight: number }
+/** One way of meeting a reached ask: a register with its own targets. The best register carries the score. */
+export interface MirrorRoute { id: string; name: string; targets: MirrorTarget[] }
+
 export interface MirrorAsk {
   id: MirrorAskId;
   title: string;
@@ -65,16 +69,21 @@ export interface MirrorAsk {
   /** What is being measured, in the player's words. */
   measure: string;
   judge: MirrorJudge;
+  /** Registers a reached ask accepts, when there is more than one way to do it; `targets` is then the first of them. */
+  routes?: MirrorRoute[];
   /**
    * Signed axis targets. For `reach`, a positive weight wants the axis high and a
    * negative weight wants it low. For `hold`, a positive weight means a drop in
    * the axis is a leak and a negative weight means a rise is one; the weight is
    * what the leak costs.
    */
-  targets: Array<{ axis: string; weight: number }>;
+  targets: MirrorTarget[];
   /** Verdicts by band: high, middle, low. */
   verdicts: [string, string, string];
 }
+
+const SOFT: MirrorTarget[] = [{ axis: "care", weight: 1 }, { axis: "scorn", weight: -0.8 }];
+const FIERCE: MirrorTarget[] = [{ axis: "fire", weight: 1 }, { axis: "scorn", weight: -0.8 }];
 
 export const MIRROR_ASKS: MirrorAsk[] = [
   {
@@ -93,28 +102,29 @@ export const MIRROR_ASKS: MirrorAsk[] = [
   {
     id: "lie",
     title: "Your best lie",
-    line: "Now lie to me. Tell me you have never set foot in Halyra, and make me believe it. A good lie is easy in the mouth. A bad one asks permission.",
-    measure: "Your plain voice with the words changed: nothing dropped, nothing guilty, no edge in it.",
+    line: "Now lie to me. Tell me you have never set foot in Halyra, and make me believe it. Easy or outraged, your choice; a good lie does not flinch.",
+    measure: "Your plain voice, or your outrage, with the words changed: nothing flinches.",
     judge: "hold",
-    // a confident lie may sound determined, so heat is not a tell; a drop in composure, a drop in candour and a rise in edge are
-    targets: [{ axis: "composure", weight: 1 }, { axis: "candour", weight: 0.8 }, { axis: "edge", weight: -0.5 }],
+    // easy or outraged, the only tell is the flinch: guilt, shame, awkwardness, nerves, doubt; a rise against the plain voice leaks
+    targets: [{ axis: "flinch", weight: -1 }],
     verdicts: [
-      "A stranger would believe you. Easy, open, unhurried; nothing in your voice asked whether I bought it.",
-      "Half a lie. Steady enough, but something in you was checking my face.",
+      "A stranger would believe you; nothing in your voice asked whether I bought it.",
+      "Half a lie; something in you was checking my face.",
       "That was a confession with the words changed; a listener hears it before the sentence ends.",
     ],
   },
   {
     id: "support",
     title: "Your best support",
-    line: "Someone you love has just failed at the thing they wanted most. Tell them it will be all right, and mean it.",
-    measure: "Care in it, and no edge.",
+    line: "Someone you love has just failed at the thing they wanted most. Be on their side. Hold them, or go to war for them; the room must feel you are with them.",
+    measure: "Care in it, or fire in it, and no scorn.",
     judge: "reach",
-    targets: [{ axis: "care", weight: 1 }, { axis: "edge", weight: -0.6 }],
+    routes: [{ id: "soft", name: "soft", targets: SOFT }, { id: "fierce", name: "fierce", targets: FIERCE }],
+    targets: SOFT,
     verdicts: [
-      "They would believe you were on their side. Warm, steady, no edge in it.",
-      "Kind words, but the voice was somewhere else. Warmth needs the whole of you.",
-      "That was not comfort; a listener would not feel you were with them.",
+      "They would believe you were on their side.",
+      "Kind words, but the voice was somewhere else; they would hear the words, not the side you are on.",
+      "That was not support; a listener would not feel you were with them.",
     ],
   },
   {
@@ -139,7 +149,7 @@ export const MIRROR_ASKS: MirrorAsk[] = [
     targets: [{ axis: "showmanship", weight: 1 }, { axis: "warmth", weight: 0.3 }, { axis: "composure", weight: 0.2 }],
     verdicts: [
       "The room would buy the barrel. Delight, and you enjoyed it, and it showed.",
-      "A sale, not a show. The words worked harder than the voice did.",
+      "They would buy a pint, not the barrel. The delight was half there.",
       "The ale sounded exactly as bad as it is."
     ],
   },
@@ -162,6 +172,8 @@ export interface MirrorReading {
   axes: Axes;
   /** For a held ask: how much leaked against the plain voice, in axis units. */
   leak?: number;
+  /** For a reached ask with more than one register: the one that carried the score. */
+  route?: string;
   /** The working, line by line: each target's reading and what it earned or cost, then the score against its bands. */
   detail: string[];
 }
@@ -182,6 +194,9 @@ const QUALITY_WORDS: Record<string, [string, string]> = {
   showmanship: ["playful", "flat"],
   care: ["caring", "distant"],
   edge: ["sharp", "gentle"],
+  fire: ["fierce", "lukewarm"],
+  scorn: ["scornful", "respectful"],
+  flinch: ["flinching", "unflinching"],
 };
 
 /** The strongest qualities in a reading, as a listener would name them. */
@@ -207,16 +222,26 @@ export function leakOf(ask: MirrorAsk, axes: Axes): number {
   return ask.targets.reduce((n, t) => n + leakAt(t, axes), 0);
 }
 
-export function scoreAsk(ask: MirrorAsk, axes: Axes): number {
-  if (!ask.targets.length) return 0;
-  if (ask.judge === "hold") return clamp(1 - leakOf(ask, axes) / LEAK_HALF);
+function scoreTargets(targets: MirrorTarget[], axes: Axes): number {
   let sum = 0;
   let total = 0;
-  for (const { axis, weight } of ask.targets) {
+  for (const { axis, weight } of targets) {
     sum += (axes[axis] ?? 0) * weight;
     total += Math.abs(weight);
   }
   return clamp(sum / (total || 1));
+}
+
+/** The register that carries a reached ask: the best-scoring route, or the ask's own targets when it has one way only. */
+export function routeFor(ask: MirrorAsk, axes: Axes): MirrorRoute {
+  const routes = ask.routes?.length ? ask.routes : [{ id: "only", name: "", targets: ask.targets }];
+  return routes.reduce((best, r) => (scoreTargets(r.targets, axes) > scoreTargets(best.targets, axes) ? r : best));
+}
+
+export function scoreAsk(ask: MirrorAsk, axes: Axes): number {
+  if (!ask.targets.length) return 0;
+  if (ask.judge === "hold") return clamp(1 - leakOf(ask, axes) / LEAK_HALF);
+  return scoreTargets(routeFor(ask, axes).targets, axes);
 }
 
 export function bandFor(ask: MirrorAsk, score: number): MirrorBand {
@@ -246,13 +271,15 @@ export function explainReading(ask: MirrorAsk, axes: Axes, score: number): strin
     lines.push(`Leaked ${leakOf(ask, axes).toFixed(2)} in all. Held under ${LEAK_HELD.toFixed(2)}; half a lie under ${LEAK_HALF.toFixed(2)}.`);
     return lines;
   }
-  const total = ask.targets.reduce((n, t) => n + Math.abs(t.weight), 0) || 1;
-  for (const { axis, weight } of ask.targets) {
+  const route = routeFor(ask, axes);
+  const total = route.targets.reduce((n, t) => n + Math.abs(t.weight), 0) || 1;
+  for (const { axis, weight } of route.targets) {
     const v = axes[axis] ?? 0;
     const part = (v * weight) / total;
     lines.push(`${labelOf(axis)} ${formatSigned(v)}, weight ${weight > 0 ? "" : "minus "}${Math.abs(weight).toFixed(1)}; ${part >= 0 ? "earns" : "costs"} ${Math.abs(part).toFixed(2)}.`);
   }
-  lines.push(`Score ${formatSigned(score)}. Held at ${HIGH_BAND.toFixed(2)}; half at ${MIDDLE_BAND.toFixed(2)}.`);
+  const others = (ask.routes ?? []).filter((r) => r.id !== route.id).map((r) => `the ${r.name} kind scored ${formatSigned(scoreTargets(r.targets, axes))}`);
+  lines.push(`Score ${formatSigned(score)}${route.name ? ` as the ${route.name} kind` : ""}${others.length ? ` (${others.join("; ")})` : ""}. Held at ${HIGH_BAND.toFixed(2)}; half at ${MIDDLE_BAND.toFixed(2)}.`);
   return lines;
 }
 
@@ -286,11 +313,13 @@ const REACH_WANTED: Record<string, [string, string, string, string]> = {
   showmanship: ["The delight was in it.", "The delight was faint.", "There was little delight in it.", "It sounded bored, or embarrassed."],
   candour: ["It was open.", "It was nearly open.", "It was not open.", "It sounded guarded."],
   pressure: ["There was push in it.", "There was a little push in it.", "There was no push in it.", "It was slack."],
+  fire: ["The fire was in it: you went to war for them.", "The fire was faint.", "There was little fire in it.", "It sounded as if their side was not yours."],
 };
 /** How the Scribe names an unwanted axis: absent, creeping, or in charge. */
 const REACH_UNWANTED: Record<string, [string, string, string]> = {
   edge: ["No edge in it.", "An edge crept in.", "The edge took it over."],
   pressure: ["No heat in it.", "Some heat crept in.", "The heat took it over."],
+  scorn: ["No scorn in it.", "Some scorn crept in.", "The scorn took it over."],
 };
 const ADVICE_MORE: Record<string, string> = {
   care: "Slower, lower, and stay with them; the ear hears care as unhurried and a little sad, not as bright.",
@@ -300,24 +329,30 @@ const ADVICE_MORE: Record<string, string> = {
   showmanship: "Enjoy it out loud: vary the pitch, lift the ends, let a smile into the vowels.",
   candour: "Open the vowels and keep the pace even; guardedness sounds clipped.",
   pressure: "Let some heat in; a command with no push in it is a suggestion.",
+  fire: "If you go to war for them, go: louder, faster, and let the anger be at the world, with admiration for them in it.",
 };
 const ADVICE_LESS: Record<string, string> = {
   edge: "Take the bite out of the consonants; the ear hears it as anger, whatever the words.",
   pressure: "Take the heat out: slower, lower, and let the sentence end.",
+  scorn: "Take the disappointment out of it; the ear hears a sigh as scorn, and scorn is the one thing neither kind of support survives.",
 };
 /** For a held ask: what the Scribe says when a target leaked, and when it held. */
 const HOLD_PHRASES: Record<string, [string, string]> = {
+  flinch: ["You flinched: guilt, nerves or awkwardness came into it against your plain voice. That is the tell.", "Nothing flinched."],
   composure: ["Your composure dropped against your plain voice: that is the tell.", "Your composure held."],
   candour: ["Something guarded came into it.", "You stayed open."],
   edge: ["An edge came in, and a liar who gets sharp is a liar.", "No edge."],
   pressure: ["Heat came in.", "No heat."],
 };
 const HOLD_ADVICE: Record<string, string> = {
+  flinch: "Whatever the register, do not flinch: no apology in the vowels, no hurry, no little laugh. Say it as if it were your breakfast, or as if I had insulted you.",
   composure: "Say it the way you told me your breakfast: same speed, same pitch, nothing to prove.",
   candour: "Do not sell it. The guarded sound is the pitch tightening; let it sit low.",
   edge: "Take the emphasis off the denial; a good lie does not argue.",
   pressure: "Slower. A lie in a hurry is a lie.",
 };
+/** How much edge, against the plain voice, makes a lie the outraged kind. */
+const OUTRAGE = 0.08;
 /** A leak the Scribe bothers to name, in axis units. */
 const LEAK_NOTED = 0.02;
 
@@ -327,6 +362,7 @@ export function speakReading(ask: MirrorAsk, axes: Axes, band: MirrorBand, heard
   if (heard.length) said.push(`I heard ${listWords(heard)}.`);
   if (band === "plain") return said;
   if (ask.judge === "hold") {
+    if (band !== "low") said.push((axes.edge ?? 0) >= OUTRAGE ? "That was the outraged kind: you attacked instead of answering." : "That was the easy kind.");
     let worst: { axis: string; leak: number } | null = null;
     for (const t of ask.targets) {
       const leaked = leakAt(t, axes);
@@ -338,9 +374,12 @@ export function speakReading(ask: MirrorAsk, axes: Axes, band: MirrorBand, heard
     else if (worst && HOLD_ADVICE[worst.axis]) said.push(HOLD_ADVICE[worst.axis]!);
     return said;
   }
+  // the register that carried it is named, and its targets are the ones spoken of
+  const route = routeFor(ask, axes);
+  if (route.name && band !== "low") said.push(`That was the ${route.name} kind.`);
   // when it held, only the main targets are named, so a minor axis cannot contradict "keep that"
   let worst: { axis: string; short: number; more: boolean } | null = null;
-  for (const { axis, weight } of ask.targets) {
+  for (const { axis, weight } of route.targets) {
     if (band === "high" && Math.abs(weight) < 0.5) continue;
     const v = axes[axis] ?? 0;
     if (weight > 0) {
@@ -368,6 +407,7 @@ export function readAsk(ask: MirrorAsk, axes: Axes, scores?: EmotionVector): Mir
   const heard = scores ? heardWords(scores) : heardAs(axes);
   const reading: MirrorReading = { ask: ask.id, score, band, verdict, heard, said: speakReading(ask, axes, band, heard), axes: { ...axes }, detail: explainReading(ask, axes, score) };
   if (ask.judge === "hold" && ask.targets.length) reading.leak = leakOf(ask, axes);
+  if (ask.judge === "reach" && ask.routes?.length) reading.route = routeFor(ask, axes).id;
   return reading;
 }
 

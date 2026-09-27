@@ -73,6 +73,29 @@ export const CORE_AXES: AffectAxisSpec[] = [
     positive: { anger: 1, contempt: 0.9, disgust: 0.7, disappointment: 0.4 },
     negative: { calmness: 0.5, sympathy: 0.4, love: 0.3 },
   },
+  {
+    // Support has two faces. The other one is fierce: anger on someone's behalf, admiration, pride, resolve.
+    id: "fire",
+    label: "Fire",
+    description: "Fierce allegiance: admiration, resolve, pride and anger on someone's behalf against contempt, disappointment or boredom.",
+    positive: { admiration: 1, determination: 0.7, pride: 0.6, love: 0.5, triumph: 0.5, anger: 0.4, excitement: 0.4 },
+    negative: { contempt: 1, disgust: 0.8, disappointment: 0.7, boredom: 0.5, tiredness: 0.4 },
+  },
+  {
+    id: "scorn",
+    label: "Scorn",
+    description: "Contempt, disgust and disappointment against admiration, sympathy or love: the scolding in a voice, whichever face support wears.",
+    positive: { contempt: 1, disgust: 0.8, disappointment: 0.8, boredom: 0.3 },
+    negative: { admiration: 0.6, sympathy: 0.5, love: 0.4 },
+  },
+  {
+    // What leaks from a lie, easy or outraged: not heat, not a dropped voice, but the flinch.
+    id: "flinch",
+    label: "Flinch",
+    description: "Guilt, shame, awkwardness, nerves, doubt and fear against calm, resolve and pride. What leaks from a lie.",
+    positive: { guilt: 1, shame: 0.9, awkwardness: 0.8, embarrassment: 0.7, anxiety: 0.7, doubt: 0.6, fear: 0.5, confusion: 0.4 },
+    negative: { calmness: 0.6, determination: 0.5, pride: 0.4 },
+  },
 ];
 
 export const AXIS_BY_ID: Record<string, AffectAxisSpec> = Object.fromEntries(CORE_AXES.map((a) => [a.id, a]));

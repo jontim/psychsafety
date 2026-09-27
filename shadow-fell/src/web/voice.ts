@@ -17,8 +17,23 @@ export class Voice {
   octave = true;
   /** True while a line is being fetched or heard. */
   speaking = false;
+  /** Lines fetched ahead of their turn, so the next sentence starts without a wait. */
+  private ahead = new Map<string, Promise<Blob | null>>();
 
   constructor(private readonly worldId: string) {}
+
+  private keyOf(speaker: string, text: string, acting?: string): string { return `${speaker}\u0000${text}\u0000${acting ?? ""}`; }
+
+  /** Fetch a line now, to be spoken later without the wait. Harmless if the line is never spoken; a failed fetch is forgotten. */
+  prefetch(speaker: string, text: string, acting?: string): void {
+    if (!this.octave) return;
+    const key = this.keyOf(speaker, text, acting);
+    if (this.ahead.has(key)) return;
+    const p = api.tts(this.worldId, speaker, text, acting).catch(() => null);
+    this.ahead.set(key, p);
+    void p.then((b) => { if (!b) this.ahead.delete(key); });
+    if (this.ahead.size > 12) { const first = this.ahead.keys().next().value; if (first !== undefined) this.ahead.delete(first); }
+  }
 
   speak(speaker: string, text: string, acting?: string): Promise<void> {
     const run = async (): Promise<void> => {
@@ -32,6 +47,13 @@ export class Voice {
 
   private async play(speaker: string, text: string, acting?: string): Promise<void> {
     if (this.octave) {
+      const key = this.keyOf(speaker, text, acting);
+      const fetched = this.ahead.get(key);
+      if (fetched) {
+        this.ahead.delete(key);
+        const blob = await fetched;
+        if (blob) { await this.playBlob(blob); return; }
+      }
       const aborter = new AbortController();
       this.aborter = aborter;
       const timer = setTimeout(() => aborter.abort(), OCTAVE_TIMEOUT_MS);

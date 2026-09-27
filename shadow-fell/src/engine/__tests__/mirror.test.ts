@@ -46,11 +46,11 @@ describe("the Mirror", () => {
     expect(perfect.detail.at(-1)).toContain("Leaked 0.00");
     // steadier and slower than at rest is not a leak either
     expect(readAsk(lie, { composure: 0.2, pressure: 0.3, candour: 0.1, edge: -0.1 }).band).toBe("high");
-    const flinch = readAsk(lie, { composure: -0.08, edge: 0.06, candour: 0 });
+    const flinch = readAsk(lie, { flinch: 0.11, composure: -0.3, edge: 0.4 });
     expect(flinch.leak).toBeCloseTo(0.11, 5);
     expect(flinch.band).toBe("middle");
     expect(flinch.verdict).toContain("Half a lie");
-    expect(flinch.detail.some((l) => l.includes("Composure -0.08"))).toBe(true);
+    expect(flinch.detail.some((l) => l.includes("Flinch +0.11"))).toBe(true);
     const guilty = readAsk(lie, deviationFrom(axesOf("guilty"), plain));
     expect(guilty.leak!).toBeGreaterThan(LEAK_HALF);
     expect(guilty.band).toBe("low");
@@ -60,21 +60,25 @@ describe("the Mirror", () => {
 
   it("speaks to what it heard, names what held and what fell short, and keeps the numbers out of its mouth", () => {
     const v = zeroVector(); v.sadness = 0.3; v.doubt = 0.25; v.distress = 0.2; v.sympathy = 0.1;
-    const r = readAsk(ASK_BY_ID.support, { care: 0.02, edge: 0.09 }, v);
+    const r = readAsk(ASK_BY_ID.support, { care: 0.02, scorn: 0.09 }, v);
     expect(r.band).toBe("low");
     expect(r.said[0]).toBe(r.verdict);
     expect(r.said[1]).toBe("I heard sadness, doubt and strain.");
     expect(r.said).toContain("There was little care in it.");
-    expect(r.said).toContain("The edge took it over.");
+    expect(r.said).toContain("The scorn took it over.");
     expect(r.said.at(-1)).toMatch(/^Slower, lower/);
     for (const l of r.said) expect(l).not.toMatch(/\d/);
     const held = readAsk(ASK_BY_ID.lie, { composure: 0.01, candour: 0, edge: -0.02 }, toneVector("calm"));
     expect(held.said[1]).toMatch(/^I heard calm/);
-    expect(held.said).toContain("Your composure held.");
+    expect(held.said).toContain("That was the easy kind.");
+    expect(held.said).toContain("Nothing flinched.");
     expect(held.said.at(-1)).toBe("That is the voice. Keep it.");
-    const flinch = readAsk(ASK_BY_ID.lie, { composure: -0.08, edge: 0.06, candour: 0 });
-    expect(flinch.said.some((l) => l.startsWith("Your composure dropped"))).toBe(true);
-    expect(flinch.said.at(-1)).toMatch(/^Say it the way you told me your breakfast/);
+    const outraged = readAsk(ASK_BY_ID.lie, { flinch: -0.05, edge: 0.3, composure: -0.2 });
+    expect(outraged.band).toBe("high");
+    expect(outraged.said).toContain("That was the outraged kind: you attacked instead of answering.");
+    const flinch = readAsk(ASK_BY_ID.lie, { flinch: 0.11 });
+    expect(flinch.said.some((l) => l.startsWith("You flinched"))).toBe(true);
+    expect(flinch.said.at(-1)).toMatch(/^Whatever the register, do not flinch/);
     const plain = readAsk(ASK_BY_ID.plain, {}, toneVector("calm"));
     expect(plain.said).toHaveLength(2);
     expect(MIRROR_ASKS[0]!.line).toContain("A rehearsal, not an examination.");
@@ -83,9 +87,11 @@ describe("the Mirror", () => {
   it("shows its working on a reached ask, and takes only a little of the plain voice away", () => {
     const r = readAsk(ASK_BY_ID.support, axesOf("warm"));
     expect(r.detail.length).toBe(ASK_BY_ID.support.targets.length + 1);
-    expect(r.detail.at(-1)).toMatch(/^Score \+\d\.\d\d\. Held at 0\.25; half at 0\.05\.$/);
+    expect(r.detail.at(-1)).toMatch(/^Score \+\d\.\d\d as the soft kind \(the fierce kind scored [+-]?\d\.\d\d\)\. Held at 0\.25; half at 0\.05\.$/);
     expect(r.detail[0]).toMatch(/^Care \+0\.\d\d, weight 1\.0; earns/);
-    expect(ASK_BY_ID.support.targets.map((t) => t.axis)).toEqual(["care", "edge"]);
+    expect(ASK_BY_ID.support.targets.map((t) => t.axis)).toEqual(["care", "scorn"]);
+    expect(r.route).toBe("soft");
+    expect(r.said).toContain("That was the soft kind.");
     expect(CALIBRATION_STRENGTH).toBeLessThan(0.5);
     expect(readAsk(ASK_BY_ID.plain, {}).detail[0]).toContain("plain line");
   });
@@ -114,8 +120,24 @@ describe("the Mirror", () => {
   });
 
   it("scores against targets with signed weights and clamps", () => {
-    expect(scoreAsk(ASK_BY_ID.support, { care: 1, edge: -1 })).toBeCloseTo(1, 5);
-    expect(scoreAsk(ASK_BY_ID.support, { care: -1, edge: 1 })).toBeCloseTo(-1, 5);
+    expect(scoreAsk(ASK_BY_ID.support, { care: 1, scorn: -1 })).toBeCloseTo(1, 5);
+    expect(scoreAsk(ASK_BY_ID.support, { care: -1, fire: -1, scorn: 1 })).toBeCloseTo(-1, 5);
+    // the best register carries it: fierce support with no care in it still holds
+    expect(scoreAsk(ASK_BY_ID.support, { care: 0, fire: 1, scorn: -1 })).toBeCloseTo(1, 5);
+  });
+
+  it("hears fierce support as support, and scorn as neither kind", () => {
+    const fierce = readAsk(ASK_BY_ID.support, axesOf("fierce"), toneVector("fierce"));
+    expect(fierce.band).toBe("high");
+    expect(fierce.route).toBe("fierce");
+    expect(fierce.said).toContain("That was the fierce kind.");
+    expect(fierce.said).toContain("The fire was in it: you went to war for them.");
+    const scolding = readAsk(ASK_BY_ID.support, axesOf("contemptuous"));
+    expect(scolding.band).toBe("low");
+    expect(scolding.said).toContain("The scorn took it over.");
+    const outragedLie = readAsk(ASK_BY_ID.lie, deviationFrom(axesOf("outraged"), baselineFrom(toneVector("calm"))));
+    expect(outragedLie.band, "outrage does not flinch").toBe("high");
+    expect(outragedLie.said).toContain("That was the outraged kind: you attacked instead of answering.");
   });
 
   it("calibrates a story session's readings against the baseline", () => {

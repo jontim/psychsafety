@@ -63,8 +63,9 @@ export const CORE_AXES: AffectAxisSpec[] = [
     id: "care",
     label: "Care",
     description: "Concern for someone: sympathy, empathic pain, love and a soft sadness against contempt, anger or disgust.",
+    // disappointment is not against care: sympathetic disappointment ("I'm so sorry it didn't work") is part of comfort
     positive: { sympathy: 1, empathicPain: 0.8, love: 0.7, adoration: 0.5, sadness: 0.4, calmness: 0.4, contentment: 0.3, relief: 0.3, admiration: 0.3 },
-    negative: { contempt: 1, anger: 0.9, disgust: 0.8, disappointment: 0.4, boredom: 0.3 },
+    negative: { contempt: 1, anger: 0.9, disgust: 0.8, boredom: 0.3 },
   },
   {
     id: "edge",
@@ -77,23 +78,26 @@ export const CORE_AXES: AffectAxisSpec[] = [
     // Support has two faces. The other one is fierce: anger on someone's behalf, admiration, pride, resolve.
     id: "fire",
     label: "Fire",
-    description: "Fierce allegiance: admiration, resolve, pride and anger on someone's behalf against contempt, disappointment or boredom.",
+    // going to war for someone is full of disgust and disappointment at the world, so those are not against fire; only flatness is
+    description: "Fierce allegiance: admiration, resolve, pride and anger on someone's behalf against flatness.",
     positive: { admiration: 1, determination: 0.7, pride: 0.6, love: 0.5, triumph: 0.5, anger: 0.4, excitement: 0.4 },
-    negative: { contempt: 1, disgust: 0.8, disappointment: 0.7, boredom: 0.5, tiredness: 0.4 },
+    negative: { boredom: 0.8, tiredness: 0.6, calmness: 0.2 },
   },
   {
     id: "scorn",
     label: "Scorn",
-    description: "Contempt, disgust and disappointment against admiration, sympathy or love: the scolding in a voice, whichever face support wears.",
-    positive: { contempt: 1, disgust: 0.8, disappointment: 0.8, boredom: 0.3 },
+    // the ear cannot tell whom contempt is for, so this is read lightly on the fierce face of support
+    description: "Contempt and disgust against admiration, sympathy or love: the scolding in a voice.",
+    positive: { contempt: 1, disgust: 0.8 },
     negative: { admiration: 0.6, sympathy: 0.5, love: 0.4 },
   },
   {
     // What leaks from a lie, easy or outraged: not heat, not a dropped voice, but the flinch.
     id: "flinch",
     label: "Flinch",
-    description: "Guilt, shame, awkwardness, nerves, doubt and fear against calm, resolve and pride. What leaks from a lie.",
-    positive: { guilt: 1, shame: 0.9, awkwardness: 0.8, embarrassment: 0.7, anxiety: 0.7, doubt: 0.6, fear: 0.5, confusion: 0.4 },
+    // doubt and confusion are left out: a liar can play dumb on purpose; guilt, shame, awkwardness, nerves and fear cannot be performed away
+    description: "Guilt, shame, awkwardness, nerves and fear against calm, resolve and pride. What leaks from a lie.",
+    positive: { guilt: 1, shame: 0.9, awkwardness: 0.8, embarrassment: 0.7, anxiety: 0.7, fear: 0.5 },
     negative: { calmness: 0.6, determination: 0.5, pride: 0.4 },
   },
 ];

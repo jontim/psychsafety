@@ -40,10 +40,13 @@ export function calibrateAxes(axes: Axes, baseline: Baseline | null | undefined,
   return out;
 }
 
-/** What changed against the plain voice, at full strength, in axis units: the reading a held ask is judged on. Without a baseline the axes stand as they are. */
-export function deviationFrom(axes: Axes, baseline: Baseline | null | undefined): Axes {
+/** How much of the plain line a held ask is measured against. One odd calibration take must not decide a lie, so only half. */
+export const HOLD_STRENGTH = 0.5;
+
+/** What changed against the plain voice, in axis units: the reading a held ask is judged on. Without a baseline the axes stand as they are. */
+export function deviationFrom(axes: Axes, baseline: Baseline | null | undefined, strength = 1): Axes {
   const out: Axes = {};
-  for (const [k, v] of Object.entries(axes)) out[k] = baseline ? clamp(v - (baseline.axes[k] ?? 0)) : v;
+  for (const [k, v] of Object.entries(axes)) out[k] = baseline ? clamp(v - (baseline.axes[k] ?? 0) * strength) : v;
   return out;
 }
 
@@ -82,14 +85,15 @@ export interface MirrorAsk {
   verdicts: [string, string, string];
 }
 
-const SOFT: MirrorTarget[] = [{ axis: "care", weight: 1 }, { axis: "scorn", weight: -0.8 }];
-const FIERCE: MirrorTarget[] = [{ axis: "fire", weight: 1 }, { axis: "scorn", weight: -0.8 }];
+const SOFT: MirrorTarget[] = [{ axis: "care", weight: 1 }, { axis: "scorn", weight: -0.6 }];
+// the ear cannot tell whom contempt is for, and going to war for someone is full of it, so the fierce face is read lightly for scorn
+const FIERCE: MirrorTarget[] = [{ axis: "fire", weight: 1 }, { axis: "scorn", weight: -0.3 }];
 
 export const MIRROR_ASKS: MirrorAsk[] = [
   {
     id: "plain",
     title: "Your plain voice",
-    line: "Before we begin: say something true and dull. What you ate this morning; how you slept. This one is not scored; it is the mark the rest is read against. After it I will ask you for four things and tell you, each time, what a stranger would hear. A rehearsal, not an examination.",
+    line: "Before we begin: say something true and dull, flat as a list, no story in it. What you ate this morning; how you slept. This one is not scored; it is the mark the rest is read against. After it I will ask you for four things and tell you, each time, what a stranger would hear. A rehearsal, not an examination.",
     measure: "Nothing yet. This is the mark the rest is measured against.",
     judge: "reach",
     targets: [],
@@ -146,7 +150,8 @@ export const MIRROR_ASKS: MirrorAsk[] = [
     line: "Sell me the worst ale in the north as the finest thing ever poured. The room should want a second before you finish.",
     measure: "Delight in it, and the room can tell you are enjoying yourself.",
     judge: "reach",
-    targets: [{ axis: "showmanship", weight: 1 }, { axis: "warmth", weight: 0.3 }, { axis: "composure", weight: 0.2 }],
+    // delight is the whole of it; a side target that is simply absent must not drag a real performance down
+    targets: [{ axis: "showmanship", weight: 1 }, { axis: "warmth", weight: 0.2 }],
     verdicts: [
       "The room would buy the barrel. Delight, and you enjoyed it, and it showed.",
       "They would buy a pint, not the barrel. The delight was half there.",
@@ -196,10 +201,7 @@ const QUALITY_WORDS: Record<string, [string, string]> = {
   pressure: ["heated", "unhurried"],
   showmanship: ["playful", "flat"],
   care: ["caring", "distant"],
-  edge: ["sharp", "gentle"],
   fire: ["fierce", "lukewarm"],
-  scorn: ["scornful", "respectful"],
-  flinch: ["flinching", "unflinching"],
 };
 
 /** The strongest qualities in a reading, as a listener would name them. */
@@ -322,7 +324,7 @@ const REACH_WANTED: Record<string, [string, string, string, string]> = {
 const REACH_UNWANTED: Record<string, [string, string, string]> = {
   edge: ["No edge in it.", "An edge crept in.", "The edge took it over."],
   pressure: ["No heat in it.", "Some heat crept in.", "The heat took it over."],
-  scorn: ["No scorn in it.", "Some scorn crept in.", "The scorn took it over."],
+  scorn: ["No contempt in it.", "Some contempt crept in, and the ear cannot tell whom it was for.", "Contempt took it over."],
 };
 const ADVICE_MORE: Record<string, string> = {
   care: "Slower, lower, and stay with them; the ear hears care as unhurried and a little sad, not as bright.",
@@ -337,7 +339,7 @@ const ADVICE_MORE: Record<string, string> = {
 const ADVICE_LESS: Record<string, string> = {
   edge: "Take the bite out of the consonants; the ear hears it as anger, whatever the words.",
   pressure: "Take the heat out: slower, lower, and let the sentence end.",
-  scorn: "Take the disappointment out of it; the ear hears a sigh as scorn, and scorn is the one thing neither kind of support survives.",
+  scorn: "If the contempt is for the world, put admiration for them right beside it; the ear hears contempt, not its target.",
 };
 /** For a held ask: what the Scribe says when a target leaked, and when it held. */
 const HOLD_PHRASES: Record<string, [string, string]> = {

@@ -12,7 +12,7 @@ import { Floor, type Fragment, type FloorMode } from "./floor.js";
 import { h, castName, renderMeters, renderRibbon, renderTranscript, renderSlate, portraitFor } from "./ui/render.js";
 import type { TonePreset } from "../engine/mock-ear.js";
 import { computeAxes, createAffectState, updateAffect, type AffectState } from "../engine/affect.js";
-import { MIRROR_ASKS, readAsk, baselineFrom, calibrateAxes, deviationFrom, describeBaseline, type Baseline, type MirrorReading } from "../engine/mirror.js";
+import { MIRROR_ASKS, HOLD_STRENGTH, readAsk, baselineFrom, calibrateAxes, deviationFrom, describeBaseline, type Baseline, type MirrorReading } from "../engine/mirror.js";
 import { renderChart, type ChartHandle } from "./chart.js";
 import { BUILD } from "./build.js";
 
@@ -984,7 +984,7 @@ async function processMirrorUtterance(u: Utterance): Promise<void> {
     const raw = computeAxes(u.scores);
     if (ask.id === "plain") m.baseline = baselineFrom(u.scores);
     // a reached ask is read against the calibrated voice; a held one (the lie) against what changed from the plain voice
-    const axes = ask.id === "plain" ? raw : ask.judge === "hold" ? deviationFrom(raw, m.baseline) : calibrateAxes(raw, m.baseline);
+    const axes = ask.id === "plain" ? raw : ask.judge === "hold" ? deviationFrom(raw, m.baseline, HOLD_STRENGTH) : calibrateAxes(raw, m.baseline);
     const reading = readAsk(ask, axes, u.scores);
     m.results.push(reading);
     m.lastAffect = updateAffect(createAffectState(), u.scores);

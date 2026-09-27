@@ -60,12 +60,12 @@ describe("the Mirror", () => {
 
   it("speaks to what it heard, names what held and what fell short, and keeps the numbers out of its mouth", () => {
     const v = zeroVector(); v.sadness = 0.3; v.doubt = 0.25; v.distress = 0.2; v.sympathy = 0.1;
-    const r = readAsk(ASK_BY_ID.support, { care: 0.02, scorn: 0.09 }, v);
+    const r = readAsk(ASK_BY_ID.support, { care: 0.02, fire: -0.1, scorn: 0.09 }, v);
     expect(r.band).toBe("low");
     expect(r.said[0]).toBe(r.verdict);
     expect(r.said[1]).toBe("I heard sadness, doubt and strain.");
     expect(r.said).toContain("There was little care in it.");
-    expect(r.said).toContain("The scorn took it over.");
+    expect(r.said).toContain("Contempt took it over.");
     expect(r.said.at(-1)).toMatch(/^Slower, lower/);
     for (const l of r.said) expect(l).not.toMatch(/\d/);
     const held = readAsk(ASK_BY_ID.lie, { composure: 0.01, candour: 0, edge: -0.02 }, toneVector("calm"));
@@ -134,7 +134,17 @@ describe("the Mirror", () => {
     expect(fierce.said).toContain("The fire was in it: you went to war for them.");
     const scolding = readAsk(ASK_BY_ID.support, axesOf("contemptuous"));
     expect(scolding.band).toBe("low");
-    expect(scolding.said).toContain("The scorn took it over.");
+    expect(scolding.said).toContain("Contempt took it over.");
+    // a liar may play dumb: doubt and confusion are not a flinch; guilt and awkwardness are
+    const dumb = zeroVector(); dumb.confusion = 0.6; dumb.doubt = 0.4; dumb.interest = 0.25;
+    expect(computeAxes(dumb).flinch).toBeLessThanOrEqual(0);
+    const caught = zeroVector(); caught.awkwardness = 0.3; caught.guilt = 0.2; caught.anxiety = 0.2;
+    expect(computeAxes(caught).flinch).toBeGreaterThan(0.1);
+    // a held ask is measured against only half the plain line, so one anxious calibration take cannot decide it
+    const nervousPlain = baselineFrom(toneVector("anxious"));
+    const half = deviationFrom({ flinch: 0.1 }, nervousPlain, 0.5);
+    const full = deviationFrom({ flinch: 0.1 }, nervousPlain, 1);
+    expect(half.flinch!).toBeGreaterThan(full.flinch!);
     const outragedLie = readAsk(ASK_BY_ID.lie, deviationFrom(axesOf("outraged"), baselineFrom(toneVector("calm"))));
     expect(outragedLie.band, "outrage does not flinch").toBe("high");
     expect(outragedLie.said).toContain("That was the outraged kind: you attacked instead of answering.");

@@ -34,6 +34,24 @@ describe("the Mirror", () => {
     }
   });
 
+  it("does not let a hesitant showman hold, however much the ear enjoyed the joke", () => {
+    // two live takes from a notebook of 2026-09-27: an honest pitch, and a sarcastic one the speaker enjoyed but stumbled through
+    const honest = zeroVector();
+    Object.assign(honest, { amusement: 0.31, excitement: 0.17, interest: 0.15, surprisePositive: 0.15, anger: 0.13, disappointment: 0.12, distress: 0.12, realization: 0.12, awkwardness: 0.1, disgust: 0.1, surpriseNegative: 0.1, awe: 0.09, confusion: 0.09, determination: 0.09, contemplation: 0.07, contempt: 0.07, satisfaction: 0.07, admiration: 0.06, concentration: 0.06, joy: 0.06, aestheticAppreciation: 0.05, anxiety: 0.05, doubt: 0.05, envy: 0.05, pride: 0.05, empathicPain: 0.04, triumph: 0.04, adoration: 0.03, contentment: 0.03, ecstasy: 0.03, embarrassment: 0.03, fear: 0.03, sympathy: 0.03, calmness: 0.02, entrancement: 0.02, horror: 0.02, nostalgia: 0.02 });
+    const hesitant = zeroVector();
+    Object.assign(hesitant, { amusement: 0.38, awkwardness: 0.35, joy: 0.27, excitement: 0.24, interest: 0.19, satisfaction: 0.17, confusion: 0.14, doubt: 0.12, triumph: 0.12, embarrassment: 0.11, pride: 0.11, surprisePositive: 0.1, admiration: 0.08, contemplation: 0.08, contentment: 0.08, determination: 0.07, ecstasy: 0.06, adoration: 0.05, concentration: 0.05, desire: 0.05, realization: 0.05, nostalgia: 0.04, romance: 0.04, surpriseNegative: 0.04, aestheticAppreciation: 0.03, anxiety: 0.03, awe: 0.03, calmness: 0.03, empathicPain: 0.03, love: 0.03, relief: 0.03, sympathy: 0.03, disappointment: 0.02, disgust: 0.02, distress: 0.02, fear: 0.02, guilt: 0.02, sadness: 0.02, shame: 0.02 });
+    const showman = ASK_BY_ID.showman;
+    const a = readAsk(showman, computeAxes(honest), honest);
+    const b = readAsk(showman, computeAxes(hesitant), hesitant);
+    // the hesitant take carries more delight and still reads lower: the stumble costs more than the joke earns
+    expect(computeAxes(hesitant).showmanship!).toBeLessThan(computeAxes(honest).showmanship! - 0.05);
+    expect(b.score).toBeLessThan(HIGH_BAND);
+    expect(b.band).not.toBe("high");
+    expect(a.score).toBeGreaterThan(b.score + 0.03);
+    // and the room buys a pint, not the barrel
+    expect(b.verdict).toBe(showman.verdicts[1]);
+  });
+
   it("believes a lie told in your own plain voice, hears a flinch as half a lie, and guilt as a confession", () => {
     const lie = ASK_BY_ID.lie;
     expect(lie.judge).toBe("hold");

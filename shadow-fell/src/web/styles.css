@@ -238,10 +238,14 @@ select.floor-mode { border: 1px solid var(--line); background: #fbf6ea; border-r
 .mirror-hears .tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .btn.tiny { font-size: 10.5px; padding: 6px 10px; letter-spacing: 0.06em; }
 .btn.ghost.tiny.on { background: rgba(200,162,74,0.22); border-color: var(--old-gold); }
+.btn.ghost.tiny.warn { border-color: var(--storm-violet); color: var(--storm-violet); background: rgba(91,62,140,0.10); }
 /* the ear warning lives in the stage's top corner, clear of the Scribe's ask however long it runs */
-.mirror-stage .ear-warn { position: absolute; top: 10px; right: 14px; max-width: 48%; padding: 6px 12px; border-radius: 999px; background: rgba(200,162,74,0.2); border: 1px solid var(--old-gold); color: var(--white-gold); font-size: 11.5px; letter-spacing: 0.04em; line-height: 1.3; text-align: right; z-index: 2; }
+.mirror-stage .top { z-index: 2; }
+.mirror-stage .top .ear-warn { justify-self: start; max-width: 100%; margin-top: 2px; padding: 5px 12px; border-radius: 999px; background: rgba(200,162,74,0.2); border: 1px solid var(--old-gold); color: var(--white-gold); font-size: 11.5px; letter-spacing: 0.04em; line-height: 1.3; }
+/* with the warning in the top band, the ask starts lower, so the two never meet on a short stage */
+.mirror-stage.warned .ask { padding-top: 112px; }
 .baseline .words { font-family: var(--serif); font-size: 17px; }
-@media (max-width: 600px) { .mirror-stage .ask, .interlude-stage .ask { font-size: 18px; padding: 56px 20px 110px; } }
+@media (max-width: 600px) { .mirror-stage .ask, .interlude-stage .ask { font-size: 18px; padding: 56px 20px 110px; } .mirror-stage.warned .ask { padding-top: 136px; } }
 
 /* Branch outcomes and endings on the debrief. */
 .debrief-screen .outcome { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--state-blue); margin-bottom: 6px; }

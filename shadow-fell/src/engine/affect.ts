@@ -53,9 +53,12 @@ export const CORE_AXES: AffectAxisSpec[] = [
   {
     id: "showmanship",
     label: "Showmanship",
-    description: "Delight, excitement and triumph against boredom or embarrassment.",
+    description: "Delight, excitement and triumph against hesitation, boredom or embarrassment.",
+    // Hesitation kills a pitch. On a live ear a sarcastic take can carry more amusement than an honest one (a speaker enjoying
+    // their own joke), and the one thing that separates them is awkwardness: near 0.1 in the honest takes, 0.3 to 0.6 in the
+    // poor ones. So awkwardness weighs more here than boredom does, and a stumbling showman is not a showman.
     positive: { amusement: 1, excitement: 0.8, triumph: 0.7, aestheticAppreciation: 0.6, joy: 0.5, entrancement: 0.5, pride: 0.4, awe: 0.4 },
-    negative: { boredom: 1, tiredness: 0.8, awkwardness: 0.6, embarrassment: 0.5, doubt: 0.4 },
+    negative: { boredom: 1, tiredness: 0.8, awkwardness: 1.5, embarrassment: 0.8, doubt: 0.4 },
   },
   {
     // Comfort does not sound like joy to the ear: it sounds like concern. A voice telling someone it will be all right carries

@@ -36,6 +36,8 @@ Other scripts: `npm test` (engine and world-pack tests), `npm run typecheck`, `n
 
 Keys never reach the browser. The server mints a short-lived Hume access token per session and proxies Octave and the director.
 
+**Hume is closing.** On 2 October 2026 Hume announced that the EVI and Octave APIs end on 13 November 2026 at 12:01 a.m. EST, with all account data deleted after that. Until then `npx tsx scripts/salvage-hume.ts` pulls every chat's transcript and the prosody scores on each user line into `art/hume-salvage/` (never committed), and `--audio` asks for and downloads the reconstructed recordings; run it again later for any still pending. That folder is the reference material a replacement ear is fitted against.
+
 ## Holding the floor
 
 EVI commits a transcript at every natural pause. The app gathers those fragments on "the floor" and only hands the whole speech to the director when your turn ends: after 2, 3 or 5 seconds of silence (your choice, remembered), or only when you press "Done, over to them" or hit Return. A dramatic pause never ends a turn. The merged speech carries a word-weighted blend of how each fragment sounded.
